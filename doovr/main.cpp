@@ -26,8 +26,6 @@
 
 #include <time.h>
 
-#include <SDKDDKVer.h>
-
 using namespace std;
 
 
