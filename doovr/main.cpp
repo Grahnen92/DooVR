@@ -1,16 +1,11 @@
 #include <iostream>
 #include "Utilities.h"
-//#include "Shader.h"
-//#include "MatrixStack.hpp"
-
+#include "Shader.h"
+#include "MatrixStack.hpp"
 
 #include <time.h>
 
-#include <SDKDDKVer.h>
-
 using namespace std;
-
-
 
 void setupViewport(GLFWwindow *window, GLfloat *P)
 {
@@ -42,7 +37,7 @@ int main()
 	}
 
 	//create GLFW window and select context
-	GLFWwindow* window = glfwCreateWindow(640, 480, "Do not try and bend the spoon. That's impossible. Instead... only try to realize the truth.", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(640, 480, "hej", NULL, NULL);
 	if (!window) {
 		fprintf(stderr, "ERROR: could not open window with GLFW3\n");
 		glfwTerminate();
@@ -60,8 +55,8 @@ int main()
 	printf("Renderer: %s\n", renderer);
 	printf("OpenGL version supported %s\n", version);
 
-    //Shader phongShader;
-	//phongShader.createShader("vertexshader.glsl", "fragmentshader.glsl");
+	Shader phongShader("vertexshader.glsl", "fragmentshader.glsl");
+
 	//MatrixStack MVstack;
 	//MVstack.init();
 
@@ -76,7 +71,7 @@ int main()
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		//(phongShader.programID);
+		(phongShader.programID);
 
 		setupViewport(window, P);
 
