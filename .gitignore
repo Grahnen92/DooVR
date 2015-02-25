@@ -203,6 +203,8 @@ FakesAssemblies/
 .DS_Store
 .AppleDouble
 .LSOverride
+.xcodeproj
+DooVR.xcodeproj/
 
 # Icon must end with two \r
 Icon
