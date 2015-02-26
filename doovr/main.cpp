@@ -60,6 +60,7 @@ int main()
 		fprintf(stderr, "ERROR: could not start GLFW3\n");
 		return 1;
 	}
+
 #ifdef __APPLE__
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
