@@ -5,10 +5,10 @@ Shader::Shader () {
 	this->programID = 0;
 }
 
-/* 
-** Constructor, input argument for vertex shader and fragment shader.
-** Loads file names, compiles and assembles the shader 
-*/
+/*! 
+ * Shader constructor, input arguments for vertex shader path and fragment shader path.
+ * Loads files, compiles and assembles the shader 
+ */
 Shader::Shader (const char *vertexFilePath, const char *fragmentFilePath) {
 	this->createShader(vertexFilePath, fragmentFilePath);
 }
@@ -42,12 +42,11 @@ void Shader::createShader(const char *vertexFilePath, const char *fragmentFilePa
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &isCompiled);
 	
 	if (isCompiled == GL_FALSE) {
-		cout << "fails vertex" << endl;
 
 		glGetShaderInfoLog(vertexShader, sizeof(str), NULL, str);
-		fprintf(stderr, "%s: %s\n", "Fragment shader compile error", str);
+		fprintf(stderr, "%s: %s\n", "Vertex shader compile error", str);
 
-		glDeleteShader(vertexShader);		
+		glDeleteShader(vertexShader);
 
 		return;
 	}
@@ -96,7 +95,7 @@ void Shader::createShader(const char *vertexFilePath, const char *fragmentFilePa
 	}
 
 	glDetachShader(program, vertexShader);
-	glDetachShader(program, fragmentShader);
+	glDetachShader(program, GL_FRAGMENT_SHADERer);
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
