@@ -22,6 +22,9 @@
 #include "Utilities.h"
 #include "Shader.h"
 #include "MatrixStack.hpp"
+#include "Entity.h"
+#include "Sphere.h"
+#include "Plane.h"
 
 #include <time.h>
 
@@ -50,17 +53,20 @@ int main()
 		, 0.0f, 0.0f, -1.0f, -1.0f
 		, 0.0f, 0.0f, -0.2f, 0.0f };
 
+	GLint locationP;
+	GLint locationMV;
 	// start GLEW extension handler
 	if (!glfwInit()) {
 		fprintf(stderr, "ERROR: could not start GLFW3\n");
 		return 1;
 	}
-
+#ifdef __APPLE__
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    
+#endif
+
 	//create GLFW window and select context
 	GLFWwindow* window = glfwCreateWindow(640, 480, "hej", NULL, NULL);
 	if (!window) {
@@ -80,10 +86,19 @@ int main()
 	printf("Renderer: %s\n", renderer);
 	printf("OpenGL version supported %s\n", version);
 
-	Shader phongShader("vertexshader.glsl", "fragmentshader.glsl");
+	Shader phongShader;
+	phongShader.createShader("vertexshader.glsl", "fragmentshader.glsl");
 
-	//MatrixStack MVstack;
-	//MVstack.init();
+	MatrixStack MVstack;
+	MVstack.init();
+
+	Sphere test(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f, 0.5f);
+	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, glm::vec2(10.0f, 10.0f));
+
+	locationMV = glGetUniformLocation(phongShader.programID, "MV");
+	locationP = glGetUniformLocation(phongShader.programID, "P");
+
+	
 
 	while (!glfwWindowShouldClose(window)) {
 		
@@ -95,10 +110,24 @@ int main()
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		(phongShader.programID);
+	//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glUseProgram(phongShader.programID);
 
+		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
 		setupViewport(window, P);
+
+		MVstack.push();
+			MVstack.translate(glm::vec3(0.0f, 0.0f, -5.0f));
+			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+
+			test.render();
+		MVstack.pop();
+		MVstack.push();
+			MVstack.translate(glm::vec3(0.0f, -1.0f, -5.0f));
+			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+
+			ground.render();
+		MVstack.pop();
 
 		glfwSwapBuffers(window);
 	}
