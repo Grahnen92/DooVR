@@ -4,7 +4,7 @@
 #include <sstream>
 #include <cstdlib>
 
-#include "glm\glm.hpp"
+#include "glm/glm.hpp"
 
 using namespace std;
 
