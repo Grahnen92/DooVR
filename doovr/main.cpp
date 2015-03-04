@@ -25,10 +25,12 @@
 #include "Entity.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "Vrpn.h"
 
 #include <time.h>
 
 using namespace std;
+
 
 void setupViewport(GLFWwindow *window, GLfloat *P)
 {
@@ -99,7 +101,7 @@ int main()
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 
-	
+
 
 	while (!glfwWindowShouldClose(window)) {
 		
