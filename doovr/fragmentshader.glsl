@@ -2,9 +2,11 @@
 
 in vec3 interpolatedNormal;
 in vec3 interpolatedColor;
+in vec3 pos;
 
 out vec4 frag_colour;
 
+const vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 
 void main () {
 
@@ -15,28 +17,28 @@ void main () {
 	float nS = 4;
 	float shine = 50;
 	float dLight;
+	float sLight;
+	float sAngle;
 
-	vec3 lightDirr = vec3(1.3f, 0.3f, 1.0f);
-	vec3 camPos = vec3(1.0f, 0.5f, -1.0f);
+	vec3 normal = normalize(interpolatedNormal);
+	vec3 lightDir = normalize(lightPos - pos);
 
-	vec3 viewDirr = normalize(-camPos);
+	vec3 viewDir = normalize(-pos);
 
-	dLight = dot(normalize(lightDirr), normalize(interpolatedNormal));
+	dLight = dot(lightDir, normal);
 
 	dLight = max(dLight, 0);
 	dLight = min(dLight, 1);
 
-	vec3 halfAngle = normalize(lightDirr + viewDirr);
-	float blinn = dot(normalize(interpolatedNormal), halfAngle);
+	vec3 halfDir = normalize(lightDir + viewDir);
+    sAngle = max(dot(halfDir, normal), 0.0);
+    sLight = pow(sAngle, 16.0);
 
-	blinn = max(blinn, 0);
-
-	blinn = dLight != 0.0 ? blinn : 0.0;
-	blinn = pow(blinn, shine);
-
+	//vec3 reflectDir = reflect(-lightDir, normal);
+    //sAngle = max(dot(reflectDir, viewDir), 0.0);
+    //sLight = pow(sAngle, 8.0);
 	
-	
-	vec3 Color = 0.5f*interpolatedColor*dLight + interpolatedColor*blinn;
+	vec3 Color = 0.5f*interpolatedColor*dLight + interpolatedColor*sLight;
 
 	frag_colour = vec4(Color, 1.0);
 }

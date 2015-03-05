@@ -258,6 +258,8 @@ Temporary Items
 # Sub directories
 include/
 lib/
+OculusSDK/
+Src/
 
 # RC files
 *.rc
