@@ -1,23 +1,25 @@
-
 #include "Vrpn.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <windows.h>
-#include <iostream>
 
 using namespace std;
 
-//TODO
-static int got_report;     // Tells when a new report has come in
+static int got_report;
 
-Vrpn::Vrpn()
+Vrpn::Vrpn(bool analog, bool button, bool tracker , string name)
 {
-	// Open the connection to trackers
-	vrpnAnalog = new vrpn_Analog_Remote("Wand@localhost");
-	vrpnButton = new vrpn_Button_Remote("Wand@localhost");
-	vrpnTracker = new vrpn_Tracker_Remote("IS900@localhost");
+	// Add additional cases for STEM and Kienct2
+	if (name == "Wand") {
+		additionalAddress = "IS900" + LOCAL;
+		name = name + LOCAL;
+	}
+	else {
+		name = name + "0" + LOCAL;
+		additionalAddress = name;
+	}
 
+	// Open the connection to trackers
+	if (analog) vrpnAnalog = new vrpn_Analog_Remote(name.c_str());
+	if (button) vrpnButton = new vrpn_Button_Remote(name.c_str());
+	if (tracker) vrpnTracker = new vrpn_Tracker_Remote(additionalAddress.c_str());
 }
 
 
@@ -49,38 +51,37 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t)
 
 	static int count = 0;
 
-	cout << "Tracker '" << t.sensor << "' X: " << t.pos[0] << " Y: " << t.pos[1] << " Z: " << t.pos[2] << endl;
+	//cout << "Tracker '" << t.sensor << "' X: " << t.pos[0] << " Y: " << t.pos[1] << " Z: " << t.pos[2] << endl;
 	//cout << count << endl;
-	//count++;
+	count++;
+	cout << count << endl;
 
-	//transform = 
+	//transform = t.
 
-	t.
-
-	got_report = 1; // Tell the main loop that we got another report
+	// Tell the main loop that we got another report
+	got_report = 1;
 
 }
 
-void Vrpn::connectDevices() 
+void Vrpn::connectDevices()
 {
 	// Set up the tracker callback handler
-	vrpnAnalog->register_change_handler(0, handle_analog);
-	vrpnButton->register_change_handler(0, handle_button);
-	vrpnTracker->register_change_handler(0, handle_tracker, 1); // the last argument --> handle_tracker will be called only when sensor #1 (wand) is updated.
+	if (vrpnAnalog) vrpnAnalog->register_change_handler(0, handle_analog);
+	if (vrpnButton) vrpnButton->register_change_handler(0, handle_button);
+	if (vrpnTracker) vrpnTracker->register_change_handler(0, handle_tracker, 1);
+	// the last argument --> handle_tracker will be called only when sensor #1 (wand) is updated. How do we handle this generally?
 }
 
 void Vrpn::sendtoMainloop()
 {
-	vrpnAnalog->mainloop();
-	vrpnButton->mainloop();
-	vrpnTracker->mainloop();
+	// Run mainloop only if pointer has been initialised.
+	if (vrpnAnalog) vrpnAnalog->mainloop();
+	if (vrpnButton) vrpnButton->mainloop();
+	if (vrpnTracker) vrpnTracker->mainloop();
 
 	// Make sure that we get a new report
-
 	got_report = 0;
+	while (!got_report && vrpnTracker) vrpnTracker->mainloop();
 
-	while (!got_report) {
-		vrpnTracker->mainloop();
-	}
+	//SleepEx(1, FALSE); //  <16.6ms for 60fps on render loop
 }
-

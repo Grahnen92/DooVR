@@ -48,7 +48,7 @@ void setupViewport(GLFWwindow *window, GLfloat *P)
 
 int main()
 {
-	
+	int fps = 0;
 	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f
 		, 0.0f, 1.0f, 0.0f, 0.0f
 		, 0.0f, 0.0f, 1.0f, 0.0f
@@ -104,11 +104,14 @@ int main()
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 
-	Vrpn* con = new Vrpn();
-	con->connectDevices();
+	
+	Vrpn* wand = new Vrpn(true, true, true, "Wand");
+	wand->connectDevices();
 
 	while (!glfwWindowShouldClose(window)) {
 		
+		fps++;
+		cout << fps << endl;
 		glfwPollEvents();
 
 		//GL calls
@@ -135,7 +138,7 @@ int main()
 			ground.render();
 		MVstack.pop();
 
-		con->sendtoMainloop();
+		wand->sendtoMainloop();
 
 		glfwSwapBuffers(window);
 	}
