@@ -1,9 +1,12 @@
 
 #pragma once
+#include "Utilities.h"
 
 #include "vrpn/vrpn_Tracker.h"
 #include "vrpn/vrpn_Button.h"
 #include "vrpn/vrpn_Analog.h"
+
+
 
 class Vrpn
 {
@@ -20,6 +23,7 @@ public:
 
 private:
 	int done = 0;
+	glm::mat4 transform;
 
 
 };

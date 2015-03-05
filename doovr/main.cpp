@@ -131,7 +131,6 @@ int main()
 		MVstack.pop();
 		MVstack.push();
 			MVstack.translate(glm::vec3(0.0f, -1.0f, -5.0f));
-			MVstack.rotX(5.0f);
 			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 			ground.render();
 		MVstack.pop();

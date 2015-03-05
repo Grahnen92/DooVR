@@ -9,9 +9,7 @@
 using namespace std;
 
 //TODO
-static int got_report_T;     // Tells when a new report has come in
-static int got_report_A;
-static int got_report_B;
+static int got_report;     // Tells when a new report has come in
 
 Vrpn::Vrpn()
 {
@@ -39,13 +37,11 @@ void VRPN_CALLBACK handle_analog(void* userData, const vrpn_ANALOGCB a)
 	}
 
 	cout << endl;
-	got_report_A = 1;
 }
 
 void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b)
 {
 	cout << "Button '" << b.button << "': " << b.state << endl;
-	got_report_B = 1;
 }
 
 void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t)
@@ -53,11 +49,15 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t)
 
 	static int count = 0;
 
-	//cout << "Tracker '" << t.sensor << "' X: " << t.pos[0] << " Y: " << t.pos[1] << " Z: " << t.pos[2] << endl;
-	cout << count << endl;
-	count++;
+	cout << "Tracker '" << t.sensor << "' X: " << t.pos[0] << " Y: " << t.pos[1] << " Z: " << t.pos[2] << endl;
+	//cout << count << endl;
+	//count++;
 
-	got_report_T = 1; // Tell the main loop that we got another report
+	//transform = 
+
+	t.
+
+	got_report = 1; // Tell the main loop that we got another report
 
 }
 
@@ -69,15 +69,18 @@ void Vrpn::connectDevices()
 	vrpnTracker->register_change_handler(0, handle_tracker, 1); // the last argument --> handle_tracker will be called only when sensor #1 (wand) is updated.
 }
 
-bool gotReport()
-{
-	if (got_report_A && got_report_B && got_report_T) return true;
-	else return false;
-}
 void Vrpn::sendtoMainloop()
 {
 	vrpnAnalog->mainloop();
 	vrpnButton->mainloop();
 	vrpnTracker->mainloop();
+
+	// Make sure that we get a new report
+
+	got_report = 0;
+
+	while (!got_report) {
+		vrpnTracker->mainloop();
+	}
 }
 
