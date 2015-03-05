@@ -18,14 +18,14 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	angularVelocity = 2.0f;
 	angularAcceleration = 0.0f;
 
-	color.x = 0.7;
-	color.y = 0.7;
-	color.z = 0.7;
+	color.x = 0.7f;
+	color.y = 0.7f;
+	color.z = 0.7f;
 	GLfloat vertex_array_data[] = {
-		_dim.x / 2.0, 0.0, _dim.y / 2.0, 0.0f, 1.0f, 0.0f,
-		-_dim.x / 2.0, 0.0, -_dim.y / 2.0, 0.0f, 1.0f, 0.0f,
-		-_dim.x / 2.0, 0.0, _dim.y / 2.0, 0.0f, 1.0f, 0.0f,
-		_dim.x / 2.0, 0.0, -_dim.y / 2.0, 0.0f, 1.0f, 0.0f
+		_dim.x / 2.0f, 0.0f, _dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+		-_dim.x / 2.0f, 0.0f, -_dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+		-_dim.x / 2.0f, 0.0f, _dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+		_dim.x / 2.0f, 0.0f, -_dim.y / 2.0f, 0.0f, 1.0f, 0.0f
 	};
 
 	static const GLuint index_array_data[] = {
