@@ -10,7 +10,6 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 
 	oType = 'P';
 
-
 	normal = { 0, 1, 0 };
 	velocity = { 0, 0, 0 };
 	acceleration = { 0, 0, 0 };
@@ -18,20 +17,17 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	angularVelocity = 2.0f;
 	angularAcceleration = 0.0f;
 
-	color.x = 0.7;
-	color.y = 0.7;
-	color.z = 0.7;
-	GLfloat vertex_array_data[] = {
-		_dim.x / 2.0, 0.0, _dim.y / 2.0, 0.0f, 1.0f, 0.0f,
-		-_dim.x / 2.0, 0.0, -_dim.y / 2.0, 0.0f, 1.0f, 0.0f,
-		-_dim.x / 2.0, 0.0, _dim.y / 2.0, 0.0f, 1.0f, 0.0f,
-		_dim.x / 2.0, 0.0, -_dim.y / 2.0, 0.0f, 1.0f, 0.0f
-	};
+	color.x = 0.7f;
+	color.y = 0.7f;
+	color.z = 0.7f;
 
-	static const GLuint index_array_data[] = {
-		0, 1, 2,
-		0, 3, 1, //
-	};
+	GLfloat vertex_array_data[] = {_dim.x / 2.0f, 0.0f, _dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+									-_dim.x / 2.0f, 0.0f, -_dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+									-_dim.x / 2.0f, 0.0f, _dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
+									_dim.x / 2.0f, 0.0f, -_dim.y / 2.0f, 0.0f, 1.0f, 0.0f };
+
+	static const GLuint index_array_data[] = {0, 1, 2,
+											  0, 3, 1 };
 	nverts = 4;
 	ntris = 2;
 
@@ -88,13 +84,11 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 
 }
 
-Plane::~Plane(void)
-{
+Plane::~Plane(void) {
 	cout << "A box has died." << endl;
 }
 
-void Plane::render()
-{
+void Plane::render() {
 	glBindVertexArray(vao);
 	//glColor3f(color.x, color.y, color.z);
 	glDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
@@ -103,8 +97,7 @@ void Plane::render()
 }
 	
 
-void Plane::display(ostream& os) const
-{
+void Plane::display(ostream& os) const {
 	os << "Shape: Plane" << endl;
 	os << "Dimensions: " << dim.x << ", " << dim.y << " ,"  << endl;
 	os << endl;

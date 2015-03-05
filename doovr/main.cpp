@@ -36,19 +36,15 @@ char DeviceType;
 
 
 int main() {
+	int runSuccess = 0;
 	
+
 	cin >> DeviceType;
 
-	int runSuccess;
-
-	if (DeviceType == 'O') {
-		//runSuccess =  runOvrTemp();
+	if (DeviceType == 'O') 
 		runSuccess = Oculus::runOvr();
-	}
-
-	if (DeviceType == 'D') {
+	else if (DeviceType == 'D') 
 		runSuccess = twoDim::run2D();
-	}
 	
 	return runSuccess;
 }
