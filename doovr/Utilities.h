@@ -12,8 +12,12 @@
 #include <GLFW/glfw3native.h>
 
 #include "glm/glm.hpp"
+#include "glm/gtx/quaternion.hpp"
+#include "glm/gtx/transform.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "Vrpn.h"
 
 #include <OVR/OVR.h>
 #include <OVR_CAPI.h>

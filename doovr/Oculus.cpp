@@ -319,6 +319,13 @@ int Oculus::runOvr() {
 
 	ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd);
+
+
+	// Initilise VRPN connection
+	Vrpn* wand = new Vrpn(true, true, true, "Wand");
+	wand->connectDevices();
+
+
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
 	while (!glfwWindowShouldClose(l_Window)) {
@@ -410,6 +417,9 @@ int Oculus::runOvr() {
 		// Back to the default framebuffer...
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+
+		wand->sendtoMainloop();
+		wand->getTrackerTransform();
 
 		// Do everything, distortion, front/back buffer swap...
 		ovrHmd_EndFrame(hmd, g_EyePoses, g_EyeTextures);

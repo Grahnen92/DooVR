@@ -66,38 +66,40 @@ int twoDim::run2D() {
 	MVstack.init();
 
 	Sphere test(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f, 0.5f);
-	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, glm::vec2(0.1f, 0.1f));
+	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, glm::vec2(0.5f, 0.5f));
 
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 
 	while (!glfwWindowShouldClose(window)) {
 
+		ground.updateVertexArray();
+
 		glfwPollEvents();
 
 		//GL calls
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glEnable(GL_DEPTH_TEST);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_BACK);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glUseProgram(phongShader.programID);
 
 		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
 		setupViewport(window, P);
 
 		MVstack.push();
-		MVstack.translate(glm::vec3(0.0f, 0.0f, -5.0f));
-		glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+			MVstack.translate(glm::vec3(0.0f, 0.0f, -2.0f));
+			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
-		test.render();
+			test.render();
 		MVstack.pop();
 		MVstack.push();
-		MVstack.translate(glm::vec3(0.0f, -1.0f, -5.0f));
-		glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+			MVstack.translate(glm::vec3(0.0f, -1.0f, -3.0f));
+			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
-		ground.render();
+			ground.render();
 		MVstack.pop();
 
 		glfwSwapBuffers(window);
