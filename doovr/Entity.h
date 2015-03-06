@@ -6,6 +6,9 @@
 
 #include "glm/glm.hpp"
 
+#include "Utilities.h"
+
+
 using namespace std;
 
 class Entity

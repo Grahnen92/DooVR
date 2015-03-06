@@ -124,6 +124,27 @@ void MatrixStack::translate(glm::vec3 pos) {
     matrixMult(currentMatrix->m, t_mtx, currentMatrix->m);
 };
 
+void MatrixStack::multiply(float M[]) {
+	float t_mtx[16] = { 0 };
+	t_mtx[0] =M[0];
+	t_mtx[1] = M[1];
+	t_mtx[2] = M[2];
+	t_mtx[3] = M[3];
+	t_mtx[4] = M[4];
+	t_mtx[5] = M[5];
+	t_mtx[6] = M[6];
+	t_mtx[7] = M[7];
+	t_mtx[8] = M[8];
+	t_mtx[9] = M[9];
+	t_mtx[10] = M[10];
+	t_mtx[11] = M[11];
+	t_mtx[12] = M[12];
+	t_mtx[13] = M[13];
+	t_mtx[14] = M[14];
+	t_mtx[15] = M[15];
+	matrixMult(currentMatrix->m, t_mtx, currentMatrix->m);
+};
+
 // Add a new level on the stack, by making a copy of the current matrix and
 // adding it to the top of the linked list, making it the new current matrix.
 void MatrixStack::push() {
