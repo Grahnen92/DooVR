@@ -71,6 +71,11 @@ int twoDim::run2D() {
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 
+
+	// Initilise VRPN connection
+	Vrpn* wand = new Vrpn(true, true, true, "Wand");
+	wand->connectDevices();
+
 	while (!glfwWindowShouldClose(window)) {
 
 		ground.updateVertexArray();
@@ -90,7 +95,16 @@ int twoDim::run2D() {
 		setupViewport(window, P);
 
 		MVstack.push();
-			MVstack.translate(glm::vec3(0.0f, 0.0f, -2.0f));
+			MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1], -2.0f));
+			glMultMatrixf(&(wand->getTrackerTransform())[0][0]);
+			
+			if (wand->getButtonState()) {
+				MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1], -5.0f));
+			}
+			else if (!wand->getButtonState()) {
+				MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1], -2.0f));
+			}
+
 			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 			test.render();
@@ -101,6 +115,9 @@ int twoDim::run2D() {
 
 			ground.render();
 		MVstack.pop();
+
+		wand->sendtoMainloop();
+		//wand->getTrackerTransform();
 
 		glfwSwapBuffers(window);
 	}

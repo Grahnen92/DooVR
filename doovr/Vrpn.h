@@ -23,7 +23,7 @@ public:
 
 	// Set functions
 	void setTrackerTransform(glm::mat4 t);
-	void setButtonState(vrpn_BUTTONCB b);
+	void setButtonState(bool b);
 	void setAnalogPosition(glm::vec2 pos);
 
 	// Open the connection to trackers
@@ -43,5 +43,5 @@ private:
 	glm::vec2 analogPos = { 0.0, 0.0 };
 	//buttons
 	//analogs
-	vrpn_BUTTONCB button;
+	bool button;
 };

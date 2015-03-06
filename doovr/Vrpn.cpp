@@ -47,6 +47,14 @@ void VRPN_CALLBACK handle_analog(void* userData, const vrpn_ANALOGCB a)
 void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b)
 {
 	cout << "Button '" << b.button << "': " << b.state << endl;
+	Vrpn* buttonTracker = static_cast<Vrpn*> (userData);
+	if (b.state) {
+		buttonTracker->setButtonState(true);
+	}
+	else if (!b.state) {
+		buttonTracker->setButtonState(false);
+	}
+	
 }
 
 void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t)
@@ -54,7 +62,7 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t)
 	Vrpn* posTracker = static_cast<Vrpn*> (userData);
 	glm::quat q = glm::quat(t.quat[0], t.quat[1], t.quat[2], t.quat[3]);
 	glm::mat4 rotation = glm::mat4_cast(q);
-	glm::mat4 translation = glm::translate(glm::vec3(t.pos[0], t.pos[1], t.pos[2]));
+	glm::mat4 translation = glm::transpose(glm::translate(glm::vec3(t.pos[0], t.pos[1], t.pos[2])));
 	glm::mat4 transform = rotation * translation;
 	posTracker->setTrackerTransform(transform);
 	
@@ -97,20 +105,24 @@ void Vrpn::sendtoMainloop()
 // Get functions
 glm::mat4 Vrpn::getTrackerTransform() {
 
+	/*
 	double dArray[16] = { 0.0 };
 
 	const float *pSource = (const float*)glm::value_ptr(trackerTransform);
 	for (int i = 0; i < 16; ++i)
 		dArray[i] = pSource[i];
 
+
 	cout << dArray[0] << " " << dArray[1] << " " << dArray[2] << " " << dArray[3] << endl
 		<< dArray[4] << " " << dArray[5] << " " << dArray[6] << " " << dArray[7] << endl
 		<< dArray[8] << " " << dArray[9] << " " << dArray[10] << " " << dArray[11] << endl
 		<< dArray[12] << " " << dArray[13] << " " << dArray[14] << " " << dArray[15] << endl << endl << endl;
+
+		*/
 	return trackerTransform;
 }
 bool Vrpn::getButtonState() {
-	return true;
+	return button;
 }
 glm::vec2 Vrpn::getAnalogPosition() {
 	cout << analogPos[0] << " " << analogPos[1] << endl;
@@ -124,6 +136,6 @@ void Vrpn::setTrackerTransform(glm::mat4 t) {
 void Vrpn::setAnalogPosition(glm::vec2 p) {
 	analogPos = p;
 }
-void Vrpn::setButtonState(vrpn_BUTTONCB b) {
+void Vrpn::setButtonState(bool b) {
 	button = b;
 }
