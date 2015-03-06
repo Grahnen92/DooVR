@@ -57,12 +57,13 @@ int Oculus::runOvr() {
 					  0.0f, 2.42f, 0.0f, 0.0f,
 					  0.0f, 0.0f, -1.0f, -1.0f,
 					  0.0f, 0.0f, -0.2f, 0.0f };
-	GLfloat viewDir[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
-	glm::vec3 VD;
+	GLfloat lightPos[4] = { 0.0f, 2.0f, 2.0f, 1.0f };
+	glm::vec3 LP = glm::vec3(0);
 
-	//GLint locationVD;
+	GLint locationLP;
 	GLint locationP;
 	GLint locationMV;
+	GLint locationOMV;
 
 	//INITIALIZE OVR 
 	ovr_Initialize();
@@ -310,8 +311,9 @@ int Oculus::runOvr() {
 
 	//LINK VARIABLES WITH SHADER
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
+	locationOMV = glGetUniformLocation(phongShader.programID, "OMV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
-	//locationVD = glGetUniformLocation(phongShader.programID, "viewDir");
+	locationLP = glGetUniformLocation(phongShader.programID, "lightPos");
 
 	//GET PROFILE AND HEIGHT
 
@@ -340,7 +342,7 @@ int Oculus::runOvr() {
 
 		// Clear...
 		//GL calls
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
@@ -376,11 +378,11 @@ int Oculus::runOvr() {
 				//	glMultMatrixf(&(l_ModelViewMatrix.Transposed().M[0][0]));
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
-				//VD = glm::vec3(glm::make_mat4(MVstack.getCurrentMatrix())*glm::make_vec4(viewDir));
-				//viewDir[0] = VD.x;
-				//viewDir[1] = VD.y;
-				//viewDir[2] = VD.z;
-				//glUniform3fv(locationVD, 1, viewDir);
+				LP = glm::vec3(glm::make_mat4(MVstack.getCurrentMatrix())*glm::make_vec4(lightPos));
+				lightPos[0] = LP.x;
+				lightPos[1] = LP.y;
+				lightPos[2] = LP.z;
+				glUniform3fv(locationLP, 1, lightPos);
 
 				//!-- Translation due to positional tracking (DK2) and IPD...
 				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
@@ -390,6 +392,8 @@ int Oculus::runOvr() {
 
 				MVstack.push();
 					MVstack.translate(glm::vec3(0.0f, 0.0f, 0.0f));
+
+					//glUniformMatrix4fv(locationOMV, 1, GL_FALSE, glm::translate(glm::mat4(1), glm::vec3(0.0f, 0.0f, 0.0f)));
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					ground.render();
 				MVstack.pop();
