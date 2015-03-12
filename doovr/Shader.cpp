@@ -1,24 +1,21 @@
 #include "Shader.h"
 
-
 Shader::Shader () {
 	this->programID = 0;
 }
 
-/* 
-** Constructor, input argument for vertex shader and fragment shader.
-** Loads file names, compiles and assembles the shader 
-*/
+//! Loads the files, comiles the shaders and assembles the sahder program.
 Shader::Shader (const char *vertexFilePath, const char *fragmentFilePath) {
 	this->createShader(vertexFilePath, fragmentFilePath);
 }
 
-//Destructor
+//! Deletes the program if it was compiled
 Shader::~Shader () {
 	if (programID != 0)
 		glDeleteProgram(programID);
 }
 
+//! Creates, loads, compiles and links the GLSL shader objects.
 void Shader::createShader(const char *vertexFilePath, const char *fragmentFilePath) {
 	
 	char str[4096]; // for wrinting error msg
@@ -92,9 +89,7 @@ void Shader::createShader(const char *vertexFilePath, const char *fragmentFilePa
 	programID = program;
 }
 
-/*
-** Reads the Source code in the shader file into a string
-*/
+//! Reads the source code in the shader file into a string.
 string Shader::readFile(const char *filePath) {
 
 	string sourceCode;
@@ -108,9 +103,7 @@ string Shader::readFile(const char *filePath) {
 			std::getline(fileStream, line);
 			sourceCode.append(line + "\n");
 		}
-	}
-
-	else {
+	} else {
 		cerr << "Could not open file: " << filePath << endl;
 		return "";
 	}
