@@ -35,11 +35,16 @@
 
 char DeviceType;
 
+//! main 
 
+/*!
+Very short function. Simply decides which mode the user wants to use and then 
+redirects to two different namespaces depending on the choice. 
+*/
 int main() {
+
 	int runSuccess = 0;
 	
-
 	cin >> DeviceType;
 
 	if (DeviceType == 'O') 

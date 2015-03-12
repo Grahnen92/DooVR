@@ -1,3 +1,5 @@
+//! Namespace that handles necassary includes and various functions
+
 #include "GL/glew.h"
 
 #include <Windows.h>
