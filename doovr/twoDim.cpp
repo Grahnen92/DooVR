@@ -72,8 +72,11 @@ int twoDim::run2D() {
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 
-	while (!glfwWindowShouldClose(window)) {
 
+	// Initilise VRPN connection
+	Device* mouse = new Device(true, true, false, "Mouse");
+
+	while (!glfwWindowShouldClose(window)) {
 
 		if (glfwGetKey(window, GLFW_KEY_O)) {
 			ground.updateVertexArray();
@@ -94,19 +97,36 @@ int twoDim::run2D() {
 		setupViewport(window, P);
 
 		MVstack.push();
-			MVstack.translate(glm::vec3(0.0f, 0.0f, -2.0f));
-			
+
+			MVstack.translate(glm::vec3(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1], -2.0f));
+			//glMultMatrixf(&(mouse->getTrackerTransform())[0][0]);
+
+			//MVstack.multiply(&(mouse->getTrackerTransform()[0][0]));
+			MVstack.translate(2.0f*mouse->getTrackerPosition());
+
+			//MVstack.multiply(mouse->orient);
+
+
+			if (mouse->getButtonState()) {
+				MVstack.translate(glm::vec3(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1], -5.0f));
+			}
+			else if (!mouse->getButtonState()) {
+				MVstack.translate(glm::vec3(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1], -2.0f));
+			}
+
 			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
-			//test.render();
+			test.render();
 		MVstack.pop();
 		MVstack.push();
-			MVstack.translate(glm::vec3(0.0f, 0.0f, -5.0f));
-		//	MVstack.rotAxis(glm::vec3(0.f, 1.f, 0.f), glfwGetTime());
+			MVstack.translate(glm::vec3(0.0f, -1.0f, -3.0f));
 			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 			ground.render();
 		MVstack.pop();
+
+		mouse->sendtoMainloop();
+		//mouse->getTrackerTransform();
 
 		glfwSwapBuffers(window);
 	}

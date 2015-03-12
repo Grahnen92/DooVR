@@ -41,6 +41,7 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 
 	static const GLuint index_array_data[] = {0, 1, 2,
 											  0, 3, 1 };
+
 	nverts = 15;
 	ntris = nverts/3;
 
@@ -114,6 +115,7 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 
 		currentLength2 = 100.0f;
 		currentLength1 = 100.0f;
+
 	}
 
 	/*for (int i = 0; i <= nverts - 3 ; i = i + 3)
@@ -173,7 +175,9 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Present our vertex coordinates to OpenGL
 	glBufferData(GL_ARRAY_BUFFER,
+
 		3*vVertexArray.size()*sizeof(GLfloat), vertexP, GL_STATIC_DRAW);
+
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
 	//glEnableVertexAttribArray(1); // Normals
@@ -194,7 +198,9 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 	// Present our vertex indices to OpenGL
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+
 		3* vIndexArray.size()*sizeof(GLuint), indexP, GL_STATIC_DRAW);
+
 
 	// Deactivate (unbind) the VAO and the buffers again.
 	// Do NOT unbind the buffers while the VAO is still bound.
@@ -218,6 +224,7 @@ void Plane::render() {
 }
 	
 void Plane::updateVertexArray() {
+
 
 	triangle tempT;
 
@@ -274,10 +281,12 @@ void Plane::updateVertexArray() {
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Present our vertex coordinates to OpenGL
 	glBufferData(GL_ARRAY_BUFFER,
+
 		3*vVertexArray.size(), vertexP, GL_STREAM_DRAW);
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
 //	glEnableVertexAttribArray(1); // Normals
+
 	// Specify how OpenGL should interpret the vertex buffer data:
 	// Attributes 0, 1, 2 (must match the lines above and the layout in the shader)
 	// Number of dimensions (3 means vec3 in the shader, 2 means vec2)
@@ -286,16 +295,20 @@ void Plane::updateVertexArray() {
 	// Stride 8 (interleaved array with 8 floats per vertex)
 	// Array buffer offset 0, 3, 6 (offset into first vertex)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+
 		3 * sizeof(GLfloat), (void*)0); // xyz coordinates
 	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
 	//	6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
+
 
 
 	// Activate the index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 	// Present our vertex indices to OpenGL
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+
 		3*vIndexArray.size(), indexP, GL_STREAM_DRAW);
+
 
 	// Deactivate (unbind) the VAO and the buffers again.
 	// Do NOT unbind the buffers while the VAO is still bound.
