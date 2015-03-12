@@ -4,7 +4,7 @@ Shader::Shader () {
 	this->programID = 0;
 }
 
-//! Loads the files, comiles the shaders and assembles the sahder program.
+//! Loads the files, comiles the shaders and assembles the shader program.
 Shader::Shader (const char *vertexFilePath, const char *fragmentFilePath) {
 	this->createShader(vertexFilePath, fragmentFilePath);
 }

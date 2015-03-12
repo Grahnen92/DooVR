@@ -10,6 +10,7 @@
 
 using namespace std;
 
+//! Class for loading, compiling and assembeling shader program.
 class Shader {
 
 public:
