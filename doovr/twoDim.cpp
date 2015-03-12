@@ -97,34 +97,37 @@ int twoDim::run2D() {
 		setupViewport(window, P);
 
 		MVstack.push();
+		MVstack.translate(glm::vec3(0.0f, 0.0f, -2.0f));
 
-			MVstack.translate(glm::vec3(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1], -2.0f));
-			//glMultMatrixf(&(mouse->getTrackerTransform())[0][0]);
+			MVstack.push();
 
-			//MVstack.multiply(&(mouse->getTrackerTransform()[0][0]));
-			MVstack.translate(2.0f*mouse->getTrackerPosition());
-
-			//MVstack.multiply(mouse->orient);
-
-
-			if (mouse->getButtonState()) {
-				MVstack.translate(glm::vec3(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1], -5.0f));
-			}
-			else if (!mouse->getButtonState()) {
 				MVstack.translate(glm::vec3(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1], -2.0f));
-			}
+				//glMultMatrixf(&(mouse->getTrackerTransform())[0][0]);
 
-			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+				//MVstack.multiply(&(mouse->getTrackerTransform()[0][0]));
+				MVstack.translate(2.0f*mouse->getTrackerPosition());
 
-			test.render();
+				//MVstack.multiply(mouse->orient);
+
+
+				if (mouse->getButtonState()) {
+					MVstack.translate(glm::vec3(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1], -5.0f));
+				}
+				else if (!mouse->getButtonState()) {
+					MVstack.translate(glm::vec3(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1], -2.0f));
+				}
+
+				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+
+				test.render();
+			MVstack.pop();
+			MVstack.push();
+				MVstack.translate(glm::vec3(0.0f, -1.0f, -3.0f));
+				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+
+				ground.render();
+			MVstack.pop();
 		MVstack.pop();
-		MVstack.push();
-			MVstack.translate(glm::vec3(0.0f, -1.0f, -3.0f));
-			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-
-			ground.render();
-		MVstack.pop();
-
 		mouse->sendtoMainloop();
 		//mouse->getTrackerTransform();
 

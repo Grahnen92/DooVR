@@ -34,6 +34,8 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	color.y = 0.7f;
 	color.z = 0.7f;
 
+	dimNr = 0.f;
+
 	GLfloat vertex_array_data[] = {_dim.x / 2.0f, 0.0f, _dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
 									-_dim.x / 2.0f, 0.0f, -_dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
 									-_dim.x / 2.0f, 0.0f, _dim.y / 2.0f, 0.0f, 1.0f, 0.0f,
@@ -46,28 +48,21 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	ntris = nverts/3;
 
 	triangle tempT;
-
 	vertex tempV;
-	tempV.x = 0.0f;
-	tempV.y = 1.0f;
+
 	tempV.z = 0.0f;
-	vVertexArray.push_back(tempV);
-	tempV.x = 1.0f;
-	tempV.y = 0.2f;
-	tempV.z = 0.0f;
-	vVertexArray.push_back(tempV);
-	tempV.x = -1.0f;
-	tempV.y = 0.2f;
-	tempV.z = 0.0f;
-	vVertexArray.push_back(tempV);
-	tempV.x = -0.5f;
-	tempV.y = -1.0f;
-	tempV.z = 0.0f;
-	vVertexArray.push_back(tempV);
-	tempV.x = 0.5f;
-	tempV.y = -1.0f;
-	tempV.z = 0.0f;
-	vVertexArray.push_back(tempV);
+	dimNr = 5.0f;
+
+	for (float i = -5.f; i < 5; i++) {
+		
+		for (float j = -5.f; j < 5; j++) {
+		 
+			tempV.x = i / 5.0f;
+			tempV.y = j / 5.0f;
+			vVertexArray.push_back(tempV);
+
+		}
+	}
 
 
 	triangle * indexP;
@@ -118,49 +113,6 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 
 	}
 
-	/*for (int i = 0; i <= nverts - 3 ; i = i + 3)
-	{
-		handledVert = glm::vec3(vertexarray[i], vertexarray[i + 1], vertexarray[i + 2]);
-		
-		for (int j = 0; j <= nverts -3 ; j = j + 3)
-		{
-			if ( j != i)
-			{
-				
-				length = glm::sqrt(glm::dot(handledVert - glm::vec3(vertexarray[j], vertexarray[j + 1], vertexarray[j + 2]), handledVert - glm::vec3(vertexarray[j], vertexarray[j + 1], vertexarray[j + 2])));
-				if (length < currentLength1)
-				{
-					currentLength2 = currentLength1;
-					currentLength1 = length;
-					
-					index2 = index1;
-					index1 = j/3;
-				}
-				else if (length < currentLength2)
-				{
-					currentLength2 = length;
-					index2 = j/3;
-				}
-			}
-		}
-
-		
-		//vIndexArray[i] = i;
-		//vIndexArray[i + 1] = index1;
-		//vIndexArray[i + 2] = index2;
-		
-
-		vIndexArray.push_back(i/3);
-		vIndexArray.push_back(index1);
-		vIndexArray.push_back(index2);
-
-		cout << i/3 << " " << index1 << " " << index2 << endl;
-
-		currentLength2 = 100.0f;
-		currentLength1 = 100.0f;
-	}*/
-
-
 	vertexP = &vVertexArray[0];
 	indexP = &vIndexArray[0];
 	// Generate one vertex array object (VAO) and bind it
@@ -176,7 +128,7 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	// Present our vertex coordinates to OpenGL
 	glBufferData(GL_ARRAY_BUFFER,
 
-		3*vVertexArray.size()*sizeof(GLfloat), vertexP, GL_STATIC_DRAW);
+		3*vVertexArray.size()*sizeof(GLfloat), vertexP, GL_STREAM_DRAW);
 
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
@@ -199,7 +151,7 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	// Present our vertex indices to OpenGL
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 
-		3* vIndexArray.size()*sizeof(GLuint), indexP, GL_STATIC_DRAW);
+		3* vIndexArray.size()*sizeof(GLuint), indexP, GL_STREAM_DRAW);
 
 
 	// Deactivate (unbind) the VAO and the buffers again.
@@ -225,10 +177,23 @@ void Plane::render() {
 	
 void Plane::updateVertexArray() {
 
-
 	triangle tempT;
-
 	vertex tempV;
+
+	tempV.z = 0;
+
+	for (int i = -5; i <  5.0f; i++)
+	{
+		
+		for (int j = dimNr; j < dimNr + 1.0f; j++)
+		{
+			tempV.x = i / 5.0f;
+			tempV.y = j / 5.0f;
+			vVertexArray.push_back(tempV);
+
+		}
+	}
+	dimNr = dimNr + 1.0f;
 
 	triangle * indexP;
 	vertex * vertexP;
@@ -237,6 +202,8 @@ void Plane::updateVertexArray() {
 	vertex handledVert, vert1, vert2;
 
 	float length = 0, currentLength1 = 100.0f, currentLength2 = 100.0f;
+
+	vIndexArray.clear();
 
 	for (int i = 0; i < vVertexArray.size(); i++)
 	{

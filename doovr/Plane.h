@@ -51,6 +51,8 @@ private:
 	//vector<GLfloat> vertexArray; // Vertex array on interleaved format: x y z nx ny nz s t
 	//vector<GLuint> indexArray;   // Element index array
 
+	float dimNr;
+
 	std::vector<triangle> vIndexArray;
 	std::vector<vertex> vVertexArray;
 
