@@ -322,9 +322,7 @@ int Oculus::runOvr() {
 
 
 	// Initilise VRPN connection
-	Vrpn* wand = new Vrpn(true, true, true, "Wand");
-	wand->connectDevices();
-
+	Device* wand = new Device(true, true, true, "Wand");
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;

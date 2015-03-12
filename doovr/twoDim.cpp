@@ -73,8 +73,7 @@ int twoDim::run2D() {
 
 
 	// Initilise VRPN connection
-	Vrpn* wand = new Vrpn(true, true, true, "Wand");
-	wand->connectDevices();
+	Device* wand = new Device(true, true, true, "Wand");
 
 	while (!glfwWindowShouldClose(window)) {
 
@@ -96,8 +95,14 @@ int twoDim::run2D() {
 
 		MVstack.push();
 			MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1], -2.0f));
-			glMultMatrixf(&(wand->getTrackerTransform())[0][0]);
-			
+			//glMultMatrixf(&(wand->getTrackerTransform())[0][0]);
+
+			//MVstack.multiply(&(wand->getTrackerTransform()[0][0]));
+			MVstack.translate(2.0f*wand->getTrackerPosition());
+
+			//MVstack.multiply(wand->orient);
+
+
 			if (wand->getButtonState()) {
 				MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1], -5.0f));
 			}

@@ -17,7 +17,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Vrpn.h"
+#include "Device.h"
 
 #include <OVR/OVR.h>
 #include <OVR_CAPI.h>
