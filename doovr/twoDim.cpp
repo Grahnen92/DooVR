@@ -6,6 +6,7 @@
 #include "Sphere.h"
 #include "Plane.h"
 
+
 void twoDim::setupViewport(GLFWwindow *window, GLfloat *P) {
 	int width, height;
 
@@ -76,11 +77,14 @@ int twoDim::run2D() {
 
 	// Initilise VRPN connection
 	Device* wand = new Device(true, true, true, "Wand");
+	Device* mouse = new Device(true, true, false, "Mouse");
 
 	while (!glfwWindowShouldClose(window)) {
 
-		//ground.updateVertexArray();
-
+		if (glfwGetKey(window, GLFW_KEY_O)) {
+			ground.updateVertexArray();
+		}
+		
 		glfwPollEvents();
 
 		//GL calls
@@ -159,8 +163,8 @@ int twoDim::run2D() {
 
 		MVstack.pop();
 
-		wand->sendtoMainloop();
-		//wand->getTrackerTransform();
+		mouse->sendtoMainloop();
+		//mouse->getTrackerTransform();
 
 		glfwSwapBuffers(window);
 	}

@@ -1,6 +1,6 @@
 #version 400
 layout(location = 0) in vec3 Position;
-layout(location = 1) in vec3 Normal;
+//layout(location = 1) in vec3 Normal;
 
 uniform mat4 MV;
 uniform mat4 OMV;
@@ -16,6 +16,7 @@ out vec3 lPos;
 
 void main () 
 {
+	vec3 Normal = vec3( 1.0, 1.0, 1.0);
 
 	gl_Position =  P * MV * vec4 (Position, 1.0);
 	
