@@ -25,29 +25,24 @@ class Device {
 		//! Collects data from the vrpn server.
 		void sendtoMainloop();
 
-		//! Get transformation matrix of the device
-		glm::mat4 getTrackerTransform();
 		//! Get position vector of the device position
-		glm::vec3 getTrackerPosition();
+		float* getTrackerPosition();
 		//! Get the rotation matrix for the device
-		glm::mat4 getTrackerRotation();
-
+		float* getTrackerRotation();
+		//! Get analog position of the device
+		float* getAnalogPosition();
 		//! Get button state
 		bool getButtonState();
-		//! Get analog position of the device
-		glm::vec2 getAnalogPosition();
 
-		//! Set transformation matrix of the device to a variable
-		void setTrackerTransform(glm::mat4 t);
 		//! Set position vector of the device position to a variable
-		void setTrackerPosition(glm::vec3 t);
+		void setTrackerPosition(float t[3]);
 		//! Set the rotation matrix for the device to a variable
-		void setTrackerRotation(glm::mat4 t);
-
+		void setTrackerRotation(double o[16]);
+		
 		//! Set button state to a variable
 		void setButtonState(bool b);
 		//! Set analog position of the device to a variable
-		void setAnalogPosition(glm::vec2 pos);
+		void setAnalogPosition(float pos[2]);
 
 		//! vrpn Analog tracker
 		vrpn_Analog_Remote* vrpnAnalog = nullptr;
@@ -56,22 +51,18 @@ class Device {
 		//! vrpn Position tracker
 		vrpn_Tracker_Remote* vrpnTracker = nullptr;
 
-
 	private:
 		//! Addidional address to devices position tracker
 		std::string additionalAddress;
 		//! Constant local address
-		std::string LOCAL = "@localhost";
+		const std::string LOCAL = "@localhost";
 	
-		//! Saved variable from setTrackerTransform
-		glm::mat4 trackerTransform = { 1.0, 0.0, 0.0, 0.0, 
-									  0.0, 1.0, 0.0, 0.0, 
-									  0.0, 0.0, 1.0, 0.0,
-									  0.0, 0.0, 0.0, 1.0 };
 		//! Saved variable from setTrackerPosition
-		glm::vec3 trackerPosition = {0.0f,0.0f,0.0f };
+		float trackerPosition[3];
+		//! Saved variable from setTrackerRotation
+		float trackerRotation[16];
 		//! Saved variable from setAnalogPosition
-		glm::vec2 analogPos = { 0.0, 0.0 };
+		float analogPos[3];
 		//! Saved variable from setButtonState
 		bool button;
 };

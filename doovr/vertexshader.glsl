@@ -13,6 +13,7 @@ out vec3 pos;
 out vec3 lPos;
 
 
+
 void main () 
 {
 
@@ -26,6 +27,6 @@ void main ()
 	//interpolatedNormal = vec3( MV * vec4(Normal, 0.0));
 	interpolatedNormal =  Normal;
 	
-	interpolatedColor = vec3(1.0, 1.0, 1.0);
-    
+	interpolatedColor = vec3(1.0f, 1.0f, 1.0f);
+
 }

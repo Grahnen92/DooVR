@@ -35,15 +35,16 @@ public:
     // Multiply the topmost (current) matrix with a rotation around Z
     void rotZ(float angle);
 
-	void rotAxis(glm::vec3 axis, float angle);
+	void rotAxis(float axis[3], float angle);
 
     // Multiply the topmost (current) matrix with a uniform scaling
     void scale(float s);
 
     // Multiply the topmost (current) matrix with a translation
-    void translate(glm::vec3 pos);
+    void translate(float pos[3]);
 
 	void multiply(float M[]);
+	//void multiply(float **M);
 
     // Add a new level on the stack, making a copy of the topmost matrix
     void push();

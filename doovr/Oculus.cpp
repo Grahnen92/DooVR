@@ -60,6 +60,8 @@ int Oculus::runOvr() {
 	GLfloat lightPos[4] = { 0.0f, 2.0f, 2.0f, 1.0f };
 	glm::vec3 LP = glm::vec3(0);
 
+	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
+
 	GLint locationLP;
 	GLint locationP;
 	GLint locationMV;
@@ -391,20 +393,22 @@ int Oculus::runOvr() {
 
 				//!-- Translation due to positional tracking (DK2) and IPD...
 				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
-				MVstack.translate(glm::vec3(-g_EyePoses[l_Eye].Position.x, -(eyeHeight + g_EyePoses[l_Eye].Position.y), -g_EyePoses[l_Eye].Position.z));
+				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -(eyeHeight + g_EyePoses[l_Eye].Position.y), -g_EyePoses[l_Eye].Position.z };
+				MVstack.translate(eyePoses);
 
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				MVstack.push();
-					MVstack.translate(glm::vec3(0.0f, 0.0f, 0.0f));
-
 					//glUniformMatrix4fv(locationOMV, 1, GL_FALSE, glm::translate(glm::mat4(1), glm::vec3(0.0f, 0.0f, 0.0f)));
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					ground.render();
 				MVstack.pop();
 
 				MVstack.push();
-					MVstack.translate(glm::vec3(0.0f, 2.0f, -0.5f));
+					translateVector[0] = 0.0f;
+					translateVector[1] = 2.0f;
+					translateVector[2] = -0.5f;
+					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					test.render();
 				MVstack.pop();
@@ -417,7 +421,6 @@ int Oculus::runOvr() {
 
 
 		wand->sendtoMainloop();
-		wand->getTrackerTransform();
 
 		// Do everything, distortion, front/back buffer swap...
 		ovrHmd_EndFrame(hmd, g_EyePoses, g_EyeTextures);

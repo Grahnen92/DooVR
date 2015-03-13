@@ -71,13 +71,15 @@ int twoDim::run2D() {
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 
+	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
+
 
 	// Initilise VRPN connection
 	Device* wand = new Device(true, true, true, "Wand");
 
 	while (!glfwWindowShouldClose(window)) {
 
-		ground.updateVertexArray();
+		//ground.updateVertexArray();
 
 		glfwPollEvents();
 
@@ -87,6 +89,9 @@ int twoDim::run2D() {
 		//glEnable(GL_DEPTH_TEST);
 		//glEnable(GL_CULL_FACE);
 		//glCullFace(GL_BACK);
+		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+		glEnable(GL_COLOR_MATERIAL);
+
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glUseProgram(phongShader.programID);
 
@@ -94,31 +99,64 @@ int twoDim::run2D() {
 		setupViewport(window, P);
 
 		MVstack.push();
-			MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1], -2.0f));
-			//glMultMatrixf(&(wand->getTrackerTransform())[0][0]);
+			translateVector[0] = 0.0f;
+			translateVector[1] = 0.0f;
+			translateVector[2] = -3.0f;
+			MVstack.translate(translateVector);
 
-			//MVstack.multiply(&(wand->getTrackerTransform()[0][0]));
-			MVstack.translate(2.0f*wand->getTrackerPosition());
+			MVstack.push();
+				//MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], 0.0f, wand->getAnalogPosition()[1]));
 
-			//MVstack.multiply(wand->orient);
+				MVstack.translate(wand->getTrackerPosition());
+				//MVstack.multiply(&(wand->getTrackerRotation()[0][0]));
+				MVstack.multiply( wand->getTrackerRotation() );
+				
+
+				if (wand->getButtonState()) {
+					MVstack.translate(wand->getAnalogPosition());
+				}
+				else if (!wand->getButtonState()) {
+					MVstack.translate(wand->getAnalogPosition());
+				}
+
+				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+
+				// Wand testing, coordinate axis
+				float orgio[3] = { 0, 0, 0 };
+				float X[3] = { 1, 0, 0 };
+				float Y[3] = { 0, 0.5, 0 };
+				float Z[3] = { 0, 0, 0.3 };
+
+				glLineWidth(5.0);
+				glBegin(GL_LINES);
+				glColor3f(1.0f, 0.0f, 0.0f);
+
+				glVertex3fv(orgio);
+				glVertex3fv(X);
+
+				glColor3f(0.0f, 1.0f, 0.0f);
+				glVertex3fv(orgio);
+				glVertex3fv(Y);
+
+				glLineWidth(8.0);
+				glColor3f(0.0f, 0.0f, 1.0f);
+				glVertex3fv(orgio);
+				glVertex3fv(Z);
+				glEnd();
 
 
-			if (wand->getButtonState()) {
-				MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1], -5.0f));
-			}
-			else if (!wand->getButtonState()) {
-				MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1], -2.0f));
-			}
+				//test.render();
+			MVstack.pop();
+			MVstack.push();
+				translateVector[0] = 0.0f;
+				translateVector[1] = -1.0f;
+				translateVector[2] = 0.0f;
+				MVstack.translate(translateVector);
+				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
-			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+				ground.render();
+			MVstack.pop();
 
-			test.render();
-		MVstack.pop();
-		MVstack.push();
-			MVstack.translate(glm::vec3(0.0f, -1.0f, -3.0f));
-			glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-
-			ground.render();
 		MVstack.pop();
 
 		wand->sendtoMainloop();

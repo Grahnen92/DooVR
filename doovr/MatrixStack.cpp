@@ -73,32 +73,34 @@ void MatrixStack::rotZ(float angle) {
     matrixMult(currentMatrix->m, rz, currentMatrix->m);
 };
 
-void MatrixStack::rotAxis(glm::vec3 axis, float a) {
+void MatrixStack::rotAxis(float axis[3], float a) {
 
-	axis = glm::normalize(axis);
+	// Check this function
 
-	float ra[16];
+	//axis = glm::normalize(axis);
 
-	glm::mat4 bg = glm::rotate(glm::mat4(1) , a, axis);
+	//float ra[16];
 
-	ra[0] = bg[0][0];
-	ra[1] = bg[1][0];
-	ra[2] = bg[2][0];
-	ra[3] = bg[3][0];
-	ra[4] = bg[0][1];
-	ra[5] = bg[1][1];
-	ra[6] = bg[2][1];
-	ra[7] = bg[3][1];
-	ra[8] = bg[0][2];
-	ra[9] = bg[1][2];
-	ra[10] = bg[2][2];
-	ra[11] = bg[3][2];
-	ra[12] = bg[0][3];
-	ra[13] = bg[1][3];
-	ra[14] = bg[2][3];
-	ra[15] = bg[3][3];
+	//glm::mat4 bg = glm::rotate(glm::mat4(1) , a, axis);
 
-	matrixMult(currentMatrix->m, ra, currentMatrix->m);
+	//ra[0] = bg[0][0];
+	//ra[1] = bg[1][0];
+	//ra[2] = bg[2][0];
+	//ra[3] = bg[3][0];
+	//ra[4] = bg[0][1];
+	//ra[5] = bg[1][1];
+	//ra[6] = bg[2][1];
+	//ra[7] = bg[3][1];
+	//ra[8] = bg[0][2];
+	//ra[9] = bg[1][2];
+	//ra[10] = bg[2][2];
+	//ra[11] = bg[3][2];
+	//ra[12] = bg[0][3];
+	//ra[13] = bg[1][3];
+	//ra[14] = bg[2][3];
+	//ra[15] = bg[3][3];
+
+	//matrixmult(currentmatrix->m, ra, currentmatrix->m);
 }
 
 // Multiply the topmost (current) matrix with a uniform scaling
@@ -112,15 +114,15 @@ void MatrixStack::scale(float s) {
 };
 
 // Multiply the topmost (current) matrix with a translation
-void MatrixStack::translate(glm::vec3 pos) {
+void MatrixStack::translate(float pos[3]) {
     float t_mtx[16] = {0};
     t_mtx[0] = 1.0f;
     t_mtx[5] = 1.0f;
     t_mtx[10] = 1.0f;
     t_mtx[15] = 1.0f;
-    t_mtx[12] = pos.x;
-    t_mtx[13] = pos.y;
-    t_mtx[14] = pos.z;
+    t_mtx[12] = pos[0];
+    t_mtx[13] = pos[1];
+    t_mtx[14] = pos[2];
     matrixMult(currentMatrix->m, t_mtx, currentMatrix->m);
 };
 
@@ -144,6 +146,28 @@ void MatrixStack::multiply(float M[]) {
 	t_mtx[15] = M[15];
 	matrixMult(currentMatrix->m, t_mtx, currentMatrix->m);
 };
+/*
+void MatrixStack::multiply(float **M) {
+	float t_mtx[16] = { 0 };
+	t_mtx[0] = *M[0];
+	t_mtx[1] = *M[1];
+	t_mtx[2] = *M[2];
+	t_mtx[3] = *M[3];
+	t_mtx[4] = *M[4];
+	t_mtx[5] = *M[5];
+	t_mtx[6] = *M[6];
+	t_mtx[7] = *M[7];
+	t_mtx[8] = *M[8];
+	t_mtx[9] = *M[9];
+	t_mtx[10] = *M[10];
+	t_mtx[11] = *M[11];
+	t_mtx[12] = *M[12];
+	t_mtx[13] = *M[13];
+	t_mtx[14] = *M[14];
+	t_mtx[15] = *M[15];
+	matrixMult(currentMatrix->m, t_mtx, currentMatrix->m);
+};
+*/
 
 // Add a new level on the stack, by making a copy of the current matrix and
 // adding it to the top of the linked list, making it the new current matrix.
