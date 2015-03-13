@@ -3,17 +3,6 @@
 #include "Utilities.h"
 #include <vector>
 
-struct vertex{
-	GLfloat x;
-	GLfloat y;
-	GLfloat z;
-};
-struct triangle{
-	GLuint index1;
-	GLuint index2;
-	GLuint index3;
-};
-
 class Plane :
 	public Entity
 {
@@ -34,7 +23,7 @@ public:
 	glm::vec3 getNormal() { return normal; }
 	void setNormal(glm::vec3 n){ normal = n;}
 
-	void updateVertexArray();
+	void updateVertexArray(double x, double y );
 
 	void render();
 	glm::vec2 getDim(){ return dim; }

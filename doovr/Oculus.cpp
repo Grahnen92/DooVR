@@ -4,7 +4,6 @@
 #include "MatrixStack.hpp"
 #include "Entity.h"
 #include "Sphere.h"
-#include "Plane.h"
 
 //#define GLFW_EXPOSE_NATIVE_WIN32
 //#define GLFW_EXPOSE_NATIVE_WGL
@@ -307,7 +306,7 @@ int Oculus::runOvr() {
 	MVstack.init();
 
 	Sphere test(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f, 0.1f);
-	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, glm::vec2(1.0f, 1.0f));
+	
 
 	//LINK VARIABLES WITH SHADER
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
@@ -400,7 +399,6 @@ int Oculus::runOvr() {
 
 					//glUniformMatrix4fv(locationOMV, 1, GL_FALSE, glm::translate(glm::mat4(1), glm::vec3(0.0f, 0.0f, 0.0f)));
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					ground.render();
 				MVstack.pop();
 
 				MVstack.push();

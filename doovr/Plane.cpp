@@ -53,6 +53,10 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	tempV.z = 0.0f;
 	dimNr = 5.0f;
 
+	vVertexArray.reserve(1000000);
+	vIndexArray.reserve(1000000);
+
+	/*
 	for (float i = -5.f; i < 5; i++) {
 		
 		for (float j = -5.f; j < 5; j++) {
@@ -63,13 +67,35 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 
 		}
 	}
-
+	*/
 
 	triangle * indexP;
 	vertex * vertexP;
 
-	//vertexP = vVertexArray;
+	tempV.x = 1.0f;
+	tempV.y = 1.0f;
+	vVertexArray.push_back(tempV);
+	tempV.x = 1.0f;
+	tempV.y = -1.0f;
+	vVertexArray.push_back(tempV);
+	tempV.x = -1.0f;
+	tempV.y = -1.0f;
+	vVertexArray.push_back(tempV);
+	tempV.x = -1.0f;
+	tempV.y = 1.0f;
+	vVertexArray.push_back(tempV);
 
+	tempT.index1 = 1;
+	tempT.index2 = 0;
+	tempT.index3 = 3;
+	vIndexArray.push_back(tempT);
+	tempT.index1 = 3;
+	tempT.index2 = 2;
+	tempT.index3 = 1;
+	vIndexArray.push_back(tempT);
+
+	//vertexP = vVertexArray;
+	/*
 	int index1 = 0, index2 = 0;
 	vertex handledVert, vert1, vert2;
 
@@ -113,6 +139,8 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 
 	}
 
+	*/
+
 	vertexP = &vVertexArray[0];
 	indexP = &vIndexArray[0];
 	// Generate one vertex array object (VAO) and bind it
@@ -126,9 +154,8 @@ Plane::Plane(glm::vec3 _pos, float _mass, glm::vec2 _dim)
 	// Activate the vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Present our vertex coordinates to OpenGL
-	glBufferData(GL_ARRAY_BUFFER,
-
-		3*vVertexArray.size()*sizeof(GLfloat), vertexP, GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 
+				 3*vVertexArray.size()*sizeof(GLfloat), vertexP, GL_STREAM_DRAW);
 
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
@@ -170,18 +197,20 @@ Plane::~Plane(void) {
 void Plane::render() {
 	glBindVertexArray(vao);
 	//glColor3f(color.x, color.y, color.z);
+
 	glDrawElements(GL_TRIANGLES, 3*vIndexArray.size()*sizeof(GLuint), GL_UNSIGNED_INT, (void*)0);
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);
 }
 	
-void Plane::updateVertexArray() {
+void Plane::updateVertexArray(double x, double y) {
 
 	triangle tempT;
 	vertex tempV;
 
 	tempV.z = 0;
 
+	/*
 	for (int i = -5; i <  5.0f; i++)
 	{
 		
@@ -193,11 +222,24 @@ void Plane::updateVertexArray() {
 
 		}
 	}
-	dimNr = dimNr + 1.0f;
 
+	dimNr = dimNr + 1.0f;
+	*/
 	triangle * indexP;
 	vertex * vertexP;
-	
+
+	float xx = x;
+	float yy = y;
+
+	vVertexArray[2].x = -xx;
+	vVertexArray[2].y = -yy;
+
+	for (int i = 0; i < 4; i++)
+	{
+		cout << vVertexArray[i].x << " " << vVertexArray[i].y << " " << vVertexArray[i].z << endl;
+	}
+
+	/*
 	int index1 = 0, index2 = 0;
 	vertex handledVert, vert1, vert2;
 
@@ -242,14 +284,30 @@ void Plane::updateVertexArray() {
 		currentLength1 = 100.0f;
 	}
 
+	*/
+
 	vertexP = &vVertexArray[0];
 	indexP = &vIndexArray[0];
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	// Present our vertex coordinates to OpenGL
-	glBufferData(GL_ARRAY_BUFFER,
 
-		3*vVertexArray.size(), vertexP, GL_STREAM_DRAW);
+	//get buffer size
+	int bufferSize; // offset in bytes
+	glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
+	int sizeOfOriginalVertexArray = (bufferSize / sizeof(vertex));
+	
+	int addedVerticies = vVertexArray.size() - sizeOfOriginalVertexArray;
+	int offset = sizeOfOriginalVertexArray - 1;
+	cout << " added vertices: " << addedVerticies << " offset: " << offset << " size: " << sizeOfOriginalVertexArray << endl;
+
+
+	glBufferSubData(GL_ARRAY_BUFFER, 0, bufferSize, vertexP);
+	//glBufferSubData(GL_ARRAY_BUFFER, bufferSize,
+	//				  addedVerticies * 3 * sizeof(float), &vVertexArray[offset]);
+
+	// Present our vertex coordinates to OpenGL
+	//glBufferData(GL_ARRAY_BUFFER, 
+	//			 3*vVertexArray.size()sizeof(GLfloat), vertexP, GL_STREAM_DRAW);
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
 //	glEnableVertexAttribArray(1); // Normals
@@ -262,7 +320,6 @@ void Plane::updateVertexArray() {
 	// Stride 8 (interleaved array with 8 floats per vertex)
 	// Array buffer offset 0, 3, 6 (offset into first vertex)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-
 		3 * sizeof(GLfloat), (void*)0); // xyz coordinates
 	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
 	//	6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
@@ -273,8 +330,7 @@ void Plane::updateVertexArray() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 	// Present our vertex indices to OpenGL
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-
-		3*vIndexArray.size(), indexP, GL_STREAM_DRAW);
+		3 * vIndexArray.size()*sizeof(GLuint), indexP, GL_STREAM_DRAW);
 
 
 	// Deactivate (unbind) the VAO and the buffers again.

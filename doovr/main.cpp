@@ -27,7 +27,6 @@
 #include "MatrixStack.hpp"
 #include "Entity.h"
 #include "Sphere.h"
-#include "Plane.h"
 
 #include "twoDim.h"
 #include "Oculus.h"
