@@ -309,7 +309,7 @@ int Oculus::runOvr() {
 	MVstack.init();
 
 	Sphere test(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f, 0.1f);
-	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, glm::vec2(1.0f, 1.0f));
+	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, glm::vec2(5.0f, 5.0f));
 
 	//LINK VARIABLES WITH SHADER
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
@@ -393,13 +393,14 @@ int Oculus::runOvr() {
 
 				//!-- Translation due to positional tracking (DK2) and IPD...
 				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
-				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -(eyeHeight + g_EyePoses[l_Eye].Position.y), -g_EyePoses[l_Eye].Position.z };
+				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -(eyeHeight + g_EyePoses[l_Eye].Position.y), -g_EyePoses[l_Eye].Position.z + 1.0f };
 				MVstack.translate(eyePoses);
 
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				MVstack.push();
 					//glUniformMatrix4fv(locationOMV, 1, GL_FALSE, glm::translate(glm::mat4(1), glm::vec3(0.0f, 0.0f, 0.0f)));
+					MVstack.rotX(1.57f);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					ground.render();
 				MVstack.pop();
@@ -407,10 +408,54 @@ int Oculus::runOvr() {
 				MVstack.push();
 					translateVector[0] = 0.0f;
 					translateVector[1] = 2.0f;
-					translateVector[2] = -0.5f;
+					translateVector[2] = -2.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					test.render();
+				MVstack.pop();
+
+				MVstack.push();
+					translateVector[0] = 0.1f;
+					translateVector[1] = 1.45f;
+					translateVector[2] = -1.0f;
+					MVstack.translate(translateVector);
+
+					MVstack.translate(wand->getTrackerPosition());
+					MVstack.multiply(wand->getTrackerRotation());
+
+					if (wand->getButtonState()) {
+						MVstack.translate(wand->getAnalogPosition());
+					}
+					else if (!wand->getButtonState()) {
+						MVstack.translate(wand->getAnalogPosition());
+					}
+
+
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+
+					// Wand testing, coordinate axis
+					float orgio[3] = { 0, 0, 0 };
+					float X[3] = { 1, 0, 0 };
+					float Y[3] = { 0, 0.5, 0 };
+					float Z[3] = { 0, 0, 0.3 };
+
+					glLineWidth(5.0);
+					glBegin(GL_LINES);
+					glColor3f(1.0f, 0.0f, 0.0f);
+
+					glVertex3fv(orgio);
+					glVertex3fv(X);
+
+					glColor3f(0.0f, 1.0f, 0.0f);
+					glVertex3fv(orgio);
+					glVertex3fv(Y);
+
+					glLineWidth(8.0);
+					glColor3f(0.0f, 0.0f, 1.0f);
+					glVertex3fv(orgio);
+					glVertex3fv(Z);
+					glEnd();
+
 				MVstack.pop();
 
 			MVstack.pop();

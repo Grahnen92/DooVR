@@ -5,6 +5,7 @@
 #include "vrpn/vrpn_Button.h"
 #include "vrpn/vrpn_Analog.h"
 #include "vrpn/quat.h"
+#include "linearalgebra.hh"
 
 #include <iostream>
 

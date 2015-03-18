@@ -103,11 +103,23 @@ float* Device::getTrackerRotation() {
 // Set functions
 void Device::setTrackerPosition(float t[3]) {
 	// Wierd copies due to fixing axis and multiplying movement
-	trackerPosition[0] = 2.0f*t[0];
-	trackerPosition[1] = -2.0f*t[2]+0.5f;
-	trackerPosition[2] = 5.0f*t[1];
+	trackerPosition[0] = t[0];
+	trackerPosition[1] = -t[2]+0.5f;
+	trackerPosition[2] = t[1];
 }
 void Device::setTrackerRotation(double o[16] ) {
+	double temp;
+	temp = o[1];
+	o[1] = -o[2];
+	o[2] = temp;
+
+	temp = o[5];
+	o[5] = -o[6];
+	o[6] = temp;
+
+	temp = o[9];
+	o[9] = -o[10];
+	o[10] = temp;
 	std::copy(o, o + 16, trackerRotation);
 }
 void Device::setAnalogPosition(float p[3]) {
