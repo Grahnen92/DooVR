@@ -52,14 +52,14 @@ void VRPN_CALLBACK handle_analog(void* userData, const vrpn_ANALOGCB a)
 
 	int nbChannels = a.num_channel;
 
-	cout << "Analog : ";
+	//cout << "Analog : ";
 
-	for (int i = 0; i < a.num_channel; i++)
-	{
-		cout << a.channel[i] << " ";
-	}
+	//for (int i = 0; i < a.num_channel; i++)
+	//{
+	//	cout << a.channel[i] << " ";
+	//}
 
-	cout << endl;
+	//cout << endl;
 }
 
 void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b)

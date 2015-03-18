@@ -88,20 +88,23 @@ int twoDim::run2D() {
 		
 		glfwPollEvents();
 
+		
+
 		//GL calls
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glFrontFace(GL_CCW);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glUseProgram(phongShader.programID);
 
 		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
 		setupViewport(window, P);
 
 		MVstack.push();
-		MVstack.translate(glm::vec3(0.0f, -2.0f, -3.0f));
+		MVstack.translate(glm::vec3(0.0f,- 2.0f, -3.0f));
 		MVstack.rotAxis(glm::vec3(1.0f, 0.0f, 0.0f), -0.8f);
 
 			MVstack.push();
