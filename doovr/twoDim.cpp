@@ -66,12 +66,10 @@ int twoDim::run2D() {
 	MatrixStack MVstack;
 	MVstack.init();
 
-	Sphere test(glm::vec3(1.0f, 1.0f, 1.0f), 2.0f, 0.1f);
-	Sphere test1(glm::vec3(1.0f, 1.0f, 1.0f), 2.0f, 0.1f);
-	Sphere test2(glm::vec3(2.0f, 1.0f, 3.0f), 2.0f, 0.1f);
-	Sphere test3(glm::vec3(1.0f, 4.0f, 3.0f), 2.0f, 0.1f);
-	Sphere test4(glm::vec3(4.0f/3.0f, 2.0f, 7.0f/3.0f), 2.0f, 0.1f);	
+
 	Mesh mTest;
+	Sphere test(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
+	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.5f, 0.5f));
 
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
@@ -120,9 +118,10 @@ int twoDim::run2D() {
 
 		MVstack.push();
 			translateVector[0] = 0.0f;
-			translateVector[1] = 0.0f;
-			translateVector[2] = -3.0f;
+			translateVector[1] = -1.0f;
+			translateVector[2] = -1.0f;
 			MVstack.translate(translateVector);
+			MVstack.rotAxis(glm::vec3(1.0f, 0.0f, 0.0f), -0.8f);
 
 			MVstack.push();
 				//MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], 0.0f, wand->getAnalogPosition()[1]));
@@ -163,7 +162,7 @@ int twoDim::run2D() {
 				glVertex3fv(orgio);
 				glVertex3fv(Z);
 				glEnd();
-
+				glLineWidth(1.0);
 
 				//test.render();
 			MVstack.pop();
@@ -175,6 +174,15 @@ int twoDim::run2D() {
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				//ground.render();
+			MVstack.pop();
+			MVstack.push();
+				translateVector[0] = 0.0f;
+				translateVector[1] = -1.0f;
+				translateVector[2] = -3.0f;
+				MVstack.translate(translateVector);
+				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+
+				mTest.render();
 			MVstack.pop();
 		MVstack.pop();
 
