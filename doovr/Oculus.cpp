@@ -307,8 +307,8 @@ int Oculus::runOvr() {
 	MatrixStack MVstack;
 	MVstack.init();
 
-	Sphere test(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f, 0.1f);
-	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, glm::vec2(5.0f, 5.0f));
+	Sphere sphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.1f);
+	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(5.0f, 5.0f));
 
 	//LINK VARIABLES WITH SHADER
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
@@ -361,7 +361,7 @@ int Oculus::runOvr() {
 		} else {
 			glDisable(GL_MULTISAMPLE);
 		}
-		//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++) {
 			ovrEyeType l_Eye = hmd->EyeRenderOrder[l_EyeIndex];
@@ -398,28 +398,31 @@ int Oculus::runOvr() {
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				MVstack.push();
-					//glUniformMatrix4fv(locationOMV, 1, GL_FALSE, glm::translate(glm::mat4(1), glm::vec3(0.0f, 0.0f, 0.0f)));
-					MVstack.rotX(1.57f);
+					translateVector[0] = 0.0f;
+					translateVector[1] = 0.0f;
+					translateVector[2] = 0.0f;
+					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					ground.render();
 				MVstack.pop();
 
 				MVstack.push();
+				if (wand->getButtonState()) {
+					MVstack.translate(wand->getTrackerPosition());
+				}
+				else {
 					translateVector[0] = 0.0f;
 					translateVector[1] = 2.0f;
 					translateVector[2] = -2.0f;
 					MVstack.translate(translateVector);
+				}
+					
 
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					test.render();
+					sphere.render();
 				MVstack.pop();
 
 				MVstack.push();
-					translateVector[0] = 0.1f;
-					translateVector[1] = 1.55f;
-					translateVector[2] = -1.0f;
-					MVstack.translate(translateVector);
-
 					MVstack.translate(wand->getTrackerPosition());
 					MVstack.multiply(wand->getTrackerRotation());
 

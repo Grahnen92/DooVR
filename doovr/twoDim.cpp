@@ -66,8 +66,8 @@ int twoDim::run2D() {
 	MatrixStack MVstack;
 	MVstack.init();
 
-	Sphere test(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f, 0.5f);
-	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, glm::vec2(0.5f, 0.5f));
+	Sphere test(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
+	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.5f, 0.5f));
 
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
@@ -80,10 +80,6 @@ int twoDim::run2D() {
 	Device* mouse = new Device(true, true, false, "Mouse");
 
 	while (!glfwWindowShouldClose(window)) {
-
-		if (glfwGetKey(window, GLFW_KEY_O)) {
-			ground.updateVertexArray();
-		}
 		
 		glfwPollEvents();
 

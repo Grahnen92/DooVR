@@ -7,7 +7,7 @@ class Sphere :
 public:
 	
 	// Creates a sphere  
-	Sphere(glm::vec3 _pos, float _mass, float _rad);
+	Sphere(glm::vec3 _pos, float _rad);
 	~Sphere(void);
 
 	Sphere()

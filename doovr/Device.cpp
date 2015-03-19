@@ -102,9 +102,9 @@ float* Device::getTrackerRotation() {
 void Device::setTrackerPosition(float t[3]) {
 
 	// Wierd copies due to fixing axis and multiplying movement
-	trackerPosition[0] = t[0] + 0.1067f;
-	trackerPosition[1] = -t[2] + 0.4612f;
-	trackerPosition[2] = t[1] - 0.0299f;
+	trackerPosition[0] = t[0] + 0.2067f;
+	trackerPosition[1] = -t[2] + 2.0112f;
+	trackerPosition[2] = t[1] - 0.8999f;
 }
 void Device::setTrackerRotation(double o[16] ) {
 	double temp;

@@ -1,28 +1,16 @@
 #include "Sphere.h"
 
-Sphere::Sphere(glm::vec3 _pos, float _mass, float _rad)
+Sphere::Sphere(glm::vec3 _pos, float _rad)
 {
 	oType = 'S';
-
 	position = _pos;
-	mass = _mass;
+
 	radius = _rad;
-	centerOfMass = position; // The center of mass is in the objects origin as default
-	inertia = 1; // temporary
-
 	createSphere(_rad, 6);
-	
-	velocity = { 0, 0, 0 };
-	acceleration = { 0, 0, 0 };
-	orientation = { 0.0f, 1.0f, 0.0f };
-	rotAxis = { 0.0f, 1.0f, 0.0f };
-	angularPosition = 0.0f;
-	angularVelocity = 0.0f;
-	angularAcceleration = 0.0f;
 
-	color.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	color.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-	color.z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	color.x = 0.7f;
+	color.y = 0.7f;
+	color.z = 0.7f;
 }
 
 
@@ -181,21 +169,4 @@ void Sphere::display(ostream& os) const{
 	os << "Shape: Sphere" << endl;
 	os << "Radius: " << radius << endl; 
 	os << endl;
-
-	os << "Mass: " << mass << endl;
-	os << "Center of mass: " << centerOfMass.x << ", " << centerOfMass.y << ", "<< centerOfMass.z << endl;
-	os << "Inertia: " << inertia << endl;
-	os << endl;
-
-	os << "Position: " << position.x << ", " << position.y << ", "<< position.z << endl;
-	os << "Velocity: " << velocity.x << ", " << velocity.y << ", "<< velocity.z << endl;
-	os << "Acceleration: " << acceleration.x << ", " << acceleration.y << ", "<< acceleration.z << endl;
-	os << endl;
-	
-	os << "Orientation: " << orientation.x << ", " << orientation.y << ", "<< orientation.z << endl;
-//	os << "Angular velocity: " << angularVelocity.x << ", " << angularVelocity.y << ", "<< angularVelocity.z << endl;
-//	os << "Angular acceleration: " << angularAcceleration.x << ", " << angularAcceleration.y << ", "<< angularAcceleration.z << endl;
-	os << endl;
-
-	os << "" << endl;
 }
