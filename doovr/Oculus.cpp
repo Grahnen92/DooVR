@@ -46,7 +46,6 @@ static void Oculus::WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_
 	}
 }
 
-
 int Oculus::runOvr() {
 
 	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f,
@@ -410,13 +409,14 @@ int Oculus::runOvr() {
 					translateVector[1] = 2.0f;
 					translateVector[2] = -2.0f;
 					MVstack.translate(translateVector);
+
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					test.render();
 				MVstack.pop();
 
 				MVstack.push();
 					translateVector[0] = 0.1f;
-					translateVector[1] = 1.45f;
+					translateVector[1] = 1.55f;
 					translateVector[2] = -1.0f;
 					MVstack.translate(translateVector);
 
@@ -430,9 +430,7 @@ int Oculus::runOvr() {
 						MVstack.translate(wand->getAnalogPosition());
 					}
 
-
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-
 					// Wand testing, coordinate axis
 					float orgio[3] = { 0, 0, 0 };
 					float X[3] = { 1, 0, 0 };
@@ -456,6 +454,7 @@ int Oculus::runOvr() {
 					glVertex3fv(Z);
 					glEnd();
 
+					
 				MVstack.pop();
 
 			MVstack.pop();

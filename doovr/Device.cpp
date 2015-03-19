@@ -65,7 +65,7 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
 	// Handle rotation data
 	double orient_local[16];
 	q_to_ogl_matrix(orient_local, t.quat);
-	posTracker->setTrackerRotation(orient_local);
+	posTracker->setTrackerRotation(orient_local);	
 
 	// Tell the main loop that we got another report
 	gotReport = 1;
@@ -89,7 +89,6 @@ bool Device::getButtonState() {
 	return button;
 }
 float* Device::getAnalogPosition() {
-	//cout << analogPos[0] << " " << analogPos[1] << endl;
 	return analogPos;
 }
 float* Device::getTrackerPosition() {
@@ -99,13 +98,13 @@ float* Device::getTrackerRotation() {
 	return trackerRotation;
 }
 
-
 // Set functions
 void Device::setTrackerPosition(float t[3]) {
+
 	// Wierd copies due to fixing axis and multiplying movement
-	trackerPosition[0] = t[0];
-	trackerPosition[1] = -t[2]+0.5f;
-	trackerPosition[2] = t[1];
+	trackerPosition[0] = t[0] + 0.1067f;
+	trackerPosition[1] = -t[2] + 0.4612f;
+	trackerPosition[2] = t[1] - 0.0299f;
 }
 void Device::setTrackerRotation(double o[16] ) {
 	double temp;
@@ -120,6 +119,7 @@ void Device::setTrackerRotation(double o[16] ) {
 	temp = o[9];
 	o[9] = -o[10];
 	o[10] = temp;
+
 	std::copy(o, o + 16, trackerRotation);
 }
 void Device::setAnalogPosition(float p[3]) {
