@@ -4,8 +4,8 @@
 #include "MatrixStack.hpp"
 #include "Entity.h"
 #include "Sphere.h"
+#include "Mesh.h"
 #include "Plane.h"
-
 
 void twoDim::setupViewport(GLFWwindow *window, GLfloat *P) {
 	int width, height;
@@ -66,8 +66,12 @@ int twoDim::run2D() {
 	MatrixStack MVstack;
 	MVstack.init();
 
-	Sphere test(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f, 0.5f);
-	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, glm::vec2(0.5f, 0.5f));
+	Sphere test(glm::vec3(1.0f, 1.0f, 1.0f), 2.0f, 0.1f);
+	Sphere test1(glm::vec3(1.0f, 1.0f, 1.0f), 2.0f, 0.1f);
+	Sphere test2(glm::vec3(2.0f, 1.0f, 3.0f), 2.0f, 0.1f);
+	Sphere test3(glm::vec3(1.0f, 4.0f, 3.0f), 2.0f, 0.1f);
+	Sphere test4(glm::vec3(4.0f/3.0f, 2.0f, 7.0f/3.0f), 2.0f, 0.1f);	
+	Mesh mTest;
 
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
@@ -79,23 +83,35 @@ int twoDim::run2D() {
 	Device* wand = new Device(true, true, true, "Wand");
 	Device* mouse = new Device(true, true, false, "Mouse");
 
+	int i = 1;
+	int j = 0;
+
 	while (!glfwWindowShouldClose(window)) {
 
 		if (glfwGetKey(window, GLFW_KEY_O)) {
-			ground.updateVertexArray();
+			mTest.updateVertexArray(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1]);
+//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
+			}
+		if (glfwGetKey(window, GLFW_KEY_P)) {
+			mTest.updateVertexArray2(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1]);
+			//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 		}
-		
+		if (glfwGetKey(window, GLFW_KEY_N)) {
+
+			mTest.moveThroughMesh((i + 1) * 20 + j);
+			i = i + 2;
+			j = j + 1;
+		}
+
 		glfwPollEvents();
 
 		//GL calls
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//glEnable(GL_DEPTH_TEST);
-		//glEnable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
-		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-		glEnable(GL_COLOR_MATERIAL);
-
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CW);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glUseProgram(phongShader.programID);
 
@@ -158,9 +174,8 @@ int twoDim::run2D() {
 				MVstack.translate(translateVector);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
-				ground.render();
+				//ground.render();
 			MVstack.pop();
-
 		MVstack.pop();
 
 		mouse->sendtoMainloop();
