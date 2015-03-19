@@ -1,43 +1,54 @@
 #include "Utilities.h"
 #include <vector>
 
+typedef struct face face;
+typedef struct vertex vertex;
 
-struct vertex{
+struct face {
+	face * nFace[3];
+	vertex *vertices[3];
+};
+
+struct vertex {
 	GLfloat x;
 	GLfloat y;
 	GLfloat z;
 	GLfloat nx;
 	GLfloat ny;
 	GLfloat nz;
-	int index;
+	face *adjacentFace;
 };
 
-struct triangle{
+struct triangle {
 	GLuint index1;
 	GLuint index2;
 	GLuint index3;
 };
 
-struct face{
-	face*  f[3];
-	vertex* v[3];
+/*
+struct halfEdge{
+	vertex* pVertex;
+	face* bFace;
+	halfEdge* nEdge;
+	halfEdge* oEdge;
 };
-
-class Mesh
-{
-public:
+*/
 
 
+class Mesh {
+  public:
 	Mesh();
-
 	~Mesh();
 
 	void updateVertexArray(double x, double y);
-
+	void updateVertexArray2(double x, double y);
+	void moveThroughMesh(int it);
 	void render();
 
-private:
+	vertex* getVertexList();
+	triangle* getIndexList();
 
+  private:
 	GLuint vao;          // Vertex array object, the main handle for geometry
 	
 	GLuint vertexbuffer; // Buffer ID to bind to GL_ARRAY_BUFFER

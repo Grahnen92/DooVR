@@ -16,7 +16,7 @@ Device::Device(bool analog, bool button, bool tracker, string name)
 {
 	// Add additional cases for STEM and Kienct2
 	if (name == "Wand") {
-		additionalAddress = "IS900" + LOCAL;
+		additionalAddress = "IS900" + VORTEX;
 		name = name + LOCAL;
 	}
 	else {

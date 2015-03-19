@@ -62,6 +62,7 @@ class Device {
 		std::string additionalAddress;
 		//! Constant local address
 		std::string LOCAL = "@localhost";
+		std::string VORTEX = "@130.236.142.25";
 	
 		//! Saved variable from setTrackerTransform
 		glm::mat4 trackerTransform = { 1.0, 0.0, 0.0, 0.0, 

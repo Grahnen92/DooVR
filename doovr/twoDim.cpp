@@ -5,6 +5,7 @@
 #include "Entity.h"
 #include "Sphere.h"
 #include "Mesh.h"
+//#include "Tool.h"
 
 
 void twoDim::setupViewport(GLFWwindow *window, GLfloat *P) {
@@ -78,17 +79,30 @@ int twoDim::run2D() {
 
 
 	// Initilise VRPN connection
-	Device* mouse = new Device(true, true, false, "Mouse");
+	Device* mouse = new Device(true, true, true, "Wand");
+
+	int i = 1;
+	int j = 0;
 
 	while (!glfwWindowShouldClose(window)) {
 
-	//	if (glfwGetKey(window, GLFW_KEY_O)) {
+		if (glfwGetKey(window, GLFW_KEY_O)) {
 			mTest.updateVertexArray(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1]);
-		//}
-		
-		glfwPollEvents();
+//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
+			}
+		if (glfwGetKey(window, GLFW_KEY_P)) {
+			mTest.updateVertexArray2(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1]);
+			//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
+		}
+		if (glfwGetKey(window, GLFW_KEY_N)) {
 
+			mTest.moveThroughMesh((i + 1) * 20 + j);
+			i = i + 2;
+			j = j + 1;
+		}
 		
+
+		glfwPollEvents();
 
 		//GL calls
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -96,7 +110,7 @@ int twoDim::run2D() {
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		glFrontFace(GL_CCW);
+		glFrontFace(GL_CW);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glUseProgram(phongShader.programID);
 
