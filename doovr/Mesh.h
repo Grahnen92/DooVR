@@ -4,11 +4,14 @@
 typedef struct face face;
 typedef struct vertex vertex;
 
+//! Data structure containing all necessary information regarding a facetrianglepolygon
 struct face {
+	//! Pointer to adjacent faces
 	face * nFace[3];
+	//! Pointer to the faces vertecies
 	vertex *vertices[3];
 };
-
+//! Data structure containing the coordinates and normal coordinates of a vertex, aswell as a pointer to an adjacent face
 struct vertex {
 	GLfloat x;
 	GLfloat y;
@@ -18,7 +21,7 @@ struct vertex {
 	GLfloat nz;
 	face *adjacentFace;
 };
-
+//! Data structure containing three indices of the vertexArray that make a certain triangle
 struct triangle {
 	GLuint index1;
 	GLuint index2;
@@ -34,7 +37,7 @@ struct halfEdge{
 };
 */
 
-
+//! A class representing a modifiable 3D mesh 
 class Mesh {
   public:
 	Mesh();
@@ -58,5 +61,4 @@ class Mesh {
 
 	std::vector<triangle> indexArray;
 	std::vector<vertex> vertexArray;
-	//std::vector <int[]> triangleList;
 };

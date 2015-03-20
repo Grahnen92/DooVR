@@ -5,6 +5,7 @@
 
 using namespace std;
 
+//! Calculates vector lenght
 float vectorLength(vertex vertex1, vertex vertex2) {
 	vertex vector;
 
@@ -30,47 +31,9 @@ Mesh::Mesh() {
 
 	vertexArray.reserve(1000000);
 	indexArray.reserve(1000000);
-	//triangleList.reserve(1000000);
-
-	/*
-	for (float i = -5.f; i < 5; i++) {
-
-	for (float j = -5.f; j < 5; j++) {
-
-	tempV.x = i / 5.0f;
-	tempV.y = j / 5.0f;
-	vertexArray.push_back(tempV);
-
-	}
-	}
-	*/
 	
 	triangle * indexP;
 	vertex * vertexP;
-	/*
-	tempV.x = 1.0f;
-	tempV.y = 1.0f;
-	vertexArray.push_back(tempV);
-	tempV.x = 1.0f;
-	tempV.y = -1.0f;
-	vertexArray.push_back(tempV);
-	tempV.x = -1.0f;
-	tempV.y = -1.0f;
-	vertexArray.push_back(tempV);
-	tempV.x = -1.0f;
-	tempV.y = 1.0f;
-	vertexArray.push_back(tempV);
-
-	tempT.index1 = 1;
-	tempT.index2 = 0;
-	tempT.index3 = 3;
-	indexArray.push_back(tempT);
-	tempT.index1 = 3;
-	tempT.index2 = 2;
-	tempT.index3 = 1;
-	indexArray.push_back(tempT);
-	*/
-	//hej
 	
 	for (int i = -10; i < 10; i++) {
 		cout << fmod(i, sqrt(0.75f) * 2) << endl;
@@ -94,61 +57,6 @@ Mesh::Mesh() {
 			vertexArray.push_back(tempV);
 		}
 	}
-	
-	/*float i = -10.0f;
-	float j = -10.0f;
-
-	while (i < 10.0f)
-	{
-		while (j < 10.0f)
-		{
-			if (fmod(i, 2.0f) == 0)
-			{
-				tempV.x = i / 5.0f + 0.1f;
-				tempV.z = j / 5.0f;
-
-				j = 1.0f + 0.1f;
-			}
-			else
-			{
-				tempV.x = i / 5.0f;
-				tempV.z = j / 5.0f;
-			}
-			tempV.nx = 0.0f;
-			tempV.ny = 1.0f;
-			tempV.nz = 0.0f;
-			vertexArray.push_back(tempV);
-
-			j = j + 1.0f;
-		}
-		i = i + 1.0f;
-	}*/
-
-	/*for (int i = 0; i < 19; i = i +1) {
-		for (int j = 0; j < 19; j++) {
-
-			tempT.index1 = i*20 + j;
-			tempT.index2 = (i + 1) * 20 + j;
-			tempT.index3 = i * 20 + (j + 1);
-			indexArray.push_back(tempT);
-
-			tempT.index1 = (i+1)*20 + j;
-			tempT.index2 = (i + 2) * 20 + j;
-			tempT.index3 = (i + 2) * 20 + (j + 1);
-			indexArray.push_back(tempT); 
-
-			tempT.index1 = (i + 1) * 20 + j;
-			tempT.index2 = (i + 2) * 20 + j;
-			tempT.index3 = (i + 2) * 20 + (j + 1);
-			indexArray.push_back(tempT);
-
-			tempT.index1 = (i + 1) * 20 + j;
-			tempT.index2 = (i + 2) * 20 + j;
-			tempT.index3 = (i + 2) * 20 + (j + 1);
-			indexArray.push_back(tempT);
-		}
-	}*/
-
 
 	face* fstart = nullptr;
 	face* handledFace1 = nullptr;
@@ -274,54 +182,6 @@ Mesh::Mesh() {
 		}
 	}
 
-
-	//vertexP = vertexArray;
-	/*
-	int index1 = 0, index2 = 0;
-	vertex handledVert, vert1, vert2;
-
-	float length = 0, currentLength1 = 100.0f, currentLength2 = 100.0f;
-
-	for (int i = 0; i < vertexArray.size(); i++)
-	{
-	handledVert = vertexArray[i];
-
-	for (int j = 0; j < vertexArray.size(); j++)
-	{
-	if (j != i)
-	{
-	vert1 = vertexArray[j];
-
-	length = vectorLength(handledVert, vert1);
-
-	if (length < currentLength1)
-	{
-	currentLength2 = currentLength1;
-	currentLength1 = length;
-
-	index2 = index1;
-	index1 = j;
-	}
-	else if (length < currentLength2)
-	{
-	currentLength2 = length;
-	index2 = j;
-	}
-	}
-	}
-
-	tempT.index1 = i;
-	tempT.index2 = index1;
-	tempT.index3 = index2;
-	indexArray.push_back(tempT);
-
-	currentLength2 = 100.0f;
-	currentLength1 = 100.0f;
-
-	}
-
-	*/
-
 	vertexP = &vertexArray[0];
 	indexP = &indexArray[0];
 	// Generate one vertex array object (VAO) and bind it
@@ -380,22 +240,6 @@ void Mesh::updateVertexArray(double x, double y) {
 
 	tempV.z = 0;
 
-	/*
-	for (int i = -5; i <  5.0f; i++)
-	{
-
-	for (int j = dimNr; j < dimNr + 1.0f; j++)
-	{
-	tempV.x = i / 5.0f;
-	tempV.y = j / 5.0f;
-	vertexArray.push_back(tempV);
-
-	}
-	}
-
-	dimNr = dimNr + 1.0f;
-	*/
-
 	vertex point;
 	point.x = 0.0f;
 	point.y = 0.0f;
@@ -421,55 +265,6 @@ void Mesh::updateVertexArray(double x, double y) {
 		}
 
 	}
-
-	//std::sort(vertexArray.begin(), vertexArray.end(), sortByXCord);
-
-	/*
-	int index1 = 0, index2 = 0;
-	vertex handledVert, vert1, vert2;
-
-	float length = 0, currentLength1 = 100.0f, currentLength2 = 100.0f;
-
-	indexArray.clear();
-
-	for (int i = 0; i < vertexArray.size(); i++)
-	{
-	handledVert = vertexArray[i];
-
-	for (int j = 0; j < vertexArray.size(); j++)
-	{
-	if (j != i)
-	{
-	vert1 = vertexArray[j];
-
-	length = vectorLength(handledVert, vert1);
-
-	if (length < currentLength1)
-	{
-	currentLength2 = currentLength1;
-	currentLength1 = length;
-
-	index2 = index1;
-	index1 = j;
-	}
-	else if (length < currentLength2)
-	{
-	currentLength2 = length;
-	index2 = j;
-	}
-	}
-	}
-
-	tempT.index1 = i;
-	tempT.index2 = index1;
-	tempT.index3 = index2;
-	indexArray.push_back(tempT);
-
-	currentLength2 = 100.0f;
-	currentLength1 = 100.0f;
-	}
-
-	*/
 
 	vertexP = &vertexArray[0];
 	indexP = &indexArray[0];
@@ -527,7 +322,8 @@ void Mesh::updateVertexArray(double x, double y) {
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 	//	3 * indexArray.size()*sizeof(GLuint), indexP, GL_STREAM_DRAW);
 
-	indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+	indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(),
+										 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
 	for (int i = 0; i < indexArray.size(); i++) {
 		indexP[i].index1 = indexArray[i].index1;
@@ -566,10 +362,6 @@ void Mesh::updateVertexArray2(double x, double y) {
 	float xx = x;
 	float yy = y;
 
-	//vertexArray[209].x = -xx;
-	//vertexArray[209].y = 2.0f;
-	//vertexArray[209].z = -yy;
-
 	for (int i = 0; i < vertexArray.size(); i++)
 	{
 		if (vectorLength(point, vertexArray[i]) < rad)
@@ -583,22 +375,8 @@ void Mesh::updateVertexArray2(double x, double y) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
-	//get buffer size
-	int bufferSize; // offset in bytes
-	glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
-	int sizeOfOriginalvertexArray = (bufferSize / sizeof(vertex));
-
-	int addedVerticies = vertexArray.size() - sizeOfOriginalvertexArray;
-	int offset = sizeOfOriginalvertexArray - 1;
-	//cout << " added vertices: " << addedVerticies << " offset: " << offset << " size: " << sizeOfOriginalvertexArray << endl;
-
-	// Present our vertex coordinates to OpenGL
-	//glBufferData(GL_ARRAY_BUFFER, 
-	//		 3*vertexArray.size() * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
-
-
 	vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(vertex)*vertexArray.size(),
-		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+										GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
 	for (int i = 0; i < vertexArray.size(); i++) {
 		vertexP[i].x = vertexArray[i].x;
@@ -622,9 +400,9 @@ void Mesh::updateVertexArray2(double x, double y) {
 	// Stride 8 (interleaved array with 8 floats per vertex)
 	// Array buffer offset 0, 3, 6 (offset into first vertex)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-		6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
+						  6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-		6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
+						  6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
 
 	glUnmapBuffer(GL_ARRAY_BUFFER);
 
@@ -634,7 +412,8 @@ void Mesh::updateVertexArray2(double x, double y) {
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 	//	3 * indexArray.size()*sizeof(GLuint), indexP, GL_STREAM_DRAW);
 
-	indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+	indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(),
+										 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
 	for (int i = 0; i < indexArray.size(); i++) {
 		indexP[i].index1 = indexArray[i].index1;
@@ -701,7 +480,7 @@ void Mesh::moveThroughMesh(int it)
 
 
 	vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(vertex)*vertexArray.size(),
-		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+										GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
 	for (int i = 0; i < vertexArray.size(); i++) {
 		vertexP[i].x = vertexArray[i].x;
@@ -725,9 +504,9 @@ void Mesh::moveThroughMesh(int it)
 	// Stride 8 (interleaved array with 8 floats per vertex)
 	// Array buffer offset 0, 3, 6 (offset into first vertex)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-		6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
+						  6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-		6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
+						  6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
 
 	glUnmapBuffer(GL_ARRAY_BUFFER);
 
@@ -737,7 +516,8 @@ void Mesh::moveThroughMesh(int it)
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 	//	3 * indexArray.size()*sizeof(GLuint), indexP, GL_STREAM_DRAW);
 
-	indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+	indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(),
+										 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
 	for (int i = 0; i < indexArray.size(); i++) {
 		indexP[i].index1 = indexArray[i].index1;

@@ -5,7 +5,6 @@
 #include "vrpn/vrpn_Button.h"
 #include "vrpn/vrpn_Analog.h"
 #include "vrpn/quat.h"
-
 #include <iostream>
 
 //! A class that handles vrpn connected devices
@@ -57,7 +56,7 @@ class Device {
 		//! Constant local address
 
 		std::string LOCAL = "@localhost";
-		std::string VORTEX = "@130.236.142.25";
+		std::string VORTEX = "@130.236.142.1";
 	
 		//! Saved variable from setTrackerPosition
 		float trackerPosition[3];

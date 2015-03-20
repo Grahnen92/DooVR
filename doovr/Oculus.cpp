@@ -323,7 +323,7 @@ int Oculus::runOvr() {
 
 
 	// Initilise VRPN connection
-	Device* wand = new Device(true, true, true, "Wand");
+	Device* wand = new Device(true, true, false, "Mouse");
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
@@ -403,6 +403,7 @@ int Oculus::runOvr() {
 					translateVector[2] = 0.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					ground.render();
 				MVstack.pop();
 
 				MVstack.push();
