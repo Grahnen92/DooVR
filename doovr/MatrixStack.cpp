@@ -1,4 +1,4 @@
-#include "MatrixStack.hpp"
+#include "MatrixStack.h"
 #include <math.h>
 
 /* Constructor: Create one matrix and set it to identity */

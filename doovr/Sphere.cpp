@@ -3,7 +3,30 @@
 Sphere::Sphere(glm::vec3 _pos, float _rad)
 {
 	oType = 'S';
-	position = _pos;
+	position[0] = _pos.x;
+	position[1] = _pos.y;
+	position[2] = _pos.z;
+
+	orientation[0] = 1.0f;
+	orientation[1] = 0.0f;
+	orientation[2] = 0.0f;
+	orientation[3] = 0.0f;
+
+	orientation[4] = 0.0f;
+	orientation[5] = 1.0f;
+	orientation[6] = 0.0f;
+	orientation[7] = 0.0f;
+
+	orientation[8] = 0.0f;
+	orientation[9] = 0.0f;
+	orientation[10] = 1.0f;
+	orientation[11] = 0.0f;
+
+	orientation[12] = 0.0f;
+	orientation[13] = 0.0f;
+	orientation[14] = 0.0f;
+	orientation[15] = 1.0f;
+
 
 	radius = _rad;
 	createSphere(_rad, 6);

@@ -15,8 +15,8 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t);
 Device::Device(bool analog, bool button, bool tracker, string name) {
 	// Add additional cases for STEM and Kienct2
 	if (name == "Wand") {
-		additionalAddress = "IS900" + VORTEX;
-		name = name + VORTEX;
+		additionalAddress = "IS900" + LOCAL;
+		name = name + LOCAL;
 	}
 	else {
 		name = name + "0" + LOCAL;
@@ -100,11 +100,11 @@ float* Device::getTrackerRotation() {
 
 // Set functions
 void Device::setTrackerPosition(float t[3]) {
-
+	// fix point: 1.088f from floor.
 	// Wierd copies due to fixing axis and multiplying movement
 	trackerPosition[0] = t[0] + 0.2067f;
-	trackerPosition[1] = -t[2] + 2.0112f; // offset dependant on eye height, solve for each person
-	trackerPosition[2] = t[1] - 0.8999f;
+	trackerPosition[1] = -t[2] + 1.005; // offset to get correct wand coordinates
+	trackerPosition[2] = t[1] - 0.0f;
 }
 void Device::setTrackerRotation(double o[16] ) {
 	double temp;

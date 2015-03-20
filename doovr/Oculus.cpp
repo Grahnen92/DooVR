@@ -1,10 +1,10 @@
 #include "Oculus.h"
 
 #include "Shader.h"
-#include "MatrixStack.hpp"
-#include "Entity.h"
+#include "MatrixStack.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "Box.h"
 
 //#define GLFW_EXPOSE_NATIVE_WIN32
 //#define GLFW_EXPOSE_NATIVE_WGL
@@ -307,8 +307,10 @@ int Oculus::runOvr() {
 	MatrixStack MVstack;
 	MVstack.init();
 
-	Sphere sphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.1f);
-	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(5.0f, 5.0f));
+	Sphere sphere(glm::vec3(1.0f, -1.088f, -1.5f), 0.1f);
+	Sphere cam(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
+	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));
+	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
 
 	//LINK VARIABLES WITH SHADER
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
@@ -323,7 +325,7 @@ int Oculus::runOvr() {
 
 
 	// Initilise VRPN connection
-	Device* wand = new Device(true, true, false, "Mouse");
+	Device* wand = new Device(true, true, true, "Wand");
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
@@ -354,14 +356,16 @@ int Oculus::runOvr() {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glDisable(GL_TEXTURE_2D);
+		//glFrontFace(GL_CW);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		if (l_MultiSampling) {
 			glEnable(GL_MULTISAMPLE);
 		} else {
 			glDisable(GL_MULTISAMPLE);
 		}
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			
 
 		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++) {
 			ovrEyeType l_Eye = hmd->EyeRenderOrder[l_EyeIndex];
@@ -392,31 +396,50 @@ int Oculus::runOvr() {
 
 				//!-- Translation due to positional tracking (DK2) and IPD...
 				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
-				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -(eyeHeight + g_EyePoses[l_Eye].Position.y), -g_EyePoses[l_Eye].Position.z + 1.0f };
+				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z };
 				MVstack.translate(eyePoses);
 
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
+				// Ground
 				MVstack.push();
 					translateVector[0] = 0.0f;
-					translateVector[1] = 0.0f;
+					translateVector[1] = -1.088f;
 					translateVector[2] = 0.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					ground.render();
 				MVstack.pop();
 
+				// Camera
 				MVstack.push();
-				if (wand->getButtonState()) {
-					MVstack.translate(wand->getTrackerPosition());
-				}
-				else {
 					translateVector[0] = 0.0f;
-					translateVector[1] = 2.0f;
+					translateVector[1] = 0.502f; // 1.59 cm (camera height) - 1.088 (origin height)
 					translateVector[2] = -2.0f;
 					MVstack.translate(translateVector);
-				}
-					
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					cam.render();
+				MVstack.pop();
+
+				// Box (chair) with wand on
+				MVstack.push();
+					translateVector[0] = 1.0f;
+					translateVector[1] = -0.818f; // chair height
+					translateVector[2] = 0.0f;
+					MVstack.translate(translateVector);
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					box.render();
+				MVstack.pop();
+
+				// Wand
+				MVstack.push();
+					if (wand->getButtonState()) {
+						sphere.setPosition(wand->getTrackerPosition());
+						sphere.setOrientation(wand->getTrackerRotation());
+					}
+
+					MVstack.translate(sphere.getPosition());
+					MVstack.multiply(sphere.getOrientation());
 
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					sphere.render();

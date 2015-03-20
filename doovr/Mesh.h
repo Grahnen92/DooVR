@@ -1,6 +1,8 @@
 #include "Utilities.h"
 #include <vector>
 
+
+
 typedef struct face face;
 typedef struct vertex vertex;
 

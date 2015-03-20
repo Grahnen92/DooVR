@@ -1,10 +1,8 @@
 #include "twoDim.h"
 
 #include "Shader.h"
-#include "MatrixStack.hpp"
-#include "Entity.h"
+#include "MatrixStack.h"
 #include "Sphere.h"
-#include "Mesh.h"
 #include "Plane.h"
 
 void twoDim::setupViewport(GLFWwindow *window, GLfloat *P) {
@@ -68,7 +66,7 @@ int twoDim::run2D() {
 
 
 	Mesh mTest;
-	Sphere test(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
+	Sphere sphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.5f, 0.5f));
 
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
@@ -163,8 +161,6 @@ int twoDim::run2D() {
 				glVertex3fv(Z);
 				glEnd();
 				glLineWidth(1.0);
-
-				//test.render();
 			MVstack.pop();
 			MVstack.push();
 				translateVector[0] = 0.0f;

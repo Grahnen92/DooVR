@@ -24,7 +24,7 @@
 #include "Utilities.h"
 
 #include "Shader.h"
-#include "MatrixStack.hpp"
+#include "MatrixStack.h"
 #include "Entity.h"
 #include "Sphere.h"
 

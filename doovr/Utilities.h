@@ -25,9 +25,6 @@
 #include <Src/OVR_CAPI.h>
 #include <Src/OVR_CAPI_GL.h>
 
-
-
-
 namespace Utilities {
 
 }
