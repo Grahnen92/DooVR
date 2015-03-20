@@ -23,6 +23,8 @@ public:
 	glm::vec3 getNormal() { return normal; }
 	void setNormal(glm::vec3 n){ normal = n;}
 
+	void updateVertexArray(double x, double y );
+
 	void render();
 	glm::vec2 getDim(){ return dim; }
 
@@ -32,6 +34,7 @@ private:
 	int ntris;  // Number of triangles in the index array (may be zero)
 	GLuint vertexbuffer; // Buffer ID to bind to GL_ARRAY_BUFFER
 	GLuint indexbuffer;  // Buffer ID to bind to GL_ELEMENT_ARRAY_BUFFER
+
 	GLfloat *vertexarray; // Vertex array on interleaved format: x y z nx ny nz s t
 	GLuint *indexarray;   // Element index array
 

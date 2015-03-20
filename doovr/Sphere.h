@@ -1,17 +1,14 @@
 #pragma once
 #include "Entity.h"
 #include "Utilities.h"
-class Sphere :
-	public Entity
-{
+class Sphere : public Entity {
 public:
 	
 	// Creates a sphere  
 	Sphere(glm::vec3 _pos, float _rad);
 	~Sphere(void);
 
-	Sphere()
-	{
+	Sphere() {
 		vao = 0;
 		vertexbuffer = 0;
 		indexbuffer = 0;

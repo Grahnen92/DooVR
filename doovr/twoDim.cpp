@@ -4,8 +4,8 @@
 #include "MatrixStack.hpp"
 #include "Entity.h"
 #include "Sphere.h"
+#include "Mesh.h"
 #include "Plane.h"
-
 
 void twoDim::setupViewport(GLFWwindow *window, GLfloat *P) {
 	int width, height;
@@ -66,6 +66,8 @@ int twoDim::run2D() {
 	MatrixStack MVstack;
 	MVstack.init();
 
+
+	Mesh mTest;
 	Sphere test(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.5f, 0.5f));
 
@@ -79,19 +81,35 @@ int twoDim::run2D() {
 	Device* wand = new Device(true, true, true, "Wand");
 	Device* mouse = new Device(true, true, false, "Mouse");
 
+	int i = 1;
+	int j = 0;
+
 	while (!glfwWindowShouldClose(window)) {
-		
+
+		if (glfwGetKey(window, GLFW_KEY_O)) {
+			mTest.updateVertexArray(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1]);
+//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
+			}
+		if (glfwGetKey(window, GLFW_KEY_P)) {
+			mTest.updateVertexArray2(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1]);
+			//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
+		}
+		if (glfwGetKey(window, GLFW_KEY_N)) {
+
+			mTest.moveThroughMesh((i + 1) * 20 + j);
+			i = i + 2;
+			j = j + 1;
+		}
+
 		glfwPollEvents();
 
 		//GL calls
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//glEnable(GL_DEPTH_TEST);
-		//glEnable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
-		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-		glEnable(GL_COLOR_MATERIAL);
-
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CW);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glUseProgram(phongShader.programID);
 
@@ -100,9 +118,10 @@ int twoDim::run2D() {
 
 		MVstack.push();
 			translateVector[0] = 0.0f;
-			translateVector[1] = 0.0f;
-			translateVector[2] = -3.0f;
+			translateVector[1] = -1.0f;
+			translateVector[2] = -1.0f;
 			MVstack.translate(translateVector);
+			MVstack.rotAxis(glm::vec3(1.0f, 0.0f, 0.0f), -0.8f);
 
 			MVstack.push();
 				//MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], 0.0f, wand->getAnalogPosition()[1]));
@@ -143,7 +162,7 @@ int twoDim::run2D() {
 				glVertex3fv(orgio);
 				glVertex3fv(Z);
 				glEnd();
-
+				glLineWidth(1.0);
 
 				//test.render();
 			MVstack.pop();
@@ -154,9 +173,17 @@ int twoDim::run2D() {
 				MVstack.translate(translateVector);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
-				ground.render();
+				//ground.render();
 			MVstack.pop();
+			MVstack.push();
+				translateVector[0] = 0.0f;
+				translateVector[1] = -1.0f;
+				translateVector[2] = -3.0f;
+				MVstack.translate(translateVector);
+				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
+				mTest.render();
+			MVstack.pop();
 		MVstack.pop();
 
 		mouse->sendtoMainloop();

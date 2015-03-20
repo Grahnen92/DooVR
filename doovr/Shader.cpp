@@ -39,10 +39,11 @@ void Shader::createShader(const char *vertexFilePath, const char *fragmentFilePa
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &isCompiled);
 	
 	if (isCompiled == GL_FALSE) {
-		cout << "fails vertex" << endl;
 
 		glGetShaderInfoLog(vertexShader, sizeof(str), NULL, str);
-		fprintf(stderr, "%s: %s\n", "Fragment shader compile error", str);
+		fprintf(stderr, "%s: %s\n", "Vertex shader compile error", str);
+
+		glDeleteShader(vertexShader);
 
 		return;
 	}
@@ -60,8 +61,11 @@ void Shader::createShader(const char *vertexFilePath, const char *fragmentFilePa
 
 	if (isCompiled == GL_FALSE) {
 
-		glGetShaderInfoLog(vertexShader, sizeof(str), NULL, str);
+		glGetShaderInfoLog(fragmentShader, sizeof(str), NULL, str);
 		fprintf(stderr, "%s: %s\n", "Fragment shader compile error", str);
+
+		glDeleteShader(fragmentShader);
+		glDeleteShader(vertexShader);
 
 		return;
 	}
@@ -80,11 +84,18 @@ void Shader::createShader(const char *vertexFilePath, const char *fragmentFilePa
 		glGetProgramInfoLog(program, sizeof(str), NULL, str);
 		fprintf(stderr, "%s: %s\n", "Program object linking error", str);
 
+		glDeleteProgram(program);
+		glDeleteShader(fragmentShader);
+		glDeleteShader(vertexShader);
+
 		return;
 	}
 
 	glDetachShader(program, vertexShader);
 	glDetachShader(program, fragmentShader);
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
 
 	programID = program;
 }

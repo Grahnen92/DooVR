@@ -84,12 +84,12 @@ Plane::~Plane(void)
 void Plane::render()
 {
 	glBindVertexArray(vao);
+
 	glColor3f(color.x, color.y, color.z);
 	glDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);
 }
-
 
 void Plane::display(ostream& os) const
 {

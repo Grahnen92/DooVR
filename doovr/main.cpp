@@ -1,5 +1,4 @@
-
- /* 
+/* 
    	DooVR, Modelling application using Oculus Rift and Sixense STEM.
     Copyright (C) 2015  Isabelle Forsman, Olle Grahn, Jonathan Bosson, Johan Nordin.
 
@@ -28,7 +27,6 @@
 #include "MatrixStack.hpp"
 #include "Entity.h"
 #include "Sphere.h"
-#include "Plane.h"
 
 #include "twoDim.h"
 #include "Oculus.h"
