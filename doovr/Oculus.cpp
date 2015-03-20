@@ -11,9 +11,15 @@
 
 using namespace std;
 
-const bool l_MultiSampling = false;
+// ------- Function declerations --------
+//! Sets up a glfw window depending on the resolution of the Oculus Rift device
+static void WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height);
+void GLRenderCallsOculus();
 
-int g_DistortionCaps = 0
+// --- Variable Declerations ------------
+const bool L_MULTISAMPLING = false;
+
+const int G_DISTORTIONCAPS = 0
 | ovrDistortionCap_Vignette
 | ovrDistortionCap_Chromatic
 | ovrDistortionCap_Overdrive
@@ -30,21 +36,8 @@ OVR::Matrix4f g_ProjectionMatrix[2];
 OVR::Sizei g_RenderTargetSize;
 ovrVector3f g_CameraPosition;
 
-float eyeHeight{ OVR_DEFAULT_EYE_HEIGHT };
-
-
-static void Oculus::WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height) {
-	if (p_Width>0 && p_Height>0) {
-		g_Cfg.OGL.Header.BackBufferSize.w = p_Width;
-		g_Cfg.OGL.Header.BackBufferSize.h = p_Height;
-
-		ovrBool l_ConfigureResult = ovrHmd_ConfigureRendering(hmd, &g_Cfg.Config, g_DistortionCaps, hmd->MaxEyeFov, g_EyeRenderDesc);
-		if (!l_ConfigureResult) {
-			printf("Configure failed.\n");
-			exit(EXIT_FAILURE);
-		}
-	}
-}
+const float EYEHEIGHT{ OVR_DEFAULT_EYE_HEIGHT };
+// --------------------------------------
 
 int Oculus::runOvr() {
 
@@ -66,7 +59,7 @@ int Oculus::runOvr() {
 	GLint locationMV;
 	GLint locationOMV;
 
-	//INITIALIZE OVR 
+	//INITIALIZE OVR /////////////////////////////////////////////////////
 	ovr_Initialize();
 	int det;
 	// Check for attached head mounted display...
@@ -79,29 +72,22 @@ int Oculus::runOvr() {
 		cout << det << endl;
 	}
 
+	// Check to see if we are running in "Direct" or "Extended Desktop" mode...
+	bool l_DirectMode = ((hmd->HmdCaps & ovrHmdCap_ExtendDesktop) == 0);
 
-#ifdef __APPLE__
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-	// Create a window...
-	GLFWwindow* l_Window;
-
-	//glfwSetErrorCallback(ErrorCallback);
-
-	// start GLEW extension handler
+	// INITIALIZE GL ////////////////////////////////////////////////////
 	if (!glfwInit()) {
 		fprintf(stderr, "ERROR: could not start GLFW3\n");
 		return 1;
 	}
 
-	if (l_MultiSampling) glfwWindowHint(GLFW_SAMPLES, 4); else glfwWindowHint(GLFW_SAMPLES, 0);
+	if (L_MULTISAMPLING) glfwWindowHint(GLFW_SAMPLES, 4); 
+	else glfwWindowHint(GLFW_SAMPLES, 0);
 
-	// Check to see if we are running in "Direct" or "Extended Desktop" mode...
-	bool l_DirectMode = ((hmd->HmdCaps & ovrHmdCap_ExtendDesktop) == 0);
+
+	// SETUP GLFW WINDOW AND CONTEXT /////////////////////////////////////////////////////////////
+	// Create a window...
+	GLFWwindow* l_Window;
 
 	GLFWmonitor* l_Monitor;
 	ovrSizei l_ClientSize;
@@ -183,6 +169,7 @@ int Oculus::runOvr() {
 	printf("Vendor: %s\n", (char*)glGetString(GL_VENDOR));
 	printf("Renderer: %s\n", (char*)glGetString(GL_RENDERER));
 
+	//CREATE OCULUS TEXTURES AND BIND THESE TO GL///////////////////////////////////////////////////////////////////////////////
 	ovrSizei l_EyeTextureSizes[2];
 
 	l_EyeTextureSizes[ovrEye_Left] = ovrHmd_GetFovTextureSize(hmd, ovrEye_Left, hmd->MaxEyeFov[ovrEye_Left], 1.0f);
@@ -234,8 +221,7 @@ int Oculus::runOvr() {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	// Setup textures for each eye...
-
+	// SETUP TEXTURES FOR EACH EYE /////////////////////////////////////////////////////////////////////
 	// Left eye...
 	g_EyeTextures[ovrEye_Left].Header.API = ovrRenderAPI_OpenGL;
 	g_EyeTextures[ovrEye_Left].Header.TextureSize = g_RenderTargetSize;
@@ -244,29 +230,24 @@ int Oculus::runOvr() {
 	g_EyeTextures[ovrEye_Left].Header.RenderViewport.Size = l_EyeTextureSizes[ovrEye_Left];
 	((ovrGLTexture&)(g_EyeTextures[ovrEye_Left])).OGL.TexId = l_TextureId;
 
-	// Right eye (mostly the same as left but with the viewport on the right side of the texture)...
+	// Right eye (mostly the same as left but with the viewport on the right side of the texture)
 	g_EyeTextures[ovrEye_Right] = g_EyeTextures[ovrEye_Left];
 	g_EyeTextures[ovrEye_Right].Header.RenderViewport.Pos.x = (g_RenderTargetSize.w + 1) / 2;
 	g_EyeTextures[ovrEye_Right].Header.RenderViewport.Pos.y = 0;
 
-	// Oculus Rift eye configurations...
+	// OCULUS RIFT EYE CONFIGURATIONS
 	g_Cfg.OGL.Header.API = ovrRenderAPI_OpenGL;
 	g_Cfg.OGL.Header.BackBufferSize.w = l_ClientSize.w;
 	g_Cfg.OGL.Header.BackBufferSize.h = l_ClientSize.h;
-	g_Cfg.OGL.Header.Multisample = (l_MultiSampling ? 1 : 0);
+	g_Cfg.OGL.Header.Multisample = (L_MULTISAMPLING ? 1 : 0);
 
-#if defined(_WIN32)
 	g_Cfg.OGL.Window = glfwGetWin32Window(l_Window);
 	g_Cfg.OGL.DC = GetDC(g_Cfg.OGL.Window);
-#elif defined(__linux__)
-	l_Cfg.OGL.Win = glfwGetX11Window(l_Window);
-	l_Cfg.OGL.Disp = glfwGetX11Display();
-#endif
 
 	// Enable capabilities...
 	// ovrHmd_SetEnabledCaps(hmd, ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction);
 
-	ovrBool l_ConfigureResult = ovrHmd_ConfigureRendering(hmd, &g_Cfg.Config, g_DistortionCaps, hmd->MaxEyeFov, g_EyeRenderDesc);
+	ovrBool l_ConfigureResult = ovrHmd_ConfigureRendering(hmd, &g_Cfg.Config, G_DISTORTIONCAPS, hmd->MaxEyeFov, g_EyeRenderDesc);
 	if (!l_ConfigureResult) {
 		printf("Configure failed.\n");
 		exit(EXIT_FAILURE);
@@ -281,26 +262,18 @@ int Oculus::runOvr() {
 		exit(EXIT_FAILURE);
 	}
 
-	// Projection matrici for each eye will not change at runtime, we can set them here...
+	// set projection matrix for each eye
 	g_ProjectionMatrix[ovrEye_Left] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Left].Fov, 0.3f, 100.0f, true);
 	g_ProjectionMatrix[ovrEye_Right] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Right].Fov, 0.3f, 100.0f, true);
 
-	// IPD offset values will not change at runtime, we can set them here...
+	// set IPD offset values
 	g_EyeOffsets[ovrEye_Left] = g_EyeRenderDesc[ovrEye_Left].HmdToEyeViewOffset;
 	g_EyeOffsets[ovrEye_Right] = g_EyeRenderDesc[ovrEye_Right].HmdToEyeViewOffset;
-
-	// Initial camera position...
-	g_CameraPosition.x = 0.0f;
-	g_CameraPosition.y = 0.0f;
-	g_CameraPosition.z = -2.0f;
 
 	//glfwSetKeyCallback(l_Window, KeyCallback);
 	glfwSetWindowSizeCallback(l_Window, WindowSizeCallback);
 
-	// Do a single recenter to calibrate orientation to current state of the Rift...
-	ovrHmd_RecenterPose(hmd);
-
-	//DECLARE SCENE OBJECTS
+	//DECLARE SCENE OBJECTS ///////////////////////////////////////////////////////////////////////////////////
 	Shader phongShader;
 	phongShader.createShader("vertexshader.glsl", "fragmentshader.glsl");
 
@@ -312,23 +285,22 @@ int Oculus::runOvr() {
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
 
-	//LINK VARIABLES WITH SHADER
+	//LINK VARIABLES WITH SHADER ///////////////////////////////////////////////////////////////////////////
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationOMV = glGetUniformLocation(phongShader.programID, "OMV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 	locationLP = glGetUniformLocation(phongShader.programID, "lightPos");
 
-	//GET PROFILE AND HEIGHT
 
 	ovrHmd_RecenterPose(hmd);
-	ovrHmd_DismissHSWDisplay(hmd);
-
+	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
 	// Initilise VRPN connection
 	Device* wand = new Device(true, true, true, "Wand");
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
+	// RENDER LOOP ////////////////////////////////////////////////////////////////////////////////////////
 	while (!glfwWindowShouldClose(l_Window)) {
 
 		if (glfwGetKey(l_Window, GLFW_KEY_O)) {
@@ -348,24 +320,7 @@ int Oculus::runOvr() {
 		// Bind the FBO...
 		glBindFramebuffer(GL_FRAMEBUFFER, l_FBOId);
 
-		// Clear...
-		//GL calls
-		glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glDisable(GL_TEXTURE_2D);
-		//glFrontFace(GL_CW);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		if (l_MultiSampling) {
-			glEnable(GL_MULTISAMPLE);
-		} else {
-			glDisable(GL_MULTISAMPLE);
-		}
-			
+		GLRenderCallsOculus();
 
 		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++) {
 			ovrEyeType l_Eye = hmd->EyeRenderOrder[l_EyeIndex];
@@ -380,6 +335,8 @@ int Oculus::runOvr() {
 			// Pass projection matrix on to OpenGL...
 			glUniformMatrix4fv(locationP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
 
+			//SCENEGRAPH//////////////////////////////////////////////////////////////////////////////////////////
+			//Oculus transformations
 			MVstack.push();
 				// Multiply with orientation retrieved from sensor...
 				OVR::Quatf l_Orientation = OVR::Quatf(g_EyePoses[l_Eye].Orientation);
@@ -445,6 +402,7 @@ int Oculus::runOvr() {
 					sphere.render();
 				MVstack.pop();
 
+				//wand transformations
 				MVstack.push();
 					MVstack.translate(wand->getTrackerPosition());
 					MVstack.multiply(wand->getTrackerRotation());
@@ -480,7 +438,16 @@ int Oculus::runOvr() {
 					glVertex3fv(Z);
 					glEnd();
 
-					
+				MVstack.pop();
+
+				//ground transformations
+				MVstack.push();
+					translateVector[0] = 0.0f;
+					translateVector[1] = 0.0f;
+					translateVector[2] = 0.0f;
+					MVstack.translate(translateVector);
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					ground.render();
 				MVstack.pop();
 
 			MVstack.pop();
@@ -515,4 +482,37 @@ int Oculus::runOvr() {
 	glfwTerminate();
 
 	return 1;
+}
+
+static void WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height) {
+	if (p_Width>0 && p_Height>0) {
+		g_Cfg.OGL.Header.BackBufferSize.w = p_Width;
+		g_Cfg.OGL.Header.BackBufferSize.h = p_Height;
+
+		ovrBool l_ConfigureResult = ovrHmd_ConfigureRendering(hmd, &g_Cfg.Config, G_DISTORTIONCAPS, hmd->MaxEyeFov, g_EyeRenderDesc);
+		if (!l_ConfigureResult) {
+			printf("Configure failed.\n");
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+
+void GLRenderCallsOculus(){
+	// Clear...
+	//GL calls
+	glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (L_MULTISAMPLING) {
+		glEnable(GL_MULTISAMPLE);
+	}
+	else {
+		glDisable(GL_MULTISAMPLE);
+	}
 }

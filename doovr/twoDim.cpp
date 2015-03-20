@@ -4,16 +4,17 @@
 #include "MatrixStack.h"
 #include "Sphere.h"
 #include "Plane.h"
+// ---- Function dectarations ---- 
+void modifyMesh(Mesh* mesh, GLFWwindow* w, Device* wand);
+void GLRenderCalls();
+//! Sets up the GLFW viewport
+void setupViewport(GLFWwindow *window, GLfloat *P);
+// --------------------------------
 
-void twoDim::setupViewport(GLFWwindow *window, GLfloat *P) {
-	int width, height;
-
-	glfwGetWindowSize(window, &width, &height);
-
-	P[0] = P[5] * height / width;
-
-	glViewport(0, 0, width, height);
-}
+// --- Global variables for testing ---
+int global_i = 1;
+int global_j = 0;
+// ------------------------------------
 
 int twoDim::run2D() {
 	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f,
@@ -26,18 +27,13 @@ int twoDim::run2D() {
 					  0.0f, 0.0f, -0.2f, 0.0f };
 	GLint locationP;
 	GLint locationMV;
+
+	//GL INITIALIZATION ////////////////////////////////////////////////////////////////////////////////
 	// start GLEW extension handler
 	if (!glfwInit()) {
 		fprintf(stderr, "ERROR: could not start GLFW3\n");
 		return 1;
 	}
-
-#ifdef __APPLE__
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
 
 	//create GLFW window and select context
 	GLFWwindow* window = glfwCreateWindow(640, 480, "hej", NULL, NULL);
@@ -58,12 +54,12 @@ int twoDim::run2D() {
 	printf("Renderer: %s\n", renderer);
 	printf("OpenGL version supported %s\n", version);
 
+	// CREATE OBJECTS ////////////////////////////////////////////////////////////////////////////////
 	Shader phongShader;
 	phongShader.createShader("vertexshader.glsl", "fragmentshader.glsl");
 
 	MatrixStack MVstack;
 	MVstack.init();
-
 
 	Mesh mTest;
 	Sphere sphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
@@ -74,46 +70,24 @@ int twoDim::run2D() {
 
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
 
-
 	// Initilise VRPN connection
 	Device* wand = new Device(true, true, true, "Wand");
 	Device* mouse = new Device(true, true, false, "Mouse");
 
-	int i = 1;
-	int j = 0;
-
+	//RENDER LOOP /////////////////////////////////////////////////////////////////////////////////////
 	while (!glfwWindowShouldClose(window)) {
 
-		if (glfwGetKey(window, GLFW_KEY_O)) {
-			mTest.updateVertexArray(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1]);
-//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
-			}
-		if (glfwGetKey(window, GLFW_KEY_P)) {
-			mTest.updateVertexArray2(mouse->getAnalogPosition()[0], mouse->getAnalogPosition()[1]);
-			//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
-		}
-		if (glfwGetKey(window, GLFW_KEY_N)) {
+		//NECESSARY RENDER CALLS /////////////////////////////////////////////////////////////////////
+		modifyMesh(&mTest, window, mouse);
+		GLRenderCalls();
 
-			mTest.moveThroughMesh((i + 1) * 20 + j);
-			i = i + 2;
-			j = j + 1;
-		}
-
-		glfwPollEvents();
-
-		//GL calls
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glFrontFace(GL_CW);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glUseProgram(phongShader.programID);
 
-		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
 		setupViewport(window, P);
+		glUniformMatrix4fv(locationP, 1, GL_FALSE, P);
 
+		//SCENEGRAPH //////////////////////////////////////////////////////////////////////////////////
+		//camera transforms 
 		MVstack.push();
 			translateVector[0] = 0.0f;
 			translateVector[1] = -1.0f;
@@ -121,6 +95,7 @@ int twoDim::run2D() {
 			MVstack.translate(translateVector);
 			MVstack.rotAxis(glm::vec3(1.0f, 0.0f, 0.0f), -0.8f);
 
+			//WAND TRANSFORMS //////////////////////////////////////////////////////////////////////////
 			MVstack.push();
 				//MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], 0.0f, wand->getAnalogPosition()[1]));
 
@@ -162,6 +137,9 @@ int twoDim::run2D() {
 				glEnd();
 				glLineWidth(1.0);
 			MVstack.pop();
+
+			//SCENE TRANSFORMS ////////////////////////////////////////////////////////////////////////////////////////////////////
+			// ground render
 			MVstack.push();
 				translateVector[0] = 0.0f;
 				translateVector[1] = -1.0f;
@@ -171,6 +149,8 @@ int twoDim::run2D() {
 
 				//ground.render();
 			MVstack.pop();
+
+			//mesh render
 			MVstack.push();
 				translateVector[0] = 0.0f;
 				translateVector[1] = -1.0f;
@@ -193,3 +173,42 @@ int twoDim::run2D() {
 	return 0;
 }
 
+void setupViewport(GLFWwindow *window, GLfloat *P) {
+	int width, height;
+
+	glfwGetWindowSize(window, &width, &height);
+
+	P[0] = P[5] * height / width;
+
+	glViewport(0, 0, width, height);
+}
+
+void GLRenderCalls() {
+	//GL calls
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CW);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+}
+
+void modifyMesh(Mesh* mesh, GLFWwindow* window, Device* wand) {
+	glfwPollEvents();
+
+	if (glfwGetKey(window, GLFW_KEY_O)) {
+		mesh->updateVertexArray(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1]);
+		//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
+	}
+	if (glfwGetKey(window, GLFW_KEY_P)) {
+		mesh->updateVertexArray2(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1]);
+		//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
+	}
+	if (glfwGetKey(window, GLFW_KEY_N)) {
+
+		mesh->moveThroughMesh((global_i + 1) * 20 + global_j);
+		global_i = global_i + 2;
+		global_j = global_j + 1;
+	}
+}
