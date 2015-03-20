@@ -440,16 +440,6 @@ int Oculus::runOvr() {
 
 				MVstack.pop();
 
-				//ground transformations
-				MVstack.push();
-					translateVector[0] = 0.0f;
-					translateVector[1] = 0.0f;
-					translateVector[2] = 0.0f;
-					MVstack.translate(translateVector);
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					ground.render();
-				MVstack.pop();
-
 			MVstack.pop();
 		}
 
