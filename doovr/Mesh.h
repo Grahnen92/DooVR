@@ -52,6 +52,9 @@ class Mesh {
 	triangle* getIndexList();
 
   private:
+	float vectorLength(vertex vertex1, vertex vertex2);
+	bool sortByXCord(const vertex &a, const vertex &b);
+
 	GLuint vao;          // Vertex array object, the main handle for geometry
 	
 	GLuint vertexbuffer; // Buffer ID to bind to GL_ARRAY_BUFFER
