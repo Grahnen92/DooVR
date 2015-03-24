@@ -45,13 +45,19 @@ class Mesh {
 	Mesh();
 	~Mesh();
 
-	void updateVertexArray(double x, double y);
+	void updateVertexArray(float* p);
 	void updateVertexArray2(double x, double y);
 	void moveThroughMesh(int it);
 	void render();
 
 	vertex* getVertexList();
 	triangle* getIndexList();
+
+	float* getPosition(){ return position; };
+	float* getOrientation(){ return orientation; };
+
+	void setPosition(float* p) { position[0] = p[0]; position[1] = p[1]; position[2] = p[2]; }
+	void setOrientation(float* o) { std::copy(o, o + 16, orientation); }
 
   private:
 	float vectorLength(vertex vertex1, vertex vertex2);
@@ -66,4 +72,7 @@ class Mesh {
 
 	std::vector<triangle> indexArray;
 	std::vector<vertex> vertexArray;
+
+	float position[3];
+	float orientation[16];
 };

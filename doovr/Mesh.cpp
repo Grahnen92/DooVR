@@ -13,7 +13,34 @@ Mesh::Mesh() {
 
 	vertexArray.reserve(1000000);
 	indexArray.reserve(1000000);
-	
+
+	position[0] = 0.0f;
+	position[1] = 1.0f;
+	position[2] = 0.0f;
+
+	orientation[0] = 1.0f;
+	orientation[1] = 0.0f;
+	orientation[2] = 0.0f;
+	orientation[3] = 0.0f;
+
+	orientation[4] = 0.0f;
+	orientation[5] = 1.0f;
+	orientation[6] = 0.0f;
+	orientation[7] = 0.0f;
+
+	orientation[8] = 0.0f;
+	orientation[9] = 0.0f;
+	orientation[10] = 1.0f;
+	orientation[11] = 0.0f;
+
+	orientation[12] = 0.0f;
+	orientation[13] = 0.0f;
+	orientation[14] = 0.0f;
+	orientation[15] = 1.0f;
+
+
+
+
 	triangle * indexP;
 	vertex * vertexP;
 	
@@ -203,17 +230,17 @@ Mesh::~Mesh(void) {
 }
 
 // function for testing buffer mapping, dilates
-void Mesh::updateVertexArray(double x, double y) {
+void Mesh::updateVertexArray(float* p) {
 	vertex tempV;
 
 	tempV.z = 0;
 
 	vertex point;
-	point.x = 0.0f;
-	point.y = 0.0f;
-	point.z = 0.0f;
+	point.x = p[0];
+	point.y = p[1];
+	point.z = p[2];
 
-	float rad = 1.0f;
+	float rad = 0.3f;
 
 	triangle * indexP;
 	vertex * vertexP;

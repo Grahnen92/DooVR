@@ -1,5 +1,6 @@
 #include "Device.h"
 
+
 using namespace std;
 
 static int gotReport;
@@ -48,11 +49,19 @@ void VRPN_CALLBACK handle_analog(void* userData, const vrpn_ANALOGCB a) {
 	float analog[3] = { a.channel[0], a.channel[1], 0.0f };
 	analogTracker->setAnalogPosition(analog);
 }
-
+													
 void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b) {
+
 	cout << "Button '" << b.button << "': " << b.state << endl;
 	Device* buttonTracker = static_cast<Device*> (userData);
+	
+	buttonTracker->setButtonNumber((int) b.button);
 	buttonTracker->setButtonState(b.state);
+
+	//attempt to handle the button with maps, does nothing yet.
+	buttonTracker->setButton(b.button, b.state);
+	//std::map <int, bool> wandButton;
+	// wandButton[b.button]
 }
 
 void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
@@ -88,6 +97,14 @@ void Device::sendtoMainloop() {
 bool Device::getButtonState() {
 	return button;
 }
+int Device::getButtonNumber() {
+	return buttonNumber;
+}
+
+std::map<int, bool> Device::getButton() {
+	return wandButton;
+}
+
 float* Device::getAnalogPosition() {
 	return analogPos;
 }
@@ -129,4 +146,17 @@ void Device::setAnalogPosition(float p[3]) {
 }
 void Device::setButtonState(bool b) {
 	button = b;
+}
+void Device::setButtonNumber(int b) {
+	buttonNumber = b;
+}
+
+void Device::setButton(int n, bool b) {
+
+	wandButton[n] = b;
+
+	//std::cout << "The wandButtonis size " << wandButton.size() << std::endl;
+
+
+
 }

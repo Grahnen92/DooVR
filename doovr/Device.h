@@ -1,6 +1,8 @@
 #pragma once
 #include "Utilities.h"
 
+#include <map>
+
 #include "vrpn/vrpn_Tracker.h"
 #include "vrpn/vrpn_Button.h"
 #include "vrpn/vrpn_Analog.h"
@@ -30,8 +32,14 @@ class Device {
 		float* getTrackerRotation();
 		//! Get analog position of the device
 		float* getAnalogPosition();
+		
 		//! Get button state
 		bool getButtonState();
+		//! Get button number
+		int getButtonNumber();
+		//! Get both button number and the state
+		// not implemented
+		std::map<int, bool> getButton();
 
 		//! Set position vector of the device position to a variable
 		void setTrackerPosition(float t[3]);
@@ -40,6 +48,12 @@ class Device {
 		
 		//! Set button state to a variable
 		void setButtonState(bool b);
+		//! Set button number to a variable
+		void setButtonNumber(int b);
+		//! Set button number and the state
+		// not implemented
+		void setButton(int n, bool b);
+
 		//! Set analog position of the device to a variable
 		void setAnalogPosition(float pos[2]);
 
@@ -66,4 +80,9 @@ class Device {
 		float analogPos[3];
 		//! Saved variable from setButtonState
 		bool button;
+		//! Saved variable from setButtonNumber
+		int buttonNumber;
+		//! Saved variable for setButton
+		std::map <int, bool> wandButton;
+
 };

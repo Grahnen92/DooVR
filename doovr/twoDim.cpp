@@ -198,11 +198,11 @@ void modifyMesh(Mesh* mesh, GLFWwindow* window, Device* wand) {
 	glfwPollEvents();
 
 	if (glfwGetKey(window, GLFW_KEY_O)) {
-		mesh->updateVertexArray(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1]);
+		//mesh->updateVertexArray(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1]);
 		//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 	}
 	if (glfwGetKey(window, GLFW_KEY_P)) {
-		mesh->updateVertexArray2(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1]);
+		//mesh->updateVertexArray2(wand->getAnalogPosition()[0], wand->getAnalogPosition()[1]);
 		//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 	}
 	if (glfwGetKey(window, GLFW_KEY_N)) {

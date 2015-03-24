@@ -285,6 +285,8 @@ int Oculus::runOvr() {
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
 
+	Mesh mTest;
+
 	//LINK VARIABLES WITH SHADER ///////////////////////////////////////////////////////////////////////////
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationOMV = glGetUniformLocation(phongShader.programID, "OMV");
@@ -307,6 +309,11 @@ int Oculus::runOvr() {
 			ovrHmd_RecenterPose(hmd);
 			ovrHmd_DismissHSWDisplay(hmd);
 		}
+		if (wand->getButtonState() && (wand->getButtonNumber() == 3)) {
+			ovrHmd_RecenterPose(hmd);
+			ovrHmd_DismissHSWDisplay(hmd);
+		}
+
 		if (glfwGetKey(l_Window, GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(l_Window, GL_TRUE);
 
@@ -358,6 +365,14 @@ int Oculus::runOvr() {
 
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
+				
+				if (wand->getButtonState() && (wand->getButtonNumber() == 1)) {
+
+					mTest.updateVertexArray(wand->getTrackerPosition());
+					
+				}
+				
+
 				// Ground
 				MVstack.push();
 					translateVector[0] = 0.0f;
@@ -390,16 +405,18 @@ int Oculus::runOvr() {
 
 				// Wand
 				MVstack.push();
-					if (wand->getButtonState()) {
-						sphere.setPosition(wand->getTrackerPosition());
-						sphere.setOrientation(wand->getTrackerRotation());
+					if (wand->getButtonState() && (wand->getButtonNumber() == 0)  ) {
+						mTest.setPosition(wand->getTrackerPosition());
+						mTest.setOrientation(wand->getTrackerRotation());
 					}
 
-					MVstack.translate(sphere.getPosition());
-					MVstack.multiply(sphere.getOrientation());
+					//std::cout << wand->getButtonNumber() << std::endl;
+
+					MVstack.translate(mTest.getPosition());
+					MVstack.multiply(mTest.getOrientation());
 
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					sphere.render();
+					mTest.render();
 				MVstack.pop();
 
 				//wand transformations
@@ -497,8 +514,9 @@ void GLRenderCallsOculus(){
 	glCullFace(GL_BACK);
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
+	glFrontFace(GL_CW);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	if (L_MULTISAMPLING) {
 		glEnable(GL_MULTISAMPLE);
 	}

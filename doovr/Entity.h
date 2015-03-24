@@ -27,10 +27,10 @@ class Entity
 		float getColorB(){ return color.z; }
 
 		float* getPosition(){ return position; }
-		void setPosition(float p[3]) { position[0] = p[0]; position[1] = p[1]; position[2] = p[2]; }
+		void setPosition(float* p) { position[0] = p[0]; position[1] = p[1]; position[2] = p[2]; }
 
 		float* getOrientation(){ return orientation; }
-		void setOrientation(float o[3]) { std::copy(o, o + 16, orientation); }
+		void setOrientation(float* o) { std::copy(o, o + 16, orientation); }
 
 		// To print
 		friend ostream& operator<<(ostream &os, const Entity &E);
