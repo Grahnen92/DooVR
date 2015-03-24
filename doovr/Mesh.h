@@ -46,7 +46,7 @@ class Mesh {
 	~Mesh();
 
 	void updateVertexArray(float* p);
-	void updateVertexArray2(double x, double y);
+	void updateVertexArray2(float* p);
 	void moveThroughMesh(int it);
 	void render();
 

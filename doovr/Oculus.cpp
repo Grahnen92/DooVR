@@ -5,6 +5,7 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Box.h"
+#include "Cylinder.h"
 
 //#define GLFW_EXPOSE_NATIVE_WIN32
 //#define GLFW_EXPOSE_NATIVE_WGL
@@ -50,6 +51,7 @@ int Oculus::runOvr() {
 					  0.0f, 0.0f, -1.0f, -1.0f,
 					  0.0f, 0.0f, -0.2f, 0.0f };
 	GLfloat lightPos[4] = { 0.0f, 0.5f, 2.0f, 1.0f };
+	//glm::vec4 lightPos = { 0.0f, 0.5f, 2.0f, 1.0f };
 	glm::vec3 LP = glm::vec3(0);
 
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
@@ -280,7 +282,8 @@ int Oculus::runOvr() {
 	MatrixStack MVstack;
 	MVstack.init();
 
-	Sphere sphere(glm::vec3(1.0f, -1.088f, -1.5f), 0.1f);
+	Cylinder cylinder(glm::vec3(1.0f, -1.0f, -1.5f), 0.2f);
+	 
 	Sphere cam(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
@@ -297,7 +300,7 @@ int Oculus::runOvr() {
 	ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
-	// Initilise VRPN connection
+	// Initilise VRPN connection with the Intersense wand
 	Device* wand = new Device(true, true, true, "Wand");
 
 	// Main loop...
@@ -352,11 +355,48 @@ int Oculus::runOvr() {
 				//	glMultMatrixf(&(l_ModelViewMatrix.Transposed().M[0][0]));
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
+
+				//std::cout << glm::to_string(glm::make_vec4(lightPos)) << std::endl;
+
+				glm::mat4 pmat4;
+
+				//pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
+
+				pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
+
+
+
+				/*
+				//--------------PRINTS THE GLM::MAT4---------------------------------
+				double dArray[16] = { 0.0 };
+				const float *pSource = (const float*)glm::value_ptr(pmat4);
+
+				for (int i = 0; i < 16; ++i)
+					dArray[i] = pSource[i];
+
+				cout << dArray[0] << " " << dArray[1] << " " << dArray[2] << " " << dArray[3] << endl
+					<< dArray[4] << " " << dArray[5] << " " << dArray[6] << " " << dArray[7] << endl
+					<< dArray[8] << " " << dArray[9] << " " << dArray[10] << " " << dArray[11] << endl
+					<< dArray[12] << " " << dArray[13] << " " << dArray[14] << " " << dArray[15] << endl << endl << endl;
+			    //-------------------------------------------------------------
+				*/
+
+				//Compare with the MVstack
+				//MVstack.print();
+
+				// TODO
+				// There is something wrong here
+				// om man anvander make_mat4 sa kommer matrisen som retuneras behovas transponeras.
 				LP = glm::normalize(glm::vec3(glm::make_mat4(MVstack.getCurrentMatrix())*glm::make_vec4(lightPos)));
 				lightPos[0] = LP.x;
 				lightPos[1] = LP.y;
 				lightPos[2] = LP.z;
 				glUniform3fv(locationLP, 1, lightPos);
+
+				
+
+				//MVstack.print();
+			    //std:cout << lightPos[0] << lightPos[1] << lightPos[2] << std::endl;
 
 				//!-- Translation due to positional tracking (DK2) and IPD...
 				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
@@ -366,11 +406,7 @@ int Oculus::runOvr() {
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				
-				if (wand->getButtonState() && (wand->getButtonNumber() == 1)) {
 
-					mTest.updateVertexArray(wand->getTrackerPosition());
-					
-				}
 				
 
 				// Ground
@@ -402,12 +438,34 @@ int Oculus::runOvr() {
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					box.render();
 				MVstack.pop();
+	
+				// Test cylinder 
+				MVstack.push();
+					translateVector[0] = 0.0f;
+					translateVector[1] = 0.0f;
+					translateVector[2] = -0.5f;
+					MVstack.translate(translateVector);
+					MVstack.rotX(90.0f);
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					//cylinder.render();
+				MVstack.pop();
 
 				// Wand
 				MVstack.push();
+					// Move around with the mesh
 					if (wand->getButtonState() && (wand->getButtonNumber() == 0)  ) {
 						mTest.setPosition(wand->getTrackerPosition());
 						mTest.setOrientation(wand->getTrackerRotation());
+					}
+
+					// Test to implement the dilation function on the mesh.
+					if (wand->getButtonState() && (wand->getButtonNumber() == 1)) {
+						mTest.updateVertexArray(wand->getTrackerPosition());
+					}
+
+					// Test to implement the erosion function on the mesh.
+					if (wand->getButtonState() && (wand->getButtonNumber() == 2)) {
+						mTest.updateVertexArray2(wand->getTrackerPosition());
 					}
 
 					//std::cout << wand->getButtonNumber() << std::endl;
@@ -415,8 +473,10 @@ int Oculus::runOvr() {
 					MVstack.translate(mTest.getPosition());
 					MVstack.multiply(mTest.getOrientation());
 
+
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					mTest.render();
+
 				MVstack.pop();
 
 				//wand transformations
@@ -514,9 +574,9 @@ void GLRenderCallsOculus(){
 	glCullFace(GL_BACK);
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
-	glFrontFace(GL_CW);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glFrontFace(GL_CW);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
 	if (L_MULTISAMPLING) {
 		glEnable(GL_MULTISAMPLE);
 	}

@@ -4,6 +4,7 @@
 #include "MatrixStack.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "Cylinder.h"
 // ---- Function dectarations ---- 
 void modifyMesh(Mesh* mesh, GLFWwindow* w, Device* wand);
 void GLRenderCalls();

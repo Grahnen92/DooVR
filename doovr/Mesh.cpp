@@ -240,7 +240,7 @@ void Mesh::updateVertexArray(float* p) {
 	point.y = p[1];
 	point.z = p[2];
 
-	float rad = 0.3f;
+	float rad = 0.4f;
 
 	triangle * indexP;
 	vertex * vertexP;
@@ -311,17 +311,17 @@ void Mesh::updateVertexArray(float* p) {
 }
 
 // function for testing buffer mapping, erodes
-void Mesh::updateVertexArray2(double x, double y) {
+void Mesh::updateVertexArray2(float* p) {
 	vertex tempV;
 
 	tempV.z = 0;
 
 	vertex point;
-	point.x = 0.0f;
-	point.y = 1.0f;
-	point.z = 0.0f;
+	point.x = p[0];
+	point.y = p[1];
+	point.z = p[2];
 
-	float rad = 1.0f;
+	float rad = 0.4f;
 
 	triangle * indexP;
 	vertex * vertexP;
