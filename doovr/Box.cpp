@@ -7,17 +7,6 @@ Box::Box(glm::vec3 _pos, glm::vec3 _dim)
 	position[2] = _pos.z;
 	dim = _dim;
 
-	glm::vec3 vertices[8];
-
-	vertices[0] = glm::vec3(_dim.x / 2.f, _dim.y / 2.f, _dim.z / 2.f);
-	vertices[1] = glm::vec3(_dim.x / 2.f, _dim.y / 2.f, -_dim.z / 2.f);
-	vertices[2] = glm::vec3(_dim.x / 2.f, -_dim.y / 2.f, -_dim.z / 2.f);
-	vertices[3] = glm::vec3(_dim.x / 2.f, -_dim.y / 2.f, _dim.z / 2.f);
-	vertices[4] = glm::vec3(-_dim.x / 2.f, _dim.y / 2.f, _dim.z / 2.f);
-	vertices[5] = glm::vec3(-_dim.x / 2.f, _dim.y / 2.f, -_dim.z / 2.f);
-	vertices[6] = glm::vec3(-_dim.x / 2.f, -_dim.y / 2.f, -_dim.z / 2.f);
-	vertices[7] = glm::vec3(-_dim.x / 2.f, -_dim.y / 2.f, _dim.z / 2.f);
-
 	createBox(_dim.x, _dim.y, _dim.z);
 }
 

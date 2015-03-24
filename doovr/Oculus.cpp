@@ -49,7 +49,7 @@ int Oculus::runOvr() {
 					  0.0f, 2.42f, 0.0f, 0.0f,
 					  0.0f, 0.0f, -1.0f, -1.0f,
 					  0.0f, 0.0f, -0.2f, 0.0f };
-	GLfloat lightPos[4] = { 0.0f, 2.0f, 2.0f, 1.0f };
+	GLfloat lightPos[4] = { 0.0f, 0.5f, 2.0f, 1.0f };
 	glm::vec3 LP = glm::vec3(0);
 
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
@@ -345,7 +345,7 @@ int Oculus::runOvr() {
 				//	glMultMatrixf(&(l_ModelViewMatrix.Transposed().M[0][0]));
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
-				LP = glm::vec3(glm::make_mat4(MVstack.getCurrentMatrix())*glm::make_vec4(lightPos));
+				LP = glm::normalize(glm::vec3(glm::make_mat4(MVstack.getCurrentMatrix())*glm::make_vec4(lightPos)));
 				lightPos[0] = LP.x;
 				lightPos[1] = LP.y;
 				lightPos[2] = LP.z;
