@@ -1,8 +1,9 @@
 var searchData=
 [
-  ['getanalogposition',['getAnalogPosition',['../class_device.html#ae7f2303ca33b9b5153c62b786f0575cb',1,'Device']]],
+  ['getanalogposition',['getAnalogPosition',['../class_device.html#a89c3d7a96f7babd931dbdaea12a63343',1,'Device']]],
+  ['getbutton',['getButton',['../class_device.html#aa0fbf67bba4f395468298f35f9fce893',1,'Device']]],
+  ['getbuttonnumber',['getButtonNumber',['../class_device.html#ad4cb1d810b93625db83d57c6517924cf',1,'Device']]],
   ['getbuttonstate',['getButtonState',['../class_device.html#a5eb4459d6ed74f76cc660c6547039c03',1,'Device']]],
-  ['gettrackerposition',['getTrackerPosition',['../class_device.html#a348d14f96d0d3eca733ead3cac33ba3f',1,'Device']]],
-  ['gettrackerrotation',['getTrackerRotation',['../class_device.html#a37c9f3477537b2af7d55401711359a6f',1,'Device']]],
-  ['gettrackertransform',['getTrackerTransform',['../class_device.html#a8d6914b9695421072c41f4b4ba76faa9',1,'Device']]]
+  ['gettrackerposition',['getTrackerPosition',['../class_device.html#ac0352a90d86a51636c9fb07d92e96649',1,'Device']]],
+  ['gettrackerrotation',['getTrackerRotation',['../class_device.html#a031e53283ed3c4c094dcc28f52e587cf',1,'Device']]]
 ];

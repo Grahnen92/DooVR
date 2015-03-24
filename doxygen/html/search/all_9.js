@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['triangle',['triangle',['../structtriangle.html',1,'']]],
-  ['twodim',['twoDim',['../namespacetwo_dim.html',1,'']]]
+  ['plane',['Plane',['../class_plane.html',1,'']]]
 ];

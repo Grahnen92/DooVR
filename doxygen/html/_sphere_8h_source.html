@@ -89,51 +89,47 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;entity.h&quot;</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &quot;Utilities.h&quot;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno"><a class="line" href="class_sphere.html">    4</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_sphere.html">Sphere</a> :</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;    <span class="keyword">public</span> <a class="code" href="class_entity.html">Entity</a></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;{</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    <span class="comment">// Creates a sphere  </span></div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    <a class="code" href="class_sphere.html">Sphere</a>(glm::vec3 _pos, <span class="keywordtype">float</span> _mass, <span class="keywordtype">float</span> _rad);</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    ~<a class="code" href="class_sphere.html">Sphere</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    <a class="code" href="class_sphere.html">Sphere</a>()</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    {</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;        vao = 0;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;        vertexbuffer = 0;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;        indexbuffer = 0;</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        vertexarray = NULL;</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;        indexarray = NULL;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        nverts = 0;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        ntris = 0;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    };</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="keywordtype">void</span> createSphere(<span class="keywordtype">float</span> radius, <span class="keywordtype">int</span> segments);</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordtype">void</span> render();</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keywordtype">float</span> getRadius(){<span class="keywordflow">return</span> radius;}</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    GLuint vao;          <span class="comment">// Vertex array object, the main handle for geometry</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordtype">int</span> nverts; <span class="comment">// Number of vertices in the vertex array</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordtype">int</span> ntris;  <span class="comment">// Number of triangles in the index array (may be zero)</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    GLuint vertexbuffer; <span class="comment">// Buffer ID to bind to GL_ARRAY_BUFFER</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    GLuint indexbuffer;  <span class="comment">// Buffer ID to bind to GL_ELEMENT_ARRAY_BUFFER</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    GLfloat *vertexarray; <span class="comment">// Vertex array on interleaved format: x y z nx ny nz s t</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    GLuint *indexarray;   <span class="comment">// Element index array</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keywordtype">float</span> radius;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordtype">void</span> display(ostream&amp; os) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;};</div>
-<div class="ttc" id="class_entity_html"><div class="ttname"><a href="class_entity.html">Entity</a></div><div class="ttdef"><b>Definition:</b> Entity.h:14</div></div>
-<div class="ttc" id="class_sphere_html"><div class="ttname"><a href="class_sphere.html">Sphere</a></div><div class="ttdef"><b>Definition:</b> Sphere.h:4</div></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &quot;Entity.h&quot;</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno"><a class="line" href="class_sphere.html">    3</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_sphere.html">Sphere</a> : <span class="keyword">public</span> <a class="code" href="class_entity.html">Entity</a> {</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;    </div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;    <span class="comment">// Creates a sphere  </span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;    <a class="code" href="class_sphere.html">Sphere</a>(glm::vec3 _pos, <span class="keywordtype">float</span> _rad);</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    ~<a class="code" href="class_sphere.html">Sphere</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    <a class="code" href="class_sphere.html">Sphere</a>() {</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;        vao = 0;</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;        vertexbuffer = 0;</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;        indexbuffer = 0;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;        vertexarray = NULL;</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;        indexarray = NULL;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;        nverts = 0;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;        ntris = 0;</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    };</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keywordtype">void</span> createSphere(<span class="keywordtype">float</span> radius, <span class="keywordtype">int</span> segments);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <span class="keywordtype">void</span> render();</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="keywordtype">float</span> getRadius(){<span class="keywordflow">return</span> radius;}</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    GLuint vao;          <span class="comment">// Vertex array object, the main handle for geometry</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keywordtype">int</span> nverts; <span class="comment">// Number of vertices in the vertex array</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keywordtype">int</span> ntris;  <span class="comment">// Number of triangles in the index array (may be zero)</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    GLuint vertexbuffer; <span class="comment">// Buffer ID to bind to GL_ARRAY_BUFFER</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    GLuint indexbuffer;  <span class="comment">// Buffer ID to bind to GL_ELEMENT_ARRAY_BUFFER</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    GLfloat *vertexarray; <span class="comment">// Vertex array on interleaved format: x y z nx ny nz s t</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    GLuint *indexarray;   <span class="comment">// Element index array</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordtype">float</span> radius;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keywordtype">void</span> display(ostream&amp; os) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;};</div>
+<div class="ttc" id="class_entity_html"><div class="ttname"><a href="class_entity.html">Entity</a></div><div class="ttdef"><b>Definition:</b> Entity.h:16</div></div>
+<div class="ttc" id="class_sphere_html"><div class="ttname"><a href="class_sphere.html">Sphere</a></div><div class="ttdef"><b>Definition:</b> Sphere.h:3</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Mar 19 2015 16:23:33 for DooVR by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Mar 24 2015 22:11:16 for DooVR by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>
