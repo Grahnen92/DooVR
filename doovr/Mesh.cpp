@@ -2,6 +2,7 @@
 #include "time.h"
 #include "math.h"
 #include <algorithm>
+#include <iterator>
 
 using namespace std;
 
@@ -218,9 +219,32 @@ void Mesh::updateVertexArray(double x, double y) {
 	triangle * indexP;
 	vertex * vertexP;
 
+	int startRow = -1;
+	int endRow = -1;
+	int currentRow = -1;
+	int lastRow = -1;
+	vector<int> startCol;	// first edited column on row
+	vector<int> endCol;		// last edited column on row
+
 	for (int i = 0; i < vertexArray.size(); i++) {
 		if (vectorLength(point, vertexArray[i]) < rad) {
 			vertexArray[i].y += 0.01f;
+
+			if (startRow == -1) {
+				startRow = i / 20;
+				endRow = startRow; // first element is also last element as yet
+			} else {
+				lastRow = endRow;
+				endRow = i / 20;
+			}
+
+			if (startCol.size() != 0 && endRow == lastRow) {		//  check if the last added column is on the same row, endRow will always be the current row
+				endCol.pop_back();									//  if it is the same row it is the last element as yet, 20 elements on each row
+				endCol.push_back(i - endRow * 20);						
+			} else {												// first element on row			
+				startCol.push_back(i - endRow * 20);
+				endCol.push_back(i - endRow * 20);
+			}
 		}
 	}
 
@@ -229,23 +253,34 @@ void Mesh::updateVertexArray(double x, double y) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
-	// Present our vertex coordinates to OpenGL
-	 vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(vertex)*vertexArray.size(),
-										 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+	currentRow = startRow;
+	int range = 0;
+	int beginning = 0;
+	// update the buffer where if has changed
+	for (int j = 0; currentRow <= endRow; j++, currentRow++) {
+		range = endCol[j] + 1 - startCol[j];
+		beginning = currentRow * 20 + startCol[j];
 
-	 for (int i = 0; i < vertexArray.size(); i++) {
-		 vertexP[i].x = vertexArray[i].x;
-		 vertexP[i].y = vertexArray[i].y;
-		 vertexP[i].z = vertexArray[i].z;
-		 vertexP[i].nx = vertexArray[i].nx;
-		 vertexP[i].ny = vertexArray[i].ny;
-		 vertexP[i].nz = vertexArray[i].nz;
-		 vertexP[i].adjacentFace = vertexArray[i].adjacentFace;
-	 }
+		// Present our vertex coordinates to OpenGL
+		vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, beginning, sizeof(vertex)*range,
+											GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
-	 // Specify how many attribute arrays we have in our VAO
-	 glEnableVertexAttribArray(0); // Vertex coordinates
-     glEnableVertexAttribArray(1); // Normals
+		for (int i = beginning; i < range + beginning - 1; i++) {
+			vertexP[i].x = vertexArray[i].x;
+			vertexP[i].y = vertexArray[i].y;
+			vertexP[i].z = vertexArray[i].z;
+			vertexP[i].nx = vertexArray[i].nx;
+			vertexP[i].ny = vertexArray[i].ny;
+			vertexP[i].nz = vertexArray[i].nz;
+			vertexP[i].adjacentFace = vertexArray[i].adjacentFace;
+		}
+
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+	}
+
+	// Specify how many attribute arrays we have in our VAO
+	glEnableVertexAttribArray(0); // Vertex coordinates
+	glEnableVertexAttribArray(1); // Normals
 
 	// Specify how OpenGL should interpret the vertex buffer data:
 	// Attributes 0, 1, 2 (must match the lines above and the layout in the shader)
@@ -255,11 +290,9 @@ void Mesh::updateVertexArray(double x, double y) {
 	// Stride 8 (interleaved array with 8 floats per vertex)
 	// Array buffer offset 0, 3, 6 (offset into first vertex)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-						  6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
+		6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-						  6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
-
-	glUnmapBuffer(GL_ARRAY_BUFFER);
+		6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
 
 	// Activate the index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
