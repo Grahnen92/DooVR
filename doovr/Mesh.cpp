@@ -236,10 +236,18 @@ void Mesh::updateVertexArray(float* p) {
 	tempV.z = 0;
 
 	vertex point;
-	point.x = p[0];
-	point.y = p[1];
-	point.z = p[2];
+	point.x = p[0] - position[0];
+	point.y = p[1] - position[1];
+	point.z = p[2] - position[2];
 
+	glm::vec4 tempvec;
+
+	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(point.x, point.y, point.z, 1.0f);
+
+
+	point.x = tempvec.x;
+	point.y = tempvec.y;
+	point.z = tempvec.z;
 	float rad = 0.4f;
 
 	triangle * indexP;
@@ -247,7 +255,7 @@ void Mesh::updateVertexArray(float* p) {
 
 	for (int i = 0; i < vertexArray.size(); i++) {
 		if (vectorLength(point, vertexArray[i]) < rad) {
-			vertexArray[i].y += 0.01f;
+			vertexArray[i].y += 0.001f;
 		}
 	}
 
@@ -317,9 +325,12 @@ void Mesh::updateVertexArray2(float* p) {
 	tempV.z = 0;
 
 	vertex point;
-	point.x = p[0];
-	point.y = p[1];
-	point.z = p[2];
+	point.x = p[0] - position[0];
+	point.y = p[1] - position[1];
+	point.z = p[2] - position[2];
+
+	glm::vec4 tempvec;
+	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(point.x, point.y, point.z, 1.0f);
 
 	float rad = 0.4f;
 
@@ -328,7 +339,7 @@ void Mesh::updateVertexArray2(float* p) {
 
 	for (int i = 0; i < vertexArray.size(); i++) {
 		if (vectorLength(point, vertexArray[i]) < rad) {
-			vertexArray[i].y -= 0.01f;
+			vertexArray[i].y -= 0.001f;
 		}
 	}
 

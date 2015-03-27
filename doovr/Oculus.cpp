@@ -51,8 +51,9 @@ int Oculus::runOvr() {
 					  0.0f, 0.0f, -1.0f, -1.0f,
 					  0.0f, 0.0f, -0.2f, 0.0f };
 	GLfloat lightPos[4] = { 0.0f, 0.5f, 2.0f, 1.0f };
+	GLfloat lightPosTemp[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	//glm::vec4 lightPos = { 0.0f, 0.5f, 2.0f, 1.0f };
-	glm::vec3 LP = glm::vec3(0);
+	glm::vec4 LP = glm::vec4(0);
 
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
 
@@ -282,11 +283,14 @@ int Oculus::runOvr() {
 	MatrixStack MVstack;
 	MVstack.init();
 
-	Cylinder cylinder(glm::vec3(1.0f, -1.0f, -1.5f), 0.2f);
+	//Cylinder cylinder(glm::vec3(1.0f, -1.0f, -1.5f), 0.2f);
 	 
 	Sphere cam(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
+
+	//camera box
+	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 1.5f, 0.3f));
 
 	Mesh mTest;
 
@@ -356,17 +360,11 @@ int Oculus::runOvr() {
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
 
-				//std::cout << glm::to_string(glm::make_vec4(lightPos)) << std::endl;
-
-				glm::mat4 pmat4;
 
 				//pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
+				glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
 
-				pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
-
-
-
-				/*
+				
 				//--------------PRINTS THE GLM::MAT4---------------------------------
 				double dArray[16] = { 0.0 };
 				const float *pSource = (const float*)glm::value_ptr(pmat4);
@@ -379,7 +377,7 @@ int Oculus::runOvr() {
 					<< dArray[8] << " " << dArray[9] << " " << dArray[10] << " " << dArray[11] << endl
 					<< dArray[12] << " " << dArray[13] << " " << dArray[14] << " " << dArray[15] << endl << endl << endl;
 			    //-------------------------------------------------------------
-				*/
+				
 
 				//Compare with the MVstack
 				//MVstack.print();
@@ -387,17 +385,25 @@ int Oculus::runOvr() {
 				// TODO
 				// There is something wrong here
 				// om man anvander make_mat4 sa kommer matrisen som retuneras behovas transponeras.
-				LP = glm::normalize(glm::vec3(glm::make_mat4(MVstack.getCurrentMatrix())*glm::make_vec4(lightPos)));
-				lightPos[0] = LP.x;
-				lightPos[1] = LP.y;
-				lightPos[2] = LP.z;
-				glUniform3fv(locationLP, 1, lightPos);
 
-				
+
+				//LP = glm::vec3(glm::make_mat4(MVstack.getCurrentMatrix())*glm::make_vec4(lightPos));
+
+				MVstack.print();
+				//std::cout << lightPos[0] << " " << lightPos[1] << " " << lightPos[2] << " " << std::endl << std::endl;
+
+				LP = pmat4 * glm::vec4(lightPos[0], lightPos[1], lightPos[2], 1.0f);
+
+				lightPosTemp[0] = LP.x;
+				lightPosTemp[1] = LP.y;
+				lightPosTemp[2] = LP.z;
+				glUniform3fv(locationLP, 1, lightPosTemp);
+
 
 				//MVstack.print();
-			    //std:cout << lightPos[0] << lightPos[1] << lightPos[2] << std::endl;
-
+				std::cout << lightPos[0] << " " << lightPos[1] << " " << lightPos[2] << " " << std::endl;
+				std::cout << lightPosTemp[0] << " " << lightPosTemp[1] << " " << lightPosTemp[2] << " " << std::endl;
+				//std::cout << "----------------" << std::endl;
 				//!-- Translation due to positional tracking (DK2) and IPD...
 				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
 				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z };
@@ -406,9 +412,6 @@ int Oculus::runOvr() {
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				
-
-				
-
 				// Ground
 				MVstack.push();
 					translateVector[0] = 0.0f;
@@ -427,6 +430,16 @@ int Oculus::runOvr() {
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					cam.render();
+				MVstack.pop();
+
+				// Box camera
+				MVstack.push();
+				translateVector[0] = 0.0f;
+				translateVector[1] = 0.0f; // chair height
+				translateVector[2] = -2.0f;
+				MVstack.translate(translateVector);
+				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+				boxCamera.render();
 				MVstack.pop();
 
 				// Box (chair) with wand on
@@ -454,6 +467,7 @@ int Oculus::runOvr() {
 				MVstack.push();
 					// Move around with the mesh
 					if (wand->getButtonState() && (wand->getButtonNumber() == 0)  ) {
+
 						mTest.setPosition(wand->getTrackerPosition());
 						mTest.setOrientation(wand->getTrackerRotation());
 					}
