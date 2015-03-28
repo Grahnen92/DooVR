@@ -58,7 +58,7 @@ Mesh::Mesh() {
 				tempV.z = ((float)(i))*0.86602540378f*0.2f;
 			}
 			tempV.nx = 0.0f;
-			tempV.ny = 1.0f;
+			tempV.ny = -1.0f;
 			tempV.nz = 0.0f;
 			tempV.adjacentFace = nullptr;
 			vertexArray.push_back(tempV);

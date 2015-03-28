@@ -50,8 +50,10 @@ int Oculus::runOvr() {
 					  0.0f, 2.42f, 0.0f, 0.0f,
 					  0.0f, 0.0f, -1.0f, -1.0f,
 					  0.0f, 0.0f, -0.2f, 0.0f };
-	GLfloat lightPos[4] = { 0.0f, 0.5f, 2.0f, 1.0f };
-	GLfloat lightPosTemp[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+	GLfloat lightPos[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
+	GLfloat lightPosTemp[3] = { 0.0f, 0.0f, 0.0f };
+
 	//glm::vec4 lightPos = { 0.0f, 0.5f, 2.0f, 1.0f };
 	glm::vec4 LP = glm::vec4(0);
 
@@ -283,9 +285,14 @@ int Oculus::runOvr() {
 	MatrixStack MVstack;
 	MVstack.init();
 
+	MatrixStack NVstack;
+	NVstack.init();
+
 	//Cylinder cylinder(glm::vec3(1.0f, -1.0f, -1.5f), 0.2f);
 	 
-	Sphere cam(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
+	Sphere cam(glm::vec3(0.0f, 0.0f, 0.0f), 0.2f);
+	Sphere light(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
+
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
 
@@ -300,6 +307,7 @@ int Oculus::runOvr() {
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 	locationLP = glGetUniformLocation(phongShader.programID, "lightPos");
 
+	
 
 	ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
@@ -362,9 +370,10 @@ int Oculus::runOvr() {
 
 
 				//pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
-				glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
+	
 
 				
+				/*
 				//--------------PRINTS THE GLM::MAT4---------------------------------
 				double dArray[16] = { 0.0 };
 				const float *pSource = (const float*)glm::value_ptr(pmat4);
@@ -377,7 +386,7 @@ int Oculus::runOvr() {
 					<< dArray[8] << " " << dArray[9] << " " << dArray[10] << " " << dArray[11] << endl
 					<< dArray[12] << " " << dArray[13] << " " << dArray[14] << " " << dArray[15] << endl << endl << endl;
 			    //-------------------------------------------------------------
-				
+				*/
 
 				//Compare with the MVstack
 				//MVstack.print();
@@ -389,8 +398,11 @@ int Oculus::runOvr() {
 
 				//LP = glm::vec3(glm::make_mat4(MVstack.getCurrentMatrix())*glm::make_vec4(lightPos));
 
-				MVstack.print();
+				//MVstack.print();
 				//std::cout << lightPos[0] << " " << lightPos[1] << " " << lightPos[2] << " " << std::endl << std::endl;
+
+
+				glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
 
 				LP = pmat4 * glm::vec4(lightPos[0], lightPos[1], lightPos[2], 1.0f);
 
@@ -401,8 +413,8 @@ int Oculus::runOvr() {
 
 
 				//MVstack.print();
-				std::cout << lightPos[0] << " " << lightPos[1] << " " << lightPos[2] << " " << std::endl;
-				std::cout << lightPosTemp[0] << " " << lightPosTemp[1] << " " << lightPosTemp[2] << " " << std::endl;
+				//std::cout << lightPos[0] << " " << lightPos[1] << " " << lightPos[2] << " " << std::endl;
+				//std::cout << lightPosTemp[0] << " " << lightPosTemp[1] << " " << lightPosTemp[2] << " " << std::endl;
 				//std::cout << "----------------" << std::endl;
 				//!-- Translation due to positional tracking (DK2) and IPD...
 				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
@@ -418,16 +430,24 @@ int Oculus::runOvr() {
 					translateVector[1] = -1.088f;
 					translateVector[2] = 0.0f;
 					MVstack.translate(translateVector);
+					NVstack.push();
+						NVstack.translate(translateVector);
+						glUniformMatrix4fv(locationOMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
+					NVstack.pop();
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					ground.render();
 				MVstack.pop();
 
 				// Camera
 				MVstack.push();
-					translateVector[0] = 0.0f;
+					translateVector[0] = 0.5f;
 					translateVector[1] = 0.502f; // 1.59 cm (camera height) - 1.088 (origin height)
 					translateVector[2] = -2.0f;
 					MVstack.translate(translateVector);
+					NVstack.push();
+						NVstack.translate(translateVector);
+						glUniformMatrix4fv(locationOMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
+					NVstack.pop();
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					cam.render();
 				MVstack.pop();
@@ -438,6 +458,10 @@ int Oculus::runOvr() {
 				translateVector[1] = 0.0f; // chair height
 				translateVector[2] = -2.0f;
 				MVstack.translate(translateVector);
+				NVstack.push();
+					NVstack.translate(translateVector);
+					glUniformMatrix4fv(locationOMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
+				NVstack.pop();
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 				boxCamera.render();
 				MVstack.pop();
@@ -448,6 +472,10 @@ int Oculus::runOvr() {
 					translateVector[1] = -0.818f; // chair height
 					translateVector[2] = 0.0f;
 					MVstack.translate(translateVector);
+					NVstack.push();
+						NVstack.translate(translateVector);
+						glUniformMatrix4fv(locationOMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
+					NVstack.pop();
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					box.render();
 				MVstack.pop();
@@ -486,7 +514,11 @@ int Oculus::runOvr() {
 
 					MVstack.translate(mTest.getPosition());
 					MVstack.multiply(mTest.getOrientation());
-
+					NVstack.push();
+						NVstack.translate(translateVector);
+						NVstack.multiply(mTest.getOrientation());
+						glUniformMatrix4fv(locationOMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
+					NVstack.pop();
 
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					mTest.render();
@@ -589,8 +621,8 @@ void GLRenderCallsOculus(){
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glFrontFace(GL_CW);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
+	//glFrontFace(GL_CW);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
 	if (L_MULTISAMPLING) {
 		glEnable(GL_MULTISAMPLE);
 	}
