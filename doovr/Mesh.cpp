@@ -17,19 +17,27 @@ Mesh::Mesh() {
 	
 	triangle * indexP;
 	vertex * vertexP;
+
+	rows = 100;
+	cols = 100;
+
+	float scaleF = 0.0f;
+
+	scaleF = 1.0f / (rows / 4);
+
 	
 	// Place vertices
-	for (int i = -10; i < 10; i++) {
+	for (int i = -rows / 2; i < rows / 2; i++) {
 		cout << fmod(i, sqrt(0.75f) * 2) << endl;
 
-		for (int j = -10; j < 10; j++) {
+		for (int j = -cols / 2; j < cols / 2; j++) {
 			
 			if (fmod(i, 2) != 0){
-				tempV.x = ((float)(j) + 0.5f)*0.2f;
-				tempV.z = ((float)(i))*0.86602540378f*0.2f;
+				tempV.x = ((float)(j) + 0.5f)*scaleF;
+				tempV.z = ((float)(i))*0.86602540378f*scaleF;
 			} else {
-				tempV.x = ((float)(j))*0.2f;
-				tempV.z = ((float)(i))*0.86602540378f*0.2f;
+				tempV.x = ((float)(j))*scaleF;
+				tempV.z = ((float)(i))*0.86602540378f*scaleF;
 			}
 			tempV.nx = 0.0f;
 			tempV.ny = 1.0f;
@@ -46,47 +54,47 @@ Mesh::Mesh() {
 	face* previousFace = nullptr;
 
 	// set triangle indecies and bind faces
-	for (int i = 1; i < 18; i = i + 2) {
-		for (int j = 0; j < 19; j++) {
+	for (int i = 1; i < rows-2; i = i + 2) {
+		for (int j = 0; j < cols-1; j++) {
 			//CREATE FIRST TRIANGLE IN SEQUENCE
-			tempT.index1 = i * 20 + j;
-			tempT.index2 = (i + 1) * 20 + (j + 1);
-			tempT.index3 = (i + 1) * 20 + j;
+			tempT.index1 = i * rows + j;
+			tempT.index2 = (i + 1) * rows + (j + 1);
+			tempT.index3 = (i + 1) * rows + j;
 			indexArray.push_back(tempT);
 			handledFace1  = new face;
-			handledFace1->vertices[0] = &vertexArray[i * 20 + j];
-			handledFace1->vertices[1] = &vertexArray[(i + 1) * 20 + (j + 1)];
-			handledFace1->vertices[2] = &vertexArray[(i + 1) * 20 + j];
+			handledFace1->vertices[0] = &vertexArray[i * rows + j];
+			handledFace1->vertices[1] = &vertexArray[(i + 1) * rows + (j + 1)];
+			handledFace1->vertices[2] = &vertexArray[(i + 1) * rows + j];
 
 			//CREATE SECOND TRIANGLE IN SEQUENCE
-			tempT.index1 = i * 20 + j;
-			tempT.index2 = i * 20 + j + 1;
-			tempT.index3 = (i + 1) * 20 + (j + 1) ;
+			tempT.index1 = i * rows + j;
+			tempT.index2 = i * rows + j + 1;
+			tempT.index3 = (i + 1) * rows + (j + 1);
 			indexArray.push_back(tempT);
 			handledFace2  = new face;
-			handledFace2->vertices[0] = &vertexArray[i * 20 + j];
-			handledFace2->vertices[1] = &vertexArray[i * 20 + j + 1];
-			handledFace2->vertices[2] = &vertexArray[(i + 1) * 20 + (j + 1)];
+			handledFace2->vertices[0] = &vertexArray[i * rows + j];
+			handledFace2->vertices[1] = &vertexArray[i * rows + j + 1];
+			handledFace2->vertices[2] = &vertexArray[(i + 1) * rows + (j + 1)];
 
 			//CREATE THIRD TRIANGLE IN SEQUENCE
-			tempT.index1 = i * 20 + j;
-			tempT.index2 = (i - 1) * 20 + (j + 1);
-			tempT.index3 = i * 20 + (j + 1);
+			tempT.index1 = i * rows + j;
+			tempT.index2 = (i - 1) * rows + (j + 1);
+			tempT.index3 = i * rows + (j + 1);
 			indexArray.push_back(tempT);
 			handledFace3  = new face;
-			handledFace3->vertices[0] = &vertexArray[i * 20 + j];
-			handledFace3->vertices[1] = &vertexArray[(i - 1) * 20 + (j + 1)];
-			handledFace3->vertices[2] = &vertexArray[i * 20 + (j + 1)];
+			handledFace3->vertices[0] = &vertexArray[i * rows + j];
+			handledFace3->vertices[1] = &vertexArray[(i - 1) * rows + (j + 1)];
+			handledFace3->vertices[2] = &vertexArray[i * rows + (j + 1)];
 
 			//CREATE FOURTH TRIANGLE IN SEQUENCE
-			tempT.index1 = i * 20 + j;
-			tempT.index2 = (i - 1) * 20 + j;
-			tempT.index3 = (i - 1) * 20 + (j + 1);
+			tempT.index1 = i * rows + j;
+			tempT.index2 = (i - 1) * rows + j;
+			tempT.index3 = (i - 1) * rows + (j + 1);
 			indexArray.push_back(tempT);
 			handledFace4  = new face;
-			handledFace4->vertices[0] = &vertexArray[i * 20 + j];
-			handledFace4->vertices[1] = &vertexArray[(i-1) * 20 + j];
-			handledFace4->vertices[2] = &vertexArray[(i - 1) * 20 + (j + 1)];
+			handledFace4->vertices[0] = &vertexArray[i * rows + j];
+			handledFace4->vertices[1] = &vertexArray[(i - 1) * rows + j];
+			handledFace4->vertices[2] = &vertexArray[(i - 1) * rows + (j + 1)];
 
 			//INTERNAL FACE BINDINGS IN TRIANGLE SEQUENCE
 			handledFace1->nFace[0] = handledFace2;
@@ -100,56 +108,62 @@ Mesh::Mesh() {
 			handledFace4->nFace[0] = handledFace3;
 
 			//FACE BINDINGS BETWEEN TRIANGLE SEQUENCES/////////////////////////////////////////////////////
+			/*
 			//FIRST TRIANGLE SEQUENCE IN MESH
 			if (i == 1 && j == 0 ) {
-				vertexArray[(i+1) * 20 + j].adjacentFace = handledFace1;
-				vertexArray[i * 20 + j].adjacentFace = handledFace2;
-				vertexArray[i* 20 + (j+1)].adjacentFace = handledFace3;
-				vertexArray[(i - 1)* 20 + (j+1)].adjacentFace = handledFace4;
+				vertexArray[(i + 1) * rows + j].adjacentFace = handledFace1;
+				vertexArray[i * rows + j].adjacentFace = handledFace2;
+				vertexArray[i* rows + (j + 1)].adjacentFace = handledFace3;
+				vertexArray[(i - 1)* rows + (j + 1)].adjacentFace = handledFace4;
 				
 			}
 			//TRIANGLE SEQUENCE IN FIRST COLUMN OF MESH
 			else if (j == 0 && i != 0) {
-				vertexArray[(i+1) * 20 + j].adjacentFace = handledFace1;
-				vertexArray[i * 20 + j].adjacentFace = handledFace2;
-				vertexArray[i* 20 + (j+1)].adjacentFace = handledFace3;
+				vertexArray[(i + 1) * rows + j].adjacentFace = handledFace1;
+				vertexArray[i * rows + j].adjacentFace = handledFace2;
+				vertexArray[i* rows + (j + 1)].adjacentFace = handledFace3;
 
-				previousFace = vertexArray[(i-1)*20+j].adjacentFace;
+				previousFace = vertexArray[(i - 1)*rows + j].adjacentFace;
 				handledFace4->nFace[1] = previousFace;
 				previousFace->nFace[1] = handledFace4;
 			}
 			//TRIANGLE SEQUENCE IN FIRST ROW OF MESH
 			else if ( i == 1 && j !=0) {
-				vertexArray[(i+1) * 20 + j].adjacentFace = handledFace1;
-				vertexArray[i * 20 + (j+1)].adjacentFace = handledFace3;
-				vertexArray[(i-1) * 20 + (j+1)].adjacentFace = handledFace4;
+				vertexArray[(i + 1) * rows + j].adjacentFace = handledFace1;
+				vertexArray[i * rows + (j + 1)].adjacentFace = handledFace3;
+				vertexArray[(i - 1) * rows + (j + 1)].adjacentFace = handledFace4;
 
-				previousFace = vertexArray[i * 20 + j].adjacentFace->nFace[0];
+				previousFace = vertexArray[i * rows + j].adjacentFace->nFace[0];
 				handledFace1->nFace[1] = previousFace;
 				previousFace->nFace[2] = handledFace1;
 
-				previousFace = vertexArray[i * 20 + j].adjacentFace;
+				previousFace = vertexArray[i * rows + j].adjacentFace;
 				handledFace4->nFace[1] = previousFace;
 				previousFace->nFace[2] = handledFace4;
 			}
+			*/
 			//TRIANGLE SEQUENCE WHEN NOT IN FIRST ROW AND NOT IN FIRST COLUMN
-			else {
-				vertexArray[(i+1) * 20 + j].adjacentFace = handledFace1;
-				vertexArray[i * 20 + (j+1)].adjacentFace = handledFace3;
+			//else {
+				vertexArray[(i + 1) * rows + j + 1].adjacentFace = handledFace1;
+				vertexArray[i * rows + (j + 1)].adjacentFace = handledFace3;
 
 				
-				previousFace = vertexArray[i * 20 + j].adjacentFace->nFace[0];
-				handledFace1->nFace[1] = previousFace;
-				previousFace->nFace[2] = handledFace1;
+				if (i != 1 && j !=0)
+				{
 
-				previousFace = vertexArray[i * 20 + j].adjacentFace;
-				handledFace4->nFace[1] = previousFace;
-				previousFace->nFace[2] = handledFace4;
+					previousFace = vertexArray[i * rows + j].adjacentFace->nFace[0];
+					handledFace1->nFace[1] = previousFace;
+					previousFace->nFace[2] = handledFace1;
 
-				previousFace = vertexArray[(i-1) * 20 + j].adjacentFace;
-				handledFace4->nFace[2] = previousFace;
-				previousFace->nFace[2] = handledFace4;
-			}
+					previousFace = vertexArray[i * rows + j].adjacentFace;
+					handledFace4->nFace[1] = previousFace;
+					previousFace->nFace[2] = handledFace4;
+
+					previousFace = vertexArray[(i - 1) * rows + j + 1].adjacentFace;
+					handledFace4->nFace[2] = previousFace;
+					previousFace->nFace[2] = handledFace4;
+				}
+			//}
 			/////////////////////////////////////////////////////////////////////////////////////
 		}
 	}
@@ -207,14 +221,15 @@ Mesh::~Mesh(void) {
 void Mesh::updateVertexArray(double x, double y) {
 	vertex tempV;
 
-	tempV.z = 0;
+	face* faceP;
 
+	tempV.z = 0;
 	vertex point;
 	point.x = 0.0f;
 	point.y = 0.0f;
 	point.z = 0.0f;
 
-	float rad = 1.0f;
+	float rad = 0.5f;
 
 	triangle * indexP;
 	vertex * vertexP;
@@ -229,28 +244,103 @@ void Mesh::updateVertexArray(double x, double y) {
 
 	for (int i = 0; i < vertexArray.size(); i++) {
 		if (vectorLength(point, vertexArray[i]) < rad) {
-			vertexArray[i].y += 0.01f;
+			
+			vertexArray[i].x += 0.001f*vertexArray[i].nx;
+			vertexArray[i].y += 0.001f*vertexArray[i].ny;
+			vertexArray[i].z += 0.001f*vertexArray[i].nz;
+			
+			if ( ((i - (i % rows))/cols) % 2 != 0 ) {
+				faceP = vertexArray[i].adjacentFace;
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+				//cout << "hej";
 
+				faceP = faceP->nFace[0];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+
+				faceP = faceP->nFace[2];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+				faceP = faceP->nFace[0];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+				faceP = faceP->nFace[1];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+				faceP = faceP->nFace[1];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+			}
+			else {
+				faceP = vertexArray[i].adjacentFace;
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+
+				faceP = faceP->nFace[2];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+
+				faceP = faceP->nFace[0];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+
+				faceP = faceP->nFace[2];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+
+				faceP = faceP->nFace[2];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+
+				faceP = faceP->nFace[1];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+			}
+			
 			success = true;
 
 			if (startRow == -1) {
-				startRow = (i-(i % 20))/20;
+				startRow = (i - (i % rows)) / rows;
 				endRow = startRow; // first element is also last element as yet
 			} else {
 				prevRow = endRow;
-				endRow = (i - (i % 20)) / 20;
+				endRow = (i - (i % rows)) / rows;
 			}
 
 			if (startCol.size() != 0 && endRow == prevRow) {		//  check if the last added column is on the same row, endRow will always be the current row
 				endCol.pop_back();									//  if it is the same row it is the last element as yet, 20 elements on each row
-				endCol.push_back(i - endRow * 20);
+				endCol.push_back(i - endRow * rows);
 				//endCol.push_back(i % 20);
-			} else {												// first element on row			
-				
+			} else {												// first element on row
 				//startCol.push_back(i % 20);
-				startCol.push_back(i - endRow * 20);
+				startCol.push_back(i - endRow * rows);
 				//endCol.push_back(i % 20);
-				endCol.push_back(i - endRow * 20);
+				endCol.push_back(i - endRow * rows);
 			}
 		}
 	}
@@ -270,18 +360,13 @@ void Mesh::updateVertexArray(double x, double y) {
 		// update the buffer where if has changed
 		for (int j = 0; currentRow <= endRow; j++, currentRow++) {
 			range = endCol[j] + 1 - startCol[j];
-			beginning = currentRow * 20 + startCol[j];
+			beginning = currentRow * rows + startCol[j];
 
 			// Present our vertex coordinates to OpenGL
 			vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, beginning*sizeof(vertex), sizeof(vertex)*range,
 												GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
-			//vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(vertex)* vertexArray.size(),
-			//									GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-
 			for (int i = beginning; i < range + beginning, o < range; i++, o++) {
-			//for (int i = 0; i < vertexArray.size(); i++) {
-
 				vertexP[o].x = vertexArray[i].x;
 				vertexP[o].y = vertexArray[i].y;
 				vertexP[o].z = vertexArray[i].z;
@@ -292,6 +377,7 @@ void Mesh::updateVertexArray(double x, double y) {
 			}
 			o = 0;
 			glUnmapBuffer(GL_ARRAY_BUFFER);
+
 		}
 
 		// Specify how many attribute arrays we have in our VAO
@@ -330,7 +416,7 @@ void Mesh::updateVertexArray(double x, double y) {
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		}
+	}
 }
 
 // function for testing buffer mapping, erodes
@@ -531,4 +617,52 @@ float Mesh::vectorLength(vertex vertex1, vertex vertex2) {
 //! Sorts vertecies by the x coordinate into ascending order
 bool Mesh::sortByXCord(const vertex &a, const vertex &b) {
 	return a.x < b.x;
+}
+
+void Mesh::updateNormal(face* faceP)
+{
+	glm::vec3 tempVec1;
+	glm::vec3 tempVec2;
+	glm::vec3 tempNorm1;
+	glm::vec3 tempNorm2;
+	glm::vec3 tempNorm3;
+
+	tempVec1 = glm::vec3(faceP->vertices[1]->x - faceP->vertices[0]->x, faceP->vertices[1]->y - faceP->vertices[0]->y, faceP->vertices[1]->z - faceP->vertices[0]->z);
+	tempVec2 = glm::vec3(faceP->vertices[2]->x - faceP->vertices[0]->x, faceP->vertices[2]->y - faceP->vertices[0]->y, faceP->vertices[2]->z - faceP->vertices[0]->z);
+	tempNorm1 = glm::normalize(glm::cross(tempVec2, tempVec1));
+
+	tempNorm2 = glm::vec3(faceP->vertices[0]->nx, faceP->vertices[0]->ny, faceP->vertices[0]->nz);
+	tempNorm3 = glm::normalize((tempNorm1 + tempNorm2) / 2.0f);
+	///*
+	faceP->vertices[0]->nx = tempNorm3.x;
+	faceP->vertices[0]->ny = tempNorm3.y;
+	faceP->vertices[0]->nz = tempNorm3.z;
+
+	tempNorm2 = glm::vec3(faceP->vertices[1]->nx, faceP->vertices[1]->ny, faceP->vertices[1]->nz);
+	tempNorm3 = glm::normalize((tempNorm1 + tempNorm2) / 2.0f);
+
+	faceP->vertices[1]->nx = tempNorm3.x;
+	faceP->vertices[1]->ny = tempNorm3.y;
+	faceP->vertices[1]->nz = tempNorm3.z;
+
+	tempNorm2 = glm::vec3(faceP->vertices[2]->nx, faceP->vertices[2]->ny, faceP->vertices[2]->nz);
+	tempNorm3 = glm::normalize((tempNorm1 + tempNorm2) / 2.0f);
+
+	faceP->vertices[2]->nx = tempNorm3.x;
+	faceP->vertices[2]->ny = tempNorm3.y;
+	faceP->vertices[2]->nz = tempNorm3.z;
+	//*/
+	/*
+	faceP->vertices[0]->nx = (tempNorm.x );
+	faceP->vertices[0]->ny = (tempNorm.y);
+	faceP->vertices[0]->nz = (tempNorm.z );
+
+	faceP->vertices[1]->nx = (tempNorm.x );
+	faceP->vertices[1]->ny = (tempNorm.y );
+	faceP->vertices[1]->nz = (tempNorm.z );
+
+	faceP->vertices[2]->nx = (tempNorm.x );
+	faceP->vertices[2]->ny = (tempNorm.y );
+	faceP->vertices[2]->nz = (tempNorm.z );
+	*/
 }

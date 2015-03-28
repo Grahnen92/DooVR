@@ -15,8 +15,11 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t);
 Device::Device(bool analog, bool button, bool tracker, string name) {
 	// Add additional cases for STEM and Kienct2
 	if (name == "Wand") {
-		additionalAddress = "IS900" + LOCAL;
-		name = name + LOCAL;
+		// Default port "@localhost:3883"
+		// DNS adress "@130.236.142.1"
+
+		additionalAddress = "IS900@itn-vortex";
+		name = name + "@itn-vortex";
 	}
 	else {
 		name = name + "0" + LOCAL;

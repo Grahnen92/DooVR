@@ -50,12 +50,17 @@ class Mesh {
 	void moveThroughMesh(int it);
 	void render();
 
+	void updateNormal(face* fp);
+
 	vertex* getVertexList();
 	triangle* getIndexList();
 
   private:
 	float vectorLength(vertex vertex1, vertex vertex2);
 	bool sortByXCord(const vertex &a, const vertex &b);
+
+	int rows;
+	int cols;
 
 	GLuint vao;          // Vertex array object, the main handle for geometry
 	
