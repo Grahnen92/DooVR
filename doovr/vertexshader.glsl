@@ -1,33 +1,34 @@
 #version 400
-layout(location = 0) in vec3 Position;
-layout(location = 1) in vec3 Normal;
+layout(location = 0) in vec3 VertexPosition;
+layout(location = 1) in vec3 VertexNormal;
+
+//out vec3 interpolatedColor;
+//out vec3 interpolatedNormal;
+//out vec3 pos;
+//out vec3 lPos;
+
+out vec3 Position;
+out vec3 Normal;
 
 uniform mat4 MV;
 uniform mat4 OMV;
 uniform mat4 P;
-uniform vec4 lightPos;
 
-out vec3 interpolatedColor;
-out vec3 interpolatedNormal;
-out vec3 pos;
-out vec3 lPos;
-
+//uniform mat3 NormalMatrix;
 
 
 void main () 
 {
-	//vec3 Normal = vec3( 1.0, 1.0, 1.0);
+	
+	mat3 NormalMatrix = inverse(transpose(mat3(MV)));
+		
+	Position =  vec3( MV * vec4(VertexPosition, 1.0));
+	Normal = normalize( NormalMatrix * VertexNormal);
+	//Normal = vec3( OMV * vec4(VertexNormal, 0.0));
 
-	gl_Position =  P * MV * vec4 (Position, 1.0);
-	
-	vec4 pos4 = MV * vec4 (Position, 1.0);
-	
-	pos = vec3(pos4) / pos4.w;
-	lPos = vec3(lightPos);
+	//pos = vec3(pos4) / pos4.w;
+	//lPos = lightPos;
 
-	interpolatedNormal = vec3( MV * vec4(Normal, 0.0));
-	//interpolatedNormal =  Normal;
-	
-	interpolatedColor = vec3(1.0f, 1.0f, 1.0f);
+	gl_Position =  P * MV * vec4(VertexPosition, 1.0);
 
 }
