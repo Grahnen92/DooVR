@@ -16,12 +16,15 @@ void main ()
 {
 	
 	mat3 NormalMatrix = inverse(transpose(mat3(MV)));
-		
+	
+	// Eye coordinates
 	Position =  vec3( MV * vec4(VertexPosition, 1.0));
 
-	Normal = normalize( NormalMatrix * VertexNormal);
+	Normal = normalize( NormalMatrix * VertexNormal); //Ratt men blur
 	//Normal = vec3( OMV * vec4(VertexNormal, 0.0));
 
+
+	//! Convert position to clip coordinates and pass along to fragment shader
 	gl_Position =  P * MV * vec4(VertexPosition, 1.0);
 
 }

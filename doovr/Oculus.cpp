@@ -307,8 +307,6 @@ int Oculus::runOvr() {
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 	locationLP = glGetUniformLocation(phongShader.programID, "lightPos");
 
-	
-
 	ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
@@ -367,12 +365,8 @@ int Oculus::runOvr() {
 				//	glMultMatrixf(&(l_ModelViewMatrix.Transposed().M[0][0]));
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
-
-
 				//pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
-	
-
-				
+			
 				/*
 				//--------------PRINTS THE GLM::MAT4---------------------------------
 				double dArray[16] = { 0.0 };
@@ -401,7 +395,6 @@ int Oculus::runOvr() {
 				//MVstack.print();
 				//std::cout << lightPos[0] << " " << lightPos[1] << " " << lightPos[2] << " " << std::endl << std::endl;
 
-
 				glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
 
 				LP = pmat4 * glm::vec4(lightPos[0], lightPos[1], lightPos[2], 1.0f);
@@ -410,7 +403,6 @@ int Oculus::runOvr() {
 				lightPosTemp[1] = LP.y;
 				lightPosTemp[2] = LP.z;
 				glUniform3fv(locationLP, 1, lightPosTemp);
-
 
 				//MVstack.print();
 				//std::cout << lightPos[0] << " " << lightPos[1] << " " << lightPos[2] << " " << std::endl;
@@ -422,8 +414,7 @@ int Oculus::runOvr() {
 				MVstack.translate(eyePoses);
 
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-
-				
+		
 				// Ground
 				MVstack.push();
 					translateVector[0] = 0.0f;
@@ -480,22 +471,10 @@ int Oculus::runOvr() {
 					box.render();
 				MVstack.pop();
 	
-				// Test cylinder 
-				MVstack.push();
-					translateVector[0] = 0.0f;
-					translateVector[1] = 0.0f;
-					translateVector[2] = -0.5f;
-					MVstack.translate(translateVector);
-					MVstack.rotX(90.0f);
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					//cylinder.render();
-				MVstack.pop();
-
 				// Wand
 				MVstack.push();
 					// Move around with the mesh
 					if (wand->getButtonState() && (wand->getButtonNumber() == 0)  ) {
-
 						mTest.setPosition(wand->getTrackerPosition());
 						mTest.setOrientation(wand->getTrackerRotation());
 					}
@@ -515,7 +494,7 @@ int Oculus::runOvr() {
 					MVstack.translate(mTest.getPosition());
 					MVstack.multiply(mTest.getOrientation());
 					NVstack.push();
-						NVstack.translate(translateVector);
+						NVstack.translate(mTest.getPosition());
 						NVstack.multiply(mTest.getOrientation());
 						glUniformMatrix4fv(locationOMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
 					NVstack.pop();
@@ -529,14 +508,11 @@ int Oculus::runOvr() {
 				MVstack.push();
 					MVstack.translate(wand->getTrackerPosition());
 					MVstack.multiply(wand->getTrackerRotation());
-
-					if (wand->getButtonState()) {
-						MVstack.translate(wand->getAnalogPosition());
-					}
-					else if (!wand->getButtonState()) {
-						MVstack.translate(wand->getAnalogPosition());
-					}
-
+					NVstack.push();
+						NVstack.translate(wand->getTrackerPosition());
+						NVstack.multiply(wand->getTrackerRotation());
+						glUniformMatrix4fv(locationOMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
+					NVstack.pop();
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					// Wand testing, coordinate axis
 					float orgio[3] = { 0, 0, 0 };
@@ -568,7 +544,6 @@ int Oculus::runOvr() {
 
 		// Back to the default framebuffer...
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 
 		wand->sendtoMainloop();
 
