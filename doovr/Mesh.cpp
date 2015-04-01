@@ -308,72 +308,72 @@ void Mesh::updateVertexArray(float* p, bool but) {
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				//updateNormal(faceP);
+				updateNormal(faceP);
 				//cout << "hej";
 
 				faceP = faceP->nFace[0];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				//updateNormal(faceP);
+				updateNormal(faceP);
 
 				faceP = faceP->nFace[2];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				//updateNormal(faceP);
+				updateNormal(faceP);
 				faceP = faceP->nFace[0];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				//updateNormal(faceP);
+				updateNormal(faceP);
 				faceP = faceP->nFace[1];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				//updateNormal(faceP);
+				updateNormal(faceP);
 				faceP = faceP->nFace[1];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				//updateNormal(faceP);
+				updateNormal(faceP);
 			}
 			else {
 				faceP = vertexArray[i].adjacentFace;
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				//updateNormal(faceP);
+				updateNormal(faceP);
 
 				faceP = faceP->nFace[2];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				//updateNormal(faceP);
+				updateNormal(faceP);
 
 				faceP = faceP->nFace[0];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-			//	updateNormal(faceP);
+				updateNormal(faceP);
 
 				faceP = faceP->nFace[2];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-			//	updateNormal(faceP);
+				updateNormal(faceP);
 
 				faceP = faceP->nFace[2];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-			//	updateNormal(faceP);
+				updateNormal(faceP);
 
 				faceP = faceP->nFace[1];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-			//	updateNormal(faceP);
+				updateNormal(faceP);
 			}
 			
 			success = true;
@@ -821,9 +821,9 @@ void Mesh::updateNormal(face* faceP)
 	tempNorm2[1] = faceP->vertices[0]->ny;
 	tempNorm2[2] = faceP->vertices[0]->nz;
 
-	tempNorm1[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
-	tempNorm1[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
-	tempNorm1[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
+	tempNorm2[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
+	tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
+	tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
 
 	normVec(tempNorm1);
 
@@ -836,9 +836,9 @@ void Mesh::updateNormal(face* faceP)
 	tempNorm2[1] = faceP->vertices[1]->ny;
 	tempNorm2[2] = faceP->vertices[1]->nz;
 
-	tempNorm1[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
-	tempNorm1[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
-	tempNorm1[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
+	tempNorm2[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
+	tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
+	tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
 
 	normVec(tempNorm1);
 
@@ -850,9 +850,9 @@ void Mesh::updateNormal(face* faceP)
 	tempNorm2[1] = faceP->vertices[2]->ny;
 	tempNorm2[2] = faceP->vertices[2]->nz;
 
-	tempNorm1[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
-	tempNorm1[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
-	tempNorm1[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
+	tempNorm2[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
+	tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
+	tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
 
 	normVec(tempNorm1);
 
