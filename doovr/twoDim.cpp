@@ -63,8 +63,8 @@ int twoDim::run2D() {
 	MVstack.init();
 
 	Mesh mTest;
-	Sphere sphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
-	//Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.5f, 0.5f));
+	//Sphere sphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
+	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));
 
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
@@ -72,14 +72,40 @@ int twoDim::run2D() {
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
 
 	// Initilise VRPN connection
-	Device* wand = new Device(true, true, true, "Wand");
+	//Device* wand = new Device(true, true, true, "Wand");
 	Device* mouse = new Device(true, true, false, "Mouse");
 
+
+	float test[3] = { 0.0f, 0.0f, 0.0f };
 	//RENDER LOOP /////////////////////////////////////////////////////////////////////////////////////
 	while (!glfwWindowShouldClose(window)) {
 
 		//NECESSARY RENDER CALLS /////////////////////////////////////////////////////////////////////
-		modifyMesh(&mTest, window, mouse);
+		//modifyMesh(&mTest, window, mouse);
+		glfwPollEvents();
+
+		
+
+		if (glfwGetKey(window, GLFW_KEY_G)){
+			test[0] += 0.01f;
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_O)) {
+
+			mTest.updateVertexArray(test, true);
+			//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
+		}
+		if (glfwGetKey(window, GLFW_KEY_P)) {
+			mTest.updateVertexArray(test, false);
+			//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
+		}
+		if (glfwGetKey(window, GLFW_KEY_N)) {
+
+			mTest.moveThroughMesh((global_i + 1) * 20 + global_j);
+			global_i = global_i + 2;
+			global_j = global_j + 1;
+		}
+
 		GLRenderCalls();
 
 		glUseProgram(phongShader.programID);
@@ -95,7 +121,7 @@ int twoDim::run2D() {
 			translateVector[2] = -1.0f;
 			MVstack.translate(translateVector);
 			MVstack.rotAxis(glm::vec3(1.0f, 0.0f, 0.0f), -0.8f);
-
+			/*
 			//WAND TRANSFORMS //////////////////////////////////////////////////////////////////////////
 			MVstack.push();
 				//MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], 0.0f, wand->getAnalogPosition()[1]));
@@ -138,7 +164,7 @@ int twoDim::run2D() {
 				glEnd();
 				glLineWidth(1.0);
 			MVstack.pop();
-
+			*/
 			//SCENE TRANSFORMS ////////////////////////////////////////////////////////////////////////////////////////////////////
 			// ground render
 			MVstack.push();
@@ -198,13 +224,19 @@ void GLRenderCalls() {
 void modifyMesh(Mesh* mesh, GLFWwindow* window, Device* wand) {
 	glfwPollEvents();
 
+	float test[3] = { 0.0f, 0.0f, 0.0f };
+
+	if (glfwGetKey(window, GLFW_KEY_G)){
+		test[0] += 0.1f;
+	}
+
 	if (glfwGetKey(window, GLFW_KEY_O)) {
 
-		mesh->updateVertexArray(wand->getTrackerPosition(), true);
+		mesh->updateVertexArray(test, true);
 		//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 	}
 	if (glfwGetKey(window, GLFW_KEY_P)) {
-		mesh->updateVertexArray(wand->getTrackerPosition(), false);
+		mesh->updateVertexArray(test, false);
 		//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 	}
 	if (glfwGetKey(window, GLFW_KEY_N)) {
