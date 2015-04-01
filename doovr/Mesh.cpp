@@ -302,7 +302,7 @@ void Mesh::updateVertexArray(float* p, bool but) {
 				vertexArray[i].y += 0.001f;
 			else
 				vertexArray[i].y -= 0.001f;
-			/*
+			
 			if ( ((i - (i % rows))/cols) % 2 != 0 ) {
 				faceP = vertexArray[i].adjacentFace;
 				//faceP->vertices[0];
@@ -375,7 +375,7 @@ void Mesh::updateVertexArray(float* p, bool but) {
 				//faceP->vertices[2];
 				updateNormal(faceP);
 			}
-			*/
+			
 			success = true;
 
 			if (startRow == -1) {
@@ -825,7 +825,7 @@ void Mesh::updateNormal(face* faceP)
 	tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
 	tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
 
-	normVec(tempNorm1);
+	normVec(tempNorm2);
 
 	faceP->vertices[0]->nx = tempNorm1[0];
 	faceP->vertices[0]->ny = tempNorm1[1];
@@ -840,7 +840,7 @@ void Mesh::updateNormal(face* faceP)
 	tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
 	tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
 
-	normVec(tempNorm1);
+	normVec(tempNorm2);
 
 	faceP->vertices[1]->nx = tempNorm1[0];
 	faceP->vertices[1]->ny = tempNorm1[1];
@@ -854,7 +854,7 @@ void Mesh::updateNormal(face* faceP)
 	tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
 	tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
 
-	normVec(tempNorm1);
+	normVec(tempNorm2);
 
 	faceP->vertices[2]->nx = tempNorm1[0];
 	faceP->vertices[2]->ny = tempNorm1[1];
