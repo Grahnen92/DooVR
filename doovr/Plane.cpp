@@ -2,8 +2,7 @@
 #include "time.h"
 #include "math.h"
 
-Plane::Plane(glm::vec3 _pos, glm::vec2 _dim)
-{
+Plane::Plane(glm::vec3 _pos, glm::vec2 _dim) {
 	vertex tempV;
 	triangle tempT;
 
@@ -46,10 +45,8 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim)
 	ntris = 2;
 	*/
 	
-	for (int i = 0; i < _dim.x - 1 ; i++)
-	{
-		for (int j = 0; j < _dim.y - 1; j++)
-		{ 
+	for (int i = 0; i < _dim.x - 1 ; i++) {
+		for (int j = 0; j < _dim.y - 1; j++) { 
 			tempT.index1 = i*_dim.x + j; 
 			tempT.index2 = i*_dim.x + j + 1;
 			tempT.index3 = (i + 1)*_dim.x + j;
@@ -61,7 +58,6 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim)
 			tempT.index3 = (i + 1)*_dim.x + j+1;
 
 			indexArray.push_back(tempT);
-
 		}
 	}
 	
@@ -78,8 +74,8 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim)
 	// Activate the vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Present our vertex coordinates to OpenGL
-	glBufferData(GL_ARRAY_BUFFER,
-		vertexArray.size()*sizeof(vertex), vertexP, GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertexArray.size()*sizeof(vertex),
+				 vertexP, GL_STREAM_DRAW);
 
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
@@ -92,16 +88,16 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim)
 	// Stride 8 (interleaved array with 8 floats per vertex)
 	// Array buffer offset 0, 3, 6 (offset into first vertex)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-		6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
+						  6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-		6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
+						  6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
 
 
 	// Activate the index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 	// Present our vertex indices to OpenGL
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-		3 * indexArray.size()*sizeof(GLuint), indexP, GL_STREAM_DRAW);
+				 3 * indexArray.size()*sizeof(GLuint), indexP, GL_STREAM_DRAW);
 
 
 	// Deactivate (unbind) the VAO and the buffers again.
@@ -113,13 +109,11 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim)
 
 }
 
-Plane::~Plane(void)
-{
+Plane::~Plane(void) {
 	cout << "A box has died." << endl;
 }
 
-void Plane::render()
-{
+void Plane::render() {
 	glBindVertexArray(vao);
 	//glColor3f(color.x, color.y, color.z);
 
@@ -128,8 +122,7 @@ void Plane::render()
 	glBindVertexArray(0);
 }
 
-void Plane::display(ostream& os) const
-{
+void Plane::display(ostream& os) const {
 	os << "Shape: Plane" << endl;
 	os << "Dimensions: " << dim.x << ", " << dim.y << " ," << endl;
 	os << endl;

@@ -541,14 +541,18 @@ int Oculus::runOvr() {
 					glVertex3fv(orgio);
 					glVertex3fv(Z);
 					glEnd();
-
-					// Wand shapes
-					boxWand.setPosition(wand->getTrackerPosition());
-					boxWand.setOrientation(wand->getTrackerRotation());
+					MVstack.push();
+						// Wand shapes
+						translateVector[0] = -0.15f;
+						translateVector[1] = 0.0f;
+						translateVector[2] = 0.0f;
+						MVstack.translate(translateVector);
+						boxWand.render();
+					MVstack.pop();
 
 					//sphereWand.setPosition(wand->getTrackerPosition());
 
-					boxWand.render();
+					
 
 
 					
@@ -613,7 +617,7 @@ void GLRenderCallsOculus(){
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glFrontFace(GL_CW);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
 	if (L_MULTISAMPLING) {
 		glEnable(GL_MULTISAMPLE);
 	}
