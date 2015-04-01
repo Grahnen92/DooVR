@@ -45,10 +45,15 @@ class Mesh {
 	Mesh();
 	~Mesh();
 
-	void updateVertexArray(float* p);
-	void updateVertexArray2(float* p);
+
+	void updateVertexArray(float* p, bool but);
+
+	void dilate(double x, double y);
+
 	void moveThroughMesh(int it);
 	void render();
+
+	void updateNormal(face* fp);
 
 	vertex* getVertexList();
 	triangle* getIndexList();
@@ -62,6 +67,9 @@ class Mesh {
   private:
 	float vectorLength(vertex vertex1, vertex vertex2);
 	bool sortByXCord(const vertex &a, const vertex &b);
+
+	int rows;
+	int cols;
 
 	GLuint vao;          // Vertex array object, the main handle for geometry
 	

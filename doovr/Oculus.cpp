@@ -474,12 +474,12 @@ int Oculus::runOvr() {
 
 					// Test to implement the dilation function on the mesh.
 					if (wand->getButtonState() && (wand->getButtonNumber() == 1)) {
-						mTest.updateVertexArray(wand->getTrackerPosition());
+						mTest.updateVertexArray(wand->getTrackerPosition(), true);
 					}
 
 					// Test to implement the erosion function on the mesh.
 					if (wand->getButtonState() && (wand->getButtonNumber() == 2)) {
-						mTest.updateVertexArray2(wand->getTrackerPosition());
+						mTest.updateVertexArray(wand->getTrackerPosition(), false);
 					}
 
 					//std::cout << wand->getButtonNumber() << std::endl;
