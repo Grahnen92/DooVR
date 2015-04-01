@@ -398,71 +398,8 @@ void Mesh::updateVertexArray(float* p, bool but) {
 			}
 		}
 	}
-
-	vertexP = &vertexArray[0];
-	indexP = &indexArray[0];
-
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-
-
-
-		// Present our vertex coordinates to OpenGL
-	vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(vertex)*vertexArray.size(),
-		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-
-	for (int i = 0; i < vertexArray.size(); i++ ) {
-		vertexP[i].x = vertexArray[i].x;
-		vertexP[i].y = vertexArray[i].y;
-		vertexP[i].z = vertexArray[i].z;
-		vertexP[i].nx = vertexArray[i].nx;
-		vertexP[i].ny = vertexArray[i].ny;
-		vertexP[i].nz = vertexArray[i].nz;
-		vertexP[i].adjacentFace = vertexArray[i].adjacentFace;
-	}
-	glUnmapBuffer(GL_ARRAY_BUFFER);
-
 	
-
-	// Specify how many attribute arrays we have in our VAO
-	glEnableVertexAttribArray(0); // Vertex coordinates
-	glEnableVertexAttribArray(1); // Normals
-
-	// Specify how OpenGL should interpret the vertex buffer data:
-	// Attributes 0, 1, 2 (must match the lines above and the layout in the shader)
-	// Number of dimensions (3 means vec3 in the shader, 2 means vec2)
-	// Type GL_FLOAT
-	// Not normalized (GL_FALSE)
-	// Stride 8 (interleaved array with 8 floats per vertex)
-	// Array buffer offset 0, 3, 6 (offset into first vertex)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-		6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-		6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
-
-	// Activate the index buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
-	// Present our vertex <indices to OpenGL
-	indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(),
-		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-
-	for (int i = 0; i < indexArray.size(); i++) {
-		indexP[i].index1 = indexArray[i].index1;
-		indexP[i].index2 = indexArray[i].index2;
-		indexP[i].index3 = indexArray[i].index3;
-	}
-
-	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-
-	// Deactivate (unbind) the VAO and the buffers again.
-	// Do NOT unbind the buffers while the VAO is still bound.
-	// The index buffer is an essential part of the VAO state.
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	/*
-	if (success == true)
-	{
+	if (success == true) {
 
 		vertexP = &vertexArray[0];
 		indexP = &indexArray[0];
@@ -474,7 +411,7 @@ void Mesh::updateVertexArray(float* p, bool but) {
 		int o = 0;
 		int beginning = 0;
 		// update the buffer where if has changed
-		for (int j = 0; currentRow <= endRow; j++, currentRow++) {
+		for (int j = 0; currentRow <= endRow && j < endCol.size() && j < startCol.size(); j++, currentRow++) {
 			range = endCol[j] + 1 - startCol[j];
 			beginning = currentRow * rows + startCol[j];
 
@@ -508,9 +445,9 @@ void Mesh::updateVertexArray(float* p, bool but) {
 		// Stride 8 (interleaved array with 8 floats per vertex)
 		// Array buffer offset 0, 3, 6 (offset into first vertex)
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-			6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
+							  6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-			6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
+							  6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
 
 		// Activate the index buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
@@ -534,7 +471,7 @@ void Mesh::updateVertexArray(float* p, bool but) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		
 	}
-	*/
+	
 }
 
 // Function for testing the facebased data structure
@@ -686,8 +623,7 @@ void Mesh::dilate(double x, double y) {
 				//faceP->vertices[1];
 				//faceP->vertices[2];
 				updateNormal(faceP);
-			}
-			else {
+			} else {
 				faceP = vertexArray[i].adjacentFace;
 				//faceP->vertices[0];
 				//faceP->vertices[1];
@@ -730,8 +666,7 @@ void Mesh::dilate(double x, double y) {
 			if (startRow == -1) {
 				startRow = (i - (i % rows)) / rows;
 				endRow = startRow; // first element is also last element as yet
-			}
-			else {
+			} else {
 				prevRow = endRow;
 				endRow = (i - (i % rows)) / rows;
 			}
@@ -740,8 +675,7 @@ void Mesh::dilate(double x, double y) {
 				endCol.pop_back();									//  if it is the same row it is the last element as yet, 20 elements on each row
 				endCol.push_back(i - endRow * rows);
 				//endCol.push_back(i % 20);
-			}
-			else {												// first element on row
+			} else {												// first element on row
 				//startCol.push_back(i % 20);
 				startCol.push_back(i - endRow * rows);
 				//endCol.push_back(i % 20);
@@ -750,8 +684,7 @@ void Mesh::dilate(double x, double y) {
 		}
 	}
 
-	if (success == true)
-	{
+	if (success == true) {
 
 		vertexP = &vertexArray[0];
 		indexP = &indexArray[0];
@@ -797,15 +730,15 @@ void Mesh::dilate(double x, double y) {
 		// Stride 8 (interleaved array with 8 floats per vertex)
 		// Array buffer offset 0, 3, 6 (offset into first vertex)
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-			6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
+							  6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-			6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
+							  6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
 
 		// Activate the index buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 		// Present our vertex <indices to OpenGL
 		indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(),
-			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+											 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
 		for (int i = 0; i < indexArray.size(); i++) {
 			indexP[i].index1 = indexArray[i].index1;
