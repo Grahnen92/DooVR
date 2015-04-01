@@ -515,14 +515,15 @@ int Oculus::runOvr() {
 					glVertex3fv(orgio);
 					glVertex3fv(Z);
 					glEnd();
-					boxWand.render();
+					sphereWand.render();
+
 					MVstack.push();
-						translateVector[0] = wand->getTrackerPosition()[0] + 0.3f;
-						translateVector[1] = wand->getTrackerPosition()[1];
-						translateVector[2] = wand->getTrackerPosition()[2];
+						translateVector[0] = -0.15f;
+						translateVector[1] = 0.0f;
+						translateVector[2] = 0.0f;
 						MVstack.translate(translateVector);
-						glUniformMatrix4fv(locationMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
-						sphereWand.render();
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						boxWand.render();
 					MVstack.pop();
 
 					//sphereWand.setPosition(wand->getTrackerPosition());
