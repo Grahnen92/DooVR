@@ -299,6 +299,11 @@ int Oculus::runOvr() {
 	//camera box
 	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 1.5f, 0.3f));
 
+	//Wand
+	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.05f, 0.05f));
+	//Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
+
+
 	Mesh mTest;
 
 	//LINK VARIABLES WITH SHADER ///////////////////////////////////////////////////////////////////////////
@@ -536,6 +541,17 @@ int Oculus::runOvr() {
 					glVertex3fv(orgio);
 					glVertex3fv(Z);
 					glEnd();
+
+					// Wand shapes
+					boxWand.setPosition(wand->getTrackerPosition());
+					boxWand.setOrientation(wand->getTrackerRotation());
+
+					//sphereWand.setPosition(wand->getTrackerPosition());
+
+					boxWand.render();
+
+
+					
 
 				MVstack.pop();
 

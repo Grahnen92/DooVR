@@ -255,7 +255,7 @@ void Mesh::updateVertexArray(float* p) {
 
 	for (int i = 0; i < vertexArray.size(); i++) {
 		if (vectorLength(point, vertexArray[i]) < rad) {
-			vertexArray[i].y += 0.001f;
+			vertexArray[i].y += 0.01f;
 		}
 	}
 
