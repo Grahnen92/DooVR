@@ -66,8 +66,8 @@ void Cylinder::createCylinder(float radius, int segments) {
 	vsegs = segments;
 	if (vsegs < 2) vsegs = 2;
 	hsegs = vsegs * 2;
-	nverts = 1 + (vsegs - 1) * (hsegs + 1) + 1; // top + middle + bottom
-	ntris = hsegs + (vsegs - 2) * hsegs * 2 + hsegs; // top + middle + bottom
+	nverts = 16; 
+	ntris = 16; // top + middle + bottom
 	vertexarray = new float[nverts * 8];
 	indexarray = new GLuint[ntris * 3];
 
@@ -96,9 +96,6 @@ void Cylinder::createCylinder(float radius, int segments) {
 	// (duplicates at texture seam s=0 / s=1)
 	for (j = 0; j<vsegs - 1; j++) { // vsegs-1 latitude rings of vertices
 		theta = (double)(j + 1) / vsegs*M_PI;
-		
-
-		
 		z = cos(theta);
 		R = 0.2f;
 		for (i = 0; i <= hsegs; i++) { // hsegs+1 vertices in each ring (duplicate for texcoords)

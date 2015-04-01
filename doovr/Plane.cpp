@@ -27,10 +27,8 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim)
 	color.y = 0.7f;
 	color.z = 0.1f;
 
-	for (float i = -_dim.x/2.0f; i < _dim.x/2.0f; i++)
-	{
-		for (float j = -_dim.y/2.0f ; j < _dim.y / 2.0f; j++)
-		{
+	for (float i = -_dim.x/2.0f; i < _dim.x/2.0f; i++) {
+		for (float j = -_dim.y/2.0f ; j < _dim.y / 2.0f; j++) {
 			tempV.x = i;
 			tempV.z = j;
 			vertexArray.push_back(tempV);
@@ -48,11 +46,11 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim)
 	ntris = 2;
 	*/
 	
-	for (int i = 0; i < _dim.x ; i++)
+	for (int i = 0; i < _dim.x - 1 ; i++)
 	{
-		for (int j = 0; j < _dim.y; j++)
+		for (int j = 0; j < _dim.y - 1; j++)
 		{ 
-			tempT.index1 = i*_dim.x + j;
+			tempT.index1 = i*_dim.x + j; 
 			tempT.index2 = i*_dim.x + j + 1;
 			tempT.index3 = (i + 1)*_dim.x + j;
 

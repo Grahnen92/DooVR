@@ -28,8 +28,8 @@ Mesh::Mesh() {
 
 	tempV.y = 0.0f;
 
-	vertexArray.reserve(1000000);
-	indexArray.reserve(1000000);
+	vertexArray.reserve(100000);
+	indexArray.reserve(100000);
 
 	position[0] = 0.0f;
 	position[1] = 1.0f;
@@ -83,7 +83,7 @@ Mesh::Mesh() {
 				tempV.z = ((float)(i))*0.86602540378f*scaleF;
 			}
 			tempV.nx = 0.0f;
-			tempV.ny = 1.0f;
+			tempV.ny = -1.0f;
 			tempV.nz = 0.0f;
 			tempV.adjacentFace = nullptr;
 			vertexArray.push_back(tempV);
@@ -287,7 +287,7 @@ void Mesh::updateVertexArray(float* p, bool but) {
 	triangle * indexP;
 	vertex * vertexP;
 
-	bool success = false;
+	bool success = false;	
 
 	int startRow = -1;
 	int endRow = -1;

@@ -64,7 +64,7 @@ int twoDim::run2D() {
 
 	Mesh mTest;
 	Sphere sphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
-	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.5f, 0.5f));
+//	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.5f, 0.5f));
 
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
