@@ -281,7 +281,7 @@ void Mesh::updateVertexArray(float* p, bool but) {
 	point.x = tempvec.x;
 	point.y = tempvec.y;
 	point.z = tempvec.z;
-	float rad = 0.4f;
+	float rad = 0.3f;
 
 
 	triangle * indexP;
@@ -302,7 +302,7 @@ void Mesh::updateVertexArray(float* p, bool but) {
 				vertexArray[i].y += 0.001f;
 			else
 				vertexArray[i].y -= 0.001f;
-			
+			/*
 			if ( ((i - (i % rows))/cols) % 2 != 0 ) {
 				faceP = vertexArray[i].adjacentFace;
 				//faceP->vertices[0];
@@ -375,7 +375,7 @@ void Mesh::updateVertexArray(float* p, bool but) {
 				//faceP->vertices[2];
 			//	updateNormal(faceP);
 			}
-			
+			*/
 			success = true;
 
 			if (startRow == -1) {

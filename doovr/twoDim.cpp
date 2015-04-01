@@ -64,7 +64,7 @@ int twoDim::run2D() {
 
 	Mesh mTest;
 	Sphere sphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
-//	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.5f, 0.5f));
+	//Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.5f, 0.5f));
 
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
@@ -197,14 +197,15 @@ void GLRenderCalls() {
 
 void modifyMesh(Mesh* mesh, GLFWwindow* window, Device* wand) {
 	glfwPollEvents();
+	float test[3] = { 0.0f, 0.0f, 0.0f };
 
 	if (glfwGetKey(window, GLFW_KEY_O)) {
 
-		mesh->updateVertexArray(wand->getTrackerPosition(), true);
+		mesh->updateVertexArray(test, true);
 		//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 	}
 	if (glfwGetKey(window, GLFW_KEY_P)) {
-		mesh->updateVertexArray(wand->getTrackerPosition(), false);
+		mesh->updateVertexArray(test, false);
 		//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 	}
 	if (glfwGetKey(window, GLFW_KEY_N)) {
