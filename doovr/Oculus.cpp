@@ -301,7 +301,7 @@ int Oculus::runOvr() {
 
 	//Wand
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.05f, 0.05f));
-	//Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
+	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 0.1f);
 
 
 	Mesh mTest;
@@ -426,10 +426,6 @@ int Oculus::runOvr() {
 					translateVector[1] = -1.088f;
 					translateVector[2] = 0.0f;
 					MVstack.translate(translateVector);
-					NVstack.push();
-						NVstack.translate(translateVector);
-						glUniformMatrix4fv(locationOMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
-					NVstack.pop();
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					ground.render();
 				MVstack.pop();
@@ -440,10 +436,6 @@ int Oculus::runOvr() {
 					translateVector[1] = 0.502f; // 1.59 cm (camera height) - 1.088 (origin height)
 					translateVector[2] = -2.0f;
 					MVstack.translate(translateVector);
-					NVstack.push();
-						NVstack.translate(translateVector);
-						glUniformMatrix4fv(locationOMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
-					NVstack.pop();
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					cam.render();
 				MVstack.pop();
@@ -454,10 +446,6 @@ int Oculus::runOvr() {
 				translateVector[1] = 0.0f; // chair height
 				translateVector[2] = -2.0f;
 				MVstack.translate(translateVector);
-				NVstack.push();
-					NVstack.translate(translateVector);
-					glUniformMatrix4fv(locationOMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
-				NVstack.pop();
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 				boxCamera.render();
 				MVstack.pop();
@@ -468,10 +456,6 @@ int Oculus::runOvr() {
 					translateVector[1] = -0.818f; // chair height
 					translateVector[2] = 0.0f;
 					MVstack.translate(translateVector);
-					NVstack.push();
-						NVstack.translate(translateVector);
-						glUniformMatrix4fv(locationOMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
-					NVstack.pop();
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					box.render();
 				MVstack.pop();
@@ -498,11 +482,6 @@ int Oculus::runOvr() {
 
 					MVstack.translate(mTest.getPosition());
 					MVstack.multiply(mTest.getOrientation());
-					NVstack.push();
-						NVstack.translate(mTest.getPosition());
-						NVstack.multiply(mTest.getOrientation());
-						glUniformMatrix4fv(locationOMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
-					NVstack.pop();
 
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					mTest.render();
@@ -513,11 +492,6 @@ int Oculus::runOvr() {
 				MVstack.push();
 					MVstack.translate(wand->getTrackerPosition());
 					MVstack.multiply(wand->getTrackerRotation());
-					NVstack.push();
-						NVstack.translate(wand->getTrackerPosition());
-						NVstack.multiply(wand->getTrackerRotation());
-						glUniformMatrix4fv(locationOMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
-					NVstack.pop();
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					// Wand testing, coordinate axis
 					float orgio[3] = { 0, 0, 0 };
@@ -541,13 +515,14 @@ int Oculus::runOvr() {
 					glVertex3fv(orgio);
 					glVertex3fv(Z);
 					glEnd();
+					boxWand.render();
 					MVstack.push();
-						// Wand shapes
-						translateVector[0] = -0.15f;
-						translateVector[1] = 0.0f;
-						translateVector[2] = 0.0f;
+						translateVector[0] = wand->getTrackerPosition()[0] + 0.3f;
+						translateVector[1] = wand->getTrackerPosition()[1];
+						translateVector[2] = wand->getTrackerPosition()[2];
 						MVstack.translate(translateVector);
-						boxWand.render();
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, NVstack.getCurrentMatrix());
+						sphereWand.render();
 					MVstack.pop();
 
 					//sphereWand.setPosition(wand->getTrackerPosition());
