@@ -45,8 +45,10 @@ class Mesh {
 	Mesh();
 	~Mesh();
 
-	void updateVertexArray(double x, double y);
-	void updateVertexArray2(double x, double y);
+	void updateVertexArray(double x, double y, bool but);
+
+	void dilate(double x, double y);
+
 	void moveThroughMesh(int it);
 	void render();
 

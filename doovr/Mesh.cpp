@@ -234,7 +234,7 @@ Mesh::~Mesh(void) {
 }
 
 // function for testing buffer mapping, dilates
-void Mesh::updateVertexArray(double x, double y) {
+void Mesh::updateVertexArray(double x, double y, bool but) {
 	vertex tempV;
 
 	face* faceP;
@@ -261,81 +261,82 @@ void Mesh::updateVertexArray(double x, double y) {
 	for (int i = 0; i < vertexArray.size(); i++) {
 		if (vectorLength(point, vertexArray[i]) < rad) {
 			
-			vertexArray[i].x += 0.001f*vertexArray[i].nx;
-			vertexArray[i].y += 0.001f*vertexArray[i].ny;
-			vertexArray[i].z += 0.001f*vertexArray[i].nz;
+			if (but == true)
+				vertexArray[i].y += 0.001f;
+			else
+				vertexArray[i].y -= 0.001f;
 			
 			if ( ((i - (i % rows))/cols) % 2 != 0 ) {
 				faceP = vertexArray[i].adjacentFace;
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				//updateNormal(faceP);
 				//cout << "hej";
 
 				faceP = faceP->nFace[0];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				//updateNormal(faceP);
 
 				faceP = faceP->nFace[2];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				//updateNormal(faceP);
 				faceP = faceP->nFace[0];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				//updateNormal(faceP);
 				faceP = faceP->nFace[1];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				//updateNormal(faceP);
 				faceP = faceP->nFace[1];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				//updateNormal(faceP);
 			}
 			else {
 				faceP = vertexArray[i].adjacentFace;
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				//updateNormal(faceP);
 
 				faceP = faceP->nFace[2];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				//updateNormal(faceP);
 
 				faceP = faceP->nFace[0];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+			//	updateNormal(faceP);
 
 				faceP = faceP->nFace[2];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+			//	updateNormal(faceP);
 
 				faceP = faceP->nFace[2];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+			//	updateNormal(faceP);
 
 				faceP = faceP->nFace[1];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+			//	updateNormal(faceP);
 			}
 			
 			success = true;
@@ -435,89 +436,6 @@ void Mesh::updateVertexArray(double x, double y) {
 	}
 }
 
-// function for testing buffer mapping, erodes
-void Mesh::updateVertexArray2(double x, double y) {
-	vertex tempV;
-
-	tempV.z = 0;
-
-	vertex point;
-	point.x = 0.0f;
-	point.y = 1.0f;
-	point.z = 0.0f;
-
-	float rad = 1.0f;
-
-	triangle * indexP;
-	vertex * vertexP;
-
-	for (int i = 0; i < vertexArray.size(); i++) {
-		if (vectorLength(point, vertexArray[i]) < rad) {
-			vertexArray[i].y -= 0.01f;
-		}
-	}
-
-	vertexP = &vertexArray[0];
-	indexP = &indexArray[0];
-
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-
-	vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(vertex)*vertexArray.size(),
-										GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-
-	for (int i = 0; i < vertexArray.size(); i++) {
-		vertexP[i].x = vertexArray[i].x;
-		vertexP[i].y = vertexArray[i].y;
-		vertexP[i].z = vertexArray[i].z;
-		vertexP[i].nx = vertexArray[i].nx;
-		vertexP[i].ny = vertexArray[i].ny;
-		vertexP[i].nz = vertexArray[i].nz;
-		vertexP[i].adjacentFace = vertexArray[i].adjacentFace;
-	}
-
-	// Specify how many attribute arrays we have in our VAO
-	glEnableVertexAttribArray(0); // Vertex coordinates
-	glEnableVertexAttribArray(1); // Normals
-
-	// Specify how OpenGL should interpret the vertex buffer data:
-	// Attributes 0, 1, 2 (must match the lines above and the layout in the shader)
-	// Number of dimensions (3 means vec3 in the shader, 2 means vec2)
-	// Type GL_FLOAT
-	// Not normalized (GL_FALSE)
-	// Stride 8 (interleaved array with 8 floats per vertex)
-	// Array buffer offset 0, 3, 6 (offset into first vertex)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-						  6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-						  6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
-
-	glUnmapBuffer(GL_ARRAY_BUFFER);
-
-	// Activate the index buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
-	// Present our vertex <indices to OpenGL
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-	//	3 * indexArray.size()*sizeof(GLuint), indexP, GL_STREAM_DRAW);
-
-	indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(),
-										 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-
-	for (int i = 0; i < indexArray.size(); i++) {
-		indexP[i].index1 = indexArray[i].index1;
-		indexP[i].index2 = indexArray[i].index2;
-		indexP[i].index3 = indexArray[i].index3;
-	}
-
-	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-
-	// Deactivate (unbind) the VAO and the buffers again.
-	// Do NOT unbind the buffers while the VAO is still bound.
-	// The index buffer is an essential part of the VAO state.
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
 // Function for testing the facebased data structure
 void Mesh::moveThroughMesh(int it) {
 
@@ -600,6 +518,209 @@ void Mesh::moveThroughMesh(int it) {
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void Mesh::dilate(double x, double y) {
+	vertex tempV;
+
+	face* faceP;
+
+	tempV.z = 0;
+	vertex point;
+	point.x = 0.0f;
+	point.y = 0.0f;
+	point.z = 0.0f;
+
+	float rad = 0.5f;
+
+	triangle * indexP;
+	vertex * vertexP;
+
+	bool success = false;
+
+	int startRow = -1;
+	int endRow = -1;
+	int prevRow = -1;
+	vector<int> startCol;	// first edited column on row
+	vector<int> endCol;		// last edited column on row
+
+	for (int i = 0; i < vertexArray.size(); i++) {
+		if (vectorLength(point, vertexArray[i]) < rad) {
+
+			vertexArray[i].x += 0.001f*vertexArray[i].nx;
+			vertexArray[i].y += 0.001f*vertexArray[i].ny;
+			vertexArray[i].z += 0.001f*vertexArray[i].nz;
+
+			if (((i - (i % rows)) / cols) % 2 != 0) {
+				faceP = vertexArray[i].adjacentFace;
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+				//cout << "hej";
+
+				faceP = faceP->nFace[0];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+
+				faceP = faceP->nFace[2];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+				faceP = faceP->nFace[0];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+				faceP = faceP->nFace[1];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+				faceP = faceP->nFace[1];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+			}
+			else {
+				faceP = vertexArray[i].adjacentFace;
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+
+				faceP = faceP->nFace[2];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+
+				faceP = faceP->nFace[0];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+
+				faceP = faceP->nFace[2];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+
+				faceP = faceP->nFace[2];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+
+				faceP = faceP->nFace[1];
+				//faceP->vertices[0];
+				//faceP->vertices[1];
+				//faceP->vertices[2];
+				updateNormal(faceP);
+			}
+
+			success = true;
+
+			if (startRow == -1) {
+				startRow = (i - (i % rows)) / rows;
+				endRow = startRow; // first element is also last element as yet
+			}
+			else {
+				prevRow = endRow;
+				endRow = (i - (i % rows)) / rows;
+			}
+
+			if (startCol.size() != 0 && endRow == prevRow) {		//  check if the last added column is on the same row, endRow will always be the current row
+				endCol.pop_back();									//  if it is the same row it is the last element as yet, 20 elements on each row
+				endCol.push_back(i - endRow * rows);
+				//endCol.push_back(i % 20);
+			}
+			else {												// first element on row
+				//startCol.push_back(i % 20);
+				startCol.push_back(i - endRow * rows);
+				//endCol.push_back(i % 20);
+				endCol.push_back(i - endRow * rows);
+			}
+		}
+	}
+
+	if (success == true)
+	{
+
+		vertexP = &vertexArray[0];
+		indexP = &indexArray[0];
+
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+
+		int currentRow = startRow;
+		int range = 0;
+		int o = 0;
+		int beginning = 0;
+		// update the buffer where if has changed
+		for (int j = 0; currentRow <= endRow; j++, currentRow++) {
+			range = endCol[j] + 1 - startCol[j];
+			beginning = currentRow * rows + startCol[j];
+
+			// Present our vertex coordinates to OpenGL
+			vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, beginning*sizeof(vertex), sizeof(vertex)*range,
+				GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+
+			for (int i = beginning; i < range + beginning, o < range; i++, o++) {
+				vertexP[o].x = vertexArray[i].x;
+				vertexP[o].y = vertexArray[i].y;
+				vertexP[o].z = vertexArray[i].z;
+				vertexP[o].nx = vertexArray[i].nx;
+				vertexP[o].ny = vertexArray[i].ny;
+				vertexP[o].nz = vertexArray[i].nz;
+				vertexP[o].adjacentFace = vertexArray[i].adjacentFace;
+			}
+			o = 0;
+			glUnmapBuffer(GL_ARRAY_BUFFER);
+
+		}
+
+		// Specify how many attribute arrays we have in our VAO
+		glEnableVertexAttribArray(0); // Vertex coordinates
+		glEnableVertexAttribArray(1); // Normals
+
+		// Specify how OpenGL should interpret the vertex buffer data:
+		// Attributes 0, 1, 2 (must match the lines above and the layout in the shader)
+		// Number of dimensions (3 means vec3 in the shader, 2 means vec2)
+		// Type GL_FLOAT
+		// Not normalized (GL_FALSE)
+		// Stride 8 (interleaved array with 8 floats per vertex)
+		// Array buffer offset 0, 3, 6 (offset into first vertex)
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
+			6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
+			6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
+
+		// Activate the index buffer
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
+		// Present our vertex <indices to OpenGL
+		indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(),
+			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+
+		for (int i = 0; i < indexArray.size(); i++) {
+			indexP[i].index1 = indexArray[i].index1;
+			indexP[i].index2 = indexArray[i].index2;
+			indexP[i].index3 = indexArray[i].index3;
+		}
+
+		glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+
+		// Deactivate (unbind) the VAO and the buffers again.
+		// Do NOT unbind the buffers while the VAO is still bound.
+		// The index buffer is an essential part of the VAO state.
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
 }
 
 vertex* Mesh::getVertexList() {
@@ -704,6 +825,8 @@ void Mesh::updateNormal(face* faceP)
 	faceP->vertices[2]->nx = tempNorm1[0];
 	faceP->vertices[2]->ny = tempNorm1[1];
 	faceP->vertices[2]->nz = tempNorm1[2];
+
+
 	/*
 	faceP->vertices[0]->nx = (tempNorm.x );
 	faceP->vertices[0]->ny = (tempNorm.y);
