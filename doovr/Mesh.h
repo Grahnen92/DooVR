@@ -8,10 +8,14 @@ typedef struct vertex vertex;
 
 //! Data structure containing all necessary information regarding a facetrianglepolygon
 struct face {
+
 	//! Pointer to adjacent faces
 	face * nFace[3];
+	int indexindex;
+
 	//! Pointer to the faces vertecies
 	vertex *vertices[3];
+	int vertexindex[3];
 };
 //! Data structure containing the coordinates and normal coordinates of a vertex, aswell as a pointer to an adjacent face
 struct vertex {
@@ -48,7 +52,7 @@ class Mesh {
 
 	void updateVertexArray(float* p, bool but);
 
-	void dilate(double x, double y);
+	void dilate(float* p, bool but);
 
 	void moveThroughMesh(int it);
 	void render();

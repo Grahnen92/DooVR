@@ -557,18 +557,27 @@ void Mesh::moveThroughMesh(int it) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Mesh::dilate(double x, double y) {
+void Mesh::dilate(float* p, bool but) {
 	vertex tempV;
 
 	face* faceP;
 
 	tempV.z = 0;
 	vertex point;
-	point.x = 0.0f;
-	point.y = 0.0f;
-	point.z = 0.0f;
+	point.x = p[0] - position[0];
+	point.y = p[1] - position[1];
+	point.z = p[2] - position[2];
 
-	float rad = 0.5f;
+	glm::vec4 tempvec;
+
+	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(point.x, point.y, point.z, 1.0f);
+
+
+	point.x = tempvec.x;
+	point.y = tempvec.y;
+	point.z = tempvec.z;
+	float rad = 0.1f;
+
 
 	triangle * indexP;
 	vertex * vertexP;
@@ -584,10 +593,18 @@ void Mesh::dilate(double x, double y) {
 	for (int i = 0; i < vertexArray.size(); i++) {
 		if (vectorLength(point, vertexArray[i]) < rad) {
 
-			vertexArray[i].x += 0.001f*vertexArray[i].nx;
-			vertexArray[i].y += 0.001f*vertexArray[i].ny;
-			vertexArray[i].z += 0.001f*vertexArray[i].nz;
-
+			if (but == true)
+			{
+				vertexArray[i].x += 0.1*vertexArray[i].nx;
+				vertexArray[i].y += 0.1*vertexArray[i].ny;
+				vertexArray[i].z += 0.1*vertexArray[i].nz;
+			}
+			else
+			{
+				vertexArray[i].x -= 0.1*vertexArray[i].nx;
+				vertexArray[i].y -= 0.1*vertexArray[i].ny;
+				vertexArray[i].z -= 0.1*vertexArray[i].nz;
+			}
 			if (((i - (i % rows)) / cols) % 2 != 0) {
 				faceP = vertexArray[i].adjacentFace;
 				//faceP->vertices[0];
@@ -622,7 +639,8 @@ void Mesh::dilate(double x, double y) {
 				//faceP->vertices[1];
 				//faceP->vertices[2];
 				updateNormal(faceP);
-			} else {
+			}
+			else {
 				faceP = vertexArray[i].adjacentFace;
 				//faceP->vertices[0];
 				//faceP->vertices[1];
@@ -665,7 +683,8 @@ void Mesh::dilate(double x, double y) {
 			if (startRow == -1) {
 				startRow = (i - (i % rows)) / rows;
 				endRow = startRow; // first element is also last element as yet
-			} else {
+			}
+			else {
 				prevRow = endRow;
 				endRow = (i - (i % rows)) / rows;
 			}
@@ -674,7 +693,8 @@ void Mesh::dilate(double x, double y) {
 				endCol.pop_back();									//  if it is the same row it is the last element as yet, 20 elements on each row
 				endCol.push_back(i - endRow * rows);
 				//endCol.push_back(i % 20);
-			} else {												// first element on row
+			}
+			else {												// first element on row
 				//startCol.push_back(i % 20);
 				startCol.push_back(i - endRow * rows);
 				//endCol.push_back(i % 20);
@@ -695,7 +715,7 @@ void Mesh::dilate(double x, double y) {
 		int o = 0;
 		int beginning = 0;
 		// update the buffer where if has changed
-		for (int j = 0; currentRow <= endRow; j++, currentRow++) {
+		for (int j = 0; currentRow <= endRow && j < endCol.size() && j < startCol.size(); j++, currentRow++) {
 			range = endCol[j] + 1 - startCol[j];
 			beginning = currentRow * rows + startCol[j];
 
@@ -729,15 +749,15 @@ void Mesh::dilate(double x, double y) {
 		// Stride 8 (interleaved array with 8 floats per vertex)
 		// Array buffer offset 0, 3, 6 (offset into first vertex)
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-							  6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
+			6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-							  6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
+			6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
 
 		// Activate the index buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 		// Present our vertex <indices to OpenGL
 		indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(),
-											 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
 		for (int i = 0; i < indexArray.size(); i++) {
 			indexP[i].index1 = indexArray[i].index1;
@@ -753,7 +773,9 @@ void Mesh::dilate(double x, double y) {
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 	}
+
 }
 
 vertex* Mesh::getVertexList() {

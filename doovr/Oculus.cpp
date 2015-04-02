@@ -100,8 +100,8 @@ int Oculus::runOvr() {
 		printf("Running in \"Direct\" mode...\n");
 		l_Monitor = NULL;
 
-		l_ClientSize.w = hmd->Resolution.w / 2; // Something reasonable, smaller, but maintain aspect ratio...
-		l_ClientSize.h = hmd->Resolution.h / 2; // Something reasonable, smaller, but maintain aspect ratio...
+		l_ClientSize.w = hmd->Resolution.w; // Something reasonable, smaller, but maintain aspect ratio...
+		l_ClientSize.h = hmd->Resolution.h; // Something reasonable, smaller, but maintain aspect ratio...
 	} else {// Extended Desktop mode...
 		printf("Running in \"Extended Desktop\" mode...\n");
 		int l_Count;
@@ -593,7 +593,7 @@ void GLRenderCallsOculus(){
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glFrontFace(GL_CCW);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
 	if (L_MULTISAMPLING) {
 		glEnable(GL_MULTISAMPLE);
 	}
