@@ -463,7 +463,7 @@ int Oculus::runOvr() {
 				// Wand
 				MVstack.push();
 					// Move around with the mesh
-					if (wand->getButtonState() && (wand->getButtonNumber() == 0)  ) {
+					if (wand->getButtonState() && (wand->getButtonNumber() == 2)  ) {
 						mTest.setPosition(wand->getTrackerPosition());
 						mTest.setOrientation(wand->getTrackerRotation());
 					}
@@ -474,7 +474,7 @@ int Oculus::runOvr() {
 					}
 
 					// Test to implement the erosion function on the mesh.
-					if (wand->getButtonState() && (wand->getButtonNumber() == 2)) {
+					if (wand->getButtonState() && (wand->getButtonNumber() == 0)) {
 						mTest.updateVertexArray(wand->getTrackerPosition(), false);
 					}
 
@@ -592,8 +592,8 @@ void GLRenderCallsOculus(){
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glFrontFace(GL_CW);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
+	//glFrontFace(GL_CCW);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
 	if (L_MULTISAMPLING) {
 		glEnable(GL_MULTISAMPLE);
 	}
