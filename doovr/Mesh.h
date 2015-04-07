@@ -64,6 +64,9 @@ class Mesh {
 	void setPosition(float* p) { position[0] = p[0]; position[1] = p[1]; position[2] = p[2]; }
 	void setOrientation(float* o) { std::copy(o, o + 16, orientation); }
 
+	bool getisMoved() { return isMoved; }
+	void setisMoved(bool b) { isMoved = b; }
+
   private:
 	float vectorLength(vertex vertex1, vertex vertex2);
 	bool sortByXCord(const vertex &a, const vertex &b);
@@ -83,4 +86,6 @@ class Mesh {
 
 	float position[3];
 	float orientation[16];
+
+	bool isMoved = false;
 };

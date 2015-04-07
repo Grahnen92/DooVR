@@ -367,38 +367,7 @@ int Oculus::runOvr() {
 				OVR::Quatf l_Orientation = OVR::Quatf(g_EyePoses[l_Eye].Orientation);
 				OVR::Matrix4f l_ModelViewMatrix = OVR::Matrix4f(l_Orientation.Inverted());
 
-				//	glMultMatrixf(&(l_ModelViewMatrix.Transposed().M[0][0]));
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
-
-				//pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
-			
-				/*
-				//--------------PRINTS THE GLM::MAT4---------------------------------
-				double dArray[16] = { 0.0 };
-				const float *pSource = (const float*)glm::value_ptr(pmat4);
-
-				for (int i = 0; i < 16; ++i)
-					dArray[i] = pSource[i];
-
-				cout << dArray[0] << " " << dArray[1] << " " << dArray[2] << " " << dArray[3] << endl
-					<< dArray[4] << " " << dArray[5] << " " << dArray[6] << " " << dArray[7] << endl
-					<< dArray[8] << " " << dArray[9] << " " << dArray[10] << " " << dArray[11] << endl
-					<< dArray[12] << " " << dArray[13] << " " << dArray[14] << " " << dArray[15] << endl << endl << endl;
-			    //-------------------------------------------------------------
-				*/
-
-				//Compare with the MVstack
-				//MVstack.print();
-
-				// TODO
-				// There is something wrong here
-				// om man anvander make_mat4 sa kommer matrisen som retuneras behovas transponeras.
-
-
-				//LP = glm::vec3(glm::make_mat4(MVstack.getCurrentMatrix())*glm::make_vec4(lightPos));
-
-				//MVstack.print();
-				//std::cout << lightPos[0] << " " << lightPos[1] << " " << lightPos[2] << " " << std::endl << std::endl;
 
 				glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
 
@@ -408,13 +377,6 @@ int Oculus::runOvr() {
 				lightPosTemp[1] = LP.y;
 				lightPosTemp[2] = LP.z;
 				glUniform3fv(locationLP, 1, lightPosTemp);
-
-				//MVstack.print();
-				//std::cout << lightPos[0] << " " << lightPos[1] << " " << lightPos[2] << " " << std::endl;
-				//std::cout << lightPosTemp[0] << " " << lightPosTemp[1] << " " << lightPosTemp[2] << " " << std::endl;
-				//std::cout << "----------------" << std::endl;
-				//!-- Translation due to positional tracking (DK2) and IPD...
-				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
 				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z };
 				MVstack.translate(eyePoses);
 
@@ -467,6 +429,12 @@ int Oculus::runOvr() {
 						mTest.setPosition(wand->getTrackerPosition());
 						mTest.setOrientation(wand->getTrackerRotation());
 					}
+					if (!wand->getButtonState() && (wand->getButtonNumber() == 0)) {
+
+						mTest.setPosition(wand->getTrackerPosition());
+						mTest.setOrientation(wand->getTrackerRotation());
+					}
+
 
 					// Test to implement the dilation function on the mesh.
 					if (wand->getButtonState() && (wand->getButtonNumber() == 1)) {
@@ -477,8 +445,6 @@ int Oculus::runOvr() {
 					if (wand->getButtonState() && (wand->getButtonNumber() == 2)) {
 						mTest.updateVertexArray(wand->getTrackerPosition(), false);
 					}
-
-					//std::cout << wand->getButtonNumber() << std::endl;
 
 					MVstack.translate(mTest.getPosition());
 					MVstack.multiply(mTest.getOrientation());

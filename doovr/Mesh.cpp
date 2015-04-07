@@ -71,8 +71,6 @@ Mesh::Mesh() {
 	
 	// Place vertices
 	for (int i = -rows / 2; i < rows / 2; i++) {
-		cout << fmod(i, sqrt(0.75f) * 2) << endl;
-
 		for (int j = -cols / 2; j < cols / 2; j++) {
 			
 			if (fmod(i, 2) != 0){

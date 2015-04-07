@@ -61,6 +61,7 @@ void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b) {
 	buttonTracker->setButtonNumber((int) b.button);
 	buttonTracker->setButtonState(b.state);
 
+
 	//attempt to handle the button with maps, does nothing yet.
 	buttonTracker->setButton(b.button, b.state);
 	//std::map <int, bool> wandButton;
@@ -100,6 +101,7 @@ void Device::sendtoMainloop() {
 bool Device::getButtonState() {
 	return button;
 }
+
 int Device::getButtonNumber() {
 	return buttonNumber;
 }
@@ -149,6 +151,9 @@ void Device::setAnalogPosition(float p[3]) {
 }
 void Device::setButtonState(bool b) {
 	button = b;
+	if (beenPressed != button) {
+		beenPressed = b;
+	}
 }
 void Device::setButtonNumber(int b) {
 	buttonNumber = b;
