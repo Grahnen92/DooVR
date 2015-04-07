@@ -52,7 +52,7 @@ class Mesh {
 
 	void updateVertexArray(float* p, bool but);
 
-	void dilate(float* p, bool but);
+	void dilate(float* p, float lp[3], float rad, bool but);
 
 	void moveThroughMesh(int it);
 	void render();

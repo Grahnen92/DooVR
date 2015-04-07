@@ -63,7 +63,7 @@ Mesh::Mesh() {
 
 	float scaleF = 0.0f;
 
-	scaleF = 1.0f / (rows / 4);
+	scaleF = 1.0f / (rows *2);
 
 	tempV.y = 0.0f;
 	tempV.nx = 0.0f;
@@ -280,7 +280,7 @@ void Mesh::updateVertexArray(float* p, bool but) {
 	point.x = tempvec.x;
 	point.y = tempvec.y;
 	point.z = tempvec.z;
-	float rad = 0.1f;
+	float rad = 0.02f;
 
 
 	triangle * indexP;
@@ -557,10 +557,24 @@ void Mesh::moveThroughMesh(int it) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Mesh::dilate(float* p, bool but) {
+void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
+	glm::vec4 tempvec;
 	vertex tempV;
-
 	face* faceP;
+
+	//MOVEMENT BETWEEN LAST FRAME AND THIS FRAME
+	float pMove[3];
+	pMove[0] = (p[0] - lp[0]);
+	pMove[1] = (p[1] - lp[1]);
+	pMove[2] = (p[2] - lp[2]);
+
+	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(pMove[0], pMove[1], pMove[2], 1.0f);
+	pMove[0] = tempvec.x;
+	pMove[1] = tempvec.y;
+	pMove[2] = tempvec.z;
+
+
+	cout << pMove[0] << " " << pMove[1] << " " << pMove[2] << endl;
 
 	tempV.z = 0;
 	vertex point;
@@ -568,15 +582,11 @@ void Mesh::dilate(float* p, bool but) {
 	point.y = p[1] - position[1];
 	point.z = p[2] - position[2];
 
-	glm::vec4 tempvec;
-
 	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(point.x, point.y, point.z, 1.0f);
-
-
 	point.x = tempvec.x;
 	point.y = tempvec.y;
 	point.z = tempvec.z;
-	float rad = 0.1f;
+	float radius = rad;
 
 
 	triangle * indexP;
@@ -593,18 +603,14 @@ void Mesh::dilate(float* p, bool but) {
 	for (int i = 0; i < vertexArray.size(); i++) {
 		if (vectorLength(point, vertexArray[i]) < rad) {
 
-			if (but == true)
-			{
-				vertexArray[i].x += 0.1*vertexArray[i].nx;
-				vertexArray[i].y += 0.1*vertexArray[i].ny;
-				vertexArray[i].z += 0.1*vertexArray[i].nz;
+			if (but == true) {
+				vertexArray[i].x += pMove[0];
+				vertexArray[i].y += pMove[1];
+				vertexArray[i].z += pMove[2];
 			}
 			else
-			{
-				vertexArray[i].x -= 0.1*vertexArray[i].nx;
-				vertexArray[i].y -= 0.1*vertexArray[i].ny;
-				vertexArray[i].z -= 0.1*vertexArray[i].nz;
-			}
+				vertexArray[i].y -= 0.001f;
+
 			if (((i - (i % rows)) / cols) % 2 != 0) {
 				faceP = vertexArray[i].adjacentFace;
 				//faceP->vertices[0];

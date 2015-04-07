@@ -301,7 +301,7 @@ int Oculus::runOvr() {
 
 	//Wand
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.05f, 0.05f));
-	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 0.1f);
+	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 0.02f);
 
 
 	Mesh mTest;
@@ -317,6 +317,12 @@ int Oculus::runOvr() {
 
 	// Initilise VRPN connection with the Intersense wand
 	Device* wand = new Device(true, true, true, "Wand");
+	float lastPos[3];
+	lastPos[0] = 0.0f;
+	lastPos[1] = 0.0f;
+	lastPos[2] = 0.0f;
+
+	float sRadius = 1.0f;
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
@@ -334,6 +340,14 @@ int Oculus::runOvr() {
 
 		if (glfwGetKey(l_Window, GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(l_Window, GL_TRUE);
+
+
+		if (glfwGetKey(l_Window, GLFW_KEY_Q)) {
+			sRadius += 0.01f;
+		}
+		if (glfwGetKey(l_Window, GLFW_KEY_W)) {
+			sRadius -= 0.01f;
+		}
 
 		// Begin the frame...
 		ovrHmd_BeginFrame(hmd, l_FrameIndex);
@@ -460,7 +474,7 @@ int Oculus::runOvr() {
 					box.render();
 				MVstack.pop();
 	
-				// Wand
+				// MESH
 				MVstack.push();
 					// Move around with the mesh
 					if (wand->getButtonState() && (wand->getButtonNumber() == 2)  ) {
@@ -470,7 +484,10 @@ int Oculus::runOvr() {
 
 					// Test to implement the dilation function on the mesh.
 					if (wand->getButtonState() && (wand->getButtonNumber() == 1)) {
-						mTest.updateVertexArray(wand->getTrackerPosition(), true);
+						mTest.dilate(wand->getTrackerPosition(), lastPos, sRadius, true);
+						lastPos[0] = wand->getTrackerPosition()[0];
+						lastPos[1] = wand->getTrackerPosition()[1];
+						lastPos[2] = wand->getTrackerPosition()[2];
 					}
 
 					// Test to implement the erosion function on the mesh.
@@ -483,6 +500,7 @@ int Oculus::runOvr() {
 					MVstack.translate(mTest.getPosition());
 					MVstack.multiply(mTest.getOrientation());
 
+					glLineWidth(1.0);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					mTest.render();
 
@@ -522,6 +540,7 @@ int Oculus::runOvr() {
 						translateVector[1] = 0.0f;
 						translateVector[2] = 0.0f;
 						MVstack.translate(translateVector);
+						MVstack.scale(sRadius);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						boxWand.render();
 					MVstack.pop();
@@ -593,7 +612,7 @@ void GLRenderCallsOculus(){
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glFrontFace(GL_CCW);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
 	if (L_MULTISAMPLING) {
 		glEnable(GL_MULTISAMPLE);
 	}
