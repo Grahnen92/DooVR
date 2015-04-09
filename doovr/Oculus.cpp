@@ -301,7 +301,7 @@ int Oculus::runOvr() {
 
 	//Wand
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.05f, 0.05f));
-	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 0.02f);
+	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
 
 
 	Mesh mTest;
@@ -317,12 +317,13 @@ int Oculus::runOvr() {
 
 	// Initilise VRPN connection with the Intersense wand
 	Device* wand = new Device(true, true, true, "Wand");
-	float lastPos[3];
-	lastPos[0] = 0.0f;
-	lastPos[1] = 0.0f;
-	lastPos[2] = 0.0f;
+	float lastPos[3] = {0.0f, 0.0f, 0.0f};
+	float currPos[3] = { 0.0f, 0.0f, 0.0f };
+	//float* pPos = currPos;
+	glm::vec4 nullVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec4 tempVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	float sRadius = 1.0f;
+	float sRadius = 0.05f;
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
@@ -482,13 +483,7 @@ int Oculus::runOvr() {
 						mTest.setOrientation(wand->getTrackerRotation());
 					}
 
-					// Test to implement the dilation function on the mesh.
-					if (wand->getButtonState() && (wand->getButtonNumber() == 1)) {
-						mTest.dilate(wand->getTrackerPosition(), lastPos, sRadius, true);
-						lastPos[0] = wand->getTrackerPosition()[0];
-						lastPos[1] = wand->getTrackerPosition()[1];
-						lastPos[2] = wand->getTrackerPosition()[2];
-					}
+
 
 					// Test to implement the erosion function on the mesh.
 					if (wand->getButtonState() && (wand->getButtonNumber() == 0)) {
@@ -510,6 +505,7 @@ int Oculus::runOvr() {
 				MVstack.push();
 					MVstack.translate(wand->getTrackerPosition());
 					MVstack.multiply(wand->getTrackerRotation());
+					
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					// Wand testing, coordinate axis
 					float orgio[3] = { 0, 0, 0 };
@@ -518,7 +514,7 @@ int Oculus::runOvr() {
 					float Z[3] = { 0, 0, 0.3 };
 
 					glLineWidth(5.0);
-					glBegin(GL_LINES);
+					glBegin(GL_POINTS);
 					glColor3f(1.0f, 0.0f, 0.0f);
 
 					glVertex3fv(orgio);
@@ -533,26 +529,32 @@ int Oculus::runOvr() {
 					glVertex3fv(orgio);
 					glVertex3fv(Z);
 					glEnd();
+					
 					sphereWand.render();
-
+					
 					MVstack.push();
 						translateVector[0] = -0.15f;
 						translateVector[1] = 0.0f;
 						translateVector[2] = 0.0f;
 						MVstack.translate(translateVector);
-						MVstack.scale(sRadius);
+
+						// Test to implement the dilation function on the mesh.
+						if (wand->getButtonState() && (wand->getButtonNumber() == 1)) {
+							mTest.dilate(wand->getTrackerPosition(), lastPos, sRadius, true);
+						}
+
+						lastPos[0] = wand->getTrackerPosition()[0];
+						lastPos[1] = wand->getTrackerPosition()[1];
+						lastPos[2] = wand->getTrackerPosition()[2];
+
+						//MVstack.scale(sRadius);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						boxWand.render();
 					MVstack.pop();
-
+					
 					//sphereWand.setPosition(wand->getTrackerPosition());
-
-					
-
-
-					
-
 				MVstack.pop();
+
 
 			MVstack.pop();
 		}

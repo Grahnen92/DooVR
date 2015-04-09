@@ -26,8 +26,6 @@ Mesh::Mesh() {
 	triangle tempT;
 	vertex tempV;
 
-	
-
 	vertexArray.reserve(100000);
 	indexArray.reserve(100000);
 
@@ -307,72 +305,72 @@ void Mesh::updateVertexArray(float* p, bool but) {
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				updateFace(faceP);
 				//cout << "hej";
 
 				faceP = faceP->nFace[0];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				updateFace(faceP);
 
 				faceP = faceP->nFace[2];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				updateFace(faceP);
 				faceP = faceP->nFace[0];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				updateFace(faceP);
 				faceP = faceP->nFace[1];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				updateFace(faceP);
 				faceP = faceP->nFace[1];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				updateFace(faceP);
 			}
 			else {
 				faceP = vertexArray[i].adjacentFace;
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				updateFace(faceP);
 
 				faceP = faceP->nFace[2];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				updateFace(faceP);
 
 				faceP = faceP->nFace[0];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				updateFace(faceP);
 
 				faceP = faceP->nFace[2];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				updateFace(faceP);
 
 				faceP = faceP->nFace[2];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				updateFace(faceP);
 
 				faceP = faceP->nFace[1];
 				//faceP->vertices[0];
 				//faceP->vertices[1];
 				//faceP->vertices[2];
-				updateNormal(faceP);
+				updateFace(faceP);
 			}
 			
 			success = true;
@@ -560,7 +558,12 @@ void Mesh::moveThroughMesh(int it) {
 void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	glm::vec4 tempvec;
 	vertex tempV;
-	face* faceP;
+	face* lastFace;
+	face* currFace;
+	face* nextFace;
+	face* startFace;
+	vertex* currVert;
+	int fNr = 1;
 
 	//MOVEMENT BETWEEN LAST FRAME AND THIS FRAME
 	float pMove[3];
@@ -586,7 +589,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	point.x = tempvec.x;
 	point.y = tempvec.y;
 	point.z = tempvec.z;
-	float radius = rad;
+	//float radius = rad;
 
 
 	triangle * indexP;
@@ -608,82 +611,110 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 				vertexArray[i].y += pMove[1];
 				vertexArray[i].z += pMove[2];
 			}
-			else
-				vertexArray[i].y -= 0.001f;
+			
+			currVert = &vertexArray[i];
 
+			startFace = vertexArray[i].adjacentFace;
+			updateFace(startFace);			
+
+			nextFace = startFace->nFace[0];
+			while ((nextFace->vertices[0] != currVert && nextFace->vertices[1] != currVert && nextFace->vertices[2] != currVert) )
+			{
+				nextFace = startFace->nFace[fNr];
+				fNr++;
+			}
+			lastFace = startFace;
+			currFace = nextFace;
+			fNr = 1;
+			
+			while (currFace != startFace)
+			{
+				updateFace(currFace);
+
+				nextFace = startFace->nFace[0];
+				while ( (nextFace->vertices[0] != currVert && nextFace->vertices[1] != currVert && nextFace->vertices[2] != currVert) || (nextFace == lastFace) )
+				{
+					nextFace = currFace->nFace[fNr];
+						fNr++;
+				}
+				lastFace = currFace;
+				currFace = nextFace;
+				fNr = 1;
+			}
+			/*
 			if (((i - (i % rows)) / cols) % 2 != 0) {
-				faceP = vertexArray[i].adjacentFace;
-				//faceP->vertices[0];
-				//faceP->vertices[1];
-				//faceP->vertices[2];
-				updateNormal(faceP);
+				currFace = vertexArray[i].adjacentFace;
+				//currFace->vertices[0];
+				//currFace->vertices[1];
+				//currFace->vertices[2];
+				updateFace(currFace);
 				//cout << "hej";
 
-				faceP = faceP->nFace[0];
-				//faceP->vertices[0];
-				//faceP->vertices[1];
-				//faceP->vertices[2];
-				updateNormal(faceP);
+				currFace = currFace->nFace[0];
+				//currFace->vertices[0];
+				//currFace->vertices[1];
+				//currFace->vertices[2];
+				updateFace(currFace);
 
-				faceP = faceP->nFace[2];
-				//faceP->vertices[0];
-				//faceP->vertices[1];
-				//faceP->vertices[2];
-				updateNormal(faceP);
-				faceP = faceP->nFace[0];
-				//faceP->vertices[0];
-				//faceP->vertices[1];
-				//faceP->vertices[2];
-				updateNormal(faceP);
-				faceP = faceP->nFace[1];
-				//faceP->vertices[0];
-				//faceP->vertices[1];
-				//faceP->vertices[2];
-				updateNormal(faceP);
-				faceP = faceP->nFace[1];
-				//faceP->vertices[0];
-				//faceP->vertices[1];
-				//faceP->vertices[2];
-				updateNormal(faceP);
+				currFace = currFace->nFace[2];
+				//currFace->vertices[0];
+				//currFace->vertices[1];
+				//currFace->vertices[2];
+				updateFace(currFace);
+				currFace = currFace->nFace[0];
+				//currFace->vertices[0];
+				//currFace->vertices[1];
+				//currFace->vertices[2];
+				updateFace(currFace);
+				currFace = currFace->nFace[1];
+				//currFace->vertices[0];
+				//currFace->vertices[1];
+				//currFace->vertices[2];
+				updateFace(currFace);
+				currFace = currFace->nFace[1];
+				//currFace->vertices[0];
+				//currFace->vertices[1];
+				//currFace->vertices[2];
+				updateFace(currFace);
 			}
 			else {
-				faceP = vertexArray[i].adjacentFace;
-				//faceP->vertices[0];
-				//faceP->vertices[1];
-				//faceP->vertices[2];
-				updateNormal(faceP);
+				currFace = vertexArray[i].adjacentFace;
+				//currFace->vertices[0];
+				//currFace->vertices[1];
+				//currFace->vertices[2];
+				updateFace(currFace);
 
-				faceP = faceP->nFace[2];
-				//faceP->vertices[0];
-				//faceP->vertices[1];
-				//faceP->vertices[2];
-				updateNormal(faceP);
+				currFace = currFace->nFace[2];
+				//currFace->vertices[0];
+				//currFace->vertices[1];
+				//currFace->vertices[2];
+				updateFace(currFace);
 
-				faceP = faceP->nFace[0];
-				//faceP->vertices[0];
-				//faceP->vertices[1];
-				//faceP->vertices[2];
-				updateNormal(faceP);
+				currFace = currFace->nFace[0];
+				//currFace->vertices[0];
+				//currFace->vertices[1];
+				//currFace->vertices[2];
+				updateFace(currFace);
 
-				faceP = faceP->nFace[2];
-				//faceP->vertices[0];
-				//faceP->vertices[1];
-				//faceP->vertices[2];
-				updateNormal(faceP);
+				currFace = currFace->nFace[2];
+				//currFace->vertices[0];
+				//currFace->vertices[1];
+				//currFace->vertices[2];
+				updateFace(currFace);
 
-				faceP = faceP->nFace[2];
-				//faceP->vertices[0];
-				//faceP->vertices[1];
-				//faceP->vertices[2];
-				updateNormal(faceP);
+				currFace = currFace->nFace[2];
+				//currFace->vertices[0];
+				//currFace->vertices[1];
+				//currFace->vertices[2];
+				updateFace(currFace);
 
-				faceP = faceP->nFace[1];
-				//faceP->vertices[0];
-				//faceP->vertices[1];
-				//faceP->vertices[2];
-				updateNormal(faceP);
+				currFace = currFace->nFace[1];
+				//currFace->vertices[0];
+				//currFace->vertices[1];
+				//currFace->vertices[2];
+				updateFace(currFace);
 			}
-
+			*/
 			success = true;
 
 			if (startRow == -1) {
@@ -817,16 +848,21 @@ bool Mesh::sortByXCord(const vertex &a, const vertex &b) {
 	return a.x < b.x;
 }
 
-void Mesh::updateNormal(face* faceP)
+void Mesh::updateFace(face* faceP)
 {
-	
-	float tempVert1[3];
-	float tempVert2[3];
-	float* tempNorm1;
-	float tempNorm2[3];
+	float maxRad = 0.01;
+	float minRad = 0.005;
+
+
+	//float tempVert1[3];
+	//float tempVert2[3];
+	//float* tempNorm1;
+	//float tempNorm2[3];
 
 	glm::vec3 tempV1;
 	glm::vec3 tempV2;
+	glm::vec3 tempV3;
+	glm::vec3 tempV4;
 	glm::vec3 tempN1;
 	glm::vec3 tempN2;
 	/*
@@ -919,4 +955,48 @@ void Mesh::updateNormal(face* faceP)
 	faceP->vertices[2]->nx = tempN2.x;
 	faceP->vertices[2]->ny = tempN2.y;
 	faceP->vertices[2]->nz = tempN2.z;
+
+	// CHECK IF RETRIANGULATION IS NEEDED
+	///////////////////////////////////////////////////////////////////////////////////////
+
+	tempV1.x = faceP->vertices[0]->x;
+	tempV1.y = faceP->vertices[0]->y;
+	tempV1.z = faceP->vertices[0]->z;
+
+	tempV2.x = faceP->vertices[1]->x;
+	tempV2.y = faceP->vertices[1]->y;
+	tempV2.z = faceP->vertices[1]->z;
+
+	tempV3.x = faceP->vertices[2]->x;
+	tempV3.y = faceP->vertices[2]->y;
+	tempV3.z = faceP->vertices[2]->z;
+
+	tempV4 = (tempV1 + tempV2 + tempV3) / 3.0f;
+
+	tempV1 = tempV1 - tempV4;
+	tempV2 = tempV2 - tempV4;
+	tempV3 = tempV3 - tempV4;
+
+	if (glm::length(tempV1) > maxRad || glm::length(tempV2) > maxRad || glm::length(tempV3) > maxRad)
+	{
+		//vertexArray.push_back(vertex());
+		//vertexArray.push_back(vertex());
+		//vertexArray.push_back(vertex());
+		//delete faceP;
+
+		//indexArray.push_back();
+		//indexArray.push_back();
+		//indexArray.push_back();
+		//indexArray.push_back();
+
+		//for ()
+			//while
+
+	}
+	else if (glm::length(tempV1) < minRad && glm::length(tempV2) < minRad && glm::length(tempV3) < minRad)
+	{
+
+	}
+
+
 }

@@ -57,7 +57,7 @@ class Mesh {
 	void moveThroughMesh(int it);
 	void render();
 
-	void updateNormal(face* fp);
+	void updateFace(face* fp);
 
 	vertex* getVertexList();
 	triangle* getIndexList();
