@@ -53,7 +53,7 @@ Mesh::Mesh() {
 	orientation[14] = 0.0f;
 	orientation[15] = 1.0f;
 
-	face * indexP;
+	triangle* indexP;
 	vertex * vertexP;
 
 	rows = 100;
@@ -98,29 +98,29 @@ Mesh::Mesh() {
 	for (int i = 1; i < rows-2; i = i + 2) {
 		for (int j = 0; j < cols-1; j++) {
 			//CREATE FIRST TRIANGLE IN SEQUENCE
-			handledFace1.index3 = i * rows + j;
+			handledFace1.index1 = i * rows + j;
 			handledFace1.index2 = (i + 1) * rows + (j + 1);
-			handledFace1.index1 = (i + 1) * rows + j;
+			handledFace1.index3 = (i + 1) * rows + j;
 			
 
 			//CREATE SECOND TRIANGLE IN SEQUENCE
-			handledFace2.index3 = i * rows + j;
+			handledFace2.index1 = i * rows + j;
 			handledFace2.index2 = i * rows + j + 1;
-			handledFace2.index1 = (i + 1) * rows + (j + 1);
+			handledFace2.index3 = (i + 1) * rows + (j + 1);
 			
 
 
 			//CREATE THIRD TRIANGLE IN SEQUENCE
-			handledFace3.index3 = i * rows + j;
+			handledFace3.index1 = i * rows + j;
 			handledFace3.index2 = (i - 1) * rows + (j + 1);
-			handledFace3.index1 = i * rows + (j + 1);
+			handledFace3.index3 = i * rows + (j + 1);
 			
 
 
 			//CREATE FOURTH TRIANGLE IN SEQUENCE
-			handledFace4.index3 = i * rows + j;
+			handledFace4.index1 = i * rows + j;
 			handledFace4.index2 = (i - 1) * rows + j;
-			handledFace4.index1 = (i - 1) * rows + (j + 1);
+			handledFace4.index3 = (i - 1) * rows + (j + 1);
 			
 
 
@@ -164,8 +164,19 @@ Mesh::Mesh() {
 		}
 	}
 
+	vector<triangle> tempList;
+	triangle tempTri;
+
+	for (int i = 0; i < indexArray.size(); i++)
+	{
+		tempTri.index1 = indexArray[i].index1;
+		tempTri.index2 = indexArray[i].index2;
+		tempTri.index3 = indexArray[i].index3;
+		tempList.push_back(tempTri);
+	}
+
 	vertexP = &vertexArray[0];
-	indexP = &indexArray[0];
+	indexP = &tempList[0];
 	// Generate one vertex array object (VAO) and bind it
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -178,7 +189,7 @@ Mesh::Mesh() {
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Present our vertex coordinates to OpenGL
 	glBufferData(GL_ARRAY_BUFFER,
-		 vertexArray.size()*sizeof(vertex), vertexP, GL_STREAM_DRAW);
+				 vertexArray.size()*sizeof(vertex), vertexP, GL_STREAM_DRAW);
 
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
@@ -199,7 +210,7 @@ Mesh::Mesh() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 	// Present our vertex indices to OpenGL
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-				  indexArray.size()*sizeof(face), indexP, GL_STREAM_DRAW);
+				 indexArray.size()*sizeof(triangle), indexP, GL_STREAM_DRAW);
 
 	// Deactivate (unbind) the VAO and the buffers again.
 	// Do NOT unbind the buffers while the VAO is still bound.
@@ -552,7 +563,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	//float radius = rad;
 
 
-	face * indexP;
+	triangle * indexP;
 	vertex * vertexP;
 
 	bool success = false;
@@ -632,7 +643,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	if (success == true) {
 
 		vertexP = &vertexArray[0];
-		indexP = &indexArray[0];
+		//indexP = &indexArray[0];
 
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
@@ -682,7 +693,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 		// Activate the index buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 		// Present our vertex <indices to OpenGL
-		indexP = (face*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(face) * indexArray.size(),
+		indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(),
 			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
 
 		for (int i = 0; i < indexArray.size(); i++) {
@@ -716,7 +727,7 @@ void Mesh::render() {
 	glBindVertexArray(vao);
 	//glColor3f(color.x, color.y, color.z);
 
-	glDrawElements(GL_TRIANGLES, indexArray.size() * sizeof(face), GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, indexArray.size() * sizeof(triangle), GL_UNSIGNED_INT, (void*)0);
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);
 }
