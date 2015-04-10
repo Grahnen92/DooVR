@@ -70,8 +70,14 @@ class Mesh {
 	void setOrientation(float* o) { std::copy(o, o + 16, orientation); }
 
   private:
+	//! Calculates the vector lenght between two vertex
 	float vectorLength(vertex vertex1, vertex vertex2);
+	//! Calculates the lenght of a vector
+	float vecLenght(float vec[3]);
+	//! Sorts vertecies by the x coordinate into ascending order
 	bool sortByXCord(const vertex &a, const vertex &b);
+	//! Calculates the vector between to points a and b and returns a pointer to the vec
+	float* calculateVec(float a[3], float b[3]);
 
 	int rows;
 	int cols;

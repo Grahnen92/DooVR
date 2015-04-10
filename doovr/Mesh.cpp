@@ -426,7 +426,6 @@ void Mesh::render() {
 	glBindVertexArray(0);
 }
 
-//! Calculates the vector lenght
 float Mesh::vectorLength(vertex vertex1, vertex vertex2) {
 	vertex vector;
 
@@ -437,7 +436,10 @@ float Mesh::vectorLength(vertex vertex1, vertex vertex2) {
 	return sqrt(vector.x*vector.x + vector.y*vector.y + vector.z*vector.z);
 }
 
-//! Sorts vertecies by the x coordinate into ascending order
+float Mesh::vecLenght(float vec[3]) {
+	return sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+}
+
 bool Mesh::sortByXCord(const vertex &a, const vertex &b) {
 	return a.x < b.x;
 }
@@ -550,12 +552,27 @@ void Mesh::updateFace(face* faceP)
 	}
 	*/
 
-	//CALCULATE NORMAL NOT USING GLM
+	//CALCULATE THE NEW FACE NORMAL NOT USING GLM
 
 	float tempVert1[3];
 	float tempVert2[3];
 	float tempNorm1[3];
 	float tempNorm2[3];
+
+	float vPoint1[3];
+	float vPoint2[3];
+	float vPoint3[3];
+	//float middlePoint[3];
+	//const float MAX_RADIUS = 0.01f;
+	//const float MIN_RADIUS = 0.005f;
+	//float* point2Mid1;
+	//float* point2Mid2;
+	//float* point2Mid3;
+	const float MAX_LENGTH = 0.02f;
+	const float MIN_LENGTH = 0.01f;
+	float* faceVec1;
+	float* faceVec2;
+	float* faceVec3;
 
 	// calculate vector between two points
 	tempVert1[0] = vertexArray[faceP->index2].x - vertexArray[faceP->index1].x;
@@ -569,8 +586,6 @@ void Mesh::updateFace(face* faceP)
 	//calcualte the cross prod of the two vectors (normal)
 	crossProd(tempVert1, tempVert2, tempNorm1);
 
-	//cout << " new normal! " << tempNorm1[0] << " " << tempNorm1[1] << " " << tempNorm1[2] << endl;
-
 	normVec(tempNorm1);
 	
 	// insert the face's existing normal into tempvert
@@ -578,9 +593,7 @@ void Mesh::updateFace(face* faceP)
 	tempNorm2[1] = vertexArray[faceP->index1].ny;
 	tempNorm2[2] = vertexArray[faceP->index1].nz;
 
-	//cout << " existing normal! " << tempNorm2[0] << " " << tempNorm2[1] << " " << tempNorm2[2] << endl;
-
-	// calculate the new normal
+	// calculate the new normal for the first vertex point
 	tempNorm2[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
 	tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
 	tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
@@ -590,7 +603,7 @@ void Mesh::updateFace(face* faceP)
 	vertexArray[faceP->index1].nx = tempNorm2[0];
 	vertexArray[faceP->index1].ny = tempNorm2[1];
 	vertexArray[faceP->index1].nz = tempNorm2[2];
-	/////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////// SECOND VERTEX POINT NORMAL /////////////////////////////////////////////////////
 
 	tempNorm2[0] = vertexArray[faceP->index2].nx;
 	tempNorm2[1] = vertexArray[faceP->index2].ny;
@@ -607,7 +620,7 @@ void Mesh::updateFace(face* faceP)
 	vertexArray[faceP->index2].ny = tempNorm2[1];
 	vertexArray[faceP->index2].nz = tempNorm2[2];
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////// THIRD VERTEX POINT NORMAL //////////////////////////////////////////
 
 	tempNorm2[0] = vertexArray[faceP->index3].nx;
 	tempNorm2[1] = vertexArray[faceP->index3].ny;
@@ -623,4 +636,103 @@ void Mesh::updateFace(face* faceP)
 	vertexArray[faceP->index3].nx = tempNorm2[0];
 	vertexArray[faceP->index3].ny = tempNorm2[1];
 	vertexArray[faceP->index3].nz = tempNorm2[2];
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// CHECK IF RETRIANGULATION IS NEEDED
+	vPoint1[0] = vertexArray[faceP->index1].x;
+	vPoint1[1] = vertexArray[faceP->index1].y;
+	vPoint1[2] = vertexArray[faceP->index1].z;
+
+	vPoint2[0] = vertexArray[faceP->index2].x;
+	vPoint2[1] = vertexArray[faceP->index2].y;
+	vPoint2[2] = vertexArray[faceP->index2].z;
+
+	vPoint3[0] = vertexArray[faceP->index3].x;
+	vPoint3[1] = vertexArray[faceP->index3].y;
+	vPoint3[2] = vertexArray[faceP->index3].z;
+
+	/* // USING RADIUS AND MIDDLE POINT
+	// Calculate a point placed in the middle of the face
+	middlePoint[0] = (vPoint1[0] + vPoint2[0] + vPoint3[0]) / 3;
+	middlePoint[1] = (vPoint1[1] + vPoint2[1] + vPoint3[1]) / 3;
+	middlePoint[2] = (vPoint1[2] + vPoint2[2] + vPoint3[2]) / 3;
+
+	// calculate between the point in the middle and the vertecies and check if they are to long or to short
+	point2Mid1 = calculateVec(vPoint1, middlePoint);
+	point2Mid2 = calculateVec(vPoint2, middlePoint);
+	point2Mid3 = calculateVec(vPoint3, middlePoint);
+
+	// the face is to big
+	if (vecLenght(point2Mid1) > MAX_RADIUS || 
+		vecLenght(point2Mid2) > MAX_RADIUS || 
+		vecLenght(point2Mid3) > MAX_RADIUS) { 
+
+	} 
+	// the face is to small
+	else if (vecLenght(point2Mid1) < MIN_RADIUS ||
+			 vecLenght(point2Mid2) < MIN_RADIUS || 
+			 vecLenght(point2Mid3) < MIN_RADIUS) {
+	}
+	*/
+
+	faceVec1 = calculateVec(vPoint1, vPoint2);
+	faceVec2 = calculateVec(vPoint1, vPoint3);
+	faceVec3 = calculateVec(vPoint2, vPoint3);
+
+	// the face is to big
+	if (vecLenght(faceVec1) > MAX_LENGTH 
+		|| vecLenght(faceVec2) > MAX_LENGTH 
+		|| vecLenght(faceVec3) > MAX_LENGTH) {
+		/*
+		vertex newPoint1;
+		vertex newPoint2;
+		vertex newPoint3;
+
+		// insert the first new vertex
+		newPoint1.x = faceVec1[0] / 2;
+		newPoint1.y = faceVec1[1] / 2;
+		newPoint1.z = faceVec1[2] / 2;
+
+		// insert the second new vertex
+		newPoint2.x = faceVec2[0] / 2;
+		newPoint2.y = faceVec2[1] / 2;
+		newPoint2.z = faceVec2[2] / 2;
+
+		// insert the third new vertex
+		newPoint3.x = faceVec3[0] / 2;
+		newPoint3.y = faceVec3[1] / 2;
+		newPoint3.z = faceVec3[2] / 2;
+
+		// Calculate the new vertecies normals
+		
+
+
+		// rebind the faces
+
+
+
+		// push back the new vertecies
+		vertexArray.push_back(newPoint1);
+		*/
+	}
+
+	// the face is to small
+	else if (vecLenght(faceVec1) < MIN_LENGTH ||
+			 vecLenght(faceVec2) < MIN_LENGTH ||
+			 vecLenght(faceVec3) < MIN_LENGTH) {
+
+
+
+	}
+
+}
+
+
+float* Mesh::calculateVec(float a[3], float b[3]) {
+	float vec[3];
+	vec[0] = a[0] - b[0];
+	vec[1] = a[1] - b[1];
+	vec[2] = a[2] - b[2];
+
+	return &vec[0];
 }
