@@ -13,13 +13,10 @@ void normVec(float* vec) {
 	vec[2] = vec[2] / length;
 }
 
-float* crossProd(float* vec1, float* vec2) {
-	float newVertex[3];
-	newVertex[0] = (vec1[1] * vec2[2] - vec1[2] * vec2[1]);
-	newVertex[1] = -(vec1[0] * vec2[2] - vec1[2] * vec2[0]);
-	newVertex[2] = (vec1[0] * vec2[1] - vec1[1] * vec2[0]);
-
-	return newVertex;
+void crossProd(float* vec1, float* vec2, float normal[3]) {
+	normal[0] = (vec1[1] * vec2[2] - vec1[2] * vec2[1]);
+	normal[1] = -(vec1[0] * vec2[2] - vec1[2] * vec2[0]);
+	normal[2] = (vec1[0] * vec2[1] - vec1[1] * vec2[0]);
 }
 
 Mesh::Mesh() {
@@ -447,34 +444,17 @@ bool Mesh::sortByXCord(const vertex &a, const vertex &b) {
 
 void Mesh::updateFace(face* faceP)
 {
+	/*
 	float maxRad = 0.01;
 	float minRad = 0.005;
 
-
-	//float tempVert1[3];
-	//float tempVert2[3];
-	//float* tempNorm1;
-	//float tempNorm2[3];
-
+	// CALCULATE NORMAL USING GLM
 	glm::vec3 tempV1;
 	glm::vec3 tempV2;
 	glm::vec3 tempV3;
 	glm::vec3 tempV4;
 	glm::vec3 tempN1;
 	glm::vec3 tempN2;
-	/*
-	tempVert1[0] = faceP->vertices[1]->x - faceP->vertices[0]->x;
-	tempVert1[1] = faceP->vertices[1]->y - faceP->vertices[0]->y;
-	tempVert1[2] = faceP->vertices[1]->z - faceP->vertices[0]->z;
-
-	tempVert2[0] = faceP->vertices[2]->x - faceP->vertices[0]->x;
-	tempVert2[1] = faceP->vertices[2]->y - faceP->vertices[0]->y;
-	tempVert2[2] = faceP->vertices[2]->z - faceP->vertices[0]->z;
-	*/
-
-	int temp5 = vertexArray[faceP->index2].x;
-	int temp1 = vertexArray[faceP->index2].y;
-	int temp2 = vertexArray[faceP->index2].z;
 
 	tempV1.x = vertexArray[faceP->index2].x - vertexArray[faceP->index1].x;
 	tempV1.y = vertexArray[faceP->index2].y - vertexArray[faceP->index1].y;
@@ -485,89 +465,49 @@ void Mesh::updateFace(face* faceP)
 	tempV2.z = vertexArray[faceP->index3].z - vertexArray[faceP->index1].z;
 	//tempV2.x = faceP->vertices[2]->x - faceP->vertices[0]->x;
 	
-	//cout << " vert! " << tempVert2[0] << " " << tempVert2[1] << " " << tempVert2[2] << endl;
+	tempN1 = glm::cross(tempV1, tempV2);
 
-	//tempNorm1 = crossProd(tempVert1, tempVert2);
-	tempN1 = glm::cross(tempV2, tempV1);
-
-	//cout << " new normal! " << tempNorm1[0] << " " << tempNorm1[1] << " " << tempNorm1[2] << endl;
-
-	//normVec(tempNorm1);
 	glm::normalize(tempN1);
 
-	//tempNorm2[0] = faceP->vertices[0]->nx;
-	//tempNorm2[1] = faceP->vertices[0]->ny;
-	//tempNorm2[2] = faceP->vertices[0]->nz;
 	tempN2.x = vertexArray[faceP->index1].nx;
 	tempN2.y = vertexArray[faceP->index1].ny;
 	tempN2.z = vertexArray[faceP->index1].nz;
 
-	//cout << " existing normal! " << tempNorm2[0] << " " << tempNorm2[1] << " " << tempNorm2[2] << endl;
-
-	//tempNorm2[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
-	//tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
-	//tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
 	tempN2 = (tempN1 + tempN2) / 2.0f;
 
-	//normVec(tempNorm2);
 	glm::normalize(tempN2);
 
-	//faceP->vertices[0]->nx = tempNorm2[0];
-	//faceP->vertices[0]->ny = tempNorm2[1];
-	//faceP->vertices[0]->nz = tempNorm2[2];
 	vertexArray[faceP->index1].nx = tempN2.x;
 	vertexArray[faceP->index1].ny = tempN2.y;
 	vertexArray[faceP->index1].nz = tempN2.z;
 	/////////////////////////////////////////////////////////////////////////////////////////////////
-
-	//tempNorm2[0] = faceP->vertices[1]->nx;
-	//tempNorm2[1] = faceP->vertices[1]->ny;
-	//tempNorm2[2] = faceP->vertices[1]->nz;
 	tempN2.x = vertexArray[faceP->index2].nx;
 	tempN2.y = vertexArray[faceP->index2].ny;
 	tempN2.z = vertexArray[faceP->index2].nz;
 
-	//tempNorm2[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
-	//tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
-	//tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
 	tempN2 = (tempN1 + tempN2) / 2.0f;
 
-	//normVec(tempNorm2);
 	glm::normalize(tempN2);
 
-	//faceP->vertices[1]->nx = tempNorm2[0];
-	//faceP->vertices[1]->ny = tempNorm2[1];
-	//faceP->vertices[1]->nz = tempNorm2[2];
 	vertexArray[faceP->index2].nx = tempN2.x;
 	vertexArray[faceP->index2].ny = tempN2.y;
 	vertexArray[faceP->index2].nz = tempN2.z;
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-
-	//tempNorm2[0] = faceP->vertices[2]->nx;
-	//tempNorm2[1] = faceP->vertices[2]->ny;
-	//tempNorm2[2] = faceP->vertices[2]->nz;
 	tempN2.x = vertexArray[faceP->index3].nx;
 	tempN2.y = vertexArray[faceP->index3].ny;
 	tempN2.z = vertexArray[faceP->index3].nz;
 
-	//tempNorm2[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
-	//tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
-	//tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
 	tempN2 = (tempN1 + tempN2) / 2.0f;
 
-	//normVec(tempNorm2);
 	glm::normalize(tempN2);
 
-	//faceP->vertices[2]->nx = tempNorm2[0];
-	//faceP->vertices[2]->ny = tempNorm2[1];
-	//faceP->vertices[2]->nz = tempNorm2[2];
 	vertexArray[faceP->index3].nx = tempN2.x;
 	vertexArray[faceP->index3].ny = tempN2.y;
 	vertexArray[faceP->index3].nz = tempN2.z;
 
 	// CHECK IF RETRIANGULATION IS NEEDED
 	///////////////////////////////////////////////////////////////////////////////////////
-
+	
 	tempV1.x = vertexArray[faceP->index1].x;
 	tempV1.y = vertexArray[faceP->index1].y;
 	tempV1.z = vertexArray[faceP->index1].z;
@@ -594,8 +534,6 @@ void Mesh::updateFace(face* faceP)
 		//indexArray.erase(indexArray.begin() + index - 1 );
 		//delete faceP;
 
-		
-
 		//indexArray.push_back();
 		//indexArray.push_back();
 		//indexArray.push_back();
@@ -610,6 +548,79 @@ void Mesh::updateFace(face* faceP)
 	{
 
 	}
+	*/
 
+	//CALCULATE NORMAL NOT USING GLM
 
+	float tempVert1[3];
+	float tempVert2[3];
+	float tempNorm1[3];
+	float tempNorm2[3];
+
+	// calculate vector between two points
+	tempVert1[0] = vertexArray[faceP->index2].x - vertexArray[faceP->index1].x;
+	tempVert1[1] = vertexArray[faceP->index2].y - vertexArray[faceP->index1].y;
+	tempVert1[2] = vertexArray[faceP->index2].z - vertexArray[faceP->index1].z;
+
+	tempVert2[0] = vertexArray[faceP->index3].x - vertexArray[faceP->index1].x;
+	tempVert2[1] = vertexArray[faceP->index3].y - vertexArray[faceP->index1].y;
+	tempVert2[2] = vertexArray[faceP->index3].z - vertexArray[faceP->index1].z;
+
+	//calcualte the cross prod of the two vectors (normal)
+	crossProd(tempVert1, tempVert2, tempNorm1);
+
+	//cout << " new normal! " << tempNorm1[0] << " " << tempNorm1[1] << " " << tempNorm1[2] << endl;
+
+	normVec(tempNorm1);
+	
+	// insert the face's existing normal into tempvert
+	tempNorm2[0] = vertexArray[faceP->index1].nx;
+	tempNorm2[1] = vertexArray[faceP->index1].ny;
+	tempNorm2[2] = vertexArray[faceP->index1].nz;
+
+	//cout << " existing normal! " << tempNorm2[0] << " " << tempNorm2[1] << " " << tempNorm2[2] << endl;
+
+	// calculate the new normal
+	tempNorm2[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
+	tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
+	tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
+
+	normVec(tempNorm2);
+
+	vertexArray[faceP->index1].nx = tempNorm2[0];
+	vertexArray[faceP->index1].ny = tempNorm2[1];
+	vertexArray[faceP->index1].nz = tempNorm2[2];
+	/////////////////////////////////////////////////////////////////////////////////////////////////
+
+	tempNorm2[0] = vertexArray[faceP->index2].nx;
+	tempNorm2[1] = vertexArray[faceP->index2].ny;
+	tempNorm2[2] = vertexArray[faceP->index2].nz;
+
+	// calculate the new normal
+	tempNorm2[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
+	tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
+	tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
+
+	normVec(tempNorm2);
+
+	vertexArray[faceP->index2].nx = tempNorm2[0];
+	vertexArray[faceP->index2].ny = tempNorm2[1];
+	vertexArray[faceP->index2].nz = tempNorm2[2];
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+
+	tempNorm2[0] = vertexArray[faceP->index3].nx;
+	tempNorm2[1] = vertexArray[faceP->index3].ny;
+	tempNorm2[2] = vertexArray[faceP->index3].nz;
+
+	// calculate the new normal
+	tempNorm2[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
+	tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
+	tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
+
+	normVec(tempNorm2);
+
+	vertexArray[faceP->index3].nx = tempNorm2[0];
+	vertexArray[faceP->index3].ny = tempNorm2[1];
+	vertexArray[faceP->index3].nz = tempNorm2[2];
 }
