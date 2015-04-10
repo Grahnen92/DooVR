@@ -1,8 +1,6 @@
 #include "Utilities.h"
 #include <vector>
 
-
-
 typedef struct face face;
 typedef struct vertex vertex;
 
@@ -18,8 +16,6 @@ struct face {
 	GLuint index1;
 	GLuint index2;
 	GLuint index3;
-	
-
 };
 //! Data structure containing the coordinates and normal coordinates of a vertex, aswell as a pointer to an adjacent face
 struct vertex {
