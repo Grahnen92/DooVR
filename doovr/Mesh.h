@@ -11,11 +11,11 @@ struct face {
 
 	//! Pointer to adjacent faces
 	face * nFace[3];
-	int indexindex;
+	int arrayIndex;
 
 	//! Pointer to the faces vertecies
 	vertex *vertices[3];
-	int vertexindex[3];
+	//int vertexindex[3];
 };
 //! Data structure containing the coordinates and normal coordinates of a vertex, aswell as a pointer to an adjacent face
 struct vertex {
@@ -26,12 +26,14 @@ struct vertex {
 	GLfloat ny;
 	GLfloat nz;
 	face *adjacentFace;
+	//int arrayIndex;
 };
 //! Data structure containing three indices of the vertexArray that make a certain triangle
 struct triangle {
 	GLuint index1;
 	GLuint index2;
 	GLuint index3;
+	//int arrayIndex;
 };
 
 /*

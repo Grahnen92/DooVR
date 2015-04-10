@@ -617,6 +617,8 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 			startFace = vertexArray[i].adjacentFace;
 			updateFace(startFace);			
 
+			fNr = 1;
+
 			nextFace = startFace->nFace[0];
 			while ((nextFace->vertices[0] != currVert && nextFace->vertices[1] != currVert && nextFace->vertices[2] != currVert) )
 			{
@@ -631,11 +633,11 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 			{
 				updateFace(currFace);
 
-				nextFace = startFace->nFace[0];
+				nextFace = currFace->nFace[0];
 				while ( (nextFace->vertices[0] != currVert && nextFace->vertices[1] != currVert && nextFace->vertices[2] != currVert) || (nextFace == lastFace) )
 				{
 					nextFace = currFace->nFace[fNr];
-						fNr++;
+					fNr++;
 				}
 				lastFace = currFace;
 				currFace = nextFace;
@@ -982,14 +984,18 @@ void Mesh::updateFace(face* faceP)
 		//vertexArray.push_back(vertex());
 		//vertexArray.push_back(vertex());
 		//vertexArray.push_back(vertex());
+		//indexArray.erase(indexArray.begin() + index - 1 );
 		//delete faceP;
 
+		
+
 		//indexArray.push_back();
 		//indexArray.push_back();
 		//indexArray.push_back();
 		//indexArray.push_back();
 
-		//for ()
+		//for (3)
+	//	if (glm::length(tempV1) > maxRad || glm::length(tempV2) > maxRad || glm::length(tempV3) > maxRad)
 			//while
 
 	}
