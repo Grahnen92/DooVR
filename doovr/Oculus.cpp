@@ -487,7 +487,8 @@ int Oculus::runOvr() {
 
 					// Test to implement the erosion function on the mesh.
 					if (wand->getButtonState() && (wand->getButtonNumber() == 0)) {
-						mTest.updateVertexArray(wand->getTrackerPosition(), false);
+						//mTest.updateVertexArray(wand->getTrackerPosition(), false);
+						cout << "not used" << endl;
 					}
 
 					//std::cout << wand->getButtonNumber() << std::endl;

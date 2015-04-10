@@ -11,11 +11,15 @@ struct face {
 
 	//! Pointer to adjacent faces
 	face * nFace[3];
-	int arrayIndex;
+	//int arrayIndex;
 
 	//! Pointer to the faces vertecies
-	vertex *vertices[3];
-	//int vertexindex[3];
+	//vertex *vertices[3];
+	GLuint index1;
+	GLuint index2;
+	GLuint index3;
+	
+
 };
 //! Data structure containing the coordinates and normal coordinates of a vertex, aswell as a pointer to an adjacent face
 struct vertex {
@@ -33,7 +37,6 @@ struct triangle {
 	GLuint index1;
 	GLuint index2;
 	GLuint index3;
-	//int arrayIndex;
 };
 
 /*
@@ -52,17 +55,17 @@ class Mesh {
 	~Mesh();
 
 
-	void updateVertexArray(float* p, bool but);
+	//void updateVertexArray(float* p, bool but);
 
 	void dilate(float* p, float lp[3], float rad, bool but);
 
-	void moveThroughMesh(int it);
+	//void moveThroughMesh(int it);
 	void render();
 
 	void updateFace(face* fp);
 
 	vertex* getVertexList();
-	triangle* getIndexList();
+	face* getIndexList();
 
 	float* getPosition(){ return position; };
 	float* getOrientation(){ return orientation; };
@@ -84,7 +87,7 @@ class Mesh {
 	//vector<GLfloat> vertexArray; // Vertex array on interleaved format: x y z nx ny nz s t
 	//vector<GLuint> indexArray;   // Element index array
 
-	std::vector<triangle> indexArray;
+	std::vector<face> indexArray;
 	std::vector<vertex> vertexArray;
 
 	float position[3];
