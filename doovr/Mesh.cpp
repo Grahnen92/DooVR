@@ -643,7 +643,10 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	if (success == true) {
 
 		vertexP = &vertexArray[0];
-		//indexP = &indexArray[0];
+
+		//vector<triangle> tempList[100000];
+		////tempList.reserve(100000);
+		//indexP = &tempList[0];
 
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
