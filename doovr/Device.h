@@ -53,9 +53,6 @@ class Device {
 		void setButtonNumber(int b);
 		//! Set button number and the state
 		void setButton(int n, bool b);
-		// work in progress
-		float* getFirstTrackerPosition() { return firstTrackerPosition; };
-		void setFirstTrackerPosition(float* p) { firstTrackerPosition[0] = p[0]; firstTrackerPosition[1] = p[1]; firstTrackerPosition[2] = p[2]; }
 
 		//! Set analog position of the device to a variable
 		void setAnalogPosition(float* pos);
@@ -86,8 +83,6 @@ class Device {
 		//! Saved variable from setButtonNumber
 		int buttonNumber;
 		//! Saved variable for setButton
-		bool button[100] = { 0 };
-		//! Saved tracker position when button was pressed
-		float firstTrackerPosition[3];
+		bool button[100];
 
 };

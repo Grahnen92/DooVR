@@ -59,6 +59,7 @@ int Oculus::runOvr() {
 
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
 	float changePos[3] = { 0.0f, 0.0f, 0.0f };
+	float changeRot[3] = { 0.0f, 0.0f, 0.0f };
 	int counter = 0;
 
 	GLint locationLP;
@@ -433,11 +434,21 @@ int Oculus::runOvr() {
 							changePos[0] = mTest.getPosition()[0] - wand->getTrackerPosition()[0];
 							changePos[1] = mTest.getPosition()[1] - wand->getTrackerPosition()[1];
 							changePos[2] = mTest.getPosition()[2] - wand->getTrackerPosition()[2];
+
+							for (int i = 0; i < 16; i++) {
+								changeRot[i] = mTest.getOrientation()[i] - wand->getTrackerRotation()[i];
+							}
 						}
+
 						float resultPos[3] = { wand->getTrackerPosition()[0] + changePos[0], wand->getTrackerPosition()[1] + changePos[1], wand->getTrackerPosition()[2] + changePos[2] };
 
+						float resultRot[16];
+						for (int i = 0; i < 16; i++) {
+							resultRot[i] = mTest.getOrientation()[i] + changeRot[i];
+						}
+
 						mTest.setPosition(resultPos);
-						mTest.setOrientation(wand->getTrackerRotation());
+						mTest.setOrientation(resultRot);
 						counter++;
 					}
 					else {
@@ -445,6 +456,9 @@ int Oculus::runOvr() {
 						changePos[0] = 0.0f;
 						changePos[1] = 0.0f;
 						changePos[2] = 0.0f;
+						for (int i = 0; i < 16; i++) {
+							changeRot[i] = 0.0f;
+						}
 					}
 
 					// Test to implement the dilation function on the mesh.
