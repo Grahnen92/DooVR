@@ -37,25 +37,28 @@ class Device {
 		bool getButtonState();
 		//! Get button number
 		int getButtonNumber();
-		//! Get both button number and the state
-		// not implemented
-		std::map<int, bool> getButton();
+
+
+		//! Get both button number and the state, replaces the 2 button functions from above
+		bool* getButton();
 
 		//! Set position vector of the device position to a variable
-		void setTrackerPosition(float t[3]);
+		void setTrackerPosition(float* t);
 		//! Set the rotation matrix for the device to a variable
-		void setTrackerRotation(double o[16]);
+		void setTrackerRotation(double* o);
 		
 		//! Set button state to a variable
 		void setButtonState(bool b);
 		//! Set button number to a variable
 		void setButtonNumber(int b);
 		//! Set button number and the state
-		// not implemented
 		void setButton(int n, bool b);
+		// work in progress
+		float* getFirstTrackerPosition() { return firstTrackerPosition; };
+		void setFirstTrackerPosition(float* p) { firstTrackerPosition[0] = p[0]; firstTrackerPosition[1] = p[1]; firstTrackerPosition[2] = p[2]; }
 
 		//! Set analog position of the device to a variable
-		void setAnalogPosition(float pos[2]);
+		void setAnalogPosition(float* pos);
 
 		//! vrpn Analog tracker
 		vrpn_Analog_Remote* vrpnAnalog = nullptr;
@@ -79,10 +82,12 @@ class Device {
 		//! Saved variable from setAnalogPosition
 		float analogPos[3];
 		//! Saved variable from setButtonState
-		bool button;
+		bool buttonState;
 		//! Saved variable from setButtonNumber
 		int buttonNumber;
 		//! Saved variable for setButton
-		std::map <int, bool> wandButton;
+		bool button[100] = { 0 };
+		//! Saved tracker position when button was pressed
+		float firstTrackerPosition[3];
 
 };

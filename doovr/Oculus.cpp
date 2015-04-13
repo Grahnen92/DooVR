@@ -58,6 +58,8 @@ int Oculus::runOvr() {
 	glm::vec4 LP = glm::vec4(0);
 
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
+	float changePos[3] = { 0.0f, 0.0f, 0.0f };
+	float changeRot[16] = { 0.0f };
 
 	GLint locationLP;
 	GLint locationP;
@@ -422,27 +424,31 @@ int Oculus::runOvr() {
 					box.render();
 				MVstack.pop();
 	
-				// Wand
+				// Mesh
 				MVstack.push();
 					// Move around with the mesh
-					if (wand->getButtonState() && (wand->getButtonNumber() == 0)  ) {
+					if (wand->getButton()[2]) {
+						// get first position of wand, implement rotation calibration aswell.
+						changePos[0] = mTest.getPosition()[0] - wand->getFirstTrackerPosition()[0];
+						changePos[1] = mTest.getPosition()[1] - wand->getFirstTrackerPosition()[1];
+						changePos[2] = mTest.getPosition()[2] - wand->getFirstTrackerPosition()[2];
+
+						float resultPos[3] = { wand->getTrackerPosition()[0] + changePos[0], wand->getTrackerPosition()[1] + changePos[1], wand->getTrackerPosition()[2] + changePos[2] };
+
 						mTest.setPosition(wand->getTrackerPosition());
 						mTest.setOrientation(wand->getTrackerRotation());
-					}
-					if (!wand->getButtonState() && (wand->getButtonNumber() == 0)) {
 
 						mTest.setPosition(wand->getTrackerPosition());
 						mTest.setOrientation(wand->getTrackerRotation());
 					}
-
 
 					// Test to implement the dilation function on the mesh.
-					if (wand->getButtonState() && (wand->getButtonNumber() == 1)) {
+					if (wand->getButton()[1]) {
 						mTest.updateVertexArray(wand->getTrackerPosition(), true);
 					}
 
 					// Test to implement the erosion function on the mesh.
-					if (wand->getButtonState() && (wand->getButtonNumber() == 2)) {
+					if (wand->getButton()[0]) {
 						mTest.updateVertexArray(wand->getTrackerPosition(), false);
 					}
 
@@ -454,7 +460,7 @@ int Oculus::runOvr() {
 
 				MVstack.pop();
 
-				//wand transformations
+				// Wand
 				MVstack.push();
 					MVstack.translate(wand->getTrackerPosition());
 					MVstack.multiply(wand->getTrackerRotation());
@@ -491,14 +497,6 @@ int Oculus::runOvr() {
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						boxWand.render();
 					MVstack.pop();
-
-					//sphereWand.setPosition(wand->getTrackerPosition());
-
-					
-
-
-					
-
 				MVstack.pop();
 
 			MVstack.pop();
@@ -558,8 +556,8 @@ void GLRenderCallsOculus(){
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glFrontFace(GL_CW);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
+	//glFrontFace(GL_CCW);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
 	if (L_MULTISAMPLING) {
 		glEnable(GL_MULTISAMPLE);
 	}

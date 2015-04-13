@@ -57,15 +57,15 @@ void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b) {
 
 	cout << "Button '" << b.button << "': " << b.state << endl;
 	Device* buttonTracker = static_cast<Device*> (userData);
-	
+
 	buttonTracker->setButtonNumber((int) b.button);
 	buttonTracker->setButtonState(b.state);
 
 
-	//attempt to handle the button with maps, does nothing yet.
+	//handles buttons in an array of bools instead. Can now handle more than one button at a time.
 	buttonTracker->setButton(b.button, b.state);
-	//std::map <int, bool> wandButton;
-	// wandButton[b.button]
+	// save wand position of when button was pressed
+	buttonTracker->setFirstTrackerPosition(buttonTracker->getTrackerPosition());
 }
 
 void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
@@ -99,15 +99,15 @@ void Device::sendtoMainloop() {
 
 // Get functions
 bool Device::getButtonState() {
-	return button;
+	return buttonState;
 }
 
 int Device::getButtonNumber() {
 	return buttonNumber;
 }
 
-std::map<int, bool> Device::getButton() {
-	return wandButton;
+bool* Device::getButton() {
+	return button;
 }
 
 float* Device::getAnalogPosition() {
@@ -121,14 +121,14 @@ float* Device::getTrackerRotation() {
 }
 
 // Set functions
-void Device::setTrackerPosition(float t[3]) {
+void Device::setTrackerPosition(float* t) {
 	// fix point: 1.088f from floor.
 	// Wierd copies due to fixing axis and multiplying movement
 	trackerPosition[0] = t[0] + 0.2067f;
 	trackerPosition[1] = -t[2] + 1.005; // offset to get correct wand coordinates
 	trackerPosition[2] = t[1] - 0.0f;
 }
-void Device::setTrackerRotation(double o[16] ) {
+void Device::setTrackerRotation(double* o ) {
 	double temp;
 	temp = o[1];
 	o[1] = -o[2];
@@ -144,27 +144,18 @@ void Device::setTrackerRotation(double o[16] ) {
 
 	std::copy(o, o + 16, trackerRotation);
 }
-void Device::setAnalogPosition(float p[3]) {
+void Device::setAnalogPosition(float* p) {
 	analogPos[0] = p[0];
 	analogPos[1] = p[1];
 	analogPos[2] = p[2];
 }
 void Device::setButtonState(bool b) {
-	button = b;
-	if (beenPressed != button) {
-		beenPressed = b;
-	}
+	buttonState = b;
 }
 void Device::setButtonNumber(int b) {
 	buttonNumber = b;
 }
 
 void Device::setButton(int n, bool b) {
-
-	wandButton[n] = b;
-
-	//std::cout << "The wandButtonis size " << wandButton.size() << std::endl;
-
-
-
+	button[n] = b;
 }
