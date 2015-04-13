@@ -59,7 +59,7 @@ int Oculus::runOvr() {
 
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
 	float changePos[3] = { 0.0f, 0.0f, 0.0f };
-	float changeRot[16] = { 0.0f };
+	int counter = 0;
 
 	GLint locationLP;
 	GLint locationP;
@@ -429,17 +429,22 @@ int Oculus::runOvr() {
 					// Move around with the mesh
 					if (wand->getButton()[2]) {
 						// get first position of wand, implement rotation calibration aswell.
-						changePos[0] = mTest.getPosition()[0] - wand->getFirstTrackerPosition()[0];
-						changePos[1] = mTest.getPosition()[1] - wand->getFirstTrackerPosition()[1];
-						changePos[2] = mTest.getPosition()[2] - wand->getFirstTrackerPosition()[2];
-
+						if (counter == 0) {
+							changePos[0] = mTest.getPosition()[0] - wand->getTrackerPosition()[0];
+							changePos[1] = mTest.getPosition()[1] - wand->getTrackerPosition()[1];
+							changePos[2] = mTest.getPosition()[2] - wand->getTrackerPosition()[2];
+						}
 						float resultPos[3] = { wand->getTrackerPosition()[0] + changePos[0], wand->getTrackerPosition()[1] + changePos[1], wand->getTrackerPosition()[2] + changePos[2] };
 
-						mTest.setPosition(wand->getTrackerPosition());
+						mTest.setPosition(resultPos);
 						mTest.setOrientation(wand->getTrackerRotation());
-
-						mTest.setPosition(wand->getTrackerPosition());
-						mTest.setOrientation(wand->getTrackerRotation());
+						counter++;
+					}
+					else {
+						counter = 0;
+						changePos[0] = 0.0f;
+						changePos[1] = 0.0f;
+						changePos[2] = 0.0f;
 					}
 
 					// Test to implement the dilation function on the mesh.
