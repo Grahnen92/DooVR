@@ -675,34 +675,43 @@ void Mesh::updateFace(face* faceP)
 	}
 	*/
 
-	faceVec1 = calculateVec(vPoint1, vPoint2);
-	faceVec2 = calculateVec(vPoint1, vPoint3);
-	faceVec3 = calculateVec(vPoint2, vPoint3);
+	faceVec1 = calculateVec(vPoint2, vPoint1);
+	faceVec2 = calculateVec(vPoint3, vPoint2);
+	faceVec3 = calculateVec(vPoint1, vPoint3);
 
 	// the face is to big
 	if (vecLenght(faceVec1) > MAX_LENGTH 
 		|| vecLenght(faceVec2) > MAX_LENGTH 
 		|| vecLenght(faceVec3) > MAX_LENGTH) {
-		/*
+		
 		vertex newPoint1;
 		vertex newPoint2;
 		vertex newPoint3;
 
 		// insert the first new vertex
-		newPoint1.x = faceVec1[0] / 2;
-		newPoint1.y = faceVec1[1] / 2;
-		newPoint1.z = faceVec1[2] / 2;
-
+		newPoint1.x = (faceVec1[0] / 2) + vPoint1[0];
+		newPoint1.y = (faceVec1[1] / 2) + vPoint1[1];
+		newPoint1.z = (faceVec1[2] / 2) + vPoint1[2];
+		newPoint1.nx = vertexArray[faceP->index1].nx;
+		newPoint1.ny = vertexArray[faceP->index1].ny;
+		newPoint1.nz = vertexArray[faceP->index1].nz;
 		// insert the second new vertex
-		newPoint2.x = faceVec2[0] / 2;
-		newPoint2.y = faceVec2[1] / 2;
-		newPoint2.z = faceVec2[2] / 2;
+		newPoint2.x = (faceVec2[0] / 2) + vPoint2[0];
+		newPoint2.y = (faceVec2[1] / 2) + vPoint2[1];
+		newPoint2.z = (faceVec2[2] / 2) + vPoint2[2];
+		newPoint2.nx = vertexArray[faceP->index2].nx;
+		newPoint2.ny = vertexArray[faceP->index2].ny;
+		newPoint2.nz = vertexArray[faceP->index2].nz;
 
 		// insert the third new vertex
-		newPoint3.x = faceVec3[0] / 2;
-		newPoint3.y = faceVec3[1] / 2;
-		newPoint3.z = faceVec3[2] / 2;
+		newPoint3.x = (faceVec3[0] / 2) + vPoint3[0];
+		newPoint3.y = (faceVec3[1] / 2) + vPoint3[1];
+		newPoint3.z = (faceVec3[2] / 2) + vPoint3[2];
+		newPoint3.nx = vertexArray[faceP->index3].nx;
+		newPoint3.ny = vertexArray[faceP->index3].ny;
+		newPoint3.nz = vertexArray[faceP->index3].nz;
 
+		/*
 		// Calculate the new vertecies normals
 		
 
@@ -720,8 +729,6 @@ void Mesh::updateFace(face* faceP)
 	else if (vecLenght(faceVec1) < MIN_LENGTH ||
 			 vecLenght(faceVec2) < MIN_LENGTH ||
 			 vecLenght(faceVec3) < MIN_LENGTH) {
-
-
 
 	}
 
