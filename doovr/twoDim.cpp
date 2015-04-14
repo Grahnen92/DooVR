@@ -84,7 +84,7 @@ int twoDim::run2D() {
 		//modifyMesh(&mTest, window, mouse);
 		glfwPollEvents();
 
-		
+		float wandRadius = 0.1;
 
 		if (glfwGetKey(window, GLFW_KEY_G)){
 			test[0] += 0.01f;
@@ -92,11 +92,11 @@ int twoDim::run2D() {
 
 		if (glfwGetKey(window, GLFW_KEY_O)) {
 
-			mTest.updateVertexArray(test, true);
+			mTest.updateVertexArray(test, true, wandRadius);
 			//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 		}
 		if (glfwGetKey(window, GLFW_KEY_P)) {
-			mTest.updateVertexArray(test, false);
+			mTest.updateVertexArray(test, false, wandRadius);
 			//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 		}
 		if (glfwGetKey(window, GLFW_KEY_N)) {
@@ -224,17 +224,18 @@ void GLRenderCalls() {
 void modifyMesh(Mesh* mesh, GLFWwindow* window, Device* wand) {
 	glfwPollEvents();
 	float test[3] = { 0.0f, 0.0f, 0.0f };
+	float wandRadius = 0.1;
 
 	if (glfwGetKey(window, GLFW_KEY_G)){
 		test[0] += 0.1f;
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_O)) {
-		mesh->updateVertexArray(test, true);
+		mesh->updateVertexArray(test, true, wandRadius);
 		//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 	}
 	if (glfwGetKey(window, GLFW_KEY_P)) {
-		mesh->updateVertexArray(test, false);
+		mesh->updateVertexArray(test, false, wandRadius);
 		//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 	}
 	if (glfwGetKey(window, GLFW_KEY_N)) {

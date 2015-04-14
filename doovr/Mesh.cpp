@@ -260,7 +260,7 @@ Mesh::~Mesh(void) {
 
 // function for testing buffer mapping, dilates
 
-void Mesh::updateVertexArray(float* p, bool but) {
+void Mesh::updateVertexArray(float* p, bool but, float radius) {
 	vertex tempV;
 
 	face* faceP;
@@ -279,7 +279,7 @@ void Mesh::updateVertexArray(float* p, bool but) {
 	point.x = tempvec.x;
 	point.y = tempvec.y;
 	point.z = tempvec.z;
-	float rad = 0.1f;
+	float rad = radius;
 
 
 	triangle * indexP;

@@ -29,7 +29,7 @@ Sphere::Sphere(glm::vec3 _pos, float _rad)
 
 
 	radius = _rad;
-	createSphere(_rad, 6);
+	createSphere(_rad, 10);
 
 	color.x = 0.7f;
 	color.y = 0.7f;
@@ -39,11 +39,14 @@ Sphere::Sphere(glm::vec3 _pos, float _rad)
 
 void Sphere::render()
 {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glLineWidth(3.0);
 	glBindVertexArray(vao);
 	glColor3f(color.x,color.y,color.z);
 	glDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 Sphere::~Sphere(void)
