@@ -78,6 +78,7 @@ class Device {
 		float trackerRotation[16];
 		//! Saved variable from setAnalogPosition
 		float analogPos[3];
+		
 		//! Saved variable from setButtonState
 		bool buttonState;
 		//! Saved variable from setButtonNumber

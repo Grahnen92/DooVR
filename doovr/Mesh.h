@@ -46,7 +46,7 @@ class Mesh {
 	~Mesh();
 
 
-	void updateVertexArray(float* p, bool but);
+	void updateVertexArray(float* p, bool but, float radius);
 
 	void dilate(double x, double y);
 

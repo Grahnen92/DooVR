@@ -50,6 +50,7 @@ Device::~Device() {
 void VRPN_CALLBACK handle_analog(void* userData, const vrpn_ANALOGCB a) {
 	Device* analogTracker = static_cast<Device*> (userData);
 	float analog[3] = { a.channel[0], a.channel[1], 0.0f };
+	cout << "Button '" << a.channel[0] << "': " << a.channel[1] << endl;
 	analogTracker->setAnalogPosition(analog);
 }
 													
@@ -61,11 +62,8 @@ void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b) {
 	buttonTracker->setButtonNumber((int) b.button);
 	buttonTracker->setButtonState(b.state);
 
-
 	//handles buttons in an array of bools instead. Can now handle more than one button at a time.
 	buttonTracker->setButton(b.button, b.state);
-	// save wand position of when button was pressed
-	buttonTracker->setFirstTrackerPosition(buttonTracker->getTrackerPosition());
 }
 
 void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {

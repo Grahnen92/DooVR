@@ -59,8 +59,10 @@ int Oculus::runOvr() {
 
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
 	float changePos[3] = { 0.0f, 0.0f, 0.0f };
-	float changeRot[3] = { 0.0f, 0.0f, 0.0f };
+	float changeRot[16] = { 0.0f };
 	int counter = 0;
+
+	float wandRadius = 0.1f;
 
 	GLint locationLP;
 	GLint locationP;
@@ -304,7 +306,7 @@ int Oculus::runOvr() {
 
 	//Wand
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.05f, 0.05f));
-	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 0.1f);
+	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), wandRadius);
 
 
 	Mesh mTest;
@@ -435,20 +437,12 @@ int Oculus::runOvr() {
 							changePos[1] = mTest.getPosition()[1] - wand->getTrackerPosition()[1];
 							changePos[2] = mTest.getPosition()[2] - wand->getTrackerPosition()[2];
 
-							for (int i = 0; i < 16; i++) {
-								changeRot[i] = mTest.getOrientation()[i] - wand->getTrackerRotation()[i];
-							}
 						}
 
 						float resultPos[3] = { wand->getTrackerPosition()[0] + changePos[0], wand->getTrackerPosition()[1] + changePos[1], wand->getTrackerPosition()[2] + changePos[2] };
 
-						float resultRot[16];
-						for (int i = 0; i < 16; i++) {
-							resultRot[i] = mTest.getOrientation()[i] + changeRot[i];
-						}
-
 						mTest.setPosition(resultPos);
-						mTest.setOrientation(resultRot);
+						mTest.setOrientation(wand->getTrackerRotation());
 						counter++;
 					}
 					else {
@@ -456,19 +450,42 @@ int Oculus::runOvr() {
 						changePos[0] = 0.0f;
 						changePos[1] = 0.0f;
 						changePos[2] = 0.0f;
-						for (int i = 0; i < 16; i++) {
-							changeRot[i] = 0.0f;
-						}
 					}
 
 					// Test to implement the dilation function on the mesh.
 					if (wand->getButton()[1]) {
-						mTest.updateVertexArray(wand->getTrackerPosition(), true);
+
+						float* wandPos = wand->getTrackerPosition();
+
+						wandPos[0] = wandPos[0] + wandRadius - 0.02;
+
+						mTest.updateVertexArray(wandPos, true, wandRadius);
 					}
 
 					// Test to implement the erosion function on the mesh.
 					if (wand->getButton()[0]) {
-						mTest.updateVertexArray(wand->getTrackerPosition(), false);
+
+
+						mTest.updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
+					}
+
+					// change tool size
+					if (wand->getAnalogPosition()[0] != 0 || wand->getAnalogPosition()[1] != 0) {
+						
+						const float MAX_RADIUS_WAND_TOOL = 0.2;
+						const float MIN_RADIUS_WAND_TOOL = 0.05;
+
+						// check if tool is to small or to big
+						if (wandRadius > MIN_RADIUS_WAND_TOOL && wandRadius < MAX_RADIUS_WAND_TOOL) { 
+							wandRadius += 0.001f*wand->getAnalogPosition()[1];
+							sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
+						} else if (wandRadius <= MIN_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] > 0) {
+							wandRadius += 0.001f*wand->getAnalogPosition()[1];
+							sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
+						} else if (wandRadius >= MAX_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] < 0) {
+							wandRadius += 0.001f*wand->getAnalogPosition()[1];
+							sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
+						}
 					}
 
 					MVstack.translate(mTest.getPosition());
@@ -506,8 +523,14 @@ int Oculus::runOvr() {
 					glVertex3fv(orgio);
 					glVertex3fv(Z);
 					glEnd();
-					sphereWand.render();
-
+					MVstack.push();
+						translateVector[0] = wandRadius - 0.02f;
+						translateVector[1] = 0.0f;
+						translateVector[2] = 0.0f;
+						MVstack.translate(translateVector);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						sphereWand.render();
+					MVstack.pop();
 					MVstack.push();
 						translateVector[0] = -0.15f;
 						translateVector[1] = 0.0f;
