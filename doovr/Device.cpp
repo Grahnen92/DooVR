@@ -18,9 +18,11 @@ Device::Device(bool analog, bool button, bool tracker, string name) {
 	if (name == "Wand") {
 		// Default port "@localhost:3883"
 		// DNS adress "@130.236.142.1"
+		// vrpn_print_devices.exe Wand@130.236.142.25
+		// vrpn_print_devices.exe Wand@itn-vortex.itn.liu.se
 
-		additionalAddress = "IS900@itn-vortex";
-		name = name + "@itn-vortex";
+		//additionalAddress = "IS900@itn-vortex";
+		name = name + "@itn-vortex.itn.liu.se";
 	}
 	else {
 		name = name + "0" + LOCAL;
