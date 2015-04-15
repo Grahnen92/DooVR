@@ -62,7 +62,7 @@ class Mesh {
 	void updateFace(face* fp);
 
 	vertex* getVertexList();
-	face* getIndexList();
+	triangle* getIndexList();
 
 	float* getPosition(){ return position; };
 	float* getOrientation(){ return orientation; };
@@ -90,7 +90,7 @@ class Mesh {
 	//vector<GLfloat> vertexArray; // Vertex array on interleaved format: x y z nx ny nz s t
 	//vector<GLuint> indexArray;   // Element index array
 
-	std::vector<face> indexArray;
+	std::vector<triangle> indexArray;
 	std::vector<vertex> vertexArray;
 
 	float position[3];

@@ -91,36 +91,49 @@ Mesh::Mesh() {
 	face* previousFace = nullptr;
 
 	// set triangle indecies and bind faces
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < cols; j++) {
-	
+	for (int i = 1; i < rows - 1; i++) {
+		for (int j = 1; j < cols - 1; j++) {
 
-			if (i != 0 && j !=0 && i != rows - 1 && j != cols - 1) {
-				vertexArray[i * rows + j].vertexNeighbors[0] = i * rows + j - 1;
-				vertexArray[i * rows + j].vertexNeighbors[1] = (i - 1) * rows + j;
-				vertexArray[i * rows + j].vertexNeighbors[2] = (i - 1) * rows + j + 1;
-				vertexArray[i * rows + j].vertexNeighbors[0] = (i + 1) * rows + j;
-				vertexArray[i * rows + j].vertexNeighbors[1] = (i + 1) * rows + j + 1;
-				vertexArray[i * rows + j].vertexNeighbors[2] = i * rows + j + 1;
+			//if (i != 0 && j !=0 && i != rows - 1 && j != cols - 1) {
+			vertexArray[i * rows + j].vertexNeighbors[0] = i * rows + j - 1;
+			vertexArray[i * rows + j].vertexNeighbors[1] = (i - 1) * rows + j;
+			vertexArray[i * rows + j].vertexNeighbors[2] = (i - 1) * rows + j + 1;
+			vertexArray[i * rows + j].vertexNeighbors[3] = (i + 1) * rows + j;
+			vertexArray[i * rows + j].vertexNeighbors[4] = (i + 1) * rows + j + 1;
+			vertexArray[i * rows + j].vertexNeighbors[5] = i * rows + j + 1;
 
+			if (i > 1 && j > 1 && i < rows - 2 && j < cols - 2) {
+				if ( i % 2 == 0) {
+					vertexArray[i * rows + j].triangleNeighbors[0] = (j*2 - 2) + (i - 1) * 2 * (cols -2) ;
+					vertexArray[i * rows + j].triangleNeighbors[1] = (j*2 - 1) + (i - 1) * 2 * (cols - 2);
+					vertexArray[i * rows + j].triangleNeighbors[2] = (j*2) + (i - 1) * 2 * (cols - 2);
 
-				tempT.index1 = 1;
-				tempT.index1 = 1;
-				tempT.index1 = 1;
+					vertexArray[i * rows + j].triangleNeighbors[3] = (j*2 - 3) + (i) * 2 * (cols - 2);
+					vertexArray[i * rows + j].triangleNeighbors[4] = (j*2 - 2) + (i) * 2 * (cols - 2);
+					vertexArray[i * rows + j].triangleNeighbors[5] = (j*2 - 1) + (i) * 2 * (cols - 2);
+				}
+				else {
+					vertexArray[i * rows + j].triangleNeighbors[0] = (j * 2 - 2) + (i - 1) * 2 * (cols - 2);
+					vertexArray[i * rows + j].triangleNeighbors[1] = (j * 2 - 1) + (i - 1) * 2 * (cols - 2);
+					vertexArray[i * rows + j].triangleNeighbors[2] = (j * 2) + (i - 1) * 2 * (cols - 2);
 
-				tempT.index1 = 1;
-				tempT.index1 = 1;
-				tempT.index1 = 1;
-				tempT.index1 = 1;
-
-				tempT.index1 = 1;
-				tempT.index1 = 1;
-				tempT.index1 = 1;
-				tempT.index1 = 1;
-
-
-				indexArray.push_back();
+					vertexArray[i * rows + j].triangleNeighbors[3] = (j * 2 - 1) + (i) * 2 * (cols - 2);
+					vertexArray[i * rows + j].triangleNeighbors[4] = (j * 2 ) + (i) * 2 * (cols - 2);
+					vertexArray[i * rows + j].triangleNeighbors[5] = (j * 2 + 1) + (i) * 2 * (cols - 2);
+				}
 			}
+
+			tempT.index1 = i*rows + j;
+			tempT.index2 = i*rows + j - 1;
+			tempT.index3 = (i-1)*rows + j;
+			indexArray.push_back(tempT);
+
+			tempT.index1 = i*rows + j;
+			tempT.index2 = (i-1)*rows + j;
+			tempT.index3 = (i - 1)*rows + j + 1;
+			indexArray.push_back(tempT);
+
+		//	}
 			
 
 			/////////////////////////////////////////////////////////////////////////////////////
@@ -186,7 +199,7 @@ Mesh::Mesh() {
 Mesh::~Mesh(void) {
 
 }
-
+/*
 void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	glm::vec4 tempvec;
 	vertex tempV;
@@ -379,12 +392,13 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 }
+*/
 
 vertex* Mesh::getVertexList() {
 	return &vertexArray[0];
 }
 
-face* Mesh::getIndexList() {
+triangle* Mesh::getIndexList() {
 	return &indexArray[0];
 }
 

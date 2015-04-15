@@ -13,7 +13,7 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim) {
 	tempV.nx = 0.0f;
 	tempV.ny = 1.0f;
 	tempV.nz = 0.0f;
-	tempV.adjacentFace = nullptr;
+//	tempV.adjacentFace = nullptr;
 
 	position[0] = _pos.x;
 	position[1] = _pos.y;
