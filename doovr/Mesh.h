@@ -25,9 +25,13 @@ struct vertex {
 	GLfloat nx;
 	GLfloat ny;
 	GLfloat nz;
+	//int arrayIndex;
+};
+
+struct vertexInf
+{
 	int vertexNeighbors[8];
 	int triangleNeighbors[8];
-	//int arrayIndex;
 };
 //! Data structure containing three indices of the vertexArray that make a certain triangle
 struct triangle {
@@ -59,7 +63,7 @@ class Mesh {
 	//void moveThroughMesh(int it);
 	void render();
 
-	void updateFace(face* fp);
+	void updateArea(int currVert);
 
 	vertex* getVertexList();
 	triangle* getIndexList();
@@ -78,7 +82,7 @@ class Mesh {
 	//! Sorts vertecies by the x coordinate into ascending order
 	bool sortByXCord(const vertex &a, const vertex &b);
 	//! Calculates the vector between to points a and b and returns a pointer to the vec
-	float* calculateVec(float a[3], float b[3]);
+	void calculateVec(float* newVec, float a[3], float b[3]);
 
 	int rows;
 	int cols;
@@ -92,6 +96,7 @@ class Mesh {
 
 	std::vector<triangle> indexArray;
 	std::vector<vertex> vertexArray;
+	std::vector<vertexInf> vertexInfo;
 
 	float position[3];
 	float orientation[16];

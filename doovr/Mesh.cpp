@@ -13,7 +13,7 @@ void normVec(float* vec) {
 	vec[2] = vec[2] / length;
 }
 
-void crossProd(float* vec1, float* vec2, float normal[3]) {
+void crossProd( float normal[3], float* vec1, float* vec2) {
 	normal[0] = (vec1[1] * vec2[2] - vec1[2] * vec2[1]);
 	normal[1] = -(vec1[0] * vec2[2] - vec1[2] * vec2[0]);
 	normal[2] = (vec1[0] * vec2[1] - vec1[1] * vec2[0]);
@@ -22,6 +22,12 @@ void crossProd(float* vec1, float* vec2, float normal[3]) {
 Mesh::Mesh() {
 	triangle tempT;
 	vertex tempV;
+	vertexInf tempVI;
+	for (int i = 0; i < 8; i++)
+	{
+		tempVI.triangleNeighbors[i] = -1;
+		tempVI.vertexNeighbors[i] = -1;
+	}
 
 	vertexArray.reserve(100000);
 	indexArray.reserve(100000);
@@ -63,8 +69,10 @@ Mesh::Mesh() {
 	tempV.y = 0.0f;
 	tempV.nx = 0.0f;
 	tempV.ny = 1.0f;
-	tempV.nz = 0.0f;
+	tempV.nz = 0.2f;
 	
+
+
 	
 	// Place vertices
 	for (int i = -rows / 2; i < rows / 2; i++) {
@@ -81,6 +89,7 @@ Mesh::Mesh() {
 			}
 		
 			vertexArray.push_back(tempV);
+			vertexInfo.push_back(tempVI);
 		}
 	}
 	
@@ -95,42 +104,42 @@ Mesh::Mesh() {
 		for (int j = 1; j < cols - 1; j++) {
 
 			//if (i != 0 && j !=0 && i != rows - 1 && j != cols - 1) {
-			vertexArray[i * rows + j].vertexNeighbors[0] = i * rows + j - 1;
-			vertexArray[i * rows + j].vertexNeighbors[1] = (i - 1) * rows + j;
-			vertexArray[i * rows + j].vertexNeighbors[2] = (i - 1) * rows + j + 1;
-			vertexArray[i * rows + j].vertexNeighbors[3] = (i + 1) * rows + j;
-			vertexArray[i * rows + j].vertexNeighbors[4] = (i + 1) * rows + j + 1;
-			vertexArray[i * rows + j].vertexNeighbors[5] = i * rows + j + 1;
+			vertexInfo[i * rows + j].vertexNeighbors[0] = i * rows + j - 1;
+			vertexInfo[i * rows + j].vertexNeighbors[1] = (i - 1) * rows + j;
+			vertexInfo[i * rows + j].vertexNeighbors[2] = (i - 1) * rows + j + 1;
+			vertexInfo[i * rows + j].vertexNeighbors[3] = (i + 1) * rows + j;
+			vertexInfo[i * rows + j].vertexNeighbors[4] = (i + 1) * rows + j + 1;
+			vertexInfo[i * rows + j].vertexNeighbors[5] = i * rows + j + 1;
 
 			if (i > 1 && j > 1 && i < rows - 2 && j < cols - 2) {
 				if ( i % 2 == 0) {
-					vertexArray[i * rows + j].triangleNeighbors[0] = (j*2 - 2) + (i - 1) * 2 * (cols -2) ;
-					vertexArray[i * rows + j].triangleNeighbors[1] = (j*2 - 1) + (i - 1) * 2 * (cols - 2);
-					vertexArray[i * rows + j].triangleNeighbors[2] = (j*2) + (i - 1) * 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors[0] = (j * 2 - 2) + (i - 1) * 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors[1] = (j * 2 - 1) + (i - 1) * 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors[2] = (j * 2) + (i - 1) * 2 * (cols - 2);
 
-					vertexArray[i * rows + j].triangleNeighbors[3] = (j*2 - 3) + (i) * 2 * (cols - 2);
-					vertexArray[i * rows + j].triangleNeighbors[4] = (j*2 - 2) + (i) * 2 * (cols - 2);
-					vertexArray[i * rows + j].triangleNeighbors[5] = (j*2 - 1) + (i) * 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors[3] = (j * 2 - 3) + (i)* 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors[4] = (j * 2 - 2) + (i)* 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors[5] = (j * 2 - 1) + (i)* 2 * (cols - 2);
 				}
 				else {
-					vertexArray[i * rows + j].triangleNeighbors[0] = (j * 2 - 2) + (i - 1) * 2 * (cols - 2);
-					vertexArray[i * rows + j].triangleNeighbors[1] = (j * 2 - 1) + (i - 1) * 2 * (cols - 2);
-					vertexArray[i * rows + j].triangleNeighbors[2] = (j * 2) + (i - 1) * 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors[0] = (j * 2 - 2) + (i - 1) * 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors[1] = (j * 2 - 1) + (i - 1) * 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors[2] = (j * 2) + (i - 1) * 2 * (cols - 2);
 
-					vertexArray[i * rows + j].triangleNeighbors[3] = (j * 2 - 1) + (i) * 2 * (cols - 2);
-					vertexArray[i * rows + j].triangleNeighbors[4] = (j * 2 ) + (i) * 2 * (cols - 2);
-					vertexArray[i * rows + j].triangleNeighbors[5] = (j * 2 + 1) + (i) * 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors[3] = (j * 2 - 1) + (i)* 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors[4] = (j * 2) + (i)* 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors[5] = (j * 2 + 1) + (i)* 2 * (cols - 2);
 				}
 			}
 
-			tempT.index1 = i*rows + j;
+			tempT.index1 = (i - 1)*rows + j;
 			tempT.index2 = i*rows + j - 1;
-			tempT.index3 = (i-1)*rows + j;
+			tempT.index3 = i*rows + j;
 			indexArray.push_back(tempT);
 
-			tempT.index1 = i*rows + j;
+			tempT.index1 = (i - 1)*rows + j + 1;
 			tempT.index2 = (i-1)*rows + j;
-			tempT.index3 = (i - 1)*rows + j + 1;
+			tempT.index3 = i*rows + j;
 			indexArray.push_back(tempT);
 
 		//	}
@@ -178,9 +187,9 @@ Mesh::Mesh() {
 	// Stride 8 (interleaved array with 8 floats per vertex)
 	// Array buffer offset 0, 3, 6 (offset into first vertex)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-						  6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
+						  6 * sizeof(GLfloat) , (void*)0); // xyz coordinates
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-						  6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
+						  6 * sizeof(GLfloat) , (void*)(3 * sizeof(GLfloat))); // normals
 
 	// Activate the index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
@@ -199,16 +208,12 @@ Mesh::Mesh() {
 Mesh::~Mesh(void) {
 
 }
-/*
+
 void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	glm::vec4 tempvec;
 	vertex tempV;
-	face* lastFace;
-	face* currFace;
-	face* nextFace;
-	face* startFace;
+
 	int currVert;
-	int fNr = 1;
 
 	//MOVEMENT BETWEEN LAST FRAME AND THIS FRAME
 	float pMove[3];
@@ -222,7 +227,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	pMove[2] = tempvec.z;
 
 
-	cout << pMove[0] << " " << pMove[1] << " " << pMove[2] << endl;
+	//cout << pMove[0] << " " << pMove[1] << " " << pMove[2] << endl;
 
 	tempV.z = 0;
 	vertex point;
@@ -261,35 +266,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 			// find all faces that belongs to the changed vertexpoint
 			currVert = i;
 
-			startFace = vertexArray[i].adjacentFace;
-			updateFace(startFace);			
-
-			fNr = 1;
-
-			nextFace = startFace->nFace[0];
-			// check the faces neighbouring faces one at a time until the face that has the changed vertex is found
-			while ((nextFace->index1 != currVert && nextFace->index2 != currVert && nextFace->index3 != currVert) ) {
-				nextFace = startFace->nFace[fNr];
-				fNr++;
-			}
-
-			lastFace = startFace;
-			currFace = nextFace;
-			fNr = 1;
-			
-			while (currFace != startFace) {
-				updateFace(currFace);
-
-				nextFace = currFace->nFace[0];
-				// check the faces neighbouring faces one at a time until the face that has the changed vertex is found
-				while ( (nextFace->index1 != currVert && nextFace->index2 != currVert && nextFace->index3 != currVert) || (nextFace == lastFace) ) {
-					nextFace = currFace->nFace[fNr];
-					fNr++;
-				}
-				lastFace = currFace;
-				currFace = nextFace;
-				fNr = 1;
-			}
+			updateArea(i);
 		
 			success = true;
 
@@ -347,7 +324,6 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 				vertexP[o].nx = vertexArray[i].nx;
 				vertexP[o].ny = vertexArray[i].ny;
 				vertexP[o].nz = vertexArray[i].nz;
-				vertexP[o].adjacentFace = vertexArray[i].adjacentFace;
 			}
 			o = 0;
 			glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -366,9 +342,9 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 		// Stride 8 (interleaved array with 8 floats per vertex)
 		// Array buffer offset 0, 3, 6 (offset into first vertex)
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-							  6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
+							  6 * sizeof(GLfloat), (void*)0); // xyz coordinates
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-							  6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
+							  6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
 
 		// Activate the index buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
@@ -392,7 +368,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 }
-*/
+
 
 vertex* Mesh::getVertexList() {
 	return &vertexArray[0];
@@ -429,302 +405,76 @@ bool Mesh::sortByXCord(const vertex &a, const vertex &b) {
 	return a.x < b.x;
 }
 
-void Mesh::updateFace(face* faceP)
+void Mesh::updateArea(int currVert)
 {
-	/*
-	float maxRad = 0.01;
-	float minRad = 0.005;
-
-	// CALCULATE NORMAL USING GLM
-	glm::vec3 tempV1;
-	glm::vec3 tempV2;
-	glm::vec3 tempV3;
-	glm::vec3 tempV4;
-	glm::vec3 tempN1;
-	glm::vec3 tempN2;
-
-	tempV1.x = vertexArray[faceP->index2].x - vertexArray[faceP->index1].x;
-	tempV1.y = vertexArray[faceP->index2].y - vertexArray[faceP->index1].y;
-	tempV1.z = vertexArray[faceP->index2].z - vertexArray[faceP->index1].z;
-
-	tempV2.x = vertexArray[faceP->index3].x - vertexArray[faceP->index1].x;
-	tempV2.y = vertexArray[faceP->index3].y - vertexArray[faceP->index1].y;
-	tempV2.z = vertexArray[faceP->index3].z - vertexArray[faceP->index1].z;
-	//tempV2.x = faceP->vertices[2]->x - faceP->vertices[0]->x;
-	
-	tempN1 = glm::cross(tempV1, tempV2);
-
-	glm::normalize(tempN1);
-
-	tempN2.x = vertexArray[faceP->index1].nx;
-	tempN2.y = vertexArray[faceP->index1].ny;
-	tempN2.z = vertexArray[faceP->index1].nz;
-
-	tempN2 = (tempN1 + tempN2) / 2.0f;
-
-	glm::normalize(tempN2);
-
-	vertexArray[faceP->index1].nx = tempN2.x;
-	vertexArray[faceP->index1].ny = tempN2.y;
-	vertexArray[faceP->index1].nz = tempN2.z;
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-	tempN2.x = vertexArray[faceP->index2].nx;
-	tempN2.y = vertexArray[faceP->index2].ny;
-	tempN2.z = vertexArray[faceP->index2].nz;
-
-	tempN2 = (tempN1 + tempN2) / 2.0f;
-
-	glm::normalize(tempN2);
-
-	vertexArray[faceP->index2].nx = tempN2.x;
-	vertexArray[faceP->index2].ny = tempN2.y;
-	vertexArray[faceP->index2].nz = tempN2.z;
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	tempN2.x = vertexArray[faceP->index3].nx;
-	tempN2.y = vertexArray[faceP->index3].ny;
-	tempN2.z = vertexArray[faceP->index3].nz;
-
-	tempN2 = (tempN1 + tempN2) / 2.0f;
-
-	glm::normalize(tempN2);
-
-	vertexArray[faceP->index3].nx = tempN2.x;
-	vertexArray[faceP->index3].ny = tempN2.y;
-	vertexArray[faceP->index3].nz = tempN2.z;
-
-	// CHECK IF RETRIANGULATION IS NEEDED
-	///////////////////////////////////////////////////////////////////////////////////////
-	
-	tempV1.x = vertexArray[faceP->index1].x;
-	tempV1.y = vertexArray[faceP->index1].y;
-	tempV1.z = vertexArray[faceP->index1].z;
-
-	tempV1.x = vertexArray[faceP->index2].x;
-	tempV1.y = vertexArray[faceP->index2].y;
-	tempV1.z = vertexArray[faceP->index2].z;
-
-	tempV1.x = vertexArray[faceP->index3].x;
-	tempV1.y = vertexArray[faceP->index3].y;
-	tempV1.z = vertexArray[faceP->index3].z;
-
-	tempV4 = (tempV1 + tempV2 + tempV3) / 3.0f;
-
-	tempV1 = tempV1 - tempV4;
-	tempV2 = tempV2 - tempV4;
-	tempV3 = tempV3 - tempV4;
-
-	if (glm::length(tempV1) > maxRad || glm::length(tempV2) > maxRad || glm::length(tempV3) > maxRad)
-	{
-		//vertexArray.push_back(vertex());
-		//vertexArray.push_back(vertex());
-		//vertexArray.push_back(vertex());
-		//indexArray.erase(indexArray.begin() + index - 1 );
-		//delete faceP;
-
-		//indexArray.push_back();
-		//indexArray.push_back();
-		//indexArray.push_back();
-		//indexArray.push_back();
-
-		//for (3)
-	//	if (glm::length(tempV1) > maxRad || glm::length(tempV2) > maxRad || glm::length(tempV3) > maxRad)
-			//while
-
-	}
-	else if (glm::length(tempV1) < minRad && glm::length(tempV2) < minRad && glm::length(tempV3) < minRad)
-	{
-
-	}
-	*/
 
 	//CALCULATE THE NEW FACE NORMAL NOT USING GLM
 
-	float tempVert1[3];
-	float tempVert2[3];
 	float tempNorm1[3];
-	float tempNorm2[3];
+
+	float tempVec1[3];
+	float tempVec2[3];
 
 	float vPoint1[3];
 	float vPoint2[3];
 	float vPoint3[3];
-	//float middlePoint[3];
-	//const float MAX_RADIUS = 0.01f;
-	//const float MIN_RADIUS = 0.005f;
-	//float* point2Mid1;
-	//float* point2Mid2;
-	//float* point2Mid3;
+
 	const float MAX_LENGTH = 0.02f;
 	const float MIN_LENGTH = 0.01f;
-	float* faceVec1;
-	float* faceVec2;
-	float* faceVec3;
 
-	// calculate vector between two points
-	tempVert1[0] = vertexArray[faceP->index2].x - vertexArray[faceP->index1].x;
-	tempVert1[1] = vertexArray[faceP->index2].y - vertexArray[faceP->index1].y;
-	tempVert1[2] = vertexArray[faceP->index2].z - vertexArray[faceP->index1].z;
+	int vertPos1;
+	int vertPos2;
 
-	tempVert2[0] = vertexArray[faceP->index3].x - vertexArray[faceP->index1].x;
-	tempVert2[1] = vertexArray[faceP->index3].y - vertexArray[faceP->index1].y;
-	tempVert2[2] = vertexArray[faceP->index3].z - vertexArray[faceP->index1].z;
+	int count1 = 0;
+	int count2 = 1;
 
-	//calcualte the cross prod of the two vectors (normal)
-	crossProd(tempVert1, tempVert2, tempNorm1);
+	vertPos1 = vertexInfo[currVert].vertexNeighbors[count1];
+	vertPos2 = vertexInfo[currVert].vertexNeighbors[count2];
 
-	normVec(tempNorm1);
-	
-	// insert the face's existing normal into tempvert
-	tempNorm2[0] = vertexArray[faceP->index1].nx;
-	tempNorm2[1] = vertexArray[faceP->index1].ny;
-	tempNorm2[2] = vertexArray[faceP->index1].nz;
-
-	// calculate the new normal for the first vertex point
-	tempNorm2[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
-	tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
-	tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
-
-	normVec(tempNorm2);
-
-	vertexArray[faceP->index1].nx = tempNorm2[0];
-	vertexArray[faceP->index1].ny = tempNorm2[1];
-	vertexArray[faceP->index1].nz = tempNorm2[2];
-	//////////////// SECOND VERTEX POINT NORMAL /////////////////////////////////////////////////////
-
-	tempNorm2[0] = vertexArray[faceP->index2].nx;
-	tempNorm2[1] = vertexArray[faceP->index2].ny;
-	tempNorm2[2] = vertexArray[faceP->index2].nz;
-
-	// calculate the new normal
-	tempNorm2[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
-	tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
-	tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
-
-	normVec(tempNorm2);
-
-	vertexArray[faceP->index2].nx = tempNorm2[0];
-	vertexArray[faceP->index2].ny = tempNorm2[1];
-	vertexArray[faceP->index2].nz = tempNorm2[2];
-
-	////////////////////////////// THIRD VERTEX POINT NORMAL //////////////////////////////////////////
-
-	tempNorm2[0] = vertexArray[faceP->index3].nx;
-	tempNorm2[1] = vertexArray[faceP->index3].ny;
-	tempNorm2[2] = vertexArray[faceP->index3].nz;
-
-	// calculate the new normal
-	tempNorm2[0] = (tempNorm1[0] + tempNorm2[0]) / 2.0f;
-	tempNorm2[1] = (tempNorm1[1] + tempNorm2[1]) / 2.0f;
-	tempNorm2[2] = (tempNorm1[2] + tempNorm2[2]) / 2.0f;
-
-	normVec(tempNorm2);
-
-	vertexArray[faceP->index3].nx = tempNorm2[0];
-	vertexArray[faceP->index3].ny = tempNorm2[1];
-	vertexArray[faceP->index3].nz = tempNorm2[2];
-
-	/////////////////////////////////////////////////////////////////////////////////////
-	// CHECK IF RETRIANGULATION IS NEEDED
-	vPoint1[0] = vertexArray[faceP->index1].x;
-	vPoint1[1] = vertexArray[faceP->index1].y;
-	vPoint1[2] = vertexArray[faceP->index1].z;
-
-	vPoint2[0] = vertexArray[faceP->index2].x;
-	vPoint2[1] = vertexArray[faceP->index2].y;
-	vPoint2[2] = vertexArray[faceP->index2].z;
-
-	vPoint3[0] = vertexArray[faceP->index3].x;
-	vPoint3[1] = vertexArray[faceP->index3].y;
-	vPoint3[2] = vertexArray[faceP->index3].z;
-
-	/* // USING RADIUS AND MIDDLE POINT
-	// Calculate a point placed in the middle of the face
-	middlePoint[0] = (vPoint1[0] + vPoint2[0] + vPoint3[0]) / 3;
-	middlePoint[1] = (vPoint1[1] + vPoint2[1] + vPoint3[1]) / 3;
-	middlePoint[2] = (vPoint1[2] + vPoint2[2] + vPoint3[2]) / 3;
-
-	// calculate between the point in the middle and the vertecies and check if they are to long or to short
-	point2Mid1 = calculateVec(vPoint1, middlePoint);
-	point2Mid2 = calculateVec(vPoint2, middlePoint);
-	point2Mid3 = calculateVec(vPoint3, middlePoint);
-
-	// the face is to big
-	if (vecLenght(point2Mid1) > MAX_RADIUS || 
-		vecLenght(point2Mid2) > MAX_RADIUS || 
-		vecLenght(point2Mid3) > MAX_RADIUS) { 
-
-	} 
-	// the face is to small
-	else if (vecLenght(point2Mid1) < MIN_RADIUS ||
-			 vecLenght(point2Mid2) < MIN_RADIUS || 
-			 vecLenght(point2Mid3) < MIN_RADIUS) {
-	}
-	*/
-
-	faceVec1 = calculateVec(vPoint2, vPoint1);
-	faceVec2 = calculateVec(vPoint3, vPoint2);
-	faceVec3 = calculateVec(vPoint1, vPoint3);
-
-	// the face is to big
-	if (vecLenght(faceVec1) > MAX_LENGTH 
-		|| vecLenght(faceVec2) > MAX_LENGTH 
-		|| vecLenght(faceVec3) > MAX_LENGTH) {
-		
-		vertex newPoint1;
-		vertex newPoint2;
-		vertex newPoint3;
-
-		// insert the first new vertex
-		newPoint1.x = (faceVec1[0] / 2) + vPoint1[0];
-		newPoint1.y = (faceVec1[1] / 2) + vPoint1[1];
-		newPoint1.z = (faceVec1[2] / 2) + vPoint1[2];
-		newPoint1.nx = vertexArray[faceP->index1].nx;
-		newPoint1.ny = vertexArray[faceP->index1].ny;
-		newPoint1.nz = vertexArray[faceP->index1].nz;
-		// insert the second new vertex
-		newPoint2.x = (faceVec2[0] / 2) + vPoint2[0];
-		newPoint2.y = (faceVec2[1] / 2) + vPoint2[1];
-		newPoint2.z = (faceVec2[2] / 2) + vPoint2[2];
-		newPoint2.nx = vertexArray[faceP->index2].nx;
-		newPoint2.ny = vertexArray[faceP->index2].ny;
-		newPoint2.nz = vertexArray[faceP->index2].nz;
-
-		// insert the third new vertex
-		newPoint3.x = (faceVec3[0] / 2) + vPoint3[0];
-		newPoint3.y = (faceVec3[1] / 2) + vPoint3[1];
-		newPoint3.z = (faceVec3[2] / 2) + vPoint3[2];
-		newPoint3.nx = vertexArray[faceP->index3].nx;
-		newPoint3.ny = vertexArray[faceP->index3].ny;
-		newPoint3.nz = vertexArray[faceP->index3].nz;
-
-		/*
-		// Calculate the new vertecies normals
-		
+	vertexArray[currVert].nx = 0.0f;
+	vertexArray[currVert].ny = 0.0f;
+	vertexArray[currVert].nz = 0.0f;
 
 
-		// rebind the faces
+	while (count2 < 8/*-1?*/ && vertPos2 != -1)
+	{
 
+		vPoint1[0] = vertexArray[vertPos1].x;
+		vPoint1[1] = vertexArray[vertPos1].y;
+		vPoint1[2] = vertexArray[vertPos1].z;
 
+		vPoint2[0] = vertexArray[vertPos2].x;
+		vPoint2[1] = vertexArray[vertPos2].y;
+		vPoint2[2] = vertexArray[vertPos2].z;
 
-		// push back the new vertecies
-		vertexArray.push_back(newPoint1);
-		*/
+		vPoint3[0] = vertexArray[currVert].x;
+		vPoint3[1] = vertexArray[currVert].y;
+		vPoint3[2] = vertexArray[currVert].z;
+
+		calculateVec(tempVec1, vPoint1, vPoint3);
+		calculateVec(tempVec2, vPoint2, vPoint3);
+
+		crossProd(tempNorm1, tempVec1, tempVec2);
+
+		vertexArray[currVert].nx += tempNorm1[0];
+		vertexArray[currVert].ny += tempNorm1[1];
+		vertexArray[currVert].nz += tempNorm1[2];
+
+		count1++;
+		count2++;
+
+		vertPos1 = vertexInfo[currVert].vertexNeighbors[count1];
+		vertPos2 = vertexInfo[currVert].vertexNeighbors[count2];
 	}
 
-	// the face is to small
-	else if (vecLenght(faceVec1) < MIN_LENGTH ||
-			 vecLenght(faceVec2) < MIN_LENGTH ||
-			 vecLenght(faceVec3) < MIN_LENGTH) {
-
-	}
-
+	vertexArray[currVert].nx = vertexArray[currVert].nx / (count1/*-1?*/);
+	vertexArray[currVert].ny = vertexArray[currVert].ny / (count1/*-1?*/);
+	vertexArray[currVert].nz = vertexArray[currVert].nz / (count1/*-1?*/);
 }
 
 
-float* Mesh::calculateVec(float a[3], float b[3]) {
-	float vec[3];
-	vec[0] = a[0] - b[0];
-	vec[1] = a[1] - b[1];
-	vec[2] = a[2] - b[2];
-
-	return &vec[0];
+void Mesh::calculateVec(float* newVec, float* a, float* b) {
+	newVec[0] = a[0] - b[0];
+	newVec[1] = a[1] - b[1];
+	newVec[2] = a[2] - b[2];
 }

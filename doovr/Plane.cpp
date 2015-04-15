@@ -88,9 +88,9 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim) {
 	// Stride 8 (interleaved array with 8 floats per vertex)
 	// Array buffer offset 0, 3, 6 (offset into first vertex)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-						  6 * sizeof(GLfloat) + sizeof(face*), (void*)0); // xyz coordinates
+						  6 * sizeof(GLfloat), (void*)0); // xyz coordinates
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-						  6 * sizeof(GLfloat) + sizeof(face*), (void*)(3 * sizeof(GLfloat))); // normals
+						  6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
 
 
 	// Activate the index buffer
