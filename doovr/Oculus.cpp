@@ -57,7 +57,13 @@ int Oculus::runOvr() {
 	//glm::vec4 lightPos = { 0.0f, 0.5f, 2.0f, 1.0f };
 	glm::vec4 LP = glm::vec4(0);
 
+	glm::mat4 R = glm::mat4(1.0f);
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
+	float changePos[3] = { 0.0f, 0.0f, 0.0f };
+	float resultPos[3] = { 0.0f, 0.0f, 0.0f };
+	int counter = 0;
+
+	float wandRadius = 0.1f;
 
 	GLint locationLP;
 	GLint locationP;
@@ -385,36 +391,8 @@ int Oculus::runOvr() {
 				//	glMultMatrixf(&(l_ModelViewMatrix.Transposed().M[0][0]));
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
-				//pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
-			
-				/*
-				//--------------PRINTS THE GLM::MAT4---------------------------------
-				double dArray[16] = { 0.0 };
-				const float *pSource = (const float*)glm::value_ptr(pmat4);
 
-				for (int i = 0; i < 16; ++i)
-					dArray[i] = pSource[i];
-
-				cout << dArray[0] << " " << dArray[1] << " " << dArray[2] << " " << dArray[3] << endl
-					<< dArray[4] << " " << dArray[5] << " " << dArray[6] << " " << dArray[7] << endl
-					<< dArray[8] << " " << dArray[9] << " " << dArray[10] << " " << dArray[11] << endl
-					<< dArray[12] << " " << dArray[13] << " " << dArray[14] << " " << dArray[15] << endl << endl << endl;
-			    //-------------------------------------------------------------
-				*/
-
-				//Compare with the MVstack
-				//MVstack.print();
-
-				// TODO
-				// There is something wrong here
-				// om man anvander make_mat4 sa kommer matrisen som retuneras behovas transponeras.
-
-
-				//LP = glm::vec3(glm::make_mat4(MVstack.getCurrentMatrix())*glm::make_vec4(lightPos));
-
-				//MVstack.print();
-				//std::cout << lightPos[0] << " " << lightPos[1] << " " << lightPos[2] << " " << std::endl << std::endl;
-
+				// Check if you should really use transpose
 				glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
 
 				LP = pmat4 * glm::vec4(lightPos[0], lightPos[1], lightPos[2], 1.0f);
@@ -478,20 +456,53 @@ int Oculus::runOvr() {
 				// MESH
 				MVstack.push();
 					// Move around with the mesh
-					if (wand->getButtonState() && (wand->getButtonNumber() == 2)  ) {
-						mTest.setPosition(wand->getTrackerPosition());
-						mTest.setOrientation(wand->getTrackerRotation());
+					if (wand->getButton()[2]) {
+						glm::mat4 R1 = glm::make_mat4(wand->getTrackerRotation());
+						
+						// get first position of wand, implement rotation calibration aswell.
+						if (counter == 0) {
+							changePos[0] = mTest.getPosition()[0] - wand->getTrackerPosition()[0];
+							changePos[1] = mTest.getPosition()[1] - wand->getTrackerPosition()[1];
+							changePos[2] = mTest.getPosition()[2] - wand->getTrackerPosition()[2];
+
+							glm::mat4 R2 = glm::make_mat4(mTest.getOrientation());
+							R = glm::inverse(R1) * R2;
+							//R = glm::inverse(R1) * R2;
+						}
+
+						resultPos[0] = wand->getTrackerPosition()[0] + changePos[0];
+						resultPos[1] = wand->getTrackerPosition()[1] + changePos[1];
+						resultPos[2] = wand->getTrackerPosition()[2] + changePos[2];
+
+						glm::mat4 resultR =  R1*R;
+
+						float* rRot;
+						rRot = glm::value_ptr(resultR);
+
+						mTest.setPosition(resultPos);
+						mTest.setOrientation(rRot);
+
+
+						counter++;
+					}
+					else {
+						counter = 0;
+						changePos[0] = 0.0f;
+						changePos[1] = 0.0f;
+						changePos[2] = 0.0f;
+
+						R = glm::mat4(1.0f);
 					}
 
-
+					// Test to implement the dilation function on the mesh.
+					if (wand->getButton()[1]) {
+						mTest.updateVertexArray(wand->getTrackerPosition(), true, wandRadius);
+					}
 
 					// Test to implement the erosion function on the mesh.
-					if (wand->getButtonState() && (wand->getButtonNumber() == 0)) {
-						//mTest.updateVertexArray(wand->getTrackerPosition(), false);
-						cout << "not used" << endl;
+					if (wand->getButton()[0]) {
+						mTest.updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
 					}
-
-					//std::cout << wand->getButtonNumber() << std::endl;
 
 					MVstack.translate(mTest.getPosition());
 					MVstack.multiply(mTest.getOrientation());
@@ -530,9 +541,9 @@ int Oculus::runOvr() {
 					glVertex3fv(orgio);
 					glVertex3fv(Z);
 					glEnd();
-					
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					sphereWand.render();
-					
+
 					MVstack.push();
 						translateVector[0] = -0.15f;
 						translateVector[1] = 0.0f;
@@ -555,8 +566,6 @@ int Oculus::runOvr() {
 					
 					//sphereWand.setPosition(wand->getTrackerPosition());
 				MVstack.pop();
-
-
 			MVstack.pop();
 		}
 

@@ -21,7 +21,7 @@ Device::Device(bool analog, bool button, bool tracker, string name) {
 		// vrpn_print_devices.exe Wand@130.236.142.25
 		// vrpn_print_devices.exe Wand@itn-vortex.itn.liu.se
 
-		//additionalAddress = "IS900@itn-vortex";
+		additionalAddress = "IS900@itn-vortex.itn.liu.se";
 		name = name + "@itn-vortex.itn.liu.se";
 	}
 	else {
