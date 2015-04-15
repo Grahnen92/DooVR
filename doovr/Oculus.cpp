@@ -57,11 +57,10 @@ int Oculus::runOvr() {
 	//glm::vec4 lightPos = { 0.0f, 0.5f, 2.0f, 1.0f };
 	glm::vec4 LP = glm::vec4(0);
 
+	glm::mat4 R = glm::mat4(1.0f);
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
 	float changePos[3] = { 0.0f, 0.0f, 0.0f };
 	float resultPos[3] = { 0.0f, 0.0f, 0.0f };
-	float changeRot[16] = { 0.0f };
-	float resultRot[16] = { 0.0f };
 	int counter = 0;
 
 	float wandRadius = 0.1f;
@@ -376,6 +375,7 @@ int Oculus::runOvr() {
 
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
+				// Check if you should really use transpose
 				glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
 
 				LP = pmat4 * glm::vec4(lightPos[0], lightPos[1], lightPos[2], 1.0f);
@@ -433,43 +433,24 @@ int Oculus::runOvr() {
 				MVstack.push();
 					// Move around with the mesh
 					if (wand->getButton()[2]) {
+						glm::mat4 R1 = glm::make_mat4(wand->getTrackerRotation());
+						
 						// get first position of wand, implement rotation calibration aswell.
 						if (counter == 0) {
 							changePos[0] = mTest.getPosition()[0] - wand->getTrackerPosition()[0];
 							changePos[1] = mTest.getPosition()[1] - wand->getTrackerPosition()[1];
 							changePos[2] = mTest.getPosition()[2] - wand->getTrackerPosition()[2];
 
-							for (int i = 0; i < 16; i++) {
-								changeRot[i] = wand->getTrackerRotation()[i] - mTest.getOrientation()[i];
-							}
+							glm::mat4 R2 = glm::make_mat4(mTest.getOrientation());
+							R = glm::inverse(R1) * R2;
+							//R = glm::inverse(R1) * R2;
 						}
-
-						cout << "x: " << mTest.getPosition()[0] << "y: " << mTest.getPosition()[1] << "z: " << mTest.getPosition()[2] << endl;
-						cout << "x: " << wand->getTrackerPosition()[0] << "y: " << wand->getTrackerPosition()[1] << "z: " << wand->getTrackerPosition()[2] << endl;
 
 						resultPos[0] = wand->getTrackerPosition()[0] + changePos[0];
 						resultPos[1] = wand->getTrackerPosition()[1] + changePos[1];
 						resultPos[2] = wand->getTrackerPosition()[2] + changePos[2];
 
-
-						glm::mat4 T = glm::mat4(1.0f, 0.0f, 0.0f, mTest.getPosition()[0],
-												0.0f, 1.0f, 0.0f, mTest.getPosition()[1],
-												0.0f, 0.0f, 1.0f, mTest.getPosition()[2],
-												0.0f, 0.0f, 0.0f, 1.0f);
-						//glm::mat4 T = glm::mat4(1.0f);
-						//T = glm::translate(glm::vec3(resultPos[0], resultPos[1], resultPos[2]));
-
-						glm::mat4 R = glm::mat4(changeRot[0], changeRot[1], changeRot[2], changeRot[3],
-												changeRot[4], changeRot[5], changeRot[6], changeRot[7],
-												changeRot[8], changeRot[9], changeRot[10], changeRot[11],
-												changeRot[12], changeRot[13], changeRot[14], 1.0f);
-
-						//glm::mat4 R = glm::make_mat4(changeRot);
-
-						//glm::mat4 glmResultRot = glm::make_mat4(resultRot);
-
-						//glm::mat4 resultR = glm::inverse(T) * R * (glmResultRot)* glm::inverse(R) * (T);
-						glm::mat4 resultR = T * glm::transpose(glm::make_mat4(wand->getTrackerRotation()))  * glm::inverse(T);
+						glm::mat4 resultR =  R1*R;
 
 						float* rRot;
 						rRot = glm::value_ptr(resultR);
@@ -477,7 +458,6 @@ int Oculus::runOvr() {
 						mTest.setPosition(resultPos);
 						mTest.setOrientation(rRot);
 
-						//mTest.setOrientation(wand->getTrackerRotation());
 
 						counter++;
 					}
@@ -487,9 +467,7 @@ int Oculus::runOvr() {
 						changePos[1] = 0.0f;
 						changePos[2] = 0.0f;
 
-						for (int i = 0; i < 16; i++) {
-							changeRot[i] = 0.0f;
-						}
+						R = glm::mat4(1.0f);
 					}
 
 					// Test to implement the dilation function on the mesh.
