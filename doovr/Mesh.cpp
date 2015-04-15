@@ -436,7 +436,7 @@ void Mesh::updateArea(int currVert)
 	vertexArray[currVert].nz = 0.0f;
 
 
-	while (count2 < 8/*-1?*/ && vertPos2 != -1)
+	while (count2 < 8-1 && vertPos2 != -1)
 	{
 
 		vPoint1[0] = vertexArray[vertPos1].x;
@@ -454,7 +454,9 @@ void Mesh::updateArea(int currVert)
 		calculateVec(tempVec1, vPoint1, vPoint3);
 		calculateVec(tempVec2, vPoint2, vPoint3);
 
-		crossProd(tempNorm1, tempVec1, tempVec2);
+		crossProd(tempNorm1, tempVec2, tempVec1);
+
+		normVec(tempVec1);
 
 		vertexArray[currVert].nx += tempNorm1[0];
 		vertexArray[currVert].ny += tempNorm1[1];
@@ -467,9 +469,11 @@ void Mesh::updateArea(int currVert)
 		vertPos2 = vertexInfo[currVert].vertexNeighbors[count2];
 	}
 
-	vertexArray[currVert].nx = vertexArray[currVert].nx / (count1/*-1?*/);
-	vertexArray[currVert].ny = vertexArray[currVert].ny / (count1/*-1?*/);
-	vertexArray[currVert].nz = vertexArray[currVert].nz / (count1/*-1?*/);
+	vertexArray[currVert].nx = vertexArray[currVert].nx / (count1-1);
+	vertexArray[currVert].ny = vertexArray[currVert].ny / (count1-1);
+	vertexArray[currVert].nz = vertexArray[currVert].nz / (count1-1);
+
+	//cout << " x: "<< vertexArray[currVert].nx  << " y: "<< vertexArray[currVert].ny << " z: " << vertexArray[currVert].nz  << endl;
 }
 
 

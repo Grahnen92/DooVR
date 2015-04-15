@@ -316,8 +316,10 @@ int Oculus::runOvr() {
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
 	// Initilise VRPN connection with the Intersense wand
+
 	Device* wand = new Device(true, true, false, "Mouse");
 	//Device* wand = new Device(true, true, true, "Wand");
+
 	float lastPos[3] = {0.0f, 0.0f, 0.0f};
 	float currPos[3] = { 0.0f, 0.0f, 0.0f };
 	//float* pPos = currPos;
@@ -542,7 +544,7 @@ int Oculus::runOvr() {
 
 						// Test to implement the dilation function on the mesh.
 						if (wand->getButtonState() && (wand->getButtonNumber() == 1)) {
-						//	mTest.dilate(wand->getTrackerPosition(), lastPos, sRadius, true);
+							mTest.dilate(wand->getTrackerPosition(), lastPos, sRadius, true);
 						}
 
 						lastPos[0] = wand->getTrackerPosition()[0];
