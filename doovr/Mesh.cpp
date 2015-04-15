@@ -410,7 +410,8 @@ void Mesh::updateArea(int currVert)
 
 	//CALCULATE THE NEW FACE NORMAL NOT USING GLM
 
-	float tempNorm1[3];
+	float tempNorm1[3] = { 0.0f, 0.0f, 0.0f };
+	float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
 
 	float tempVec1[3];
 	float tempVec2[3];
@@ -422,56 +423,54 @@ void Mesh::updateArea(int currVert)
 	const float MAX_LENGTH = 0.02f;
 	const float MIN_LENGTH = 0.01f;
 
-	int vertPos1;
-	int vertPos2;
+	int triPos;
 
-	int count1 = 0;
-	int count2 = 1;
+	int count = 0;
 
-	vertPos1 = vertexInfo[currVert].vertexNeighbors[count1];
-	vertPos2 = vertexInfo[currVert].vertexNeighbors[count2];
+	triPos = vertexInfo[currVert].triangleNeighbors[count];
 
 	vertexArray[currVert].nx = 0.0f;
 	vertexArray[currVert].ny = 0.0f;
 	vertexArray[currVert].nz = 0.0f;
 
 
-	while (count2 < 8-1 && vertPos2 != -1)
+	while (count < 8-1 && triPos != -1)
 	{
 
-		vPoint1[0] = vertexArray[vertPos1].x;
-		vPoint1[1] = vertexArray[vertPos1].y;
-		vPoint1[2] = vertexArray[vertPos1].z;
+		vPoint1[0] = vertexArray[indexArray[triPos].index1].x;
+		vPoint1[1] = vertexArray[indexArray[triPos].index1].y;
+		vPoint1[2] = vertexArray[indexArray[triPos].index1].z;
 
-		vPoint2[0] = vertexArray[vertPos2].x;
-		vPoint2[1] = vertexArray[vertPos2].y;
-		vPoint2[2] = vertexArray[vertPos2].z;
+		vPoint2[0] = vertexArray[indexArray[triPos].index2].x;
+		vPoint2[1] = vertexArray[indexArray[triPos].index2].y;
+		vPoint2[2] = vertexArray[indexArray[triPos].index2].z;
 
-		vPoint3[0] = vertexArray[currVert].x;
-		vPoint3[1] = vertexArray[currVert].y;
-		vPoint3[2] = vertexArray[currVert].z;
+		vPoint3[0] = vertexArray[indexArray[triPos].index3].x;
+		vPoint3[1] = vertexArray[indexArray[triPos].index3].y;
+		vPoint3[2] = vertexArray[indexArray[triPos].index3].z;
 
-		calculateVec(tempVec1, vPoint1, vPoint3);
-		calculateVec(tempVec2, vPoint2, vPoint3);
+		calculateVec(tempVec1, vPoint2, vPoint1);
+		calculateVec(tempVec2, vPoint3, vPoint1);
 
-		crossProd(tempNorm1, tempVec2, tempVec1);
+		crossProd(tempNorm1, tempVec1, tempVec2);
 
-		normVec(tempVec1);
+		normVec(tempNorm1);
 
-		vertexArray[currVert].nx += tempNorm1[0];
-		vertexArray[currVert].ny += tempNorm1[1];
-		vertexArray[currVert].nz += tempNorm1[2];
+		tempNorm2[0] += tempNorm1[0];
+		tempNorm2[1] += tempNorm1[1];
+		tempNorm2[2] += tempNorm1[2];
 
-		count1++;
-		count2++;
+		count++;
 
-		vertPos1 = vertexInfo[currVert].vertexNeighbors[count1];
-		vertPos2 = vertexInfo[currVert].vertexNeighbors[count2];
+		triPos = vertexInfo[currVert].triangleNeighbors[count];
 	}
+	tempNorm2[0] = tempNorm2[0] / (count - 1);
+	tempNorm2[1] = tempNorm2[1] / (count - 1);
+	tempNorm2[2] = tempNorm2[2] / (count - 1);
 
-	vertexArray[currVert].nx = vertexArray[currVert].nx / (count1-1);
-	vertexArray[currVert].ny = vertexArray[currVert].ny / (count1-1);
-	vertexArray[currVert].nz = vertexArray[currVert].nz / (count1-1);
+	vertexArray[currVert].nx = tempNorm2[0];
+	vertexArray[currVert].ny = tempNorm2[1];
+	vertexArray[currVert].nz = tempNorm2[2];
 
 	//cout << " x: "<< vertexArray[currVert].nx  << " y: "<< vertexArray[currVert].ny << " z: " << vertexArray[currVert].nz  << endl;
 }
