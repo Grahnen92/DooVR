@@ -95,8 +95,31 @@ Mesh::Mesh() {
 		for (int j = 0; j < cols; j++) {
 	
 
-			if (i != 0 && j !=0) {
-				vertexArray[i * rows + j].
+			if (i != 0 && j !=0 && i != rows - 1 && j != cols - 1) {
+				vertexArray[i * rows + j].vertexNeighbors[0] = i * rows + j - 1;
+				vertexArray[i * rows + j].vertexNeighbors[1] = (i - 1) * rows + j;
+				vertexArray[i * rows + j].vertexNeighbors[2] = (i - 1) * rows + j + 1;
+				vertexArray[i * rows + j].vertexNeighbors[0] = (i + 1) * rows + j;
+				vertexArray[i * rows + j].vertexNeighbors[1] = (i + 1) * rows + j + 1;
+				vertexArray[i * rows + j].vertexNeighbors[2] = i * rows + j + 1;
+
+
+				tempT.index1 = 1;
+				tempT.index1 = 1;
+				tempT.index1 = 1;
+
+				tempT.index1 = 1;
+				tempT.index1 = 1;
+				tempT.index1 = 1;
+				tempT.index1 = 1;
+
+				tempT.index1 = 1;
+				tempT.index1 = 1;
+				tempT.index1 = 1;
+				tempT.index1 = 1;
+
+
+				indexArray.push_back();
 			}
 			
 
