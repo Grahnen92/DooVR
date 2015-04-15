@@ -58,11 +58,6 @@ int Oculus::runOvr() {
 	glm::vec4 LP = glm::vec4(0);
 
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
-	float changePos[3] = { 0.0f, 0.0f, 0.0f };
-	float changeRot[16] = { 0.0f };
-	int counter = 0;
-
-	float wandRadius = 0.1f;
 
 	GLint locationLP;
 	GLint locationP;
@@ -105,8 +100,8 @@ int Oculus::runOvr() {
 		printf("Running in \"Direct\" mode...\n");
 		l_Monitor = NULL;
 
-		l_ClientSize.w = hmd->Resolution.w / 2; // Something reasonable, smaller, but maintain aspect ratio...
-		l_ClientSize.h = hmd->Resolution.h / 2; // Something reasonable, smaller, but maintain aspect ratio...
+		l_ClientSize.w = hmd->Resolution.w; // Something reasonable, smaller, but maintain aspect ratio...
+		l_ClientSize.h = hmd->Resolution.h; // Something reasonable, smaller, but maintain aspect ratio...
 	} else {// Extended Desktop mode...
 		printf("Running in \"Extended Desktop\" mode...\n");
 		int l_Count;
@@ -306,7 +301,7 @@ int Oculus::runOvr() {
 
 	//Wand
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.05f, 0.05f));
-	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), wandRadius);
+	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
 
 
 	Mesh mTest;
@@ -321,7 +316,14 @@ int Oculus::runOvr() {
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
 	// Initilise VRPN connection with the Intersense wand
-	Device* wand = new Device(true, true, true, "Wand");
+	Device* wand = new Device(true, true, true, "Mouse");
+	float lastPos[3] = {0.0f, 0.0f, 0.0f};
+	float currPos[3] = { 0.0f, 0.0f, 0.0f };
+	//float* pPos = currPos;
+	glm::vec4 nullVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec4 tempVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	float sRadius = 0.05f;
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
@@ -339,6 +341,14 @@ int Oculus::runOvr() {
 
 		if (glfwGetKey(l_Window, GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(l_Window, GL_TRUE);
+
+
+		if (glfwGetKey(l_Window, GLFW_KEY_Q)) {
+			sRadius += 0.01f;
+		}
+		if (glfwGetKey(l_Window, GLFW_KEY_W)) {
+			sRadius -= 0.01f;
+		}
 
 		// Begin the frame...
 		ovrHmd_BeginFrame(hmd, l_FrameIndex);
@@ -372,7 +382,38 @@ int Oculus::runOvr() {
 				OVR::Quatf l_Orientation = OVR::Quatf(g_EyePoses[l_Eye].Orientation);
 				OVR::Matrix4f l_ModelViewMatrix = OVR::Matrix4f(l_Orientation.Inverted());
 
+				//	glMultMatrixf(&(l_ModelViewMatrix.Transposed().M[0][0]));
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
+
+				//pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
+			
+				/*
+				//--------------PRINTS THE GLM::MAT4---------------------------------
+				double dArray[16] = { 0.0 };
+				const float *pSource = (const float*)glm::value_ptr(pmat4);
+
+				for (int i = 0; i < 16; ++i)
+					dArray[i] = pSource[i];
+
+				cout << dArray[0] << " " << dArray[1] << " " << dArray[2] << " " << dArray[3] << endl
+					<< dArray[4] << " " << dArray[5] << " " << dArray[6] << " " << dArray[7] << endl
+					<< dArray[8] << " " << dArray[9] << " " << dArray[10] << " " << dArray[11] << endl
+					<< dArray[12] << " " << dArray[13] << " " << dArray[14] << " " << dArray[15] << endl << endl << endl;
+			    //-------------------------------------------------------------
+				*/
+
+				//Compare with the MVstack
+				//MVstack.print();
+
+				// TODO
+				// There is something wrong here
+				// om man anvander make_mat4 sa kommer matrisen som retuneras behovas transponeras.
+
+
+				//LP = glm::vec3(glm::make_mat4(MVstack.getCurrentMatrix())*glm::make_vec4(lightPos));
+
+				//MVstack.print();
+				//std::cout << lightPos[0] << " " << lightPos[1] << " " << lightPos[2] << " " << std::endl << std::endl;
 
 				glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
 
@@ -382,6 +423,13 @@ int Oculus::runOvr() {
 				lightPosTemp[1] = LP.y;
 				lightPosTemp[2] = LP.z;
 				glUniform3fv(locationLP, 1, lightPosTemp);
+
+				//MVstack.print();
+				//std::cout << lightPos[0] << " " << lightPos[1] << " " << lightPos[2] << " " << std::endl;
+				//std::cout << lightPosTemp[0] << " " << lightPosTemp[1] << " " << lightPosTemp[2] << " " << std::endl;
+				//std::cout << "----------------" << std::endl;
+				//!-- Translation due to positional tracking (DK2) and IPD...
+				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
 				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z };
 				MVstack.translate(eyePoses);
 
@@ -427,79 +475,38 @@ int Oculus::runOvr() {
 					box.render();
 				MVstack.pop();
 	
-				// Mesh
+				// MESH
 				MVstack.push();
 					// Move around with the mesh
-					if (wand->getButton()[2]) {
-						// get first position of wand, implement rotation calibration aswell.
-						if (counter == 0) {
-							changePos[0] = mTest.getPosition()[0] - wand->getTrackerPosition()[0];
-							changePos[1] = mTest.getPosition()[1] - wand->getTrackerPosition()[1];
-							changePos[2] = mTest.getPosition()[2] - wand->getTrackerPosition()[2];
-
-						}
-
-						float resultPos[3] = { wand->getTrackerPosition()[0] + changePos[0], wand->getTrackerPosition()[1] + changePos[1], wand->getTrackerPosition()[2] + changePos[2] };
-
-						mTest.setPosition(resultPos);
+					if (wand->getButtonState() && (wand->getButtonNumber() == 2)  ) {
+						mTest.setPosition(wand->getTrackerPosition());
 						mTest.setOrientation(wand->getTrackerRotation());
-						counter++;
-					}
-					else {
-						counter = 0;
-						changePos[0] = 0.0f;
-						changePos[1] = 0.0f;
-						changePos[2] = 0.0f;
 					}
 
-					// Test to implement the dilation function on the mesh.
-					if (wand->getButton()[1]) {
 
-						float* wandPos = wand->getTrackerPosition();
-
-						wandPos[0] = wandPos[0] + wandRadius - 0.02;
-
-						mTest.updateVertexArray(wandPos, true, wandRadius);
-					}
 
 					// Test to implement the erosion function on the mesh.
-					if (wand->getButton()[0]) {
-
-
-						mTest.updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
+					if (wand->getButtonState() && (wand->getButtonNumber() == 0)) {
+						//mTest.updateVertexArray(wand->getTrackerPosition(), false);
+						cout << "not used" << endl;
 					}
 
-					// change tool size
-					if (wand->getAnalogPosition()[0] != 0 || wand->getAnalogPosition()[1] != 0) {
-						
-						const float MAX_RADIUS_WAND_TOOL = 0.2;
-						const float MIN_RADIUS_WAND_TOOL = 0.05;
-
-						// check if tool is to small or to big
-						if (wandRadius > MIN_RADIUS_WAND_TOOL && wandRadius < MAX_RADIUS_WAND_TOOL) { 
-							wandRadius += 0.001f*wand->getAnalogPosition()[1];
-							sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
-						} else if (wandRadius <= MIN_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] > 0) {
-							wandRadius += 0.001f*wand->getAnalogPosition()[1];
-							sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
-						} else if (wandRadius >= MAX_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] < 0) {
-							wandRadius += 0.001f*wand->getAnalogPosition()[1];
-							sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
-						}
-					}
+					//std::cout << wand->getButtonNumber() << std::endl;
 
 					MVstack.translate(mTest.getPosition());
 					MVstack.multiply(mTest.getOrientation());
 
+					glLineWidth(1.0);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					mTest.render();
 
 				MVstack.pop();
 
-				// Wand
+				//wand transformations
 				MVstack.push();
 					MVstack.translate(wand->getTrackerPosition());
 					MVstack.multiply(wand->getTrackerRotation());
+					
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					// Wand testing, coordinate axis
 					float orgio[3] = { 0, 0, 0 };
@@ -508,7 +515,7 @@ int Oculus::runOvr() {
 					float Z[3] = { 0, 0, 0.3 };
 
 					glLineWidth(5.0);
-					glBegin(GL_LINES);
+					glBegin(GL_POINTS);
 					glColor3f(1.0f, 0.0f, 0.0f);
 
 					glVertex3fv(orgio);
@@ -523,23 +530,32 @@ int Oculus::runOvr() {
 					glVertex3fv(orgio);
 					glVertex3fv(Z);
 					glEnd();
-					MVstack.push();
-						translateVector[0] = wandRadius - 0.02f;
-						translateVector[1] = 0.0f;
-						translateVector[2] = 0.0f;
-						MVstack.translate(translateVector);
-						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						sphereWand.render();
-					MVstack.pop();
+					
+					sphereWand.render();
+					
 					MVstack.push();
 						translateVector[0] = -0.15f;
 						translateVector[1] = 0.0f;
 						translateVector[2] = 0.0f;
 						MVstack.translate(translateVector);
+
+						// Test to implement the dilation function on the mesh.
+						if (wand->getButtonState() && (wand->getButtonNumber() == 1)) {
+						//	mTest.dilate(wand->getTrackerPosition(), lastPos, sRadius, true);
+						}
+
+						lastPos[0] = wand->getTrackerPosition()[0];
+						lastPos[1] = wand->getTrackerPosition()[1];
+						lastPos[2] = wand->getTrackerPosition()[2];
+
+						//MVstack.scale(sRadius);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						boxWand.render();
 					MVstack.pop();
+					
+					//sphereWand.setPosition(wand->getTrackerPosition());
 				MVstack.pop();
+
 
 			MVstack.pop();
 		}
