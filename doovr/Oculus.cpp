@@ -444,37 +444,41 @@ int Oculus::runOvr() {
 							}
 						}
 
+						cout << "x: " << mTest.getPosition()[0] << "y: " << mTest.getPosition()[1] << "z: " << mTest.getPosition()[2] << endl;
+						cout << "x: " << wand->getTrackerPosition()[0] << "y: " << wand->getTrackerPosition()[1] << "z: " << wand->getTrackerPosition()[2] << endl;
+
 						resultPos[0] = wand->getTrackerPosition()[0] + changePos[0];
 						resultPos[1] = wand->getTrackerPosition()[1] + changePos[1];
 						resultPos[2] = wand->getTrackerPosition()[2] + changePos[2];
 
 
-						glm::mat4 T = glm::mat4(1.0f, 0.0f, 0.0f, changePos[0],
-										0.0f, 1.0f, 0.0f, changePos[1],
-										0.0f, 0.0f, 1.0f, changePos[2],
-										0.0f, 0.0f, 0.0f, 1.0f);
+						glm::mat4 T = glm::mat4(1.0f, 0.0f, 0.0f, mTest.getPosition()[0],
+												0.0f, 1.0f, 0.0f, mTest.getPosition()[1],
+												0.0f, 0.0f, 1.0f, mTest.getPosition()[2],
+												0.0f, 0.0f, 0.0f, 1.0f);
+						//glm::mat4 T = glm::mat4(1.0f);
+						//T = glm::translate(glm::vec3(resultPos[0], resultPos[1], resultPos[2]));
 
 						glm::mat4 R = glm::mat4(changeRot[0], changeRot[1], changeRot[2], changeRot[3],
-										changeRot[4], changeRot[5], changeRot[6], changeRot[7],
-										changeRot[8], changeRot[9], changeRot[10], changeRot[11],
-										changeRot[12], changeRot[13], changeRot[14], changeRot[15]);
+												changeRot[4], changeRot[5], changeRot[6], changeRot[7],
+												changeRot[8], changeRot[9], changeRot[10], changeRot[11],
+												changeRot[12], changeRot[13], changeRot[14], 1.0f);
 
-						for (int i = 0; i < 16; i++) {
-							resultRot[i] = wand->getTrackerRotation()[i] + changeRot[i];
-						}
+						//glm::mat4 R = glm::make_mat4(changeRot);
 
-						glm::mat4 resultRot = glm::mat4(resultRot[0], resultRot[1], resultRot[2], resultRot[3],
-										resultRot[4], resultRot[5], resultRot[6], resultRot[7],
-										resultRot[8], resultRot[9], resultRot[10], resultRot[11],
-										resultRot[12], resultRot[13], resultRot[14], resultRot[15]);
+						//glm::mat4 glmResultRot = glm::make_mat4(resultRot);
 
-						glm::mat4 resultR = T*R*resultRot*glm::inverse(R)*glm::inverse(T);
+						//glm::mat4 resultR = glm::inverse(T) * R * (glmResultRot)* glm::inverse(R) * (T);
+						glm::mat4 resultR = T * glm::transpose(glm::make_mat4(wand->getTrackerRotation()))  * glm::inverse(T);
 
 						float* rRot;
 						rRot = glm::value_ptr(resultR);
 
 						mTest.setPosition(resultPos);
 						mTest.setOrientation(rRot);
+
+						//mTest.setOrientation(wand->getTrackerRotation());
+
 						counter++;
 					}
 					else {
@@ -490,18 +494,11 @@ int Oculus::runOvr() {
 
 					// Test to implement the dilation function on the mesh.
 					if (wand->getButton()[1]) {
-
-						float* wandPos = wand->getTrackerPosition();
-
-						wandPos[0] = wandPos[0] + wandRadius - 0.02;
-
-						mTest.updateVertexArray(wandPos, true, wandRadius);
+						mTest.updateVertexArray(wand->getTrackerPosition(), true, wandRadius);
 					}
 
 					// Test to implement the erosion function on the mesh.
 					if (wand->getButton()[0]) {
-
-
 						mTest.updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
 					}
 
@@ -559,14 +556,11 @@ int Oculus::runOvr() {
 					glVertex3fv(orgio);
 					glVertex3fv(Z);
 					glEnd();
-					MVstack.push();
-						translateVector[0] = wandRadius - 0.02f;
-						translateVector[1] = 0.0f;
-						translateVector[2] = 0.0f;
-						//MVstack.translate(translateVector);
-						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						sphereWand.render();
-					MVstack.pop();
+
+
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					sphereWand.render();
+
 					MVstack.push();
 						translateVector[0] = -0.15f;
 						translateVector[1] = 0.0f;
