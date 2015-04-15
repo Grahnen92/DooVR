@@ -62,7 +62,9 @@ Mesh::Mesh() {
 
 	tempV.y = 0.0f;
 	tempV.nx = 0.0f;
+	tempV.ny = 1.0f;
 	tempV.nz = 0.0f;
+	
 	
 	// Place vertices
 	for (int i = -rows / 2; i < rows / 2; i++) {
@@ -77,10 +79,7 @@ Mesh::Mesh() {
 				tempV.x = ((float)(j))*scaleF;
 				tempV.z = ((float)(i))*0.86602540378f*scaleF;
 			}
-			
-			tempV.ny = 1.0f;
-			
-			tempV.adjacentFace = nullptr;
+		
 			vertexArray.push_back(tempV);
 		}
 	}
@@ -92,66 +91,15 @@ Mesh::Mesh() {
 	face* previousFace = nullptr;
 
 	// set triangle indecies and bind faces
-	for (int i = 1; i < rows-2; i = i + 2) {
-		for (int j = 0; j < cols-1; j++) {
-			//CREATE FIRST TRIANGLE IN SEQUENCE
-			handledFace1 = new face;
-			handledFace1->index3 = i * rows + j;
-			handledFace1->index2 = (i + 1) * rows + (j + 1);
-			handledFace1->index1 = (i + 1) * rows + j;
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < cols; j++) {
+	
 
-			//CREATE SECOND TRIANGLE IN SEQUENCE
-			handledFace2 = new face;
-			handledFace2->index3 = i * rows + j;
-			handledFace2->index2 = i * rows + j + 1;
-			handledFace2->index1 = (i + 1) * rows + (j + 1);
-
-			//CREATE THIRD TRIANGLE IN SEQUENCE
-			handledFace3 = new face;
-			handledFace3->index3 = i * rows + j;
-			handledFace3->index2 = (i - 1) * rows + (j + 1);
-			handledFace3->index1 = i * rows + (j + 1);
-
-			//CREATE FOURTH TRIANGLE IN SEQUENCE
-			handledFace4 = new face;
-			handledFace4->index3 = i * rows + j;
-			handledFace4->index2 = (i - 1) * rows + j;
-			handledFace4->index1 = (i - 1) * rows + (j + 1);
-
-			//INTERNAL FACE BINDINGS IN TRIANGLE SEQUENCE
-			handledFace1->nFace[0] = handledFace2;
-
-			handledFace2->nFace[0] = handledFace1;
-			handledFace2->nFace[1] = handledFace3;
-
-			handledFace3->nFace[0] = handledFace2;
-			handledFace3->nFace[1] = handledFace4;
-
-			handledFace4->nFace[0] = handledFace3;
-
-			//TRIANGLE SEQUENCE WHEN NOT IN FIRST ROW AND NOT IN FIRST COLUMN
-			
-			vertexArray[(i + 1) * rows + j + 1].adjacentFace = handledFace1;
-			vertexArray[i * rows + (j + 1)].adjacentFace = handledFace3;
-
-			if (i != 1 && j !=0) {
-				previousFace = vertexArray[i * rows + j].adjacentFace->nFace[0];
-				handledFace1->nFace[1] = previousFace;
-				previousFace->nFace[2] = handledFace1;
-
-				previousFace = vertexArray[i * rows + j].adjacentFace;
-				handledFace4->nFace[1] = previousFace;
-				previousFace->nFace[2] = handledFace4;
-
-				previousFace = vertexArray[(i - 1) * rows + j + 1].adjacentFace;
-				handledFace4->nFace[2] = previousFace;
-				previousFace->nFace[2] = handledFace4;
+			if (i != 0 && j !=0) {
+				vertexArray[i * rows + j].
 			}
 			
-			indexArray.push_back(*handledFace1);
-			indexArray.push_back(*handledFace2);
-			indexArray.push_back(*handledFace3);
-			indexArray.push_back(*handledFace4);
+
 			/////////////////////////////////////////////////////////////////////////////////////
 		}
 	}

@@ -25,7 +25,8 @@ struct vertex {
 	GLfloat nx;
 	GLfloat ny;
 	GLfloat nz;
-	face *adjacentFace;
+	int vertexNeighbors[8];
+	int triangleNeighbors[8];
 	//int arrayIndex;
 };
 //! Data structure containing three indices of the vertexArray that make a certain triangle
