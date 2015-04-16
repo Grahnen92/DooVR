@@ -92,16 +92,16 @@ int twoDim::run2D() {
 
 		if (glfwGetKey(window, GLFW_KEY_O)) {
 
-			mTest.updateVertexArray(test, true, wandRadius);
+		//	mTest.updateVertexArray(test, true);
 			//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 		}
 		if (glfwGetKey(window, GLFW_KEY_P)) {
-			mTest.updateVertexArray(test, false, wandRadius);
+		//	mTest.updateVertexArray(test, false);
 			//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 		}
 		if (glfwGetKey(window, GLFW_KEY_N)) {
 
-			mTest.moveThroughMesh((global_i + 1) * 20 + global_j);
+		//	mTest.moveThroughMesh((global_i + 1) * 20 + global_j);
 			global_i = global_i + 2;
 			global_j = global_j + 1;
 		}
@@ -231,16 +231,16 @@ void modifyMesh(Mesh* mesh, GLFWwindow* window, Device* wand) {
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_O)) {
-		mesh->updateVertexArray(test, true, wandRadius);
+//		mesh->updateVertexArray(test, true);
 		//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 	}
 	if (glfwGetKey(window, GLFW_KEY_P)) {
-		mesh->updateVertexArray(test, false, wandRadius);
+//		mesh->updateVertexArray(test, false);
 		//			deform.dilate(mTest.getVertexList(), mTest.getIndexList);
 	}
 	if (glfwGetKey(window, GLFW_KEY_N)) {
 
-		mesh->moveThroughMesh((global_i + 1) * 20 + global_j);
+//		mesh->moveThroughMesh((global_i + 1) * 20 + global_j);
 		global_i = global_i + 2;
 		global_j = global_j + 1;
 	}

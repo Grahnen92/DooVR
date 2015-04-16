@@ -328,7 +328,9 @@ int Oculus::runOvr() {
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
 	// Initilise VRPN connection with the Intersense wand
-	Device* wand = new Device(true, true, true, "Mouse");
+	//Device* wand = new Device(true, true, false, "Mouse");
+	Device* wand = new Device(true, true, true, "Wand");
+
 	float lastPos[3] = {0.0f, 0.0f, 0.0f};
 	float currPos[3] = { 0.0f, 0.0f, 0.0f };
 	//float* pPos = currPos;
@@ -505,7 +507,7 @@ int Oculus::runOvr() {
 						}
 						
 					}
-
+					/*
 					// Test to implement the dilation function on the mesh.
 					if (wand->getButton()[1]) {
 						mTest.updateVertexArray(wand->getTrackerPosition(), true, wandRadius);
@@ -514,6 +516,12 @@ int Oculus::runOvr() {
 					// Test to implement the erosion function on the mesh.
 					if (wand->getButton()[0]) {
 						mTest.updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
+					*/
+
+					// Test to implement the erosion function on the mesh.
+					if (wand->getButtonState() && (wand->getButtonNumber() == 0)) {
+						//mTest.updateVertexArray(wand->getTrackerPosition(), false);
+						cout << "not used" << endl;
 					}
 
 					MVstack.translate(mTest.getPosition());
@@ -555,7 +563,6 @@ int Oculus::runOvr() {
 					glEnd();
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					sphereWand.render();
-
 					MVstack.push();
 						translateVector[0] = -0.15f;
 						translateVector[1] = 0.0f;
@@ -564,7 +571,7 @@ int Oculus::runOvr() {
 
 						// Test to implement the dilation function on the mesh.
 						if (wand->getButtonState() && (wand->getButtonNumber() == 1)) {
-						//	mTest.dilate(wand->getTrackerPosition(), lastPos, sRadius, true);
+							mTest.dilate(wand->getTrackerPosition(), lastPos, sRadius, true);
 						}
 
 						lastPos[0] = wand->getTrackerPosition()[0];
