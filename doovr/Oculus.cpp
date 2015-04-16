@@ -17,7 +17,7 @@ using namespace std;
 static void WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height);
 void GLRenderCallsOculus();
 
-void moveMesh(Device* wand, Mesh mTest, int counter, float* changePos, float* differenceR);
+void moveMesh(Device* wand, Mesh* mTest, int counter, float* changePos, float* differenceR);
 
 // --- Variable Declerations ------------
 const bool L_MULTISAMPLING = false;
@@ -325,7 +325,7 @@ int Oculus::runOvr() {
 	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
 
 
-	Mesh mTest;
+	Mesh* mTest = new Mesh();
 
 	// Initilise VRPN connection with the Intersense wand
 	Device* wand = new Device(true, true, false, "Mouse");
@@ -362,45 +362,47 @@ int Oculus::runOvr() {
 			}
 		}
 		// INTERACTION ////////////////////////////////////////////////////////////////////////////////////////
-		switch (wand->getButtonNumber()) {
-		case 0:
-			chooseFunction = UPDATE_VERTEX_ARRAY;
-			break;
-		case 1:
-			chooseFunction = newDILATE;
-			break;
-		case 2:
-			chooseFunction = MOVE;
-			break;
-		case 3:
-			chooseFunction = RECENTER;
-			break;
-		case 4:
-			chooseFunction = -1; // nothing yet, analog button
-			break;
-		case 5: // Use chosen function
-			if (chooseFunction == UPDATE_VERTEX_ARRAY) {
-				//mTest.updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
-			}
-			else if (chooseFunction == newDILATE) {
-				mTest.dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
-			}
-			else if (chooseFunction == MOVE) {
-				moveMesh(wand, mTest, counter, changePos, differenceR);
-				counter++;
-			}
-			else if (chooseFunction == RECENTER) {
-				ovrHmd_RecenterPose(hmd);
-				ovrHmd_DismissHSWDisplay(hmd);
-			}
+		if (wand->getButtonState()) {
+			switch (wand->getButtonNumber()) {
+			case 0:
+				chooseFunction = UPDATE_VERTEX_ARRAY;
+				break;
+			case 1:
+				chooseFunction = newDILATE;
+				break;
+			case 2:
+				chooseFunction = MOVE;
+				break;
+			case 3:
+				chooseFunction = RECENTER;
+				break;
+			case 4:
+				chooseFunction = -1; // nothing yet, analog button
+				break;
+			case 5: // Use chosen function
+				if (chooseFunction == UPDATE_VERTEX_ARRAY) {
+					//mTest->updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
+				}
+				else if (chooseFunction == newDILATE) {
+					mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
+				}
+				else if (chooseFunction == MOVE) {
+					moveMesh(wand, mTest, counter, changePos, differenceR);
+					counter++;
+				}
+				else if (chooseFunction == RECENTER) {
+					ovrHmd_RecenterPose(hmd);
+					ovrHmd_DismissHSWDisplay(hmd);
+				}
 
-			lastPos[0] = wand->getTrackerPosition()[0];
-			lastPos[1] = wand->getTrackerPosition()[1];
-			lastPos[2] = wand->getTrackerPosition()[2];
+				lastPos[0] = wand->getTrackerPosition()[0];
+				lastPos[1] = wand->getTrackerPosition()[1];
+				lastPos[2] = wand->getTrackerPosition()[2];
 
-			break;
-		default:
-			chooseFunction = -1;
+				break;
+			default:
+				chooseFunction = -1;
+			}
 		}
 
 		// change tool size
@@ -547,11 +549,11 @@ int Oculus::runOvr() {
 	
 				// MESH
 				MVstack.push();
-					MVstack.translate(mTest.getPosition());
-					MVstack.multiply(mTest.getOrientation());
+					MVstack.translate(mTest->getPosition());
+					MVstack.multiply(mTest->getOrientation());
 					glLineWidth(1.0);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					mTest.render();
+					mTest->render();
 				MVstack.pop();
 
 				// WAND
@@ -627,7 +629,7 @@ int Oculus::runOvr() {
 	return 1;
 }
 
-void moveMesh(Device* wand, Mesh mTest, int counter, float* changePos, float* differenceR) {
+void moveMesh(Device* wand, Mesh* mTest, int counter, float* changePos, float* differenceR) {
 	// Save first wand rotation transform in wandR
 	float* wandR = wand->getTrackerRotation();
 	float resultR[16];
@@ -635,12 +637,12 @@ void moveMesh(Device* wand, Mesh mTest, int counter, float* changePos, float* di
 
 	if (counter == 0) {
 		// Offset translation back to the original position of the mesh
-		changePos[0] = mTest.getPosition()[0] - wand->getTrackerPosition()[0];
-		changePos[0] = mTest.getPosition()[1] - wand->getTrackerPosition()[1];
-		changePos[0] = mTest.getPosition()[2] - wand->getTrackerPosition()[2];
+		changePos[0] = mTest->getPosition()[0] - wand->getTrackerPosition()[0];
+		changePos[0] = mTest->getPosition()[1] - wand->getTrackerPosition()[1];
+		changePos[0] = mTest->getPosition()[2] - wand->getTrackerPosition()[2];
 
 		// Get the difference betweeen the original mesh rotation transform and wandR
-		float* meshR = mTest.getOrientation();
+		float* meshR = mTest->getOrientation();
 		float invWandR[16] = { 0.0f };
 		Utilities::invertMatrix(wandR, invWandR);
 		Utilities::matrixMult(invWandR, meshR, differenceR);
@@ -654,8 +656,8 @@ void moveMesh(Device* wand, Mesh mTest, int counter, float* changePos, float* di
 	// Resulting rotation to be made on the mesh
 	Utilities::matrixMult(wandR, differenceR, resultR);
 
-	mTest.setPosition(resultPos);
-	mTest.setOrientation(resultR);
+	mTest->setPosition(resultPos);
+	mTest->setOrientation(resultR);
 }
 
 static void WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height) {
