@@ -30,14 +30,16 @@ struct vertex {
 
 struct vertexInf
 {
-	int vertexNeighbors[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
-	int triangleNeighbors[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+	std::vector<int> vertexNeighbors;
+	std::vector<int> triangleNeighbors;
 };
 //! Data structure containing three indices of the vertexArray that make a certain triangle
 struct triangle {
-	GLuint index1 = -1;
-	GLuint index2 = -1;
-	GLuint index3 = -1;
+
+	GLuint index[3];
+	//GLuint index1 = -1;
+	//GLuint index2 = -1;
+	//GLuint index3 = -1;
 };
 
 /*

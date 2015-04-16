@@ -23,11 +23,6 @@ Mesh::Mesh() {
 	triangle tempT;
 	vertex tempV;
 	vertexInf tempVI;
-	for (int i = 0; i < 8; i++)
-	{
-		tempVI.triangleNeighbors[i] = -1;
-		tempVI.vertexNeighbors[i] = -1;
-	}
 
 	vertexArray.reserve(100000);
 	indexArray.reserve(100000);
@@ -104,65 +99,62 @@ Mesh::Mesh() {
 		for (int j = 1; j < cols - 1; j++) {
 
 			//if (i != 0 && j !=0 && i != rows - 1 && j != cols - 1) {
-			vertexInfo[i * rows + j].vertexNeighbors[0] = i * rows + j - 1;
-			vertexInfo[i * rows + j].vertexNeighbors[1] = (i - 1) * rows + j;
-			vertexInfo[i * rows + j].vertexNeighbors[2] = (i - 1) * rows + j + 1;
-			vertexInfo[i * rows + j].vertexNeighbors[3] = (i + 1) * rows + j;
-			vertexInfo[i * rows + j].vertexNeighbors[4] = (i + 1) * rows + j + 1;
-			vertexInfo[i * rows + j].vertexNeighbors[5] = i * rows + j + 1;
+			vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j - 1);
+			vertexInfo[i * rows + j].vertexNeighbors.push_back((i - 1) * rows + j);
+			vertexInfo[i * rows + j].vertexNeighbors.push_back((i - 1) * rows + j + 1);
+			vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j);
+			vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j + 1);
+			vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j + 1);
 
 
 			
 			if ( i % 2 == 0) {
 				if (i > 1 && j > 1 && i < rows - 2 && j < cols - 2) {
-					vertexInfo[i * rows + j].triangleNeighbors[0] = (j * 2 - 2) + (i - 1) * 2 * (cols - 2);
-					vertexInfo[i * rows + j].triangleNeighbors[1] = (j * 2 - 1) + (i - 1) * 2 * (cols - 2);
-					vertexInfo[i * rows + j].triangleNeighbors[2] = (j * 2) + (i - 1) * 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i - 1) * 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i - 1) * 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2) + (i - 1) * 2 * (cols - 2));
 
-					vertexInfo[i * rows + j].triangleNeighbors[3] = (j * 2 - 3) + (i)* 2 * (cols - 2);
-					vertexInfo[i * rows + j].triangleNeighbors[4] = (j * 2 - 2) + (i)* 2 * (cols - 2);
-					vertexInfo[i * rows + j].triangleNeighbors[5] = (j * 2 - 1) + (i)* 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i)* 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 ) + (i)* 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 + 1) + (i)* 2 * (cols - 2));
 				}
 
-				tempT.index1 = (i + 1)*rows + j - 1;
-				tempT.index2 = (i+1)*rows + j;
-				tempT.index3 = i*rows + j;
+				tempT.index[0] = (i - 1)*rows + j;
+				tempT.index[1] = (i)*rows + j - 1;
+				tempT.index[2] = i*rows + j;
 				indexArray.push_back(tempT);
 
-				tempT.index1 = i * rows + j;
-				tempT.index2 = (i - 1)*rows + j;
-				tempT.index3 = (i - 1)*rows + j - 1;
+				tempT.index[0] = (i - 1)*rows + j + 1;
+				tempT.index[1] = (i - 1)*rows + j;
+				tempT.index[2] = i*rows + j;
 				indexArray.push_back(tempT);
 
 			}
 			else {
 				if (i > 1 && j > 1 && i < rows - 2 && j < cols - 2) {
-					vertexInfo[i * rows + j].triangleNeighbors[0] = (j * 2 - 2) + (i - 1) * 2 * (cols - 2);
-					vertexInfo[i * rows + j].triangleNeighbors[1] = (j * 2 - 1) + (i - 1) * 2 * (cols - 2);
-					vertexInfo[i * rows + j].triangleNeighbors[2] = (j * 2) + (i - 1) * 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i - 1) * 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i - 1) * 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2) + (i - 1) * 2 * (cols - 2));
 
-					vertexInfo[i * rows + j].triangleNeighbors[3] = (j * 2 - 1) + (i)* 2 * (cols - 2);
-					vertexInfo[i * rows + j].triangleNeighbors[4] = (j * 2) + (i)* 2 * (cols - 2);
-					vertexInfo[i * rows + j].triangleNeighbors[5] = (j * 2 + 1) + (i)* 2 * (cols - 2);
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 3) + (i)* 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i)* 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i)* 2 * (cols - 2));
 				}
 
-				tempT.index1 = (i + 1)*rows + j;
-				tempT.index2 = (i + 1)*rows + j + 1;
-				tempT.index3 = i*rows + j;
+
+				tempT.index[0] = (i - 1)*rows + j - 1;
+				tempT.index[1] = (i)*rows + j - 1;
+				tempT.index[2] = i*rows + j;
 				indexArray.push_back(tempT);
 
-				tempT.index1 = (i - 1)*rows + j + 1;
-				tempT.index2 = (i - 1)*rows + j;
-				tempT.index3 = i*rows + j;
+				tempT.index[0] = (i - 1)*rows + j;
+				tempT.index[1] = (i - 1)*rows + j - 1;
+				tempT.index[2] = i * rows + j;
 				indexArray.push_back(tempT);
 			}
 			
-
-
-
 		//	}
 			
-
 			/////////////////////////////////////////////////////////////////////////////////////
 		}
 	}
@@ -172,9 +164,9 @@ Mesh::Mesh() {
 
 	for (int i = 0; i < indexArray.size(); i++)
 	{
-		tempTri.index1 = indexArray[i].index1;
-		tempTri.index2 = indexArray[i].index2;
-		tempTri.index3 = indexArray[i].index3;
+		tempTri.index[0] = indexArray[i].index[0];
+		tempTri.index[1] = indexArray[i].index[1];
+		tempTri.index[2] = indexArray[i].index[2];
 		tempList.push_back(tempTri);
 	}
 
@@ -192,7 +184,7 @@ Mesh::Mesh() {
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Present our vertex coordinates to OpenGL
 	glBufferData(GL_ARRAY_BUFFER,
-				 vertexArray.size()*sizeof(vertex), vertexP, GL_STREAM_DRAW);
+				 2*vertexArray.size()*sizeof(vertex), vertexP, GL_STREAM_DRAW);
 
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
@@ -213,7 +205,7 @@ Mesh::Mesh() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 	// Present our vertex indices to OpenGL
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-				 indexArray.size()*sizeof(triangle), indexP, GL_STREAM_DRAW);
+				 2*indexArray.size()*sizeof(triangle), indexP, GL_STREAM_DRAW);
 
 	// Deactivate (unbind) the VAO and the buffers again.
 	// Do NOT unbind the buffers while the VAO is still bound.
@@ -234,6 +226,8 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	int changedVertices[10000] = { 0 };
 	int changeCount = 0;
 
+	int oldArraySize = vertexArray.size();
+	int oldIndArraySize = indexArray.size();
 	//MOVEMENT BETWEEN LAST FRAME AND THIS FRAME
 	float pMove[3];
 	pMove[0] = (p[0] - lp[0]);
@@ -261,8 +255,8 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	//float radius = rad;
 
 
-	triangle * indexP;
-	vertex * vertexP;
+	triangle* indexP;
+	vertex* vertexP;
 
 	bool success = false;
 
@@ -322,10 +316,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 
 		vertexP = &vertexArray[0];
 
-		//vector<triangle> tempList[100000];
-		////tempList.reserve(100000);
-		//indexP = &tempList[0];
-
+		
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
 		int currentRow = startRow;
@@ -354,6 +345,28 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 
 		}
 
+		range = oldArraySize - vertexArray.size();
+		vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, beginning*sizeof(vertex), sizeof(vertex)*range,
+			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+		for (int i = oldArraySize; i < range + oldArraySize; i++)
+		{
+			vertexP[o].x = vertexArray[i].x;
+			vertexP[o].y = vertexArray[i].y;
+			vertexP[o].z = vertexArray[i].z;
+			vertexP[o].nx = vertexArray[i].nx;
+			vertexP[o].ny = vertexArray[i].ny;
+			vertexP[o].nz = vertexArray[i].nz;
+		}
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+		/*
+			int nBufferSize = 0;
+
+			glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &nBufferSize);
+
+			int originalVertexArraySize = ( nBufferSize / sizeof(float) );
+
+		*/
+
 		// Specify how many attribute arrays we have in our VAO
 		glEnableVertexAttribArray(0); // Vertex coordinates
 		glEnableVertexAttribArray(1); // Normals
@@ -372,18 +385,29 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 
 		// Activate the index buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
+
+		const int testst = indexArray.size();
+
+		//vector<triangle> tempList;
+		//tempList.reserve(indexArray.size());
+		//indexP = &tempList[0];
+
+
+		//glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+		//	sizeof(triangle)*indexArray.size(), &indexArray, GL_STREAM_DRAW);
+		
 		// Present our vertex <indices to OpenGL
 		indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(),
 											 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-
+		
 		for (int i = 0; i < indexArray.size(); i++) {
-			indexP[i].index1 = indexArray[i].index1;
-			indexP[i].index2 = indexArray[i].index2;
-			indexP[i].index3 = indexArray[i].index3;
+			indexP[i].index[0] = indexArray[i].index[0];
+			indexP[i].index[1] = indexArray[i].index[1];
+			indexP[i].index[2] = indexArray[i].index[2];
 		}
 
 		glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-
+		
 		// Deactivate (unbind) the VAO and the buffers again.
 		// Do NOT unbind the buffers while the VAO is still bound.
 		// The index buffer is an essential part of the VAO state.
@@ -431,61 +455,50 @@ bool Mesh::sortByXCord(const vertex &a, const vertex &b) {
 
 void Mesh::updateArea(int currVert)
 {
-	//CALCULATE THE NEW FACE NORMAL
-
+	//DECLARE VARIABLES
 	int needsUpdate[8] = { -1, -1, -1, -1, -1, -1, -1, -1};
 
 	float tempNorm1[3] = { 0.0f, 0.0f, 0.0f };
 	float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
 
-	float tempVec1[3];
-	float tempVec2[3];
+	float tempVec1[3], tempVec2[3];
 
-	vertex tempV;
-	vertexInf tempVI;
-	triangle tempT;
+	vertex tempV; vertexInf tempVI; triangle tempT;
 
-	float vPoint1[3];
-	float vPoint2[3];
-	float vPoint3[3];
+	float vPoint1[3],  vPoint2[3], vPoint3[3];
 
 	const float MAX_LENGTH = 0.02f;
 	const float MIN_LENGTH = 0.01f;
 
-	int neighbor1 = -1;
-	int neighbor2 = -1;
-	int neighborTri1 = -1;
-	int neighborTri2 = -1;
+	int neighbor1 = -1; int neighbor2 = -1;
+	int neighborTri1 = -1; int neighborTri2 = -1;
 
 	int triPos = -2;
 	int vertPos;
 
-	int count1 = 0;
-	int count2 = 0;
-
+	int count1 = 0; int count2 = 0;
 	int t1 = 0; int t2 = 0;
 
+	bool isNeighbor1Tri = false;
+
+	//UPDATE NORMAL
 	triPos = vertexInfo[currVert].triangleNeighbors[count1];
+	vertexArray[currVert].nx = 0.0f; vertexArray[currVert].ny = 0.0f; vertexArray[currVert].nz = 0.0f;
 
-	vertexArray[currVert].nx = 0.0f;
-	vertexArray[currVert].ny = 0.0f;
-	vertexArray[currVert].nz = 0.0f;
-
-
-	while (count < 8-1 && triPos != -1)
+	while (count1 < vertexInfo[currVert].triangleNeighbors.size() - 1 )
 	{
 
-		vPoint1[0] = vertexArray[indexArray[triPos].index1].x;
-		vPoint1[1] = vertexArray[indexArray[triPos].index1].y;
-		vPoint1[2] = vertexArray[indexArray[triPos].index1].z;
+		vPoint1[0] = vertexArray[indexArray[triPos].index[0]].x;
+		vPoint1[1] = vertexArray[indexArray[triPos].index[0]].y;
+		vPoint1[2] = vertexArray[indexArray[triPos].index[0]].z;
 
-		vPoint2[0] = vertexArray[indexArray[triPos].index2].x;
-		vPoint2[1] = vertexArray[indexArray[triPos].index2].y;
-		vPoint2[2] = vertexArray[indexArray[triPos].index2].z;
+		vPoint2[0] = vertexArray[indexArray[triPos].index[1]].x;
+		vPoint2[1] = vertexArray[indexArray[triPos].index[1]].y;
+		vPoint2[2] = vertexArray[indexArray[triPos].index[1]].z;
 
-		vPoint3[0] = vertexArray[indexArray[triPos].index3].x;
-		vPoint3[1] = vertexArray[indexArray[triPos].index3].y;
-		vPoint3[2] = vertexArray[indexArray[triPos].index3].z;
+		vPoint3[0] = vertexArray[indexArray[triPos].index[2]].x;
+		vPoint3[1] = vertexArray[indexArray[triPos].index[2]].y;
+		vPoint3[2] = vertexArray[indexArray[triPos].index[2]].z;
 
 		calculateVec(tempVec1, vPoint2, vPoint1);
 		calculateVec(tempVec2, vPoint3, vPoint1);
@@ -515,7 +528,7 @@ void Mesh::updateArea(int currVert)
 	count1 = 0;
 	count2 = 0;
 	vertPos = vertexInfo[currVert].vertexNeighbors[count1];
-	while (vertPos != -1)
+	while (count1 < vertexInfo[currVert].vertexNeighbors.size() - 1)
 	{
 		vPoint1[0] = vertexArray[currVert].x;
 		vPoint1[1] = vertexArray[currVert].y;
@@ -533,39 +546,43 @@ void Mesh::updateArea(int currVert)
 
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TEST
 			//FINDING SHARED VERTEX NEIGHBORS
-			while (vertexInfo[currVert].vertexNeighbors[t1] != -1 && t1 < 8)
+			for (int i = 0; i < vertexInfo[currVert].vertexNeighbors.size(); i++)
+			//while ( t1 < vertexInfo[currVert].vertexNeighbors.size())
 			{
-				while (vertexInfo[needsUpdate[count2]].vertexNeighbors[t1] != -1 && t2 < 8)
+				for (int j = 0; j < vertexInfo[vertPos].vertexNeighbors.size(); j++)
+				//while ( t2 < vertexInfo[vertPos].vertexNeighbors.size())
 				{
-					if (vertexInfo[currVert].vertexNeighbors[t1] = vertexInfo[needsUpdate[count2]].vertexNeighbors[t1])
+					if (vertexInfo[currVert].vertexNeighbors[i] == vertexInfo[vertPos].vertexNeighbors[j])
 					{
 						if (neighbor1 == -1)
-							neighbor1 = vertexInfo[currVert].vertexNeighbors[t1];
+							neighbor1 = vertexInfo[currVert].vertexNeighbors[i];
 						else
 						{
-							neighbor2 = vertexInfo[currVert].vertexNeighbors[t1];
+							neighbor2 = vertexInfo[currVert].vertexNeighbors[i];
 							//break;
 						}
 					}
 
-					if (vertexInfo[currVert].triangleNeighbors[t1] = vertexInfo[needsUpdate[count2]].triangleNeighbors[t1])
+					cout << vertexInfo[currVert].triangleNeighbors[i] << " " << vertexInfo[vertPos].triangleNeighbors[j] << endl;
+
+					if (vertexInfo[currVert].triangleNeighbors[i] == vertexInfo[vertPos].triangleNeighbors[j])
 					{
+						
 						if (neighborTri1 == -1)
-							neighborTri1 = vertexInfo[currVert].triangleNeighbors[t1];
+							neighborTri1 = vertexInfo[currVert].triangleNeighbors[i];
 						else
 						{
-							neighborTri2 = vertexInfo[currVert].triangleNeighbors[t1];
+							neighborTri2 = vertexInfo[currVert].triangleNeighbors[i];
 							//break;
 						}
 					}
 
-					t2++;
 				}
-				t2 = 0;
-				t1++;
-			}
-			t1 = 0;
 
+			}
+			
+
+			//CREATE NEW VERTICES AND TRIANGLES AND LINK THEM/////////////////////////////////////////////////////////
 			if (count2 > 0)
 			{
 				t2 = count2 - 1;
@@ -580,6 +597,8 @@ void Mesh::updateArea(int currVert)
 					else
 					{
 						//NO NEIGHBORING VERTICES HAS BEEN UPDATED
+
+						//CREATING NEW VERTICES AND TRIANGLES////////////////////////////////////////////////////
 						tempV.x = vPoint1[0] + tempVec1[0] / 2.0f;
 						tempV.y = vPoint1[1] + tempVec1[1] / 2.0f;
 						tempV.z = vPoint1[2] + tempVec1[2] / 2.0f;
@@ -588,24 +607,82 @@ void Mesh::updateArea(int currVert)
 						tempV.nz = vertexArray[currVert].nz;
 						vertexArray.push_back(tempV);
 
-						tempT.index1 = vertexArray.size();
-						tempT.index2 = neighbor1;
-						tempT.index3 = vertPos;
+						tempT.index[0] = vertexArray.size() - 1;
+						tempT.index[1] = neighbor1;
+						tempT.index[2] = vertPos;
 						indexArray.push_back(tempT);
-						tempT.index1 = vertexArray.size();
-						tempT.index2 = vertPos;
-						tempT.index3 = neighbor2;
+						tempT.index[0] = vertexArray.size() - 1;
+						tempT.index[1] = vertPos;
+						tempT.index[2] = neighbor2;
 						indexArray.push_back(tempT);
-						
-						for (int i = 0; i < 4; i++)
+
+						for (int i = 0; i < 3; i++)
 						{
-							tempVI.triangleNeighbors[i] = ;
-							tempVI.vertexNeighbors[i] = ;
-						
+							if (indexArray[neighborTri1].index[i] == vertPos)
+								indexArray[neighborTri1].index[i] = vertexArray.size() - 1;
+							else if (indexArray[neighborTri1].index[i] == neighbor1)
+								isNeighbor1Tri = true;
+
+
+							if (indexArray[neighborTri2].index[i] == vertPos)
+								indexArray[neighborTri2].index[i] == vertexArray.size() - 1;
+							
 						}
+						////////////////////////////////////////////////////////////////////////////////////////////
+
+						//BINDING NEW VERTEX ///////////////////////////////////////////////////////////////////
+						tempVI.triangleNeighbors.push_back(neighborTri1);
+						tempVI.triangleNeighbors.push_back(neighborTri2);
+						tempVI.triangleNeighbors.push_back(indexArray.size() - 1);
+						tempVI.triangleNeighbors.push_back(indexArray.size() - 2);
+						
+						tempVI.vertexNeighbors.push_back(currVert);
+						tempVI.vertexNeighbors.push_back(vertPos);
+						tempVI.vertexNeighbors.push_back(neighbor1);
+						tempVI.vertexNeighbors.push_back(neighbor2);
 						
 						vertexInfo.push_back(tempVI);
+						////////////////////////////////////////////////////////////////////////////////////////////
 
+						//UPDATING EXISTING VERTICES////////////////////////////////////////////////////////////////
+						
+						//current vertex
+						vertexInfo[currVert].vertexNeighbors[count1] = vertexArray.size() - 1;
+
+						//shared neighbors
+						if (isNeighbor1Tri)	{
+							vertexInfo[neighbor1].triangleNeighbors.push_back(indexArray.size() - 2);
+							vertexInfo[neighbor1].vertexNeighbors.push_back(vertexArray.size() - 1);
+
+							vertexInfo[neighbor2].triangleNeighbors.push_back(indexArray.size() - 1);
+							vertexInfo[neighbor2].vertexNeighbors.push_back(vertexArray.size() - 1);
+						}
+						else {
+							vertexInfo[neighbor1].triangleNeighbors.push_back(indexArray.size() - 1);
+							vertexInfo[neighbor1].vertexNeighbors.push_back(vertexArray.size() - 1);
+
+							vertexInfo[neighbor2].triangleNeighbors.push_back(indexArray.size() - 2);
+							vertexInfo[neighbor2].vertexNeighbors.push_back(vertexArray.size() - 1);
+						}
+
+						//current neighbor
+
+						for (int i = 0; i < vertexInfo[vertPos].triangleNeighbors.size(); i++)
+						{
+							if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri1)
+								vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 2;
+							else if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri2)
+								vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 1;
+						}
+
+						for (int i = 0; i < vertexInfo[vertPos].vertexNeighbors.size(); i++)
+						{
+							if (vertexInfo[vertPos].vertexNeighbors[i] == currVert)
+								vertexInfo[vertPos].vertexNeighbors[i] = vertexArray.size() - 1;
+						}
+						
+
+						////////////////////////////////////////////////////////////////////////////////////////////
 					}
 					t2--;
 
@@ -614,16 +691,97 @@ void Mesh::updateArea(int currVert)
 			else
 			{
 				//FIRST VERTEX BEING UPDATED
+				//CREATING NEW VERTICES AND TRIANGLES////////////////////////////////////////////////////
+				tempV.x = vPoint1[0] + tempVec1[0] / 2.0f;
+				tempV.y = vPoint1[1] + tempVec1[1] / 2.0f;
+				tempV.z = vPoint1[2] + tempVec1[2] / 2.0f;
+				tempV.nx = vertexArray[currVert].nx;
+				tempV.ny = vertexArray[currVert].ny;
+				tempV.nz = vertexArray[currVert].nz;
+				vertexArray.push_back(tempV);
+
+				tempT.index[0] = vertexArray.size() - 1;
+				tempT.index[1] = neighbor1;
+				tempT.index[2] = vertPos;
+				indexArray.push_back(tempT);
+				tempT.index[0] = vertexArray.size() - 1;
+				tempT.index[1] = vertPos;
+				tempT.index[2] = neighbor2;
+				indexArray.push_back(tempT);
+
+				for (int i = 0; i < 3; i++)
+				{
+					if (indexArray[neighborTri1].index[i] == vertPos)
+						indexArray[neighborTri1].index[i] = vertexArray.size() - 1;
+					else if (indexArray[neighborTri1].index[i] == neighbor1)
+						isNeighbor1Tri = true;
+
+
+					if (indexArray[neighborTri2].index[i] == vertPos)
+						indexArray[neighborTri2].index[i] == vertexArray.size() - 1;
+
+				}
+				////////////////////////////////////////////////////////////////////////////////////////////
+
+				//BINDING NEW VERTEX ///////////////////////////////////////////////////////////////////
+				tempVI.triangleNeighbors.push_back(neighborTri1);
+				tempVI.triangleNeighbors.push_back(neighborTri2);
+				tempVI.triangleNeighbors.push_back(indexArray.size() - 1);
+				tempVI.triangleNeighbors.push_back(indexArray.size() - 2);
+
+				tempVI.vertexNeighbors.push_back(currVert);
+				tempVI.vertexNeighbors.push_back(vertPos);
+				tempVI.vertexNeighbors.push_back(neighbor1);
+				tempVI.vertexNeighbors.push_back(neighbor2);
+
+				vertexInfo.push_back(tempVI);
+				////////////////////////////////////////////////////////////////////////////////////////////
+
+				//UPDATING EXISTING VERTICES////////////////////////////////////////////////////////////////
+
+				//current vertex
+				vertexInfo[currVert].vertexNeighbors[count1] = vertexArray.size() - 1;
+
+				//shared neighbors
+				if (isNeighbor1Tri)	{
+					vertexInfo[neighbor1].triangleNeighbors.push_back(indexArray.size() - 2);
+					vertexInfo[neighbor1].vertexNeighbors.push_back(vertexArray.size() - 1);
+
+					vertexInfo[neighbor2].triangleNeighbors.push_back(indexArray.size() - 1);
+					vertexInfo[neighbor2].vertexNeighbors.push_back(vertexArray.size() - 1);
+				}
+				else {
+					vertexInfo[neighbor1].triangleNeighbors.push_back(indexArray.size() - 1);
+					vertexInfo[neighbor1].vertexNeighbors.push_back(vertexArray.size() - 1);
+
+					vertexInfo[neighbor2].triangleNeighbors.push_back(indexArray.size() - 2);
+					vertexInfo[neighbor2].vertexNeighbors.push_back(vertexArray.size() - 1);
+				}
+
+				//current neighbor
+
+				for (int i = 0; i < vertexInfo[vertPos].triangleNeighbors.size(); i++)
+				{
+					if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri1)
+						vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 2;
+					else if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri2)
+						vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 1;
+				}
+
+				for (int i = 0; i < vertexInfo[vertPos].vertexNeighbors.size(); i++)
+				{
+					if (vertexInfo[vertPos].vertexNeighbors[i] == currVert)
+						vertexInfo[vertPos].vertexNeighbors[i] = vertexArray.size() - 1;
+				}
 
 			}
 
-			neighbor1 = -1;
-			neighbor2 = -1;
-			neighborTri1 = -1;
-			neighborTri2 = -1;
-
 			count2++;
 		}
+		neighbor1 = -1;
+		neighbor2 = -1;
+		neighborTri1 = -1;
+		neighborTri2 = -1;
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////TEST
 		count1++;
 		vertPos = vertexInfo[currVert].vertexNeighbors[count1];
