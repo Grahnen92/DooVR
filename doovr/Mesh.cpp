@@ -431,8 +431,7 @@ bool Mesh::sortByXCord(const vertex &a, const vertex &b) {
 
 void Mesh::updateArea(int currVert)
 {
-
-	//CALCULATE THE NEW FACE NORMAL NOT USING GLM
+	//CALCULATE THE NEW FACE NORMAL
 
 	float tempNorm1[3] = { 0.0f, 0.0f, 0.0f };
 	float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
@@ -448,6 +447,7 @@ void Mesh::updateArea(int currVert)
 	const float MIN_LENGTH = 0.01f;
 
 	int triPos;
+	int vertPos;
 
 	int count = 0;
 
@@ -488,6 +488,7 @@ void Mesh::updateArea(int currVert)
 
 		triPos = vertexInfo[currVert].triangleNeighbors[count];
 	}
+
 	tempNorm2[0] = tempNorm2[0] / (count - 1);
 	tempNorm2[1] = tempNorm2[1] / (count - 1);
 	tempNorm2[2] = tempNorm2[2] / (count - 1);
@@ -496,7 +497,28 @@ void Mesh::updateArea(int currVert)
 	vertexArray[currVert].ny = tempNorm2[1];
 	vertexArray[currVert].nz = tempNorm2[2];
 
-	//cout << " x: "<< vertexArray[currVert].nx  << " y: "<< vertexArray[currVert].ny << " z: " << vertexArray[currVert].nz  << endl;
+	// CHECK IF RETRIANGULATION IS NEEDED
+	count = 0;
+	vertPos = vertexInfo[currVert].vertexNeighbors[count];
+	while (vertPos != -1)
+	{
+		vPoint1[0] = vertexArray[currVert].x;
+		vPoint1[1] = vertexArray[currVert].y;
+		vPoint1[2] = vertexArray[currVert].z;
+
+		vPoint2[0] = vertexArray[vertPos].x;
+		vPoint2[1] = vertexArray[vertPos].y;
+		vPoint2[2] = vertexArray[vertPos].z;
+
+		calculateVec(tempVec1, vPoint2, vPoint1);
+
+		if (vecLenght(tempVec1) > MAX_LENGTH)
+		{
+			
+		}
+
+	}
+
 }
 
 
