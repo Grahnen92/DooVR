@@ -1,17 +1,21 @@
 #include "Utilities.h"
 #include <vector>
 
-
-
 typedef struct face face;
 typedef struct vertex vertex;
 
 //! Data structure containing all necessary information regarding a facetrianglepolygon
 struct face {
+
 	//! Pointer to adjacent faces
 	face * nFace[3];
+	//int arrayIndex;
+
 	//! Pointer to the faces vertecies
-	vertex *vertices[3];
+	//vertex *vertices[3];
+	GLuint index1;
+	GLuint index2;
+	GLuint index3;
 };
 //! Data structure containing the coordinates and normal coordinates of a vertex, aswell as a pointer to an adjacent face
 struct vertex {
@@ -21,7 +25,13 @@ struct vertex {
 	GLfloat nx;
 	GLfloat ny;
 	GLfloat nz;
-	face *adjacentFace;
+	//int arrayIndex;
+};
+
+struct vertexInf
+{
+	int vertexNeighbors[8];
+	int triangleNeighbors[8];
 };
 //! Data structure containing three indices of the vertexArray that make a certain triangle
 struct triangle {
@@ -45,15 +55,14 @@ class Mesh {
 	Mesh();
 	~Mesh();
 
+	//void updateVertexArray(float* p, bool but);
 
-	void updateVertexArray(float* p, bool but, float radius);
+	void dilate(float* p, float lp[3], float rad, bool but);
 
-	void dilate(double x, double y);
-
-	void moveThroughMesh(int it);
+	//void moveThroughMesh(int it);
 	void render();
 
-	void updateNormal(face* fp);
+	void updateArea(int currVert);
 
 	vertex* getVertexList();
 	triangle* getIndexList();
@@ -68,8 +77,14 @@ class Mesh {
 	void setisMoved(bool b) { isMoved = b; }
 
   private:
+	//! Calculates the vector lenght between two vertex
 	float vectorLength(vertex vertex1, vertex vertex2);
+	//! Calculates the lenght of a vector
+	float vecLenght(float vec[3]);
+	//! Sorts vertecies by the x coordinate into ascending order
 	bool sortByXCord(const vertex &a, const vertex &b);
+	//! Calculates the vector between to points a and b and returns a pointer to the vec
+	void calculateVec(float* newVec, float a[3], float b[3]);
 
 	int rows;
 	int cols;
@@ -83,6 +98,7 @@ class Mesh {
 
 	std::vector<triangle> indexArray;
 	std::vector<vertex> vertexArray;
+	std::vector<vertexInf> vertexInfo;
 
 	float position[3];
 	float orientation[16];
