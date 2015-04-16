@@ -13,7 +13,7 @@ void Utilities::crossProd(float* normal, float* vec1, float* vec2) {
 	normal[2] = (vec1[0] * vec2[1] - vec1[1] * vec2[0]);
 }
 
-void Utilities::matrixMult(float M1[], float M2[], float Mout[]) {
+void Utilities::matrixMult(float* M1, float* M2, float* Mout) {
 	// Compute result in a local variable to avoid conflicts
 	// with overwriting if Mout is the same variable as either
 	// M1 or M2.
@@ -33,7 +33,7 @@ void Utilities::matrixMult(float M1[], float M2[], float Mout[]) {
 	}
 }
 
-void Utilities::invertMatrix(float m[], float invOut[])
+void Utilities::invertMatrix(float* m, float* invOut)
 {
 	float inv[16], det;
 	int i;
