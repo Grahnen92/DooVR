@@ -433,11 +433,17 @@ void Mesh::updateArea(int currVert)
 {
 	//CALCULATE THE NEW FACE NORMAL
 
+	int needsUpdate[8] = { -1, -1, -1, -1, -1, -1, -1, -1};
+
 	float tempNorm1[3] = { 0.0f, 0.0f, 0.0f };
 	float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
 
 	float tempVec1[3];
 	float tempVec2[3];
+
+	vertex tempV;
+	vertexInf tempVI;
+	triangle tempT;
 
 	float vPoint1[3];
 	float vPoint2[3];
@@ -446,12 +452,20 @@ void Mesh::updateArea(int currVert)
 	const float MAX_LENGTH = 0.02f;
 	const float MIN_LENGTH = 0.01f;
 
-	int triPos;
+	int neighbor1 = -1;
+	int neighbor2 = -1;
+	int neighborTri1 = -1;
+	int neighborTri2 = -1;
+
+	int triPos = -2;
 	int vertPos;
 
-	int count = 0;
+	int count1 = 0;
+	int count2 = 0;
 
-	triPos = vertexInfo[currVert].triangleNeighbors[count];
+	int t1 = 0; int t2 = 0;
+
+	triPos = vertexInfo[currVert].triangleNeighbors[count1];
 
 	vertexArray[currVert].nx = 0.0f;
 	vertexArray[currVert].ny = 0.0f;
@@ -484,22 +498,23 @@ void Mesh::updateArea(int currVert)
 		tempNorm2[1] += tempNorm1[1];
 		tempNorm2[2] += tempNorm1[2];
 
-		count++;
+		count1++;
 
-		triPos = vertexInfo[currVert].triangleNeighbors[count];
+		triPos = vertexInfo[currVert].triangleNeighbors[count1];
 	}
 
-	tempNorm2[0] = tempNorm2[0] / (count - 1);
-	tempNorm2[1] = tempNorm2[1] / (count - 1);
-	tempNorm2[2] = tempNorm2[2] / (count - 1);
+	tempNorm2[0] = tempNorm2[0] / (count1 - 1);
+	tempNorm2[1] = tempNorm2[1] / (count1 - 1);
+	tempNorm2[2] = tempNorm2[2] / (count1 - 1);
 
 	vertexArray[currVert].nx = tempNorm2[0];
 	vertexArray[currVert].ny = tempNorm2[1];
 	vertexArray[currVert].nz = tempNorm2[2];
 
 	// CHECK IF RETRIANGULATION IS NEEDED
-	count = 0;
-	vertPos = vertexInfo[currVert].vertexNeighbors[count];
+	count1 = 0;
+	count2 = 0;
+	vertPos = vertexInfo[currVert].vertexNeighbors[count1];
 	while (vertPos != -1)
 	{
 		vPoint1[0] = vertexArray[currVert].x;
@@ -514,10 +529,172 @@ void Mesh::updateArea(int currVert)
 
 		if (vecLenght(tempVec1) > MAX_LENGTH)
 		{
-			
+			needsUpdate[count2] = vertPos;
+
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TEST
+			//FINDING SHARED VERTEX NEIGHBORS
+			while (vertexInfo[currVert].vertexNeighbors[t1] != -1 && t1 < 8)
+			{
+				while (vertexInfo[needsUpdate[count2]].vertexNeighbors[t1] != -1 && t2 < 8)
+				{
+					if (vertexInfo[currVert].vertexNeighbors[t1] = vertexInfo[needsUpdate[count2]].vertexNeighbors[t1])
+					{
+						if (neighbor1 == -1)
+							neighbor1 = vertexInfo[currVert].vertexNeighbors[t1];
+						else
+						{
+							neighbor2 = vertexInfo[currVert].vertexNeighbors[t1];
+							//break;
+						}
+					}
+
+					if (vertexInfo[currVert].triangleNeighbors[t1] = vertexInfo[needsUpdate[count2]].triangleNeighbors[t1])
+					{
+						if (neighborTri1 == -1)
+							neighborTri1 = vertexInfo[currVert].triangleNeighbors[t1];
+						else
+						{
+							neighborTri2 = vertexInfo[currVert].triangleNeighbors[t1];
+							//break;
+						}
+					}
+
+					t2++;
+				}
+				t2 = 0;
+				t1++;
+			}
+			t1 = 0;
+
+			if (count2 > 0)
+			{
+				t2 = count2 - 1;
+				while (t2 >= 0)
+				{
+
+					if (needsUpdate[t2] == neighbor1 || needsUpdate[t2] == neighbor2)
+					{
+						//NEIGHBORING VERTICES HAS BEEN UPDATED
+
+					}
+					else
+					{
+						//NO NEIGHBORING VERTICES HAS BEEN UPDATED
+						tempV.x = vPoint1[0] + tempVec1[0] / 2.0f;
+						tempV.y = vPoint1[1] + tempVec1[1] / 2.0f;
+						tempV.z = vPoint1[2] + tempVec1[2] / 2.0f;
+						tempV.nx = vertexArray[currVert].nx;
+						tempV.ny = vertexArray[currVert].ny;
+						tempV.nz = vertexArray[currVert].nz;
+						vertexArray.push_back(tempV);
+
+						tempT.index1 = vertexArray.size();
+						tempT.index2 = neighbor1;
+						tempT.index3 = vertPos;
+						indexArray.push_back(tempT);
+						tempT.index1 = vertexArray.size();
+						tempT.index2 = vertPos;
+						tempT.index3 = neighbor2;
+						indexArray.push_back(tempT);
+						
+						for (int i = 0; i < 4; i++)
+						{
+							tempVI.triangleNeighbors[i] = ;
+							tempVI.vertexNeighbors[i] = ;
+						
+						}
+						
+						vertexInfo.push_back(tempVI);
+
+					}
+					t2--;
+
+				}
+			}
+			else
+			{
+				//FIRST VERTEX BEING UPDATED
+
+			}
+
+			neighbor1 = -1;
+			neighbor2 = -1;
+			neighborTri1 = -1;
+			neighborTri2 = -1;
+
+			count2++;
+		}
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////TEST
+		count1++;
+		vertPos = vertexInfo[currVert].vertexNeighbors[count1];
+	}
+
+	///////////////////////////////TEST
+	/*
+	count2 = 0;
+
+	while (needsUpdate[count2] != -1)
+	{
+		
+		while (vertexInfo[currVert].vertexNeighbors[t1] != -1 && t1 < 8)
+		{
+			while (vertexInfo[needsUpdate[count2]].vertexNeighbors[t1] != -1 && t2 < 8)
+			{
+				if (vertexInfo[currVert].vertexNeighbors[t1] = vertexInfo[needsUpdate[count2]].vertexNeighbors[t1])
+				{
+					if (neighbor1 == -1)
+						neighbor1 = vertexInfo[currVert].vertexNeighbors[t1];
+					else
+					{
+						neighbor2 = vertexInfo[currVert].vertexNeighbors[t1];
+						//break;
+					}
+				}
+
+				t2++;
+			}
+			t2 = 0;
+			t1++;
 		}
 
+		//FIRST EDGE THAT NEEDS UPDATE
+
+		t2 = count2 - 1;
+		if (count2 > 0)
+		{
+			while (t2 >= 0)
+			{
+				
+				if (needsUpdate[t2] == neighbor1 || needsUpdate[t2] == neighbor2)
+				{
+					//NEIGHBORING VERTICES HAS BEEN UPDATED
+
+				}
+				else
+				{
+					//NO NEIGHBORING VERTICES HAS BEEN UPDATED
+					vertexArray.push_back();
+					vertexInfo.push_back();
+
+				}
+				t2--;
+
+			}
+		}
+		else
+		{
+			//FIRST VERTEX BEING UPDATED
+
+		}
+
+		lastNeighbor1 = neighbor1;
+		lastNeighbor2 = neighbor2;
+		neighbor1 = -1;
+		neighbor2 = -1;
+
+		count2++;
 	}
+	*/
 
 }
 

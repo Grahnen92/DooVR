@@ -13,9 +13,9 @@ struct face {
 
 	//! Pointer to the faces vertecies
 	//vertex *vertices[3];
-	GLuint index1;
-	GLuint index2;
-	GLuint index3;
+	GLuint index1 = -1;
+	GLuint index2 = -1;
+	GLuint index3 = -1;
 };
 //! Data structure containing the coordinates and normal coordinates of a vertex, aswell as a pointer to an adjacent face
 struct vertex {
@@ -30,14 +30,14 @@ struct vertex {
 
 struct vertexInf
 {
-	int vertexNeighbors[8];
-	int triangleNeighbors[8];
+	int vertexNeighbors[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+	int triangleNeighbors[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 };
 //! Data structure containing three indices of the vertexArray that make a certain triangle
 struct triangle {
-	GLuint index1;
-	GLuint index2;
-	GLuint index3;
+	GLuint index1 = -1;
+	GLuint index2 = -1;
+	GLuint index3 = -1;
 };
 
 /*
