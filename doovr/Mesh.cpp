@@ -111,8 +111,10 @@ Mesh::Mesh() {
 			vertexInfo[i * rows + j].vertexNeighbors[4] = (i + 1) * rows + j + 1;
 			vertexInfo[i * rows + j].vertexNeighbors[5] = i * rows + j + 1;
 
-			if (i > 1 && j > 1 && i < rows - 2 && j < cols - 2) {
-				if ( i % 2 == 0) {
+
+			
+			if ( i % 2 == 0) {
+				if (i > 1 && j > 1 && i < rows - 2 && j < cols - 2) {
 					vertexInfo[i * rows + j].triangleNeighbors[0] = (j * 2 - 2) + (i - 1) * 2 * (cols - 2);
 					vertexInfo[i * rows + j].triangleNeighbors[1] = (j * 2 - 1) + (i - 1) * 2 * (cols - 2);
 					vertexInfo[i * rows + j].triangleNeighbors[2] = (j * 2) + (i - 1) * 2 * (cols - 2);
@@ -121,7 +123,20 @@ Mesh::Mesh() {
 					vertexInfo[i * rows + j].triangleNeighbors[4] = (j * 2 - 2) + (i)* 2 * (cols - 2);
 					vertexInfo[i * rows + j].triangleNeighbors[5] = (j * 2 - 1) + (i)* 2 * (cols - 2);
 				}
-				else {
+
+				tempT.index1 = (i + 1)*rows + j - 1;
+				tempT.index2 = (i+1)*rows + j;
+				tempT.index3 = i*rows + j;
+				indexArray.push_back(tempT);
+
+				tempT.index1 = i * rows + j;
+				tempT.index2 = (i - 1)*rows + j;
+				tempT.index3 = (i - 1)*rows + j - 1;
+				indexArray.push_back(tempT);
+
+			}
+			else {
+				if (i > 1 && j > 1 && i < rows - 2 && j < cols - 2) {
 					vertexInfo[i * rows + j].triangleNeighbors[0] = (j * 2 - 2) + (i - 1) * 2 * (cols - 2);
 					vertexInfo[i * rows + j].triangleNeighbors[1] = (j * 2 - 1) + (i - 1) * 2 * (cols - 2);
 					vertexInfo[i * rows + j].triangleNeighbors[2] = (j * 2) + (i - 1) * 2 * (cols - 2);
@@ -130,17 +145,20 @@ Mesh::Mesh() {
 					vertexInfo[i * rows + j].triangleNeighbors[4] = (j * 2) + (i)* 2 * (cols - 2);
 					vertexInfo[i * rows + j].triangleNeighbors[5] = (j * 2 + 1) + (i)* 2 * (cols - 2);
 				}
+
+				tempT.index1 = (i + 1)*rows + j;
+				tempT.index2 = (i + 1)*rows + j + 1;
+				tempT.index3 = i*rows + j;
+				indexArray.push_back(tempT);
+
+				tempT.index1 = (i - 1)*rows + j + 1;
+				tempT.index2 = (i - 1)*rows + j;
+				tempT.index3 = i*rows + j;
+				indexArray.push_back(tempT);
 			}
+			
 
-			tempT.index1 = (i - 1)*rows + j;
-			tempT.index2 = i*rows + j - 1;
-			tempT.index3 = i*rows + j;
-			indexArray.push_back(tempT);
 
-			tempT.index1 = (i - 1)*rows + j + 1;
-			tempT.index2 = (i-1)*rows + j;
-			tempT.index3 = i*rows + j;
-			indexArray.push_back(tempT);
 
 		//	}
 			
@@ -213,7 +231,8 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	glm::vec4 tempvec;
 	vertex tempV;
 
-	int currVert;
+	int changedVertices[10000] = { 0 };
+	int changeCount = 0;
 
 	//MOVEMENT BETWEEN LAST FRAME AND THIS FRAME
 	float pMove[3];
@@ -257,16 +276,13 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	for (int i = 0; i < vertexArray.size(); i++) {
 		if (vectorLength(point, vertexArray[i]) < rad) {
 
-			if (but == true) {
-				vertexArray[i].x += pMove[0];
-				vertexArray[i].y += pMove[1];
-				vertexArray[i].z += pMove[2];
-			}
+			vertexArray[i].x += pMove[0];
+			vertexArray[i].y += pMove[1];
+			vertexArray[i].z += pMove[2];			
 			
-			// find all faces that belongs to the changed vertexpoint
-			currVert = i;
-
-			updateArea(i);
+			changedVertices[changeCount] = i;
+			changeCount++;
+			//updateArea(i);
 		
 			success = true;
 
@@ -292,6 +308,14 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 				endCol.push_back(i - endRow * rows);
 			}
 		}
+	}
+
+	changeCount = 0;
+
+	while (changedVertices[changeCount] != 0)
+	{
+		updateArea(changedVertices[changeCount]);
+		changeCount++;
 	}
 
 	if (success == true) {
