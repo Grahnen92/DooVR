@@ -17,6 +17,8 @@ using namespace std;
 static void WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height);
 void GLRenderCallsOculus();
 
+void moveMesh(Device* wand, Mesh mTest, int counter, float* changePos, float* differenceR);
+
 // --- Variable Declerations ------------
 const bool L_MULTISAMPLING = false;
 
@@ -57,19 +59,26 @@ int Oculus::runOvr() {
 	//glm::vec4 lightPos = { 0.0f, 0.5f, 2.0f, 1.0f };
 	glm::vec4 LP = glm::vec4(0);
 
-
-	// Transforms used in mesh moving
-	float differenceR[16] = { 0.0f };
-	float resultR[16] = { 0.0f };
-	float invWandR[16] = { 0.0f };
-	float* meshR = nullptr;
-	float changePos[3] = { 0.0f, 0.0f, 0.0f };
-	float resultPos[3] = { 0.0f, 0.0f, 0.0f };
 	int counter = 0;
+	float changePos[3] = { 0.0f };
+	float differenceR[16] = { 0.0f };
+
+	// Switch case variables
+	int chooseFunction = -1;
+	const int newDILATE = 1;
+	const int UPDATE_VERTEX_ARRAY = 0;
+	const int MOVE = 2;
+	const int RECENTER = 3;
 
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
 
 	float wandRadius = 0.1f;
+
+	float lastPos[3] = { 0.0f, 0.0f, 0.0f };
+	float currPos[3] = { 0.0f, 0.0f, 0.0f };
+	glm::vec4 nullVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec4 tempVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
 
 	GLint locationLP;
 	GLint locationP;
@@ -318,6 +327,10 @@ int Oculus::runOvr() {
 
 	Mesh mTest;
 
+	// Initilise VRPN connection with the Intersense wand
+	Device* wand = new Device(true, true, false, "Mouse");
+	//Device* wand = new Device(true, true, true, "Wand");
+
 	//LINK VARIABLES WITH SHADER ///////////////////////////////////////////////////////////////////////////
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationOMV = glGetUniformLocation(phongShader.programID, "OMV");
@@ -327,28 +340,91 @@ int Oculus::runOvr() {
 	ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
-	// Initilise VRPN connection with the Intersense wand
-	//Device* wand = new Device(true, true, false, "Mouse");
-	Device* wand = new Device(true, true, true, "Wand");
 
-	float lastPos[3] = {0.0f, 0.0f, 0.0f};
-	float currPos[3] = { 0.0f, 0.0f, 0.0f };
-	//float* pPos = currPos;
-	glm::vec4 nullVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	glm::vec4 tempVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	float sRadius = 0.05f;
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
 	// RENDER LOOP ////////////////////////////////////////////////////////////////////////////////////////
 	while (!glfwWindowShouldClose(l_Window)) {
 
-		if (glfwGetKey(l_Window, GLFW_KEY_O)) {
-			ovrHmd_RecenterPose(hmd);
-			ovrHmd_DismissHSWDisplay(hmd);
+		// Better way to do this?
+		if (!wand->getButton()[5]){
+			counter = 0;
+			changePos[0] = 0.0f;
+			changePos[1] = 0.0f;
+			changePos[2] = 0.0f;
+
+			for (int i = 0; i < 16; i++) {
+				if (i == 0 || i == 5 || i == 10 || i == 15)
+					differenceR[i] = 1.0f;
+				differenceR[i] = 0.0f;
+			}
 		}
-		if (wand->getButtonState() && (wand->getButtonNumber() == 3)) {
+		// INTERACTION ////////////////////////////////////////////////////////////////////////////////////////
+		switch (wand->getButtonNumber()) {
+		case 0:
+			chooseFunction = UPDATE_VERTEX_ARRAY;
+			break;
+		case 1:
+			chooseFunction = newDILATE;
+			break;
+		case 2:
+			chooseFunction = MOVE;
+			break;
+		case 3:
+			chooseFunction = RECENTER;
+			break;
+		case 4:
+			chooseFunction = -1; // nothing yet, analog button
+			break;
+		case 5: // Use chosen function
+			if (chooseFunction == UPDATE_VERTEX_ARRAY) {
+				//mTest.updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
+			}
+			else if (chooseFunction == newDILATE) {
+				mTest.dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
+			}
+			else if (chooseFunction == MOVE) {
+				moveMesh(wand, mTest, counter, changePos, differenceR);
+				counter++;
+			}
+			else if (chooseFunction == RECENTER) {
+				ovrHmd_RecenterPose(hmd);
+				ovrHmd_DismissHSWDisplay(hmd);
+			}
+
+			lastPos[0] = wand->getTrackerPosition()[0];
+			lastPos[1] = wand->getTrackerPosition()[1];
+			lastPos[2] = wand->getTrackerPosition()[2];
+
+			break;
+		default:
+			chooseFunction = -1;
+		}
+
+		// change tool size
+		if (wand->getAnalogPosition()[0] != 0 || wand->getAnalogPosition()[1] != 0) {
+
+			const float MAX_RADIUS_WAND_TOOL = 0.2;
+			const float MIN_RADIUS_WAND_TOOL = 0.05;
+
+			// check if tool is to small or to big
+			if (wandRadius > MIN_RADIUS_WAND_TOOL && wandRadius < MAX_RADIUS_WAND_TOOL) {
+				wandRadius += 0.001f*wand->getAnalogPosition()[1];
+				sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
+			}
+			else if (wandRadius <= MIN_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] > 0) {
+				wandRadius += 0.001f*wand->getAnalogPosition()[1];
+				sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
+			}
+			else if (wandRadius >= MAX_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] < 0) {
+				wandRadius += 0.001f*wand->getAnalogPosition()[1];
+				sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
+			}
+		}
+
+		if (glfwGetKey(l_Window, GLFW_KEY_O)) {
 			ovrHmd_RecenterPose(hmd);
 			ovrHmd_DismissHSWDisplay(hmd);
 		}
@@ -358,10 +434,10 @@ int Oculus::runOvr() {
 
 
 		if (glfwGetKey(l_Window, GLFW_KEY_Q)) {
-			sRadius += 0.01f;
+			wandRadius += 0.01f;
 		}
 		if (glfwGetKey(l_Window, GLFW_KEY_W)) {
-			sRadius -= 0.01f;
+			wandRadius -= 0.01f;
 		}
 
 		// Begin the frame...
@@ -400,8 +476,20 @@ int Oculus::runOvr() {
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
 
+
 				// Check if you should really use transpose
 				glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
+	
+				double dArray[16] = { 0.0 };
+
+				const float *pSource = (const float*)glm::value_ptr(pmat4);
+				for (int i = 0; i < 16; ++i)
+					dArray[i] = pSource[i];
+				
+				//cout << dArray[0] << " " << dArray[1] << " " << dArray[2] << " " << dArray[3] << " " << endl
+				//	<< dArray[4] << " " << dArray[5] << " " << dArray[6] << " " << dArray[7] << " " << endl;
+
+				//MVstack.print();
 
 				LP = pmat4 * glm::vec4(lightPos[0], lightPos[1], lightPos[2], 1.0f);
 
@@ -410,10 +498,7 @@ int Oculus::runOvr() {
 				lightPosTemp[2] = LP.z;
 				glUniform3fv(locationLP, 1, lightPosTemp);
 
-				//MVstack.print();
-				//std::cout << lightPos[0] << " " << lightPos[1] << " " << lightPos[2] << " " << std::endl;
-				//std::cout << lightPosTemp[0] << " " << lightPosTemp[1] << " " << lightPosTemp[2] << " " << std::endl;
-				//std::cout << "----------------" << std::endl;
+
 				//!-- Translation due to positional tracking (DK2) and IPD...
 				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
 				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z };
@@ -442,12 +527,12 @@ int Oculus::runOvr() {
 
 				// Box camera
 				MVstack.push();
-				translateVector[0] = 0.0f;
-				translateVector[1] = 0.0f; // chair height
-				translateVector[2] = -2.0f;
-				MVstack.translate(translateVector);
-				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-				boxCamera.render();
+					translateVector[0] = 0.0f;
+					translateVector[1] = 0.0f; // chair height
+					translateVector[2] = -2.0f;
+					MVstack.translate(translateVector);
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					boxCamera.render();
 				MVstack.pop();
 
 				// Box (chair) with wand on
@@ -462,78 +547,14 @@ int Oculus::runOvr() {
 	
 				// MESH
 				MVstack.push();
-					
-				
-				// Move around with the mesh
-					if (wand->getButton()[2]) {
-						// Save first wand rotation transform in wandR
-						float* wandR = wand->getTrackerRotation();
-
-						if (counter == 0) {
-							// Offset translation back to the original position of the mesh
-							changePos[0] = mTest.getPosition()[0] - wand->getTrackerPosition()[0];
-							changePos[1] = mTest.getPosition()[1] - wand->getTrackerPosition()[1];
-							changePos[2] = mTest.getPosition()[2] - wand->getTrackerPosition()[2];
-
-							// Get the difference betweeen the original mesh rotation transform and wandR
-							float* meshR = mTest.getOrientation();
-							Utilities::invertMatrix(wandR, invWandR);
-							Utilities::matrixMult(invWandR, meshR, differenceR);
-						}
-
-						// Resulting translation to be made on the mesh calculated from origin.
-						resultPos[0] = wand->getTrackerPosition()[0] + changePos[0];
-						resultPos[1] = wand->getTrackerPosition()[1] + changePos[1];
-						resultPos[2] = wand->getTrackerPosition()[2] + changePos[2];
-
-						// Resulting rotation to be made on the mesh
-						Utilities::matrixMult(wandR, differenceR, resultR);
-
-						mTest.setPosition(resultPos);
-						mTest.setOrientation(resultR);
-
-						counter++;
-					}
-					else {
-						counter = 0;
-						changePos[0] = 0.0f;
-						changePos[1] = 0.0f;
-						changePos[2] = 0.0f;
-
-						for (int i = 0; i < 16; i++) {
-							if (i == 0 || i == 5 || i == 10 || i == 15)
-								differenceR[i] = 1.0f;
-							differenceR[i] = 0.0f;
-						}
-						
-					}
-					/*
-					// Test to implement the dilation function on the mesh.
-					if (wand->getButton()[1]) {
-						mTest.updateVertexArray(wand->getTrackerPosition(), true, wandRadius);
-					}
-
-					// Test to implement the erosion function on the mesh.
-					if (wand->getButton()[0]) {
-						mTest.updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
-					*/
-
-					// Test to implement the erosion function on the mesh.
-					if (wand->getButtonState() && (wand->getButtonNumber() == 0)) {
-						//mTest.updateVertexArray(wand->getTrackerPosition(), false);
-						cout << "not used" << endl;
-					}
-
 					MVstack.translate(mTest.getPosition());
 					MVstack.multiply(mTest.getOrientation());
-
 					glLineWidth(1.0);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					mTest.render();
-
 				MVstack.pop();
 
-				//wand transformations
+				// WAND
 				MVstack.push();
 					MVstack.translate(wand->getTrackerPosition());
 					MVstack.multiply(wand->getTrackerRotation());
@@ -568,23 +589,11 @@ int Oculus::runOvr() {
 						translateVector[1] = 0.0f;
 						translateVector[2] = 0.0f;
 						MVstack.translate(translateVector);
-
-						// Test to implement the dilation function on the mesh.
-						if (wand->getButtonState() && (wand->getButtonNumber() == 1)) {
-							mTest.dilate(wand->getTrackerPosition(), lastPos, sRadius, true);
-						}
-
-						lastPos[0] = wand->getTrackerPosition()[0];
-						lastPos[1] = wand->getTrackerPosition()[1];
-						lastPos[2] = wand->getTrackerPosition()[2];
-
-						//MVstack.scale(sRadius);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						boxWand.render();
 					MVstack.pop();
-					
-					//sphereWand.setPosition(wand->getTrackerPosition());
 				MVstack.pop();
+
 			MVstack.pop();
 		}
 
@@ -616,6 +625,37 @@ int Oculus::runOvr() {
 	glfwTerminate();
 
 	return 1;
+}
+
+void moveMesh(Device* wand, Mesh mTest, int counter, float* changePos, float* differenceR) {
+	// Save first wand rotation transform in wandR
+	float* wandR = wand->getTrackerRotation();
+	float resultR[16];
+	float resultPos[3];
+
+	if (counter == 0) {
+		// Offset translation back to the original position of the mesh
+		changePos[0] = mTest.getPosition()[0] - wand->getTrackerPosition()[0];
+		changePos[0] = mTest.getPosition()[1] - wand->getTrackerPosition()[1];
+		changePos[0] = mTest.getPosition()[2] - wand->getTrackerPosition()[2];
+
+		// Get the difference betweeen the original mesh rotation transform and wandR
+		float* meshR = mTest.getOrientation();
+		float invWandR[16] = { 0.0f };
+		Utilities::invertMatrix(wandR, invWandR);
+		Utilities::matrixMult(invWandR, meshR, differenceR);
+	}
+
+	// Resulting translation to be made on the mesh calculated from origin.
+	resultPos[0] = wand->getTrackerPosition()[0] + changePos[0];
+	resultPos[1] = wand->getTrackerPosition()[1] + changePos[1];
+	resultPos[2] = wand->getTrackerPosition()[2] + changePos[2];
+
+	// Resulting rotation to be made on the mesh
+	Utilities::matrixMult(wandR, differenceR, resultR);
+
+	mTest.setPosition(resultPos);
+	mTest.setOrientation(resultR);
 }
 
 static void WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height) {
