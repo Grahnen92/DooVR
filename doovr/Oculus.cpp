@@ -59,9 +59,9 @@ int Oculus::runOvr() {
 
 
 	// Transforms used in mesh moving
-	float* differenceR = nullptr;
-	float* resultR = nullptr;
-	float* invWandR = nullptr;
+	float differenceR[16] = { 0.0f };
+	float resultR[16] = { 0.0f };
+	float invWandR[16] = { 0.0f };
 	float* meshR = nullptr;
 	float changePos[3] = { 0.0f, 0.0f, 0.0f };
 	float resultPos[3] = { 0.0f, 0.0f, 0.0f };
@@ -416,7 +416,6 @@ int Oculus::runOvr() {
 				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
 				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z };
 				MVstack.translate(eyePoses);
-
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 		
 				// Ground
@@ -461,7 +460,9 @@ int Oculus::runOvr() {
 	
 				// MESH
 				MVstack.push();
-					// Move around with the mesh
+					
+				
+				// Move around with the mesh
 					if (wand->getButton()[2]) {
 						// Save first wand rotation transform in wandR
 						float* wandR = wand->getTrackerRotation();
@@ -473,8 +474,8 @@ int Oculus::runOvr() {
 							changePos[2] = mTest.getPosition()[2] - wand->getTrackerPosition()[2];
 
 							// Get the difference betweeen the original mesh rotation transform and wandR
-							meshR = mTest.getOrientation();
-							Utilities::invertMatrix(wand->getTrackerRotation(), invWandR);
+							float* meshR = mTest.getOrientation();
+							Utilities::invertMatrix(wandR, invWandR);
 							Utilities::matrixMult(invWandR, meshR, differenceR);
 						}
 

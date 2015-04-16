@@ -28,10 +28,8 @@
 
 namespace Utilities {
 
-
 	void normVec(float* vec);
-
-	float* crossProd(float* vec1, float* vec2);
+	void crossProd(float* normal, float* vec1, float* vec2);
 	void matrixMult(float M1[], float M2[], float Mout[]);
 	void invertMatrix(float* m, float* invOut);
 	

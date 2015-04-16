@@ -7,13 +7,10 @@ void Utilities::normVec(float* vec) {
 	vec[2] = vec[2] / length;
 }
 
-float* Utilities::crossProd(float* vec1, float* vec2) {
-	float newVertex[3];
-	newVertex[0] = (vec1[1] * vec2[2] - vec1[2] * vec2[1]);
-	newVertex[1] = -(vec1[0] * vec2[2] - vec1[2] * vec2[0]);
-	newVertex[2] = (vec1[0] * vec2[1] - vec1[1] * vec2[0]);
-
-	return newVertex;
+void Utilities::crossProd(float* normal, float* vec1, float* vec2) {
+	normal[0] = (vec1[1] * vec2[2] - vec1[2] * vec2[1]);
+	normal[1] = -(vec1[0] * vec2[2] - vec1[2] * vec2[0]);
+	normal[2] = (vec1[0] * vec2[1] - vec1[1] * vec2[0]);
 }
 
 void Utilities::matrixMult(float M1[], float M2[], float Mout[]) {
@@ -36,7 +33,7 @@ void Utilities::matrixMult(float M1[], float M2[], float Mout[]) {
 	}
 }
 
-void Utilities::invertMatrix(float* m, float* invOut)
+void Utilities::invertMatrix(float m[], float invOut[])
 {
 	float inv[16], det;
 	int i;
