@@ -6,19 +6,6 @@
 
 using namespace std;
 
-void normVec(float* vec) {
-	float length = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-	vec[0] = vec[0] / length;
-	vec[1] = vec[1] / length;
-	vec[2] = vec[2] / length;
-}
-
-void crossProd( float normal[3], float* vec1, float* vec2) {
-	normal[0] = (vec1[1] * vec2[2] - vec1[2] * vec2[1]);
-	normal[1] = -(vec1[0] * vec2[2] - vec1[2] * vec2[0]);
-	normal[2] = (vec1[0] * vec2[1] - vec1[1] * vec2[0]);
-}
-
 Mesh::Mesh() {
 	triangle tempT;
 	vertex tempV;
@@ -475,9 +462,9 @@ void Mesh::updateArea(int currVert)
 		calculateVec(tempVec1, vPoint2, vPoint1);
 		calculateVec(tempVec2, vPoint3, vPoint1);
 
-		crossProd(tempNorm1, tempVec1, tempVec2);
+		Utilities::crossProd(tempNorm1, tempVec1, tempVec2);
 
-		normVec(tempNorm1);
+		Utilities::normVec(tempNorm1);
 
 		tempNorm2[0] += tempNorm1[0];
 		tempNorm2[1] += tempNorm1[1];
