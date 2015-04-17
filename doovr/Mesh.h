@@ -62,6 +62,8 @@ class Mesh {
 
 	void dilate(float* p, float lp[3], float rad, bool but);
 
+	void test(float bRad);
+
 	//void moveThroughMesh(int it);
 	void render();
 

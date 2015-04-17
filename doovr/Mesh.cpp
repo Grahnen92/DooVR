@@ -40,7 +40,7 @@ Mesh::Mesh() {
 	orientation[5] = 1.0f;
 	orientation[6] = 0.0f;
 	orientation[7] = 0.0f;
-
+	
 	orientation[8] = 0.0f;
 	orientation[9] = 0.0f;
 	orientation[10] = 1.0f;
@@ -72,7 +72,7 @@ Mesh::Mesh() {
 
 		for (int j = -cols / 2; j < cols / 2; j++) {
 			
-			if (fmod(i, 2) != 0){
+			if (i%2 != 0){
 				tempV.x = ((float)(j) + 0.5f)*scaleF;
 				tempV.z = ((float)(i))*0.86602540378f*scaleF;
 			} else {
@@ -84,29 +84,24 @@ Mesh::Mesh() {
 			vertexInfo.push_back(tempVI);
 		}
 	}
-	
-	face* handledFace1 = nullptr;
-	face* handledFace2 = nullptr;
-	face* handledFace3 = nullptr;
-	face* handledFace4 = nullptr;
-	face* previousFace = nullptr;
 
 	// set triangle indecies and bind faces
 	for (int i = 1; i < rows - 1; i++) {
-		for (int j = 1; j < cols - 1; j++) {
+		for (int j = 1; j < cols -1 ; j++) {
 
 			//if (i != 0 && j !=0 && i != rows - 1 && j != cols - 1) {
-			vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j - 1);
-			vertexInfo[i * rows + j].vertexNeighbors.push_back((i - 1) * rows + j);
-			vertexInfo[i * rows + j].vertexNeighbors.push_back((i - 1) * rows + j + 1);
-			vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j);
-			vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j + 1);
-			vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j + 1);
-
-
-			
 			if ( i % 2 == 0) {
-				if (i > 1 && j > 1 && i < rows - 2 && j < cols - 2) {
+
+				vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j - 1);
+				vertexInfo[i * rows + j].vertexNeighbors.push_back((i - 1) * rows + j);
+				vertexInfo[i * rows + j].vertexNeighbors.push_back((i - 1) * rows + j - 1);
+				vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j);
+				vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j - 1);
+				vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j + 1);
+
+
+
+				if (i > 1 && j > 1 && i < rows - 1 && j < cols - 2) {
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i - 1) * 2 * (cols - 2));
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i - 1) * 2 * (cols - 2));
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2) + (i - 1) * 2 * (cols - 2));
@@ -114,6 +109,37 @@ Mesh::Mesh() {
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i)* 2 * (cols - 2));
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 ) + (i)* 2 * (cols - 2));
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 + 1) + (i)* 2 * (cols - 2));
+				}
+
+				tempT.index[0] = (i - 1)*rows + j - 1;
+				tempT.index[1] = (i)*rows + j - 1;
+				tempT.index[2] = i*rows + j;
+				indexArray.push_back(tempT);
+
+				tempT.index[0] = (i - 1)*rows + j;
+				tempT.index[1] = (i - 1)*rows + j - 1;
+				tempT.index[2] = i * rows + j;
+				indexArray.push_back(tempT);
+			
+
+			}
+			else { // uneven row
+
+				vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j - 1);
+				vertexInfo[i * rows + j].vertexNeighbors.push_back((i - 1) * rows + j);
+				vertexInfo[i * rows + j].vertexNeighbors.push_back((i - 1) * rows + j + 1);
+				vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j);
+				vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j + 1);
+				vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j + 1);
+
+				if (i > 1 && j > 1 && i < rows - 2 && j < cols - 2) {
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i - 1) * 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i - 1) * 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2) + (i - 1) * 2 * (cols - 2));
+
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 3) + (i)* 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i)* 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i)* 2 * (cols - 2));
 				}
 
 				tempT.index[0] = (i - 1)*rows + j;
@@ -126,28 +152,6 @@ Mesh::Mesh() {
 				tempT.index[2] = i*rows + j;
 				indexArray.push_back(tempT);
 
-			}
-			else {
-				if (i > 1 && j > 1 && i < rows - 2 && j < cols - 2) {
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i - 1) * 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i - 1) * 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2) + (i - 1) * 2 * (cols - 2));
-
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 3) + (i)* 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i)* 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i)* 2 * (cols - 2));
-				}
-
-
-				tempT.index[0] = (i - 1)*rows + j - 1;
-				tempT.index[1] = (i)*rows + j - 1;
-				tempT.index[2] = i*rows + j;
-				indexArray.push_back(tempT);
-
-				tempT.index[0] = (i - 1)*rows + j;
-				tempT.index[1] = (i - 1)*rows + j - 1;
-				tempT.index[2] = i * rows + j;
-				indexArray.push_back(tempT);
 			}
 			
 		//	}
@@ -181,7 +185,7 @@ Mesh::Mesh() {
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Present our vertex coordinates to OpenGL
 	glBufferData(GL_ARRAY_BUFFER,
-				 (vertexArray.size() + 1000)*sizeof(vertex), vertexP, GL_STREAM_DRAW);
+		(vertexArray.size() + 1000 )*sizeof(vertex), vertexP, GL_STREAM_DRAW);
 
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
@@ -276,7 +280,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 			//updateArea(i);
 		
 			success = true;
-
+			/*
 			// get range of changed vertices
 			if (startRow == -1) {
 				startRow = (i - (i % rows)) / rows;
@@ -298,6 +302,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 				//endCol.push_back(i % 20);
 				endCol.push_back(i - endRow * rows);
 			}
+			*/
 		}
 	}
 
@@ -316,6 +321,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 		
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
+		/*
 		int currentRow = startRow;
 		int range = 0;
 		int o = 0;
@@ -355,6 +361,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 			vertexP[o].nz = vertexArray[i].nz;
 		}
 		glUnmapBuffer(GL_ARRAY_BUFFER);
+		*/
 		/*
 			int nBufferSize = 0;
 
@@ -363,6 +370,19 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 			int originalVertexArraySize = ( nBufferSize / sizeof(float) );
 
 		*/
+
+		vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(vertex)*vertexArray.size(),
+			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+
+		for (int i = 0; i < vertexArray.size(); i++) {
+			vertexP[i].x = vertexArray[i].x;
+			vertexP[i].y = vertexArray[i].y;
+			vertexP[i].z = vertexArray[i].z;
+			vertexP[i].nx = vertexArray[i].nx;
+			vertexP[i].ny = vertexArray[i].ny;
+			vertexP[i].nz = vertexArray[i].nz;
+		}
+		glUnmapBuffer(GL_ARRAY_BUFFER);
 
 		// Specify how many attribute arrays we have in our VAO
 		glEnableVertexAttribArray(0); // Vertex coordinates
@@ -414,7 +434,6 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	}
 }
 
-
 vertex* Mesh::getVertexList() {
 	return &vertexArray[0];
 }
@@ -458,13 +477,14 @@ void Mesh::updateArea(int currVert)
 	float tempNorm1[3] = { 0.0f, 0.0f, 0.0f };
 	float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
 
+
 	float tempVec1[3], tempVec2[3];
 
 	vertex tempV; vertexInf tempVI; triangle tempT;
 
 	float vPoint1[3],  vPoint2[3], vPoint3[3];
 
-	const float MAX_LENGTH = 0.02f;
+	const float MAX_LENGTH = 0.1f;
 	const float MIN_LENGTH = 0.01f;
 
 	int neighbor1 = -1; int neighbor2 = -1;
@@ -477,6 +497,20 @@ void Mesh::updateArea(int currVert)
 	int t1 = 0; int t2 = 0;
 
 	bool isNeighbor1Tri = false;
+
+	vertexArray[vertexInfo[currVert].vertexNeighbors[0]].y += 0.001f;
+	vertexArray[vertexInfo[currVert].vertexNeighbors[1]].y += 0.001f;
+	vertexArray[vertexInfo[currVert].vertexNeighbors[2]].y += 0.001f;
+	vertexArray[vertexInfo[currVert].vertexNeighbors[3]].y += 0.001f;
+	vertexArray[vertexInfo[currVert].vertexNeighbors[4]].y += 0.001f;
+	vertexArray[vertexInfo[currVert].vertexNeighbors[5]].y += 0.001f;
+
+	vertexArray[vertexInfo[currVert].vertexNeighbors[0]].ny = 0.0f;
+	vertexArray[vertexInfo[currVert].vertexNeighbors[1]].ny = 0.0f;
+	vertexArray[vertexInfo[currVert].vertexNeighbors[2]].ny = 0.0f;
+	vertexArray[vertexInfo[currVert].vertexNeighbors[3]].ny = 0.0f;
+	vertexArray[vertexInfo[currVert].vertexNeighbors[4]].ny = 0.0f;
+	vertexArray[vertexInfo[currVert].vertexNeighbors[5]].ny = 0.0f;
 
 	//UPDATE NORMAL
 	triPos = vertexInfo[currVert].triangleNeighbors[count1];
@@ -560,7 +594,7 @@ void Mesh::updateArea(int currVert)
 						}
 					}
 
-					cout << vertexInfo[currVert].triangleNeighbors[i] << " " << vertexInfo[vertPos].triangleNeighbors[j] << endl;
+				//	cout << vertexInfo[currVert].triangleNeighbors[i] << " " << vertexInfo[vertPos].triangleNeighbors[j] << endl;
 
 					if (vertexInfo[currVert].triangleNeighbors[i] == vertexInfo[vertPos].triangleNeighbors[j])
 					{
