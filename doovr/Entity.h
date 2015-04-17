@@ -8,8 +8,6 @@
 
 #include "Utilities.h"
 
-#include "structs.h"
-
 
 using namespace std;
 

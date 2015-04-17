@@ -322,7 +322,7 @@ int Oculus::runOvr() {
 
 	//Wand
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.05f, 0.05f));
-	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
+	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
 
 	Mesh* mTest = new Mesh();
@@ -375,6 +375,8 @@ int Oculus::runOvr() {
 				break;
 			case 3:
 				chooseFunction = RECENTER;
+				ovrHmd_RecenterPose(hmd);
+				ovrHmd_DismissHSWDisplay(hmd);
 				break;
 			case 4:
 				chooseFunction = -1; // nothing yet, analog button
@@ -390,20 +392,15 @@ int Oculus::runOvr() {
 					moveMesh(wand, mTest, counter, changePos, differenceR);
 					counter++;
 				}
-				else if (chooseFunction == RECENTER) {
-					ovrHmd_RecenterPose(hmd);
-					ovrHmd_DismissHSWDisplay(hmd);
-				}
-
-				lastPos[0] = wand->getTrackerPosition()[0];
-				lastPos[1] = wand->getTrackerPosition()[1];
-				lastPos[2] = wand->getTrackerPosition()[2];
-
 				break;
 			default:
 				chooseFunction = -1;
 			}
 		}
+
+		lastPos[0] = wand->getTrackerPosition()[0];
+		lastPos[1] = wand->getTrackerPosition()[1];
+		lastPos[2] = wand->getTrackerPosition()[2];
 
 		// change tool size
 		if (wand->getAnalogPosition()[0] != 0 || wand->getAnalogPosition()[1] != 0) {
@@ -414,15 +411,15 @@ int Oculus::runOvr() {
 			// check if tool is to small or to big
 			if (wandRadius > MIN_RADIUS_WAND_TOOL && wandRadius < MAX_RADIUS_WAND_TOOL) {
 				wandRadius += 0.001f*wand->getAnalogPosition()[1];
-				sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
+				//sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
 			}
 			else if (wandRadius <= MIN_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] > 0) {
 				wandRadius += 0.001f*wand->getAnalogPosition()[1];
-				sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
+				//sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
 			}
 			else if (wandRadius >= MAX_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] < 0) {
 				wandRadius += 0.001f*wand->getAnalogPosition()[1];
-				sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
+				//sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
 			}
 		}
 
@@ -584,9 +581,12 @@ int Oculus::runOvr() {
 					glVertex3fv(orgio);
 					glVertex3fv(Z);
 					glEnd();
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					sphereWand.render();
 					MVstack.push();
+						MVstack.scale(wandRadius);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						sphereWand.render();
+					MVstack.pop();
+						MVstack.push();
 						translateVector[0] = -0.15f;
 						translateVector[1] = 0.0f;
 						translateVector[2] = 0.0f;

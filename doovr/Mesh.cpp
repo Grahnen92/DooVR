@@ -78,12 +78,6 @@ Mesh::Mesh() {
 			vertexInfo.push_back(tempVI);
 		}
 	}
-	
-	face* handledFace1 = nullptr;
-	face* handledFace2 = nullptr;
-	face* handledFace3 = nullptr;
-	face* handledFace4 = nullptr;
-	face* previousFace = nullptr;
 
 	// set triangle indecies and bind faces
 	for (int i = 1; i < rows - 1; i++) {
@@ -268,7 +262,6 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 			
 			changedVertices[changeCount] = i;
 			changeCount++;
-			//updateArea(i);
 		
 			success = true;
 
