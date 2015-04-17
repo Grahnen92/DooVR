@@ -17,7 +17,7 @@ using namespace std;
 static void WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height);
 void GLRenderCallsOculus();
 
-void moveMesh(Device* wand, Mesh* mTest, int counter, float* changePos, float* differenceR);
+void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR);
 
 // --- Variable Declerations ------------
 const bool L_MULTISAMPLING = false;
@@ -72,7 +72,7 @@ int Oculus::runOvr() {
 
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
 
-	float wandRadius = 0.1f;
+	float wandRadius = 0.05f;
 
 	float lastPos[3] = { 0.0f, 0.0f, 0.0f };
 	float currPos[3] = { 0.0f, 0.0f, 0.0f };
@@ -84,6 +84,8 @@ int Oculus::runOvr() {
 	bool buttonPressed = false;
 	bool buttonHeld = false;
 	bool buttonReleased = false;
+
+	bool lines = false;
 
 
 	GLint locationLP;
@@ -327,7 +329,7 @@ int Oculus::runOvr() {
 	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 1.5f, 0.3f));
 
 	//Wand
-	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.05f, 0.05f));
+	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.20f, 0.03f, 0.03f));
 	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
 
@@ -356,35 +358,24 @@ int Oculus::runOvr() {
 
 
 		// STATES //////////////////////////////////////////////////////////////////////////////////////////////
-
-		if (wand->getButtonState() && !buttonPressed) {
+		// All states are originally false
+		// Button pressed
+		if (wand->getButtonState() && !buttonPressed && !buttonHeld) {
 			buttonPressed = true;
-			buttonReleased = false;
 		}
+		// Button released
+		else if (!wand->getButtonState()) {
+			buttonReleased = buttonHeld;
+			buttonHeld = false;
+		}
+		// Button held down
 		else if (buttonPressed || buttonHeld) {
 			buttonHeld = true;
 			buttonPressed = false;
 		}
-		else {
-			buttonReleased = true;
-			buttonHeld = false;
-		}
-
-		// Better way to do this?
-		if ( !wand->getButton()[5] ){
-			counter = 0;
-			changePos[0] = 0.0f;
-			changePos[1] = 0.0f;
-			changePos[2] = 0.0f;
-
-			for (int i = 0; i < 16; i++) {
-				if (i == 0 || i == 5 || i == 10 || i == 15)
-					differenceR[i] = 1.0f;
-				differenceR[i] = 0.0f;
-			}
-		}
+		
 		// INTERACTION ////////////////////////////////////////////////////////////////////////////////////////
-		if (wand->getButtonState()) {
+		if (buttonPressed || buttonHeld) {
 			switch (wand->getButtonNumber()) {
 			case 0:
 				chooseFunction = UPDATE_VERTEX_ARRAY;
@@ -411,8 +402,7 @@ int Oculus::runOvr() {
 					mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
 				}
 				else if (chooseFunction == MOVE) {
-					moveMesh(wand, mTest, counter, changePos, differenceR);
-					counter++;
+					moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
 				}
 				break;
 			default:
@@ -420,28 +410,22 @@ int Oculus::runOvr() {
 			}
 		}
 
-		lastPos[0] = wand->getTrackerPosition()[0];
-		lastPos[1] = wand->getTrackerPosition()[1];
-		lastPos[2] = wand->getTrackerPosition()[2];
 
-		// change tool size
+		// ANALOG BUTTON - change tool size
 		if (wand->getAnalogPosition()[0] != 0 || wand->getAnalogPosition()[1] != 0) {
 
-			const float MAX_RADIUS_WAND_TOOL = 0.2;
-			const float MIN_RADIUS_WAND_TOOL = 0.05;
+			const float MAX_RADIUS_WAND_TOOL = 0.2f;
+			const float MIN_RADIUS_WAND_TOOL = 0.02f;
 
 			// check if tool is to small or to big
 			if (wandRadius > MIN_RADIUS_WAND_TOOL && wandRadius < MAX_RADIUS_WAND_TOOL) {
 				wandRadius += 0.001f*wand->getAnalogPosition()[1];
-				//sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
 			}
 			else if (wandRadius <= MIN_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] > 0) {
 				wandRadius += 0.001f*wand->getAnalogPosition()[1];
-				//sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
 			}
 			else if (wandRadius >= MAX_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] < 0) {
 				wandRadius += 0.001f*wand->getAnalogPosition()[1];
-				//sphereWand.createSphere(wandRadius, 6 + wandRadius * 8);
 			}
 		}
 
@@ -449,17 +433,45 @@ int Oculus::runOvr() {
 			ovrHmd_RecenterPose(hmd);
 			ovrHmd_DismissHSWDisplay(hmd);
 		}
-
-		if (glfwGetKey(l_Window, GLFW_KEY_ESCAPE))
+		if (glfwGetKey(l_Window, GLFW_KEY_ESCAPE)) {
 			glfwSetWindowShouldClose(l_Window, GL_TRUE);
-
-
+		}
 		if (glfwGetKey(l_Window, GLFW_KEY_Q)) {
 			wandRadius += 0.01f;
 		}
 		if (glfwGetKey(l_Window, GLFW_KEY_W)) {
 			wandRadius -= 0.01f;
 		}
+		if (glfwGetKey(l_Window, GLFW_KEY_R)) {
+			// Reset mesh
+			delete mTest;
+			mTest = new Mesh();
+		}
+		if (glfwGetKey(l_Window, GLFW_KEY_L) && GLFW_REPEAT && !lines) {
+			lines = true;
+		}
+		else if (glfwGetKey(l_Window, GLFW_KEY_L) && GLFW_REPEAT && lines){
+			lines = false;
+		}
+		cout << "LINES: " << lines << endl;
+		// Reset offset when button is released
+		if (buttonReleased) {
+			changePos[0] = 0.0f;
+			changePos[1] = 0.0f;
+			changePos[2] = 0.0f;
+
+			for (int i = 0; i < 16; i++) {
+				if (i == 0 || i == 5 || i == 10 || i == 15)
+					differenceR[i] = 1.0f;
+				differenceR[i] = 0.0f;
+			}
+		}
+		///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		// Save position of tracker from last frame to get deltaPos
+		lastPos[0] = wand->getTrackerPosition()[0];
+		lastPos[1] = wand->getTrackerPosition()[1];
+		lastPos[2] = wand->getTrackerPosition()[2];
 
 		// Begin the frame...
 		ovrHmd_BeginFrame(hmd, l_FrameIndex);
@@ -472,8 +484,16 @@ int Oculus::runOvr() {
 		glBindFramebuffer(GL_FRAMEBUFFER, l_FBOId);
 
 		GLRenderCallsOculus();
+		if (lines) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		}
+		else if (!lines) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+		
 
 		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++) {
+
 			ovrEyeType l_Eye = hmd->EyeRenderOrder[l_EyeIndex];
 
 			glViewport(g_EyeTextures[l_Eye].Header.RenderViewport.Pos.x,
@@ -486,8 +506,8 @@ int Oculus::runOvr() {
 			// Pass projection matrix on to OpenGL...
 			glUniformMatrix4fv(locationP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
 
-			//SCENEGRAPH//////////////////////////////////////////////////////////////////////////////////////////
-			//Oculus transformations
+			// SCENEGRAPH //////////////////////////////////////////////////////////////////////////////////////////
+			// Oculus transformations
 			MVstack.push();
 				// Multiply with orientation retrieved from sensor...
 				OVR::Quatf l_Orientation = OVR::Quatf(g_EyePoses[l_Eye].Orientation);
@@ -496,21 +516,8 @@ int Oculus::runOvr() {
 				//	glMultMatrixf(&(l_ModelViewMatrix.Transposed().M[0][0]));
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
-
-
 				// Check if you should really use transpose
 				glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
-	
-				double dArray[16] = { 0.0 };
-
-				const float *pSource = (const float*)glm::value_ptr(pmat4);
-				for (int i = 0; i < 16; ++i)
-					dArray[i] = pSource[i];
-				
-				//cout << dArray[0] << " " << dArray[1] << " " << dArray[2] << " " << dArray[3] << " " << endl
-				//	<< dArray[4] << " " << dArray[5] << " " << dArray[6] << " " << dArray[7] << " " << endl;
-
-				//MVstack.print();
 
 				LP = pmat4 * glm::vec4(lightPos[0], lightPos[1], lightPos[2], 1.0f);
 
@@ -544,6 +551,7 @@ int Oculus::runOvr() {
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					cam.render();
+					if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				MVstack.pop();
 
 				// Box camera
@@ -581,35 +589,14 @@ int Oculus::runOvr() {
 					MVstack.multiply(wand->getTrackerRotation());
 					
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					// Wand testing, coordinate axis
-					float orgio[3] = { 0, 0, 0 };
-					float X[3] = { 1, 0, 0 };
-					float Y[3] = { 0, 0.5, 0 };
-					float Z[3] = { 0, 0, 0.3 };
-
-					glLineWidth(5.0);
-					glBegin(GL_POINTS);
-					glColor3f(1.0f, 0.0f, 0.0f);
-
-					glVertex3fv(orgio);
-					glVertex3fv(X);
-
-					glColor3f(0.0f, 1.0f, 0.0f);
-					glVertex3fv(orgio);
-					glVertex3fv(Y);
-
-					glLineWidth(8.0);
-					glColor3f(0.0f, 0.0f, 1.0f);
-					glVertex3fv(orgio);
-					glVertex3fv(Z);
-					glEnd();
 					MVstack.push();
 						MVstack.scale(wandRadius);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						sphereWand.render();
+						if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 					MVstack.pop();
 						MVstack.push();
-						translateVector[0] = -0.15f;
+						translateVector[0] = -0.1f;
 						translateVector[1] = 0.0f;
 						translateVector[2] = 0.0f;
 						MVstack.translate(translateVector);
@@ -651,13 +638,13 @@ int Oculus::runOvr() {
 	return 1;
 }
 
-void moveMesh(Device* wand, Mesh* mTest, int counter, float* changePos, float* differenceR) {
+void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR) {
 	// Save first wand rotation transform in wandR
 	float* wandR = wand->getTrackerRotation();
 	float resultR[16];
 	float resultPos[3];
 
-	if (counter == 0) {
+	if (buttonPressed) {
 		// Offset translation back to the original position of the mesh
 		changePos[0] = mTest->getPosition()[0] - wand->getTrackerPosition()[0];
 		changePos[1] = mTest->getPosition()[1] - wand->getTrackerPosition()[1];
@@ -707,7 +694,6 @@ void GLRenderCallsOculus(){
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glFrontFace(GL_CCW);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
 	if (L_MULTISAMPLING) {
 		glEnable(GL_MULTISAMPLE);
 	}

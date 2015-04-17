@@ -52,13 +52,13 @@ Device::~Device() {
 void VRPN_CALLBACK handle_analog(void* userData, const vrpn_ANALOGCB a) {
 	Device* analogTracker = static_cast<Device*> (userData);
 	float analog[3] = { a.channel[0], a.channel[1], 0.0f };
-	cout << "Button '" << a.channel[0] << "': " << a.channel[1] << endl;
+	//cout << "Button '" << a.channel[0] << "': " << a.channel[1] << endl;
 	analogTracker->setAnalogPosition(analog);
 }
 													
 void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b) {
 
-	cout << "Button '" << b.button << "': " << b.state << endl;
+	//cout << "Button '" << b.button << "': " << b.state << endl;
 	Device* buttonTracker = static_cast<Device*> (userData);
 
 	buttonTracker->setButtonNumber((int) b.button);
