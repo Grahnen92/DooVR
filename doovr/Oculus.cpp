@@ -349,7 +349,7 @@ int Oculus::runOvr() {
 	while (!glfwWindowShouldClose(l_Window)) {
 
 		// Better way to do this?
-		if (!wand->getButton()[5]){
+		if ( !wand->getButton()[5] ){
 			counter = 0;
 			changePos[0] = 0.0f;
 			changePos[1] = 0.0f;
@@ -638,8 +638,8 @@ void moveMesh(Device* wand, Mesh* mTest, int counter, float* changePos, float* d
 	if (counter == 0) {
 		// Offset translation back to the original position of the mesh
 		changePos[0] = mTest->getPosition()[0] - wand->getTrackerPosition()[0];
-		changePos[0] = mTest->getPosition()[1] - wand->getTrackerPosition()[1];
-		changePos[0] = mTest->getPosition()[2] - wand->getTrackerPosition()[2];
+		changePos[1] = mTest->getPosition()[1] - wand->getTrackerPosition()[1];
+		changePos[2] = mTest->getPosition()[2] - wand->getTrackerPosition()[2];
 
 		// Get the difference betweeen the original mesh rotation transform and wandR
 		float* meshR = mTest->getOrientation();
