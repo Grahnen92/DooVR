@@ -24,8 +24,8 @@ Mesh::Mesh() {
 	vertex tempV;
 	vertexInf tempVI;
 
-	vertexArray.reserve(100000);
-	indexArray.reserve(100000);
+	vertexArray.reserve(1000000);
+	indexArray.reserve(1000000);
 
 	position[0] = 0.0f;
 	position[1] = 0.0f;
@@ -65,9 +65,6 @@ Mesh::Mesh() {
 	tempV.nx = 0.0f;
 	tempV.ny = 1.0f;
 	tempV.nz = 0.2f;
-	
-
-
 	
 	// Place vertices
 	for (int i = -rows / 2; i < rows / 2; i++) {
@@ -184,7 +181,7 @@ Mesh::Mesh() {
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Present our vertex coordinates to OpenGL
 	glBufferData(GL_ARRAY_BUFFER,
-				 2*vertexArray.size()*sizeof(vertex), vertexP, GL_STREAM_DRAW);
+				 (vertexArray.size() + 1000)*sizeof(vertex), vertexP, GL_STREAM_DRAW);
 
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
@@ -205,7 +202,7 @@ Mesh::Mesh() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 	// Present our vertex indices to OpenGL
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-				 2*indexArray.size()*sizeof(triangle), indexP, GL_STREAM_DRAW);
+				 (indexArray.size() + 1000)*sizeof(triangle), indexP, GL_STREAM_DRAW);
 
 	// Deactivate (unbind) the VAO and the buffers again.
 	// Do NOT unbind the buffers while the VAO is still bound.
@@ -348,7 +345,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 		range = oldArraySize - vertexArray.size();
 		vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, beginning*sizeof(vertex), sizeof(vertex)*range,
 			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
-		for (int i = oldArraySize; i < range + oldArraySize; i++)
+		for (int i = oldArraySize; i < range ; i++)
 		{
 			vertexP[o].x = vertexArray[i].x;
 			vertexP[o].y = vertexArray[i].y;
