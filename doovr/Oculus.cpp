@@ -79,6 +79,12 @@ int Oculus::runOvr() {
 	glm::vec4 nullVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	glm::vec4 tempVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
+	// States
+
+	bool buttonPressed = false;
+	bool buttonHeld = false;
+	bool buttonReleased = false;
+
 
 	GLint locationLP;
 	GLint locationP;
@@ -347,6 +353,22 @@ int Oculus::runOvr() {
 	unsigned int l_FrameIndex = 0;
 	// RENDER LOOP ////////////////////////////////////////////////////////////////////////////////////////
 	while (!glfwWindowShouldClose(l_Window)) {
+
+
+		// STATES //////////////////////////////////////////////////////////////////////////////////////////////
+
+		if (wand->getButtonState() && !buttonPressed) {
+			buttonPressed = true;
+			buttonReleased = false;
+		}
+		else if (buttonPressed || buttonHeld) {
+			buttonHeld = true;
+			buttonPressed = false;
+		}
+		else {
+			buttonReleased = true;
+			buttonHeld = false;
+		}
 
 		// Better way to do this?
 		if ( !wand->getButton()[5] ){
