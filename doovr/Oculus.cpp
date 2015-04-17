@@ -447,10 +447,12 @@ int Oculus::runOvr() {
 			delete mTest;
 			mTest = new Mesh();
 		}
-		if (glfwGetKey(l_Window, GLFW_KEY_L) && GLFW_REPEAT && !lines) {
+
+		// Activate wireframe (hold L)
+		if (glfwGetKey(l_Window, GLFW_KEY_L) == GLFW_PRESS && !lines) {
 			lines = true;
 		}
-		else if (glfwGetKey(l_Window, GLFW_KEY_L) && GLFW_REPEAT && lines){
+		else if (glfwGetKey(l_Window, GLFW_KEY_L) == GLFW_RELEASE && lines){
 			lines = false;
 		}
 		cout << "LINES: " << lines << endl;
