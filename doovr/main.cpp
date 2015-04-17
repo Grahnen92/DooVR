@@ -24,10 +24,9 @@
 #include "Utilities.h"
 
 #include "Shader.h"
-#include "MatrixStack.hpp"
+#include "MatrixStack.h"
 #include "Entity.h"
 #include "Sphere.h"
-#include "Plane.h"
 
 #include "twoDim.h"
 #include "Oculus.h"

@@ -1,11 +1,12 @@
 #pragma once
 #include "Utilities.h"
 
+#include <map>
+
 #include "vrpn/vrpn_Tracker.h"
 #include "vrpn/vrpn_Button.h"
 #include "vrpn/vrpn_Analog.h"
 #include "vrpn/quat.h"
-
 #include <iostream>
 
 //! A class that handles vrpn connected devices
@@ -25,29 +26,36 @@ class Device {
 		//! Collects data from the vrpn server.
 		void sendtoMainloop();
 
-		//! Get transformation matrix of the device
-		glm::mat4 getTrackerTransform();
 		//! Get position vector of the device position
-		glm::vec3 getTrackerPosition();
+		float* getTrackerPosition();
 		//! Get the rotation matrix for the device
-		glm::mat4 getTrackerRotation();
-
+		float* getTrackerRotation();
+		//! Get analog position of the device
+		float* getAnalogPosition();
+		
 		//! Get button state
 		bool getButtonState();
-		//! Get analog position of the device
-		glm::vec2 getAnalogPosition();
+		//! Get button number
+		int getButtonNumber();
 
-		//! Set transformation matrix of the device to a variable
-		void setTrackerTransform(glm::mat4 t);
+
+		//! Get both button number and the state, replaces the 2 button functions from above
+		bool* getButton();
+
 		//! Set position vector of the device position to a variable
-		void setTrackerPosition(glm::vec3 t);
+		void setTrackerPosition(float* t);
 		//! Set the rotation matrix for the device to a variable
-		void setTrackerRotation(glm::mat4 t);
-
+		void setTrackerRotation(double* o);
+		
 		//! Set button state to a variable
 		void setButtonState(bool b);
+		//! Set button number to a variable
+		void setButtonNumber(int b);
+		//! Set button number and the state
+		void setButton(int n, bool b);
+
 		//! Set analog position of the device to a variable
-		void setAnalogPosition(glm::vec2 pos);
+		void setAnalogPosition(float* pos);
 
 		//! vrpn Analog tracker
 		vrpn_Analog_Remote* vrpnAnalog = nullptr;
@@ -56,22 +64,26 @@ class Device {
 		//! vrpn Position tracker
 		vrpn_Tracker_Remote* vrpnTracker = nullptr;
 
-
 	private:
 		//! Addidional address to devices position tracker
 		std::string additionalAddress;
 		//! Constant local address
+
 		std::string LOCAL = "@localhost";
+		std::string VORTEX = "@130.236.142.1";
 	
-		//! Saved variable from setTrackerTransform
-		glm::mat4 trackerTransform = { 1.0, 0.0, 0.0, 0.0, 
-									  0.0, 1.0, 0.0, 0.0, 
-									  0.0, 0.0, 1.0, 0.0,
-									  0.0, 0.0, 0.0, 1.0 };
 		//! Saved variable from setTrackerPosition
-		glm::vec3 trackerPosition = {0.0f,0.0f,0.0f };
+		float trackerPosition[3];
+		//! Saved variable from setTrackerRotation
+		float trackerRotation[16];
 		//! Saved variable from setAnalogPosition
-		glm::vec2 analogPos = { 0.0, 0.0 };
+		float analogPos[3];
+		
 		//! Saved variable from setButtonState
-		bool button;
+		bool buttonState;
+		//! Saved variable from setButtonNumber
+		int buttonNumber;
+		//! Saved variable for setButton
+		bool button[100];
+
 };

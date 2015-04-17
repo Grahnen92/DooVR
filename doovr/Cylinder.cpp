@@ -1,8 +1,10 @@
-#include "Sphere.h"
+#include "Cylinder.h"
 
-Sphere::Sphere(glm::vec3 _pos, float _rad)
+Cylinder::Cylinder(glm::vec3 _pos, float _rad)
 {
+	// TODO remove??
 	oType = 'S';
+
 	position[0] = _pos.x;
 	position[1] = _pos.y;
 	position[2] = _pos.z;
@@ -29,7 +31,7 @@ Sphere::Sphere(glm::vec3 _pos, float _rad)
 
 
 	radius = _rad;
-	createSphere(_rad, 10);
+	createCylinder(_rad, 3);
 
 	color.x = 0.7f;
 	color.y = 0.7f;
@@ -37,25 +39,21 @@ Sphere::Sphere(glm::vec3 _pos, float _rad)
 }
 
 
-void Sphere::render()
+void Cylinder::render()
 {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glLineWidth(3.0);
 	glBindVertexArray(vao);
-	glColor3f(color.x,color.y,color.z);
+	glColor3f(color.x, color.y, color.z);
 	glDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-Sphere::~Sphere(void)
+Cylinder::~Cylinder(void)
 {
-	cout << "A sphere has died" << endl;
+	cout << "A Cylinder has died" << endl;
 }
 
-
-void Sphere::createSphere(float radius, int segments) {
+void Cylinder::createCylinder(float radius, int segments) {
 	float M_PI = 3.14159265358979323846;
 	int i, j, base, i0;
 	float x, y, z, R;
@@ -68,8 +66,8 @@ void Sphere::createSphere(float radius, int segments) {
 	vsegs = segments;
 	if (vsegs < 2) vsegs = 2;
 	hsegs = vsegs * 2;
-	nverts = 1 + (vsegs - 1) * (hsegs + 1) + 1; // top + middle + bottom
-	ntris = hsegs + (vsegs - 2) * hsegs * 2 + hsegs; // top + middle + bottom
+	nverts = 16; 
+	ntris = 16; // top + middle + bottom
 	vertexarray = new float[nverts * 8];
 	indexarray = new GLuint[ntris * 3];
 
@@ -99,7 +97,7 @@ void Sphere::createSphere(float radius, int segments) {
 	for (j = 0; j<vsegs - 1; j++) { // vsegs-1 latitude rings of vertices
 		theta = (double)(j + 1) / vsegs*M_PI;
 		z = cos(theta);
-		R = sin(theta);
+		R = 0.2f;
 		for (i = 0; i <= hsegs; i++) { // hsegs+1 vertices in each ring (duplicate for texcoords)
 			phi = (double)i / hsegs*2.0*M_PI;
 			x = R*cos(phi);
@@ -107,7 +105,7 @@ void Sphere::createSphere(float radius, int segments) {
 			base = (1 + j*(hsegs + 1) + i)*stride;
 			vertexarray[base] = radius*x;
 			vertexarray[base + 1] = radius*y;
-			vertexarray[base + 2] = radius*z;
+			vertexarray[base + 2] = z;
 			vertexarray[base + 3] = x;
 			vertexarray[base + 4] = y;
 			vertexarray[base + 5] = z;
@@ -191,8 +189,8 @@ void Sphere::createSphere(float radius, int segments) {
 };
 
 
-void Sphere::display(ostream& os) const{
-	os << "Shape: Sphere" << endl;
-	os << "Radius: " << radius << endl; 
+void Cylinder::display(ostream& os) const{
+	os << "Shape: Cylinder" << endl;
+	os << "Radius: " << radius << endl;
 	os << endl;
 }
