@@ -26,7 +26,7 @@ void main () {
 	
 
 	// DXT from directX, so we have to invert the UV coordinates (coord.u, 1.0-coord.v) to fetch the correct texel.
-	vec2 invUV = vec2(UV.x, 1.0-UV.x);
+	vec2 invUV = vec2(UV.x, 1.0-UV.y);
 
 	vec4 texcolor = texture( tex, invUV );
 	FragColor = texcolor * vec4(LI, 1.0);

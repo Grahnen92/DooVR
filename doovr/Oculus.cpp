@@ -342,10 +342,10 @@ int Oculus::runOvr() {
 	Mesh* mTest = new Mesh();
 
 	glEnable(GL_TEXTURE_2D);
-	Texture move("../Textures/test3.DDS");
+	Texture move("../Textures/test1.DDS");
 	Texture dilate("../Textures/test3.DDS");
-	Texture erode("../Textures/test3.DDS");
-	Texture dnp("../Textures/test3.DDS");
+	Texture erode("../Textures/test5.DDS");
+	Texture dnp("../Textures/test5.DDS");
 
 	GLuint currentTexID = move.getTextureID();
 
@@ -539,7 +539,8 @@ int Oculus::runOvr() {
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
 				// Check if you should really use transpose
-				glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
+				//glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
+				glm::mat4 pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
 
 				LP = pmat4 * glm::vec4(lightPos[0], lightPos[1], lightPos[2], 1.0f);
 
@@ -562,6 +563,7 @@ int Oculus::runOvr() {
 					translateVector[2] = 0.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
 					ground.render();
 				MVstack.pop();
 
@@ -572,7 +574,7 @@ int Oculus::runOvr() {
 					translateVector[2] = -2.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					glBindTexture(GL_TEXTURE_2D, currentTexID);
+					//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
 					cam.render();
 					if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				MVstack.pop();
@@ -584,7 +586,7 @@ int Oculus::runOvr() {
 					translateVector[2] = -2.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					glBindTexture(GL_TEXTURE_2D, currentTexID);
+					//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
 					boxCamera.render();
 				MVstack.pop();
 
@@ -595,6 +597,7 @@ int Oculus::runOvr() {
 					translateVector[2] = 0.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
 					box.render();
 				MVstack.pop();
 	
@@ -604,6 +607,7 @@ int Oculus::runOvr() {
 					MVstack.multiply(mTest->getOrientation());
 					glLineWidth(1.0);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
 					mTest->render();
 				MVstack.pop();
 
@@ -616,7 +620,7 @@ int Oculus::runOvr() {
 					MVstack.push();
 						MVstack.scale(wandRadius);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						glBindTexture(GL_TEXTURE_2D, currentTexID);
+						//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
 						sphereWand.render();
 						if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 					MVstack.pop();
@@ -716,10 +720,10 @@ void GLRenderCallsOculus(){
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	//glDisable(GL_TEXTURE_2D);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glFrontFace(GL_CCW);
+	//glDisable(GL_TEXTURE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glFrontFace(GL_CCW);
 	if (L_MULTISAMPLING) {
 		glEnable(GL_MULTISAMPLE);
 	}
