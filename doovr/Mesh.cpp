@@ -59,7 +59,7 @@ Mesh::Mesh() {
 
 	float scaleF = 0.0f;
 
-	scaleF = 1.0f / (rows *2);
+	scaleF = 1.0f / (rows *2) * 10;
 
 	tempV.y = 0.0f;
 	tempV.nx = 0.0f;
@@ -99,16 +99,14 @@ Mesh::Mesh() {
 				vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j - 1);
 				vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j + 1);
 
-
-
-				if (i > 1 && j > 1 && i < rows - 1 && j < cols - 2) {
+				if (i > 1 && j > 1 && i < rows - 2 && j < cols - 2) {
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i - 1) * 2 * (cols - 2));
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i - 1) * 2 * (cols - 2));
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2) + (i - 1) * 2 * (cols - 2));
 
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 3) + (i)* 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i)* 2 * (cols - 2));
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i)* 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 ) + (i)* 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 + 1) + (i)* 2 * (cols - 2));
 				}
 
 				tempT.index[0] = (i - 1)*rows + j - 1;
@@ -132,14 +130,14 @@ Mesh::Mesh() {
 				vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j + 1);
 				vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j + 1);
 
-				if (i > 1 && j > 1 && i < rows - 2 && j < cols - 2) {
+				if (i > 1 && j > 1 && i < rows - 1 && j < cols - 2) {
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i - 1) * 2 * (cols - 2));
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i - 1) * 2 * (cols - 2));
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2) + (i - 1) * 2 * (cols - 2));
 
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 3) + (i)* 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i)* 2 * (cols - 2));
 					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i)* 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2) + (i)* 2 * (cols - 2));
+					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 + 1) + (i)* 2 * (cols - 2));
 				}
 
 				tempT.index[0] = (i - 1)*rows + j;
@@ -451,7 +449,7 @@ void Mesh::test(float bRad) {
 	point.y = 0.0f;
 	point.z = 0.0f;
 
-	int testPoint = 5021;
+	int testPoint = 5051;
 
 
 	triangle* indexP;
@@ -668,7 +666,6 @@ bool Mesh::sortByXCord(const vertex &a, const vertex &b) {
 }
 
 void Mesh::updateArea(int currVert) {
-
 	//DECLARE VARIABLES
 	int needsUpdate[8] = { -1, -1, -1, -1, -1, -1, -1, -1};
 
@@ -757,8 +754,9 @@ void Mesh::updateArea(int currVert) {
 	// CHECK IF RETRIANGULATION IS NEEDED
 	count1 = 0;
 	count2 = 0;
-	vertPos = vertexInfo[currVert].vertexNeighbors[count1];
-	while (count1 < vertexInfo[currVert].vertexNeighbors.size() - 1) {
+	//vertPos = vertexInfo[currVert].vertexNeighbors[count1];
+	while (count1 < vertexInfo[currVert].vertexNeighbors.size()) {
+		vertPos = vertexInfo[currVert].vertexNeighbors[count1];
 		vPoint1[0] = vertexArray[currVert].x;
 		vPoint1[1] = vertexArray[currVert].y;
 		vPoint1[2] = vertexArray[currVert].z;
@@ -770,10 +768,10 @@ void Mesh::updateArea(int currVert) {
 		calculateVec(tempVec1, vPoint2, vPoint1);
 
 		if (vecLenght(tempVec1) > MAX_LENGTH) {
-			needsUpdate[count2] = vertPos;
+			//needsUpdate[count2] = vertPos;
 
 			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////TEST
-			//FINDING SHARED VERTEX NEIGHBORS
+			//FINDING SHARED VERTEX NEIGHBORS AND TRIANGLE NEIGHBORS
 			for (int i = 0; i < vertexInfo[currVert].vertexNeighbors.size(); i++) {
 				for (int j = 0; j < vertexInfo[vertPos].vertexNeighbors.size(); j++) {
 					if (vertexInfo[currVert].vertexNeighbors[i] == vertexInfo[vertPos].vertexNeighbors[j]) {
@@ -800,192 +798,99 @@ void Mesh::updateArea(int currVert) {
 			
 
 			//CREATE NEW VERTICES AND TRIANGLES AND LINK THEM/////////////////////////////////////////////////////////
-			if (count2 > 0) {
-				t2 = count2 - 1;
-				while (t2 >= 0) {
-					if (needsUpdate[t2] == neighbor1 || needsUpdate[t2] == neighbor2) {
-						//NEIGHBORING VERTICES HAS BEEN UPDATED
+			
+			//FIRST VERTEX BEING UPDATED
+			//CREATING NEW VERTICES AND TRIANGLES////////////////////////////////////////////////////
+			tempV.x = vPoint1[0] + tempVec1[0] / 2.0f;
+			tempV.y = vPoint1[1] + tempVec1[1] / 2.0f;
+			tempV.z = vPoint1[2] + tempVec1[2] / 2.0f;
+			tempV.nx = vertexArray[currVert].nx;
+			tempV.ny = vertexArray[currVert].ny;
+			tempV.nz = vertexArray[currVert].nz;
+			vertexArray.push_back(tempV);
 
-					} else {
-						//NO NEIGHBORING VERTICES HAS BEEN UPDATED
+			tempT.index[0] = vertexArray.size() - 1;
+			tempT.index[1] = neighbor1;
+			tempT.index[2] = vertPos;
+			indexArray.push_back(tempT);
+			tempT.index[0] = vertexArray.size() - 1;
+			tempT.index[1] = vertPos;
+			tempT.index[2] = neighbor2;
+			indexArray.push_back(tempT);
 
-						//CREATING NEW VERTICES AND TRIANGLES////////////////////////////////////////////////////
-						tempV.x = vPoint1[0] + tempVec1[0] / 2.0f;
-						tempV.y = vPoint1[1] + tempVec1[1] / 2.0f;
-						tempV.z = vPoint1[2] + tempVec1[2] / 2.0f;
-						tempV.nx = vertexArray[currVert].nx;
-						tempV.ny = vertexArray[currVert].ny;
-						tempV.nz = vertexArray[currVert].nz;
-						vertexArray.push_back(tempV);
-
-						tempT.index[0] = vertexArray.size() - 1;
-						tempT.index[1] = neighbor1;
-						tempT.index[2] = vertPos;
-						indexArray.push_back(tempT);
-						tempT.index[0] = vertexArray.size() - 1;
-						tempT.index[1] = vertPos;
-						tempT.index[2] = neighbor2;
-						indexArray.push_back(tempT);
-
-						// find the index in neighbor triangle that is the current 
-						// vertexneighbor and set that index to the newly created vertexpoint
-						for (int i = 0; i < 3; i++) {
-							if (indexArray[neighborTri1].index[i] == vertPos) {
-								indexArray[neighborTri1].index[i] = vertexArray.size() - 1;
-							} else if (indexArray[neighborTri1].index[i] == neighbor1) {		// check if neighbor 1 is part of triangle 1
-								isNeighbor1Tri = true;
-							}
-
-							if (indexArray[neighborTri2].index[i] == vertPos) {
-								indexArray[neighborTri2].index[i] == vertexArray.size() - 1;
-							}
-						}
-						////////////////////////////////////////////////////////////////////////////////////////////
-
-						//BINDING NEW VERTEX ///////////////////////////////////////////////////////////////////
-						tempVI.triangleNeighbors.push_back(neighborTri1);
-						tempVI.triangleNeighbors.push_back(neighborTri2);
-						tempVI.triangleNeighbors.push_back(indexArray.size() - 1);
-						tempVI.triangleNeighbors.push_back(indexArray.size() - 2);
-						
-						tempVI.vertexNeighbors.push_back(currVert);
-						tempVI.vertexNeighbors.push_back(vertPos);
-						tempVI.vertexNeighbors.push_back(neighbor1);
-						tempVI.vertexNeighbors.push_back(neighbor2);
-						
-						vertexInfo.push_back(tempVI);
-						////////////////////////////////////////////////////////////////////////////////////////////
-
-						//UPDATING EXISTING VERTICES////////////////////////////////////////////////////////////////
-						
-						//current vertex
-						vertexInfo[currVert].vertexNeighbors[count1] = vertexArray.size() - 1;
-
-						//shared neighbors
-						if (isNeighbor1Tri)	{
-							vertexInfo[neighbor1].triangleNeighbors.push_back(indexArray.size() - 2);
-							vertexInfo[neighbor1].vertexNeighbors.push_back(vertexArray.size() - 1);
-
-							vertexInfo[neighbor2].triangleNeighbors.push_back(indexArray.size() - 1);
-							vertexInfo[neighbor2].vertexNeighbors.push_back(vertexArray.size() - 1);
-						} else {
-							vertexInfo[neighbor1].triangleNeighbors.push_back(indexArray.size() - 1);
-							vertexInfo[neighbor1].vertexNeighbors.push_back(vertexArray.size() - 1);
-
-							vertexInfo[neighbor2].triangleNeighbors.push_back(indexArray.size() - 2);
-							vertexInfo[neighbor2].vertexNeighbors.push_back(vertexArray.size() - 1);
-						}
-
-						//current neighbor
-
-						for (int i = 0; i < vertexInfo[vertPos].triangleNeighbors.size(); i++) {
-							if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri1) {
-								vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 2;
-							} else if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri2) {
-								vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 1;
-							}
-						}
-
-						for (int i = 0; i < vertexInfo[vertPos].vertexNeighbors.size(); i++) {
-							if (vertexInfo[vertPos].vertexNeighbors[i] == currVert)
-								vertexInfo[vertPos].vertexNeighbors[i] = vertexArray.size() - 1;
-						}
-						////////////////////////////////////////////////////////////////////////////////////////////
-					}
-					t2--;
+			for (int i = 0; i < 3; i++) {
+				if (indexArray[neighborTri1].index[i] == vertPos) {
+					indexArray[neighborTri1].index[i] = vertexArray.size() - 1;
+				} else if (indexArray[neighborTri1].index[i] == neighbor1) {
+					isNeighbor1Tri = true;
 				}
+
+				if (indexArray[neighborTri2].index[i] == vertPos)
+					indexArray[neighborTri2].index[i] = vertexArray.size() - 1;
 			}
-			else {
-				//FIRST VERTEX BEING UPDATED
-				//CREATING NEW VERTICES AND TRIANGLES////////////////////////////////////////////////////
-				tempV.x = vPoint1[0] + tempVec1[0] / 2.0f;
-				tempV.y = vPoint1[1] + tempVec1[1] / 2.0f;
-				tempV.z = vPoint1[2] + tempVec1[2] / 2.0f;
-				tempV.nx = vertexArray[currVert].nx;
-				tempV.ny = vertexArray[currVert].ny;
-				tempV.nz = vertexArray[currVert].nz;
-				vertexArray.push_back(tempV);
+			////////////////////////////////////////////////////////////////////////////////////////////
 
-				tempT.index[0] = vertexArray.size() - 1;
-				tempT.index[1] = neighbor1;
-				tempT.index[2] = vertPos;
-				indexArray.push_back(tempT);
-				tempT.index[0] = vertexArray.size() - 1;
-				tempT.index[1] = vertPos;
-				tempT.index[2] = neighbor2;
-				indexArray.push_back(tempT);
+			//BINDING NEW VERTEX ///////////////////////////////////////////////////////////////////
+			tempVI.triangleNeighbors.push_back(neighborTri1);
+			tempVI.triangleNeighbors.push_back(neighborTri2);
+			tempVI.triangleNeighbors.push_back(indexArray.size() - 1);
+			tempVI.triangleNeighbors.push_back(indexArray.size() - 2);
 
-				for (int i = 0; i < 3; i++) {
-					if (indexArray[neighborTri1].index[i] == vertPos) {
-						indexArray[neighborTri1].index[i] = vertexArray.size() - 1;
-					} else if (indexArray[neighborTri1].index[i] == neighbor1) {
-						isNeighbor1Tri = true;
-					}
+			tempVI.vertexNeighbors.push_back(currVert);
+			tempVI.vertexNeighbors.push_back(vertPos);
+			tempVI.vertexNeighbors.push_back(neighbor1);
+			tempVI.vertexNeighbors.push_back(neighbor2);
 
-					if (indexArray[neighborTri2].index[i] == vertPos)
-						indexArray[neighborTri2].index[i] == vertexArray.size() - 1;
-				}
-				////////////////////////////////////////////////////////////////////////////////////////////
+			vertexInfo.push_back(tempVI);
+			tempVI.triangleNeighbors.clear();
+			tempVI.vertexNeighbors.clear();
+			////////////////////////////////////////////////////////////////////////////////////////////
 
-				//BINDING NEW VERTEX ///////////////////////////////////////////////////////////////////
-				tempVI.triangleNeighbors.push_back(neighborTri1);
-				tempVI.triangleNeighbors.push_back(neighborTri2);
-				tempVI.triangleNeighbors.push_back(indexArray.size() - 1);
-				tempVI.triangleNeighbors.push_back(indexArray.size() - 2);
+			//UPDATING EXISTING VERTICES BINDINGS////////////////////////////////////////////////////////////////
 
-				tempVI.vertexNeighbors.push_back(currVert);
-				tempVI.vertexNeighbors.push_back(vertPos);
-				tempVI.vertexNeighbors.push_back(neighbor1);
-				tempVI.vertexNeighbors.push_back(neighbor2);
+			//current vertex
+			vertexInfo[currVert].vertexNeighbors[count1] = vertexArray.size() - 1;
 
-				vertexInfo.push_back(tempVI);
-				////////////////////////////////////////////////////////////////////////////////////////////
+			//shared neighbors
+			if (isNeighbor1Tri)	{
+				vertexInfo[neighbor1].triangleNeighbors.push_back(indexArray.size() - 2);
+				vertexInfo[neighbor1].vertexNeighbors.push_back(vertexArray.size() - 1);
 
-				//UPDATING EXISTING VERTICES////////////////////////////////////////////////////////////////
+				vertexInfo[neighbor2].triangleNeighbors.push_back(indexArray.size() - 1);
+				vertexInfo[neighbor2].vertexNeighbors.push_back(vertexArray.size() - 1);
+			} else {
+				vertexInfo[neighbor1].triangleNeighbors.push_back(indexArray.size() - 1);
+				vertexInfo[neighbor1].vertexNeighbors.push_back(vertexArray.size() - 1);
 
-				//current vertex
-				vertexInfo[currVert].vertexNeighbors[count1] = vertexArray.size() - 1;
+				vertexInfo[neighbor2].triangleNeighbors.push_back(indexArray.size() - 2);
+				vertexInfo[neighbor2].vertexNeighbors.push_back(vertexArray.size() - 1);
+			}
 
-				//shared neighbors
-				if (isNeighbor1Tri)	{
-					vertexInfo[neighbor1].triangleNeighbors.push_back(indexArray.size() - 2);
-					vertexInfo[neighbor1].vertexNeighbors.push_back(vertexArray.size() - 1);
+			//current neighbor
 
-					vertexInfo[neighbor2].triangleNeighbors.push_back(indexArray.size() - 1);
-					vertexInfo[neighbor2].vertexNeighbors.push_back(vertexArray.size() - 1);
-				} else {
-					vertexInfo[neighbor1].triangleNeighbors.push_back(indexArray.size() - 1);
-					vertexInfo[neighbor1].vertexNeighbors.push_back(vertexArray.size() - 1);
-
-					vertexInfo[neighbor2].triangleNeighbors.push_back(indexArray.size() - 2);
-					vertexInfo[neighbor2].vertexNeighbors.push_back(vertexArray.size() - 1);
-				}
-
-				//current neighbor
-
-				for (int i = 0; i < vertexInfo[vertPos].triangleNeighbors.size(); i++) {
-					if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri1) {
-						vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 2;
-					} else if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri2) {
-						vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 1;
-					}
-				}
-
-				for (int i = 0; i < vertexInfo[vertPos].vertexNeighbors.size(); i++) {
-					if (vertexInfo[vertPos].vertexNeighbors[i] == currVert)
-						vertexInfo[vertPos].vertexNeighbors[i] = vertexArray.size() - 1;
+			for (int i = 0; i < vertexInfo[vertPos].triangleNeighbors.size(); i++) {
+				if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri1) {
+					vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 2;
+				} else if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri2) {
+					vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 1;
 				}
 			}
 
-			count2++;
+			for (int i = 0; i < vertexInfo[vertPos].vertexNeighbors.size(); i++) {
+				if (vertexInfo[vertPos].vertexNeighbors[i] == currVert)
+					vertexInfo[vertPos].vertexNeighbors[i] = vertexArray.size() - 1;
+			}
+		
+			//count2++;
 		}
 		neighbor1 = -1;
 		neighbor2 = -1;
 		neighborTri1 = -1;
 		neighborTri2 = -1;
+		isNeighbor1Tri = false;
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////TEST
 		count1++;
-		vertPos = vertexInfo[currVert].vertexNeighbors[count1];
+		
 	}
 
 	///////////////////////////////TEST
