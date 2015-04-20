@@ -317,8 +317,8 @@ int Oculus::runOvr() {
 
 	// Initilise VRPN connection with the Intersense wand
 
-	Device* wand = new Device(true, true, false, "Mouse");
-	//Device* wand = new Device(true, true, true, "Wand");
+	//Device* wand = new Device(true, true, false, "Mouse");
+	Device* wand = new Device(true, true, true, "Wand");
 
 	float lastPos[3] = {0.0f, 0.0f, 0.0f};
 	float currPos[3] = { 0.0f, 0.0f, 0.0f };
@@ -622,7 +622,7 @@ void GLRenderCallsOculus(){
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glFrontFace(GL_CCW);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Uncomment for 
 	if (L_MULTISAMPLING) {
 		glEnable(GL_MULTISAMPLE);
 	}
