@@ -6,6 +6,7 @@
 #include "Plane.h"
 #include "Box.h"
 #include "Cylinder.h"
+#include "Texture.h"
 
 //#define GLFW_EXPOSE_NATIVE_WIN32
 //#define GLFW_EXPOSE_NATIVE_WGL
@@ -64,11 +65,14 @@ int Oculus::runOvr() {
 	float differenceR[16] = { 0.0f };
 
 	// Switch case variables
-	int chooseFunction = -1;
+	int chooseFunction = 2;
 	const int newDILATE = 1;
 	const int UPDATE_VERTEX_ARRAY = 0;
 	const int MOVE = 2;
 	const int RECENTER = 3;
+
+	// FPS
+	double fps = 0;
 
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
 
@@ -80,7 +84,6 @@ int Oculus::runOvr() {
 	glm::vec4 tempVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// States
-
 	bool buttonPressed = false;
 	bool buttonHeld = false;
 	bool buttonReleased = false;
@@ -92,6 +95,9 @@ int Oculus::runOvr() {
 	GLint locationP;
 	GLint locationMV;
 	GLint locationOMV;
+	GLint locationTex;
+
+	
 
 	//INITIALIZE OVR /////////////////////////////////////////////////////
 	ovr_Initialize();
@@ -335,6 +341,14 @@ int Oculus::runOvr() {
 
 	Mesh* mTest = new Mesh();
 
+	glEnable(GL_TEXTURE_2D);
+	Texture move("../Textures/test.S3TC_DXT1");
+	Texture dilate("../Textures/test.S3TC_DXT1");
+	Texture erode("../Textures/test.S3TC_DXT1");
+	Texture dnp("../Textures/test.S3TC_DXT1");
+
+	GLuint currentTexID = move.getTextureID();
+
 	// Initilise VRPN connection with the Intersense wand
 	//Device* wand = new Device(true, true, false, "Mouse");
 	Device* wand = new Device(true, true, true, "Wand");
@@ -344,6 +358,7 @@ int Oculus::runOvr() {
 	locationOMV = glGetUniformLocation(phongShader.programID, "OMV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 	locationLP = glGetUniformLocation(phongShader.programID, "lightPos");
+	locationTex = glGetUniformLocation(phongShader.programID, "tex");
 
 	ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
@@ -355,6 +370,7 @@ int Oculus::runOvr() {
 	unsigned int l_FrameIndex = 0;
 	// RENDER LOOP ////////////////////////////////////////////////////////////////////////////////////////
 	while (!glfwWindowShouldClose(l_Window)) {
+		fps = Utilities::displayFPS(l_Window);
 
 
 		// STATES //////////////////////////////////////////////////////////////////////////////////////////////
@@ -379,12 +395,15 @@ int Oculus::runOvr() {
 			switch (wand->getButtonNumber()) {
 			case 0:
 				chooseFunction = UPDATE_VERTEX_ARRAY;
+				currentTexID = dilate.getTextureID(); // erode later
 				break;
 			case 1:
 				chooseFunction = newDILATE;
+				currentTexID = dnp.getTextureID();
 				break;
 			case 2:
 				chooseFunction = MOVE;
+				currentTexID = move.getTextureID();
 				break;
 			case 3:
 				chooseFunction = RECENTER;
@@ -455,7 +474,6 @@ int Oculus::runOvr() {
 		else if (glfwGetKey(l_Window, GLFW_KEY_L) == GLFW_RELEASE && lines){
 			lines = false;
 		}
-		cout << "LINES: " << lines << endl;
 		// Reset offset when button is released
 		if (buttonReleased) {
 			changePos[0] = 0.0f;
@@ -507,6 +525,8 @@ int Oculus::runOvr() {
 
 			// Pass projection matrix on to OpenGL...
 			glUniformMatrix4fv(locationP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
+
+			glUniform1i(locationTex, 0);
 
 			// SCENEGRAPH //////////////////////////////////////////////////////////////////////////////////////////
 			// Oculus transformations
@@ -603,6 +623,7 @@ int Oculus::runOvr() {
 						translateVector[2] = 0.0f;
 						MVstack.translate(translateVector);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glBindTexture(GL_TEXTURE_2D, currentTexID);
 						boxWand.render();
 					MVstack.pop();
 				MVstack.pop();

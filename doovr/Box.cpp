@@ -20,37 +20,38 @@ void Box::createBox(float xSize, float ySize, float zSize)
 {
 
 	GLfloat vertex_array_data[] = {
-		-xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,  //1 - 0
-		xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f, //2 - 1
-		xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,   //3 - 2
-		-xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 0.0f, 0.0f, 1.0f,  //4 - 3 
+		//		Vertex								Normals										Texture  
+		-xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 0.0f, 0.0f, 1.0f,			 0.0f, 0.0f, //1 - 0
+		xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 0.0f, 0.0f, 1.0f,			 0.33333f, 0.0f, //2 - 1
+		xSize / 2.0f, ySize / 2.0f,			 zSize / 2.0f, 0.0f, 0.0f, 1.0f,			 0.0f, 0.5f, //3 - 2
+		-xSize / 2.0f, ySize / 2.0f,		 zSize / 2.0f, 0.0f, 0.0f, 1.0f,			 0.33333f, 0.5f, //4 - 3 
 
-		-xSize / 2.0f, -ySize / 2.0f, -zSize / 2.0f, 0.0f, 0.0f, -1.0f, //5 - 4 
-		xSize / 2.0f, -ySize / 2.0f, -zSize / 2.0f, 0.0f, 0.0f, -1.0f, //6 - 5
-		xSize / 2.0f, ySize / 2.0f, -zSize / 2.0f, 0.0f, 0.0f, -1.0f,  //7 - 6 
-		-xSize / 2.0f, ySize / 2.0f, -zSize / 2.0f, 0.0f, 0.0f, -1.0f, //8 - 7
-
-
-		-xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, -1.0f, 0.0f, //1 - 8
-		xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 0.0f, -1.0f, 0.0f,  //2 - 9
-		xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 0.0f, 1.0f, 0.0f,   //3 - 10
-		-xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 0.0f, 1.0f, 0.0f,  //4 - 11
-
-		-xSize / 2.0f, -ySize / 2.0f, -zSize / 2.0f, 0.0f, -1.0f, 0.0f, //5 - 12
-		xSize / 2.0f, -ySize / 2.0f, -zSize / 2.0f, 0.0f, -1.0f, 0.0f, //6 - 13
-		xSize / 2.0f, ySize / 2.0f, -zSize / 2.0f, 0.0f, 1.0f, 0.0f,  //7 - 14
-		-xSize / 2.0f, ySize / 2.0f, -zSize / 2.0f, 0.0f, 1.0f, 0.0f,  //8 - 15
+		-xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 0.0f, 0.0f, -1.0f,			 0.0f, 0.0f, //5 - 4 
+		xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 0.0f, 0.0f, -1.0f,			 0.33333f, 0.0f, //6 - 5
+		xSize / 2.0f, ySize / 2.0f,			 -zSize / 2.0f, 0.0f, 0.0f, -1.0f,			 0.0f, 0.5f, //7 - 6 
+		-xSize / 2.0f, ySize / 2.0f,		 -zSize / 2.0f, 0.0f, 0.0f, -1.0f,			 0.33333f, 0.5f, //8 - 7
 
 
-		-xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, -1.0f, 0.0f, 0.0f,  //1 - 16
-		xSize / 2.0f, -ySize / 2.0f, zSize / 2.0f, 1.0f, 0.0f, 0.0f,  //2 - 17
-		xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, 1.0f, 0.0f, 0.0f,   //3 - 18
-		-xSize / 2.0f, ySize / 2.0f, zSize / 2.0f, -1.0f, 0.0f, 0.0f,  //4 - 19
+		-xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 0.0f, -1.0f, 0.0f,			 0.0f, 0.0f, //1 - 8
+		xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 0.0f, -1.0f, 0.0f,			 0.33333f, 0.0f, //2 - 9
+		xSize / 2.0f, ySize / 2.0f,			 zSize / 2.0f, 0.0f, 1.0f, 0.0f,			 0.0f, 0.5f, //3 - 10
+		-xSize / 2.0f, ySize / 2.0f,		 zSize / 2.0f, 0.0f, 1.0f, 0.0f,			 0.33333f, 0.5f, //4 - 11
 
-		-xSize / 2.0f, -ySize / 2.0f, -zSize / 2.0f, -1.0f, 0.0f, 0.0f, //5 - 20
-		xSize / 2.0f, -ySize / 2.0f, -zSize / 2.0f, 1.0f, 0.0f, 0.0f, //6 - 21
-		xSize / 2.0f, ySize / 2.0f, -zSize / 2.0f, 1.0f, 0.0f, 0.0f,  //7 - 22
-		-xSize / 2.0f, ySize / 2.0f, -zSize / 2.0f, -1.0f, 0.0f, 0.0f, //8 - 23
+		-xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 0.0f, -1.0f, 0.0f,			 0.0f, 0.0f, //5 - 12
+		xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 0.0f, -1.0f, 0.0f,			 0.33333f, 0.0f, //6 - 13
+		xSize / 2.0f, ySize / 2.0f,			 -zSize / 2.0f, 0.0f, 1.0f, 0.0f,			 0.0f, 0.5f, //7 - 14
+		-xSize / 2.0f, ySize / 2.0f,		 -zSize / 2.0f, 0.0f, 1.0f, 0.0f,			 0.33333f, 0.5f, //8 - 15
+
+
+		-xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 0.0f, 0.0f, //1 - 16
+		xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 0.33333f, 0.0f, //2 - 17
+		xSize / 2.0f, ySize / 2.0f,			 zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 0.0f, 0.5f,  //3 - 18
+		-xSize / 2.0f, ySize / 2.0f,		 zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 0.33333f, 0.5f,  //4 - 19
+
+		-xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 0.0f, 0.0f, //5 - 20
+		xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 0.33333f, 0.0f, //6 - 21
+		xSize / 2.0f, ySize / 2.0f,			 -zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 0.0f, 0.5f, //7 - 22
+		-xSize / 2.0f, ySize / 2.0f,		 -zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 0.33333f, 0.5f, //8 - 23
 	};
 
 	static const GLuint index_array_data[] = {
@@ -70,9 +71,9 @@ void Box::createBox(float xSize, float ySize, float zSize)
 	nverts = 24;
 	ntris = 12;
 
-	vertexarray = new GLfloat[6 * nverts];
+	vertexarray = new GLfloat[8 * nverts];
 	indexarray = new GLuint[3 * ntris];
-	for (int i = 0; i<6 * nverts; i++) {
+	for (int i = 0; i<8 * nverts; i++) {
 		vertexarray[i] = vertex_array_data[i];
 	}
 	for (int i = 0; i<3 * ntris; i++) {
@@ -91,10 +92,14 @@ void Box::createBox(float xSize, float ySize, float zSize)
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Present our vertex coordinates to OpenGL
 	glBufferData(GL_ARRAY_BUFFER,
-		6 * nverts * sizeof(GLfloat), vertexarray, GL_STATIC_DRAW);
+		8 * nverts * sizeof(GLfloat), vertexarray, GL_STATIC_DRAW);
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
 	glEnableVertexAttribArray(1); // Normals
+	glEnableVertexAttribArray(2); // Texture coordinates
+	
+
+
 	// Specify how OpenGL should interpret the vertex buffer data:
 	// Attributes 0, 1, 2 (must match the lines above and the layout in the shader)
 	// Number of dimensions (3 means vec3 in the shader, 2 means vec2)
@@ -103,10 +108,11 @@ void Box::createBox(float xSize, float ySize, float zSize)
 	// Stride 8 floats (interleaved array with 8 floats per vertex)
 	// Array buffer offset 0, 3 or 6 floats (offset into first vertex)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-		6 * sizeof(GLfloat), (void*)0); // xyz coordinates
+		8 * sizeof(GLfloat), (void*)0); // xyz coordinates
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-		6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
-
+		8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+		8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat))); // texcoords
 	// Activate the index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 	// Present our vertex indices to OpenGL
