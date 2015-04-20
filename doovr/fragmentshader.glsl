@@ -3,15 +3,10 @@ layout( location = 0 ) out vec4 FragColor;
 
 in vec3 Position;
 in vec3 Normal;
-// Interpolated values from the vertex shaders
 in vec2 UV;
 
 uniform vec4 lightPos;
 uniform sampler2D tex;
-
-//out vec4 frag_colour;
-// Ouput data
-out vec3 color;
 
 void main () {
 
@@ -27,13 +22,13 @@ void main () {
 	vec3 v = normalize(vec3(-Position));			 // viewDir
 	vec3 r = reflect( -s, n );						 // reflectDir
 
-	vec3 LI = LightIntensity * ( Ka + Kd * max( dot(s, n), 0.0 )) + Ks * pow( max( dot(r,v), 0.0 ), Shininess );
-
-	color = texture( tex, UV ).rgb;
-
-	//frag_colour = vec4(LI, 1.0);
-	FragColor = vec4(LI, 1.0) + vec4(color, 1.0);
-
+	vec3 LI = LightIntensity * ( Ka + Kd * max( dot(s, n), 0.0 )); // + Ks * pow( max( dot(r,v), 0.0 ), Shininess );
 	
 
+	// DXT from directX, so we have to invert the UV coordinates (coord.u, 1.0-coord.v) to fetch the correct texel.
+	vec2 invUV = vec2(UV.x, 1.0-UV.x);
+
+	vec4 texcolor = texture( tex, invUV );
+	FragColor = texcolor * vec4(LI, 1.0);
+	
 }

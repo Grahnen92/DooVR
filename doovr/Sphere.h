@@ -18,6 +18,7 @@ public:
 	};
 
 	void createSphere(float radius, int segments);
+	void clean();
 	void render();
 
 	float getRadius(){return radius;}

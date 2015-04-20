@@ -4,6 +4,10 @@
 #include <sstream>
 #include <cstdlib>
 
+#include <stdio.h>  // For file input in soupReadOBJ()
+#include <stdlib.h> // For malloc() and free()
+#include <math.h>   // For sin() and cos() in soupCreateSphere()
+
 #include "glm/glm.hpp"
 
 #include "Utilities.h"

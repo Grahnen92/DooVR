@@ -36,10 +36,37 @@ Sphere::Sphere(glm::vec3 _pos, float _rad)
 	color.z = 0.7f;
 }
 
+void Sphere::clean() {
+
+	if (glIsVertexArray(vao)) {
+		glDeleteVertexArrays(1, &vao);
+	}
+	vao = 0;
+
+	if (glIsBuffer(vertexbuffer)) {
+		glDeleteBuffers(1, &vertexbuffer);
+	}
+	vertexbuffer = 0;
+
+	if (glIsBuffer(indexbuffer)) {
+		glDeleteBuffers(1, &indexbuffer);
+	}
+	indexbuffer = 0;
+
+	if (vertexarray) {
+		delete[] vertexarray;
+	}
+	if (indexarray) 	{
+		delete[] indexarray;
+	}
+	nverts = 0;
+	ntris = 0;
+}
+
 
 void Sphere::render()
 {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glLineWidth(3.0);
 	glBindVertexArray(vao);
 	glColor3f(color.x,color.y,color.z);
@@ -52,6 +79,7 @@ void Sphere::render()
 Sphere::~Sphere(void)
 {
 	cout << "A sphere has died" << endl;
+	clean();
 }
 
 
@@ -64,6 +92,7 @@ void Sphere::createSphere(float radius, int segments) {
 	int stride = 8;
 
 	// Delete any previous content in the TriangleSoup object
+	clean();
 
 	vsegs = segments;
 	if (vsegs < 2) vsegs = 2;
