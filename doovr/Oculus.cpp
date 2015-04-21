@@ -55,7 +55,7 @@ int Oculus::runOvr() {
 					  0.0f, 0.0f, -0.2f, 0.0f };
 
 	GLfloat lightPos[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
-	GLfloat lightPosTemp[3] = { 0.0f, 0.0f, 0.0f };
+	GLfloat lightPosTemp[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 	//glm::vec4 lightPos = { 0.0f, 0.5f, 2.0f, 1.0f };
 	glm::vec4 LP = glm::vec4(0);
@@ -74,8 +74,10 @@ int Oculus::runOvr() {
 	// FPS
 	double fps = 0;
 
+	// Translation vector -- used for tranlate objects in SceneGraph
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
 
+	// Size of the wand tool
 	float wandRadius = 0.05f;
 
 	float lastPos[3] = { 0.0f, 0.0f, 0.0f };
@@ -90,14 +92,11 @@ int Oculus::runOvr() {
 
 	bool lines = false;
 
-
 	GLint locationLP;
 	GLint locationP;
 	GLint locationMV;
 	GLint locationOMV;
 	GLint locationTex;
-
-	
 
 	//INITIALIZE OVR /////////////////////////////////////////////////////
 	ovr_Initialize();
@@ -128,9 +127,9 @@ int Oculus::runOvr() {
 	// SETUP GLFW WINDOW AND CONTEXT /////////////////////////////////////////////////////////////
 	// Create a window...
 	GLFWwindow* l_Window;
-
 	GLFWmonitor* l_Monitor;
 	ovrSizei l_ClientSize;
+
 	if (l_DirectMode) {
 		printf("Running in \"Direct\" mode...\n");
 		l_Monitor = NULL;
@@ -174,7 +173,6 @@ int Oculus::runOvr() {
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
-
 
 	// Attach the window in "Direct Mode"...
 #if defined(_WIN32)
@@ -322,8 +320,6 @@ int Oculus::runOvr() {
 
 	MatrixStack NVstack;
 	NVstack.init();
-
-	//Cylinder cylinder(glm::vec3(1.0f, -1.0f, -1.5f), 0.2f);
 	 
 	Sphere cam(glm::vec3(0.0f, 0.0f, 0.0f), 0.2f);
 	Sphere light(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
@@ -331,16 +327,17 @@ int Oculus::runOvr() {
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
 
-	//camera box
+	// Camera box
 	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 1.5f, 0.3f));
 
-	//Wand
+	// Wand
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.20f, 0.03f, 0.03f));
 	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
-
+	// Mesh
 	Mesh* mTest = new Mesh();
 
+	// Textures
 	glEnable(GL_TEXTURE_2D);
 	Texture move("../Textures/test1.DDS");
 	Texture dilate("../Textures/test3.DDS");
@@ -362,9 +359,6 @@ int Oculus::runOvr() {
 
 	ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
-
-
-
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
@@ -487,7 +481,6 @@ int Oculus::runOvr() {
 			}
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
-
 		// Save position of tracker from last frame to get deltaPos
 		lastPos[0] = wand->getTrackerPosition()[0];
 		lastPos[1] = wand->getTrackerPosition()[1];
@@ -511,7 +504,6 @@ int Oculus::runOvr() {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 		
-
 		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++) {
 
 			ovrEyeType l_Eye = hmd->EyeRenderOrder[l_EyeIndex];
@@ -535,19 +527,20 @@ int Oculus::runOvr() {
 				OVR::Quatf l_Orientation = OVR::Quatf(g_EyePoses[l_Eye].Orientation);
 				OVR::Matrix4f l_ModelViewMatrix = OVR::Matrix4f(l_Orientation.Inverted());
 
-				//	glMultMatrixf(&(l_ModelViewMatrix.Transposed().M[0][0]));
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
+				// LIGHT //////////////////////////////////////////////////////////////////////////////////////////
+				
 				// Check if you should really use transpose
 				//glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
 				glm::mat4 pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
-
 				LP = pmat4 * glm::vec4(lightPos[0], lightPos[1], lightPos[2], 1.0f);
 
 				lightPosTemp[0] = LP.x;
 				lightPosTemp[1] = LP.y;
 				lightPosTemp[2] = LP.z;
-				glUniform3fv(locationLP, 1, lightPosTemp);
+				lightPosTemp[3] = 1.0f;
+				glUniform4fv(locationLP, 1, lightPosTemp);
 
 
 				//!-- Translation due to positional tracking (DK2) and IPD...
@@ -630,7 +623,7 @@ int Oculus::runOvr() {
 						translateVector[2] = 0.0f;
 						MVstack.translate(translateVector);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						glBindTexture(GL_TEXTURE_2D, currentTexID);
+						//glBindTexture(GL_TEXTURE_2D, currentTexID);
 						boxWand.render();
 					MVstack.pop();
 				MVstack.pop();
