@@ -81,16 +81,7 @@ GLuint Texture::loadDDS(const char * imagepath){
 	glGenTextures(1, &textureID);
 
 	// "Bind" the newly created texture : all future texture functions will modify this texture
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	// Behövs? Verkar inte så
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//// Set parameters to determine how the texture wraps at edges
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	
-
+	glBindTexture(GL_TEXTURE_2D, textureID);	
 
 	unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
 	unsigned int offset = 0;
@@ -107,8 +98,6 @@ GLuint Texture::loadDDS(const char * imagepath){
 		height /= 2;
 	}
 	free(buffer);
-
-	// GenerateMipmap måste ligga efter TexImage2D.
 	glGenerateMipmap(GL_TEXTURE_2D);
 	return textureID;
 }

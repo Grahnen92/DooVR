@@ -33,6 +33,15 @@ void Utilities::matrixMult(float* M1, float* M2, float* Mout) {
 	}
 }
 
+void Utilities::makeUniform(float* m)
+{
+	for (int i = 0; i < 16; i++) {
+		if (i == 0 || i == 5 || i == 10 || i == 15)
+			m[i] = 1.0f;
+		m[i] = 0.0f;
+	}
+}
+
 void Utilities::invertMatrix(float* m, float* invOut)
 {
 	float inv[16], det;

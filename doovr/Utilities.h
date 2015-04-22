@@ -33,6 +33,8 @@ namespace Utilities {
 	void matrixMult(float* M1, float* M2, float* Mout);
 	void invertMatrix(float* m, float* invOut);
 
+	void makeUniform(float* m);
+
 	double displayFPS(GLFWwindow* window);
 	
 }
