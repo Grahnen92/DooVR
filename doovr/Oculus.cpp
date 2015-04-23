@@ -312,13 +312,13 @@ int Oculus::runOvr() {
 	locationP = glGetUniformLocation(phongShader.programID, "P");
 	locationLP = glGetUniformLocation(phongShader.programID, "lightPos");
 
-	ovrHmd_RecenterPose(hmd);
+	//ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
 	// Initilise VRPN connection with the Intersense wand
 
-	//Device* wand = new Device(true, true, false, "Mouse");
-	Device* wand = new Device(true, true, true, "Wand");
+	Device* wand = new Device(true, true, false, "Mouse");
+	//Device* wand = new Device(true, true, true, "Wand");
 
 	float lastPos[3] = {0.0f, 0.0f, 0.0f};
 	float currPos[3] = { 0.0f, 0.0f, 0.0f };
@@ -548,7 +548,11 @@ int Oculus::runOvr() {
 						}
 
 						if (glfwGetKey(l_Window, GLFW_KEY_T)) {
-							mTest.test(sRadius);
+							mTest.test(sRadius, 5051, true);
+						}
+
+						if (glfwGetKey(l_Window, GLFW_KEY_Y)) {
+							mTest.test(sRadius, 5051, false);
 						}
 
 						lastPos[0] = wand->getTrackerPosition()[0];
