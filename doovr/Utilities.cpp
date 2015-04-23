@@ -33,12 +33,29 @@ void Utilities::matrixMult(float* M1, float* M2, float* Mout) {
 	}
 }
 
+void Utilities::vectorMatrixMult(float* M1, float* V, float* Mout) {
+	float Mtemp[4];
+	int i, j;
+	// Perform the multiplication M3 = M1*M2
+	// (i is row index, j is column index)
+	for (i = 0; i<4; i++) {
+		for (j = 0; j<4; j++) {
+			Mtemp[i] += M1[j+4*i] * V[j];
+		}
+	}
+	// Copy the result to the output variable
+	for (i = 0; i<4; i++) {
+		Mout[i] = Mtemp[i];
+	}
+}
+
 void Utilities::makeUniform(float* m)
 {
 	for (int i = 0; i < 16; i++) {
 		if (i == 0 || i == 5 || i == 10 || i == 15)
 			m[i] = 1.0f;
-		m[i] = 0.0f;
+		else 
+			m[i] = 0.0f;
 	}
 }
 

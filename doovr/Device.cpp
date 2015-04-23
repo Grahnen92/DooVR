@@ -44,11 +44,15 @@ Device::Device(bool analog, bool button, bool tracker, string name) {
 		vrpnTracker->register_change_handler(this, handle_tracker, 0);
 		// the last argument --> handle_tracker will be called only when sensor #1 (wand) is updated. How do we handle this generally?
 	}
+
+	Utilities::makeUniform(transformMatrix);
+
+
 }
 Device::~Device() {
 }
 
-
+// VRPN Callbacks
 void VRPN_CALLBACK handle_analog(void* userData, const vrpn_ANALOGCB a) {
 	Device* analogTracker = static_cast<Device*> (userData);
 	float analog[3] = { a.channel[0], a.channel[1], 0.0f };
@@ -71,6 +75,7 @@ void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b) {
 void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
 	Device* posTracker = static_cast<Device*> (userData);
 
+	/*
 	// Handle position data
 	float position[3] = { t.pos[0], t.pos[1], t.pos[2] };
 	posTracker->setTrackerPosition(position);
@@ -78,7 +83,32 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
 	// Handle rotation data
 	double orient_local[16];
 	q_to_ogl_matrix(orient_local, t.quat);
-	posTracker->setTrackerRotation(orient_local);	
+	posTracker->setTrackerRotation(orient_local);
+	*/
+
+	double T[16];
+	float floatT[16];
+	float out[16];
+	q_to_ogl_matrix(T, t.quat);
+	std::copy(T, T + 16, floatT); // convert from double to float
+
+	// save translation in one transform
+	floatT[3] = t.pos[0];
+	floatT[7] = t.pos[1];
+	floatT[11] = t.pos[2];
+
+	// out = transformMatrix * floatT;
+	Utilities::matrixMult(posTracker->getTransformMatrix(), floatT, out);
+	float position[3] = { out[3], out[7], out[11] };
+
+	posTracker->setTrackerPosition(position);
+
+	out[3] = 0.0;
+	out[7] = 0.0;
+	out[11] = 0.0;
+	posTracker->setTrackerRotation(out);
+
+	
 
 	// Tell the main loop that we got another report
 	gotReport = 1;
@@ -124,23 +154,30 @@ float* Device::getTrackerRotation() {
 void Device::setTrackerPosition(float* t) {
 	// fix point: 1.088f from floor.
 	// Wierd copies due to fixing axis and multiplying movement
+	/*
 	trackerPosition[0] = t[0] + 0.2067f;
 	trackerPosition[1] = -t[2] + 1.005; // offset to get correct wand coordinates
 	trackerPosition[2] = t[1] - 0.0f;
+	*/
+	trackerPosition[0] = t[0];
+	trackerPosition[1] = t[1]; // offset to get correct wand coordinates
+	trackerPosition[2] = t[2];
+
+
 }
-void Device::setTrackerRotation(double* o ) {
-	double temp;
-	temp = o[1];
-	o[1] = -o[2];
-	o[2] = temp;
+void Device::setTrackerRotation(float* o ) {
+	//double temp;
+	//temp = o[1];
+	//o[1] = -o[2];
+	//o[2] = temp;
 
-	temp = o[5];
-	o[5] = -o[6];
-	o[6] = temp;
+	//temp = o[5];
+	//o[5] = -o[6];
+	//o[6] = temp;
 
-	temp = o[9];
-	o[9] = -o[10];
-	o[10] = temp;
+	//temp = o[9];
+	//o[9] = -o[10];
+	//o[10] = temp;
 
 	std::copy(o, o + 16, trackerRotation);
 }
@@ -158,4 +195,20 @@ void Device::setButtonNumber(int b) {
 
 void Device::setButton(int n, bool b) {
 	button[n] = b;
+}
+
+void Device::setTransformMatrix(float* T){
+	std::copy(T, T + 16, transformMatrix);
+}
+
+// Print functions
+void Device::print_transformMatrix() {
+
+	for (int i = 0; i < 16; i++) {
+		cout << std::fixed << std::setprecision(2);
+		cout << "  " << transformMatrix[i] << "  ";
+		if (i == 3 || i == 7 || i == 11)	cout << endl;
+	}
+	cout << endl << endl;
+
 }

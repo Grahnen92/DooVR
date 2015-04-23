@@ -32,6 +32,8 @@ class Device {
 		float* getTrackerRotation();
 		//! Get analog position of the device
 		float* getAnalogPosition();
+		//! 
+		float* getTransformMatrix() { return transformMatrix; };
 		
 		//! Get button state
 		bool getButtonState();
@@ -45,8 +47,9 @@ class Device {
 		//! Set position vector of the device position to a variable
 		void setTrackerPosition(float* t);
 		//! Set the rotation matrix for the device to a variable
-		void setTrackerRotation(double* o);
-		
+		//void setTrackerRotation(double* o);
+		void setTrackerRotation(float* o);
+
 		//! Set button state to a variable
 		void setButtonState(bool b);
 		//! Set button number to a variable
@@ -57,12 +60,19 @@ class Device {
 		//! Set analog position of the device to a variable
 		void setAnalogPosition(float* pos);
 
+		//! 
+		void setTransformMatrix(float* T);
+
 		//! vrpn Analog tracker
 		vrpn_Analog_Remote* vrpnAnalog = nullptr;
 		//! vrpn Button tracker
 		vrpn_Button_Remote* vrpnButton = nullptr;
 		//! vrpn Position tracker
 		vrpn_Tracker_Remote* vrpnTracker = nullptr;
+
+
+		//! 
+		void print_transformMatrix();
 
 	private:
 		//! Addidional address to devices position tracker
@@ -78,6 +88,9 @@ class Device {
 		float trackerRotation[16];
 		//! Saved variable from setAnalogPosition
 		float analogPos[3];
+
+		//! 
+		float transformMatrix[16];
 		
 		//! Saved variable from setButtonState
 		bool buttonState;

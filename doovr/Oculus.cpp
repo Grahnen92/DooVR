@@ -78,12 +78,19 @@ int Oculus::runOvr() {
 	// Co-register variables
 	int regCounter = 0;
 	bool renderRegisterSpheres = false;
-	float regSpherePos[16] = { -1.0f, 0.0f, -1.0f, 1.0f,	// Sp1
-								-1.0f, 1.0f, -1.0f, 1.0f,	// Sp2
-								1.0f, 1.0f, -1.0f, 1.0f,	// Sp3
-								1.0f, -1.0f, -1.0f, 1.0f }; // Sp4
-	float pos[16];
-	float transform[16];
+	float regSpherePos[16] = { 0.0f, -1.0f, 0.0f, 1.0f,		// Sp1
+								1.0f, -0.5f, 0.0f, 1.0f,	// Sp2
+								1.0f, 0.0f, -0.5f, 1.0f,	// Sp3
+								1.0f, 0.0f, 0.5f, 1.0f };	// Sp4
+
+	//float regSpherePos[16] = { 0.0f, 1.0f, 1.0f, 1.0f,	// Sp1
+	//							-1.0f, -0.5f, 0.0f, 0.0f,	// Sp2
+	//							0.0f, 0.0f, -0.5f, 0.5f,	// Sp3
+	//							1.0f, 1.0f, 1.0f, 1.0f };	// Sp4
+
+	float pos[16] = { 0.0f };
+	float transform[16] = { 0.0f };
+	float invPos[16] = { 0.0f };
 
 
 	// FPS
@@ -369,11 +376,11 @@ int Oculus::runOvr() {
 	Device* wand = new Device(true, true, true, "Wand");
 
 	//LINK VARIABLES WITH SHADER ///////////////////////////////////////////////////////////////////////////
-	locationMV = glGetUniformLocation(phongShader.programID, "MV");
-	locationOMV = glGetUniformLocation(phongShader.programID, "OMV");
-	locationP = glGetUniformLocation(phongShader.programID, "P");
-	locationLP = glGetUniformLocation(phongShader.programID, "lightPos");
-	locationTex = glGetUniformLocation(phongShader.programID, "tex");
+	locationMV = glGetUniformLocation(phongShader.programID, "MV");						// ModelView Matrix
+	locationOMV = glGetUniformLocation(phongShader.programID, "OMV");					//
+	locationP = glGetUniformLocation(phongShader.programID, "P");						// Perspective Matrix
+	locationLP = glGetUniformLocation(phongShader.programID, "lightPos");				// Light position
+	locationTex = glGetUniformLocation(phongShader.programID, "tex");					// Texture Matrix
 
 	ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
@@ -405,8 +412,24 @@ int Oculus::runOvr() {
 			case 0: // Dilate/Erosion, 2nd from the left
 				//chooseFunction = UPDATE_VERTEX_ARRAY;
 				currentTexID = dilate.getTextureID(); // erode later
+
+				if (buttonPressed) {
+					cout << "World coordinates after transform:" << endl;
+					for (int i = 0; i < 3; i++) {
+						cout << std::fixed << std::setprecision(2);
+						cout <<  "  " << wand->getTrackerPosition()[i] << "  ";
+					}
+					cout << endl << endl;
+
+					cout << "Transform to get world coordinates from wand coordinates. (T * wand = World):" << endl;
+					wand->print_transformMatrix();
+
+				}
+
+
 				break;
 			case 1: //Drag&Pull, first from the left
+				
 				chooseFunction = newDILATE;
 				currentTexID = dnp.getTextureID();
 				break;
@@ -423,6 +446,7 @@ int Oculus::runOvr() {
 			case 4: // co-register, analog button
 				chooseFunction = coREGISTER;
 				renderRegisterSpheres = true;
+				wand->setTransformMatrix(I);
 				break;
 			case 5: // Use chosen function
 				if (chooseFunction == UPDATE_VERTEX_ARRAY) {
@@ -432,15 +456,26 @@ int Oculus::runOvr() {
 					mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
 				}
 				else if (chooseFunction == coREGISTER && buttonPressed) {
+					cout << "Wand position for #" << regCounter << endl;
 					for (int i = 0; i < 3; i++) { // Save wand position & rotation 
-						pos[i + 4*regCounter] = wand->getTrackerPosition()[i];
+						pos[i + 4 * regCounter] = wand->getTrackerPosition()[i];
+
+						cout << pos[i + 4 * regCounter] << " ";
 					}
-					pos[3 + 4*regCounter] = 1.0f;
+					cout << endl;
+					
+
+					pos[3 + 4 * regCounter] = 1.0f;
 					regCounter++;
 					if (regCounter == 4)
 					{
 						regCounter = 0;
-						//transform*pos = regSpherePos;
+						// O = transform*W <--> invPos = inv(pos)
+						Utilities::invertMatrix(pos, invPos);
+						// transform = regSpherePos * invPos
+						// transform = invPos * regSpherePos    ------    pos * transform = regSpherePos
+						Utilities::matrixMult(regSpherePos, invPos, transform);
+						wand->setTransformMatrix(transform);
 
 						chooseFunction = newDILATE;
 						renderRegisterSpheres = false;
@@ -503,6 +538,7 @@ int Oculus::runOvr() {
 			changePos[1] = 0.0f;
 			changePos[2] = 0.0f;
 			Utilities::makeUniform(differenceR);
+
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Save position of tracker from last frame to get deltaPos
@@ -609,9 +645,9 @@ int Oculus::runOvr() {
 				// Co-register spheres
 				if (renderRegisterSpheres) {
 					MVstack.push();
-						translateVector[0] = regSpherePos[0 + 4*regCounter];
-						translateVector[1] = regSpherePos[1 + 4*regCounter];
-						translateVector[2] = regSpherePos[2 + 4*regCounter];
+						translateVector[0] = regSpherePos[0 + 4 * regCounter];
+						translateVector[1] = regSpherePos[1 + 4 * regCounter];
+						translateVector[2] = regSpherePos[2 + 4 * regCounter];
 						MVstack.translate(translateVector);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
