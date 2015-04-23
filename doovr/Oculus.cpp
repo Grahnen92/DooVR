@@ -470,10 +470,57 @@ int Oculus::runOvr() {
 					if (regCounter == 4)
 					{
 						regCounter = 0;
+
+						// cREATE GLM matrix
+						glm::mat4 posGLM;
+						// copy from float pos matrix
+						memcpy(glm::value_ptr(posGLM), pos, sizeof(pos));
+
+						//print posGLM
+						double dArray[16] = { 0.0 };
+						cout << "pos GLM:" << endl;
+						const float *pSource = (const float*)glm::value_ptr(posGLM);
+						for (int i = 0; i < 16; ++i){
+							dArray[i] = pSource[i];
+							cout << "  " << dArray[i] << "  ";
+							if (i == 3 || i == 7 || i == 11)	cout << endl;
+						}
+
+						glm::mat4 invposGLM = glm::inverse(posGLM);
+
+						//print posGLM
+						double dArrayy[16] = { 0.0 };
+
+						cout << endl << "invposGLM:" << endl;
+						const float *pSource2 = (const float*)glm::value_ptr(invposGLM);
+						for (int i = 0; i < 16; ++i){
+							dArrayy[i] = pSource2[i];
+							cout << "  " << dArrayy[i] << "  ";
+							if (i == 3 || i == 7 || i == 11)	cout << endl;
+						}
+
+
+						cout << endl << endl << "pos:" << endl;
+						for (int i = 0; i < 16; i++) {
+							cout << std::fixed << std::setprecision(2);
+							cout << "  " << pos[i] << "  ";
+							if (i == 3 || i == 7 || i == 11)	cout << endl;
+						}
+						cout << endl << endl;
+
 						// O = transform*W <--> invPos = inv(pos)
 						Utilities::invertMatrix(pos, invPos);
+
+						cout << "invPos:" << endl;
+						for (int i = 0; i < 16; i++) {
+							cout << std::fixed << std::setprecision(2);
+							cout << "  " << invPos[i] << "  ";
+							if (i == 3 || i == 7 || i == 11)	cout << endl;
+						}
+						cout << endl << endl;
+
 						// transform = regSpherePos * invPos
-						// transform = invPos * regSpherePos    ------    pos * transform = regSpherePos
+						// transform = invPos * regSpherePos    ------    transform * pos = regSpherePos
 						Utilities::matrixMult(regSpherePos, invPos, transform);
 						wand->setTransformMatrix(transform);
 
@@ -734,7 +781,7 @@ void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, f
 		changePos[1] = mTest->getPosition()[1] - wand->getTrackerPosition()[1];
 		changePos[2] = mTest->getPosition()[2] - wand->getTrackerPosition()[2];
 
-		// Get the difference betweeen the original mesh rotation transform and wandR
+		// Get the difference betweeen the original mesh rotation transform and wandR  --   wandR * differenceR = meshR
 		float* meshR = mTest->getOrientation();
 		float invWandR[16] = { 0.0f };
 		Utilities::invertMatrix(wandR, invWandR);

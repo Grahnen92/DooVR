@@ -178,8 +178,10 @@ void Device::setTrackerRotation(float* o ) {
 	//temp = o[9];
 	//o[9] = -o[10];
 	//o[10] = temp;
-
-	std::copy(o, o + 16, trackerRotation);
+	for (int i = 0; i < 16; i++) {
+		trackerRotation[i] = o[i];
+	}
+	//std::copy(o, o + 16, trackerRotation);
 }
 void Device::setAnalogPosition(float* p) {
 	analogPos[0] = p[0];
@@ -198,7 +200,9 @@ void Device::setButton(int n, bool b) {
 }
 
 void Device::setTransformMatrix(float* T){
-	std::copy(T, T + 16, transformMatrix);
+	for (int i = 0; i < 16; i++) {
+		transformMatrix[i] = T[i];
+	}
 }
 
 // Print functions
