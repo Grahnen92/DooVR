@@ -471,7 +471,7 @@ int Oculus::runOvr() {
 					{
 						regCounter = 0;
 
-						// cREATE GLM matrix
+						// Create GLM matrix
 						glm::mat4 posGLM;
 						// copy from float pos matrix
 						memcpy(glm::value_ptr(posGLM), pos, sizeof(pos));
@@ -520,7 +520,7 @@ int Oculus::runOvr() {
 						cout << endl << endl;
 
 						// transform = regSpherePos * invPos
-						// transform = invPos * regSpherePos    ------    transform * pos = regSpherePos
+						// transform = invPos * regSpherePos    ------    regSpherePos = transform * pos
 						Utilities::matrixMult(regSpherePos, invPos, transform);
 						wand->setTransformMatrix(transform);
 

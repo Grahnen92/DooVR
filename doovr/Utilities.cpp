@@ -34,7 +34,7 @@ void Utilities::matrixMult(float* M1, float* M2, float* Mout) {
 }
 
 void Utilities::vectorMatrixMult(float* M1, float* V, float* Mout) {
-	float Mtemp[4];
+	float Mtemp[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	int i, j;
 	// Perform the multiplication M3 = M1*M2
 	// (i is row index, j is column index)
@@ -47,6 +47,19 @@ void Utilities::vectorMatrixMult(float* M1, float* V, float* Mout) {
 	for (i = 0; i<4; i++) {
 		Mout[i] = Mtemp[i];
 	}
+}
+
+void Utilities::transpose(float* m, float* out)
+{
+	for (int i = 0; i < 16; i++) {
+		if (i == 1 || i == 2 || i == 3)
+			out[i] = m[4 * i];
+		else
+			out[i] = m[i];
+	}
+	out[9] = m[6];
+	out[13] = m[7];
+	out[14] = m[11];
 }
 
 void Utilities::makeUniform(float* m)

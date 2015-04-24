@@ -88,6 +88,7 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
 
 	double T[16];
 	float floatT[16];
+	float invT[16];
 	float out[16];
 	q_to_ogl_matrix(T, t.quat);
 	std::copy(T, T + 16, floatT); // convert from double to float
@@ -99,13 +100,14 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
 
 	// out = transformMatrix * floatT;
 	Utilities::matrixMult(posTracker->getTransformMatrix(), floatT, out);
+
 	float position[3] = { out[3], out[7], out[11] };
 
 	posTracker->setTrackerPosition(position);
 
-	out[3] = 0.0;
-	out[7] = 0.0;
-	out[11] = 0.0;
+	//out[3] = 0.0;
+	//out[7] = 0.0;
+	//out[11] = 0.0;
 	posTracker->setTrackerRotation(out);
 
 	
