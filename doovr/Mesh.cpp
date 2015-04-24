@@ -947,7 +947,7 @@ void Mesh::updateArea(int currVert) {
 				if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri[0]) {
 					vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 2;
 				}
-				else if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri[0]) {
+				else if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri[1]) {
 					vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 1;
 				}
 			}
@@ -1128,28 +1128,41 @@ void Mesh::updateArea(int currVert) {
 			}
 			vertexInfo[neighbor[1]].vertexNeighbors.erase(vertexInfo[neighbor[1]].vertexNeighbors.begin() + erase1[0]);
 			vertexInfo[neighbor[1]].triangleNeighbors.erase(vertexInfo[neighbor[1]].triangleNeighbors.begin() + erase2[1]);
-			/*
-			if (vertexInfo[neighbor1].vertexNeighbors.size() == 2)
-			{
-				vertexInfo[vertexInfo[neighbor1].vertexNeighbors[0]].vertexNeighbors.erase(std::remove(vertexInfo[vertexInfo[neighbor1].vertexNeighbors[0]].vertexNeighbors.begin(), vertexInfo[vertexInfo[neighbor1].vertexNeighbors[0]].vertexNeighbors.end(), neighbor1), vertexInfo[vertexInfo[neighbor1].vertexNeighbors[0]].vertexNeighbors.end());
-				vertexInfo[vertexInfo[neighbor1].vertexNeighbors[1]].vertexNeighbors.erase(std::remove(vertexInfo[vertexInfo[neighbor1].vertexNeighbors[1]].vertexNeighbors.begin(), vertexInfo[vertexInfo[neighbor1].vertexNeighbors[1]].vertexNeighbors.end(), neighbor1), vertexInfo[vertexInfo[neighbor1].vertexNeighbors[1]].vertexNeighbors.end());
-			//	vertexInfo[vertexInfo[neighbor1].vertexNeighbors[1]]
-				vertexInfo[vertexInfo[neighbor1].vertexNeighbors[0]].vertexNeighbors.push_back(vertexInfo[neighbor1].vertexNeighbors[1]);
-				vertexInfo[vertexInfo[neighbor1].vertexNeighbors[1]].vertexNeighbors.push_back(vertexInfo[neighbor1].vertexNeighbors[0]);
-			//	vertexInfo[neighbor1].vertexNeighbors[0] = -1;
-			//	vertexInfo[neighbor1].vertexNeighbors[1] = -1;
-			//	vertexInfo[neighbor1].triangleNeighbors[0] = -1;
-			//	vertexInfo[neighbor1].triangleNeighbors[1] = -1;
 
+			//If neighbors only have two other neighbors remove the vertex
+			if (vertexInfo[neighbor[0]].vertexNeighbors.size() == 2) {
+				vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[0]].vertexNeighbors.erase(std::remove(vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[0]].vertexNeighbors.begin(), vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[0]].vertexNeighbors.end(), neighbor[0]), vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[0]].vertexNeighbors.end());
+				vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[1]].vertexNeighbors.erase(std::remove(vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[1]].vertexNeighbors.begin(), vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[1]].vertexNeighbors.end(), neighbor[0]), vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[1]].vertexNeighbors.end());
+				vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[0]].vertexNeighbors.push_back(vertexInfo[neighbor[0]].vertexNeighbors[1]);
+				vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[1]].vertexNeighbors.push_back(vertexInfo[neighbor[0]].vertexNeighbors[0]);
+				vertexArray[neighbor[0]].x = -1;
+				vertexArray[neighbor[0]].y = -1;
+				vertexArray[neighbor[0]].z = -1;
+
+				vertexInfo[neighbor[0]].triangleNeighbors.erase(vertexInfo[neighbor[0]].triangleNeighbors.begin());
+				for (int i = 0; i < 3; i++)
+				{
+					if (indexArray[vertexInfo[neighbor[0]].triangleNeighbors[0]].index[i] == neighbor[0])
+						indexArray[vertexInfo[neighbor[0]].triangleNeighbors[0]].index[i] = currVert;
+				}
 			}
-			if (vertexInfo[neighbor2].vertexNeighbors.size() == 2)
+			if (vertexInfo[neighbor[1]].vertexNeighbors.size() == 2)
 			{
-				vertexInfo[vertexInfo[neighbor2].vertexNeighbors[0]].vertexNeighbors.erase(std::remove(vertexInfo[vertexInfo[neighbor2].vertexNeighbors[0]].vertexNeighbors.begin(), vertexInfo[vertexInfo[neighbor2].vertexNeighbors[0]].vertexNeighbors.end(), neighbor2), vertexInfo[vertexInfo[neighbor2].vertexNeighbors[0]].vertexNeighbors.end());
-				vertexInfo[vertexInfo[neighbor2].vertexNeighbors[1]].vertexNeighbors.erase(std::remove(vertexInfo[vertexInfo[neighbor2].vertexNeighbors[1]].vertexNeighbors.begin(), vertexInfo[vertexInfo[neighbor2].vertexNeighbors[1]].vertexNeighbors.end(), neighbor2), vertexInfo[vertexInfo[neighbor2].vertexNeighbors[1]].vertexNeighbors.end());
-				vertexInfo[vertexInfo[neighbor2].vertexNeighbors[0]].vertexNeighbors.push_back(vertexInfo[neighbor2].vertexNeighbors[1]);
-				vertexInfo[vertexInfo[neighbor2].vertexNeighbors[1]].vertexNeighbors.push_back(vertexInfo[neighbor2].vertexNeighbors[0]);
+				vertexInfo[vertexInfo[neighbor[1]].vertexNeighbors[0]].vertexNeighbors.erase(std::remove(vertexInfo[vertexInfo[neighbor[1]].vertexNeighbors[0]].vertexNeighbors.begin(), vertexInfo[vertexInfo[neighbor[1]].vertexNeighbors[0]].vertexNeighbors.end(), neighbor[1]), vertexInfo[vertexInfo[neighbor[1]].vertexNeighbors[0]].vertexNeighbors.end());
+				vertexInfo[vertexInfo[neighbor[1]].vertexNeighbors[1]].vertexNeighbors.erase(std::remove(vertexInfo[vertexInfo[neighbor[1]].vertexNeighbors[1]].vertexNeighbors.begin(), vertexInfo[vertexInfo[neighbor[1]].vertexNeighbors[1]].vertexNeighbors.end(), neighbor[1]), vertexInfo[vertexInfo[neighbor[1]].vertexNeighbors[1]].vertexNeighbors.end());
+				vertexInfo[vertexInfo[neighbor[1]].vertexNeighbors[0]].vertexNeighbors.push_back(vertexInfo[neighbor[1]].vertexNeighbors[1]);
+				vertexInfo[vertexInfo[neighbor[1]].vertexNeighbors[1]].vertexNeighbors.push_back(vertexInfo[neighbor[1]].vertexNeighbors[0]);
+				vertexArray[neighbor[1]].x = -1;
+				vertexArray[neighbor[1]].y = -1;
+				vertexArray[neighbor[1]].z = -1;
+
+				vertexInfo[neighbor[1]].triangleNeighbors.erase(vertexInfo[neighbor[1]].triangleNeighbors.begin());
+				for (int i = 0; i < 3; i++)
+				{
+					if (indexArray[vertexInfo[neighbor[1]].triangleNeighbors[1]].index[i] == neighbor[1])
+						indexArray[vertexInfo[neighbor[1]].triangleNeighbors[1]].index[i] = currVert;
+				}
 			}
-			*/
 			vertexArray[vertPos].x = 0;
 			vertexArray[vertPos].y = 0;
 			vertexArray[vertPos].z = 0;
@@ -1190,14 +1203,13 @@ void Mesh::addVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVer
 {
 
 }
-bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* currVertP, int* countP)
-{
+bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* currVertP, int* countP) {
 	static int neighbor[2] = { -1, -1 };
 	static int neighborTri[2] = { -1, -1 };
 	static int erase1[2] = { -1, -1 };
 	static int erase2[2] = { -1, -1 };
 
-	//FINDING SHARED VERTEX NEIGHBORS
+	//FINDING SHARED VERTEX NEIGHBORS BETWEEN currVert AND nVert
 	for (int i = 0; i < vertexInfo[currVert].vertexNeighbors.size(); i++) {
 		for (int j = 0; j < vertexInfo[nVert].vertexNeighbors.size(); j++) {
 			if (vertexInfo[currVert].vertexNeighbors[i] == vertexInfo[nVert].vertexNeighbors[j]) {
@@ -1211,7 +1223,7 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 			}
 		}
 	}
-	//FINDING SHARED TRIANGLE NEIGHBORS
+	//FINDING SHARED TRIANGLE NEIGHBORS BETWEEN currVert AND nVert
 	for (int i = 0; i < vertexInfo[currVert].triangleNeighbors.size(); i++) {
 		for (int j = 0; j < vertexInfo[nVert].triangleNeighbors.size(); j++) {
 			if (vertexInfo[currVert].triangleNeighbors[i] == vertexInfo[nVert].triangleNeighbors[j]) {
@@ -1230,11 +1242,12 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 		}
 	}
 
+
+	// REMOVE THE SHARED TRIANGLES FROM triangleNeighbors
 	if (erase1[0] > erase2[0]) {
 		vertexInfo[currVert].triangleNeighbors.erase(vertexInfo[currVert].triangleNeighbors.begin() + erase1[0]);
 		vertexInfo[currVert].triangleNeighbors.erase(vertexInfo[currVert].triangleNeighbors.begin() + erase2[0]);
-	}
-	else {
+	} else {
 		vertexInfo[currVert].triangleNeighbors.erase(vertexInfo[currVert].triangleNeighbors.begin() + erase2[0]);
 		vertexInfo[currVert].triangleNeighbors.erase(vertexInfo[currVert].triangleNeighbors.begin() + erase1[0]);
 	}
@@ -1242,17 +1255,17 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 	if (erase1[1] > erase2[1]) {
 		vertexInfo[nVert].triangleNeighbors.erase(vertexInfo[nVert].triangleNeighbors.begin() + erase1[1]);
 		vertexInfo[nVert].triangleNeighbors.erase(vertexInfo[nVert].triangleNeighbors.begin() + erase2[1]);
-	}
-	else {
+	} else {
 		vertexInfo[nVert].triangleNeighbors.erase(vertexInfo[nVert].triangleNeighbors.begin() + erase2[1]);
 		vertexInfo[nVert].triangleNeighbors.erase(vertexInfo[nVert].triangleNeighbors.begin() + erase1[1]);
 	}
 
-
+	// MOVE currVert TO ITS NEW POSITION
 	vertexArray[currVert].x = pA[0] + vecA2B[0] / 2.0f;
 	vertexArray[currVert].y = pA[1] + vecA2B[1] / 2.0f;
 	vertexArray[currVert].z = pA[2] + vecA2B[2] / 2.0f;
 
+	// SET THE REMOVED TRIANGLES INDEX IN INDEXARRAY
 	indexArray[neighborTri[0]].index[0] = 0;
 	indexArray[neighborTri[0]].index[1] = 0;
 	indexArray[neighborTri[0]].index[2] = 0;
@@ -1261,10 +1274,10 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 	indexArray[neighborTri[1]].index[1] = 0;
 	indexArray[neighborTri[1]].index[2] = 0;
 
-
+	// INSERT nVerts REMAINING TRIANGLENEIGHBORS IN currVert
 	for (int i = 0; i < vertexInfo[nVert].triangleNeighbors.size(); i++) {
 		vertexInfo[currVert].triangleNeighbors.push_back(vertexInfo[nVert].triangleNeighbors[i]);
-
+		// replace the triangles index that equals nVert to currVert
 		for (int j = 0; j < 3; j++) {
 			if (indexArray[vertexInfo[nVert].triangleNeighbors[i]].index[j] == nVert) {
 				indexArray[vertexInfo[nVert].triangleNeighbors[i]].index[j] = currVert;
@@ -1272,6 +1285,7 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 		}
 	}
 
+	// INSERT nVerts REMAINING VERTEXNEIGHBORS IN currVert, EXCEPT THE SHARED ONCE
 	for (int i = 0; i < vertexInfo[nVert].vertexNeighbors.size(); i++) {
 		if (vertexInfo[nVert].vertexNeighbors[i] != neighbor[0] && vertexInfo[nVert].vertexNeighbors[i] != neighbor[1] && vertexInfo[nVert].vertexNeighbors[i] != currVert) {
 			vertexInfo[currVert].vertexNeighbors.push_back(vertexInfo[nVert].vertexNeighbors[i]);
@@ -1299,48 +1313,38 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 		}
 	}
 
-	//REMOVE LINKS FROM NEIGHBOR1
-	for (int i = 0; i < vertexInfo[neighbor[0]].vertexNeighbors.size(); i++)
-	{
-		if (vertexInfo[neighbor[0]].vertexNeighbors[i] == nVert)
-		{
+	//FIND NEIGHBOR1's VERTEXNEIGHBOR THAT IS nVert AND REMOVE THAT LINK
+	for (int i = 0; i < vertexInfo[neighbor[0]].vertexNeighbors.size(); i++) {
+		if (vertexInfo[neighbor[0]].vertexNeighbors[i] == nVert) {
 			erase1[0] = i;
 		}
 
-		if (vertexInfo[neighbor[0]].triangleNeighbors[i] == neighborTri[0])
-		{
+		if (vertexInfo[neighbor[0]].triangleNeighbors[i] == neighborTri[0]) {
 			erase2[1] = i;
-		}
-		else if (vertexInfo[neighbor[0]].triangleNeighbors[i] == neighborTri[1])
-		{
+		} else if (vertexInfo[neighbor[0]].triangleNeighbors[i] == neighborTri[1]) {
 			erase2[1] = i;
 		}
 	}
 
-
 	vertexInfo[neighbor[0]].vertexNeighbors.erase(vertexInfo[neighbor[0]].vertexNeighbors.begin() + erase1[0]);
 	vertexInfo[neighbor[0]].triangleNeighbors.erase(vertexInfo[neighbor[0]].triangleNeighbors.begin() + erase2[1]);
 
-	//REMOVE LINKS FROM NEIGHBOR2
-	for (int i = 0; i < vertexInfo[neighbor[1]].vertexNeighbors.size(); i++)
-	{
-		if (vertexInfo[neighbor[1]].vertexNeighbors[i] == nVert)
-		{
+	//FIND NEIGHBOR2's VERTEXNEIGHBOR THAT IS nVert AND REMOVE THAT LINK
+	for (int i = 0; i < vertexInfo[neighbor[1]].vertexNeighbors.size(); i++) {
+		if (vertexInfo[neighbor[1]].vertexNeighbors[i] == nVert) {
 			erase1[0] = i;
 		}
 
-		if (vertexInfo[neighbor[1]].triangleNeighbors[i] == neighborTri[0])
-		{
+		if (vertexInfo[neighbor[1]].triangleNeighbors[i] == neighborTri[0]) {
 			erase2[1] = i;
-		}
-		else if (vertexInfo[neighbor[1]].triangleNeighbors[i] == neighborTri[1])
-		{
+		} else if (vertexInfo[neighbor[1]].triangleNeighbors[i] == neighborTri[1]) {
 			erase2[1] = i;
 		}
 	}
 	vertexInfo[neighbor[1]].vertexNeighbors.erase(vertexInfo[neighbor[1]].vertexNeighbors.begin() + erase1[0]);
 	vertexInfo[neighbor[1]].triangleNeighbors.erase(vertexInfo[neighbor[1]].triangleNeighbors.begin() + erase2[1]);
 
+	// RESET nVert IN vertexArray, its triangleNeghbors adn vertexNeighbors
 	vertexArray[nVert].x = -1;
 	vertexArray[nVert].y = -1;
 	vertexArray[nVert].z = -1;
@@ -1349,11 +1353,12 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 	vertexArray[nVert].nz = 0;
 	vertexInfo[nVert].triangleNeighbors.clear();
 	vertexInfo[nVert].vertexNeighbors.clear();
+
+	// remove nVert from currVert
 	vertexInfo[currVert].vertexNeighbors.erase(std::remove(vertexInfo[currVert].vertexNeighbors.begin(), vertexInfo[currVert].vertexNeighbors.end(), nVert), vertexInfo[currVert].vertexNeighbors.end());
 	
-	//If neighbors only have two other neighbors
-	if (vertexInfo[neighbor[0]].vertexNeighbors.size() == 2)
-	{
+	//If neighbors only have two other neighbors remove the vertex
+	if (vertexInfo[neighbor[0]].vertexNeighbors.size() == 2) {
 		vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[0]].vertexNeighbors.erase(std::remove(vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[0]].vertexNeighbors.begin(), vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[0]].vertexNeighbors.end(), neighbor[0]), vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[0]].vertexNeighbors.end());
 		vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[1]].vertexNeighbors.erase(std::remove(vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[1]].vertexNeighbors.begin(), vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[1]].vertexNeighbors.end(), neighbor[0]), vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[1]].vertexNeighbors.end());
 		vertexInfo[vertexInfo[neighbor[0]].vertexNeighbors[0]].vertexNeighbors.push_back(vertexInfo[neighbor[0]].vertexNeighbors[1]);
@@ -1368,7 +1373,8 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 			if (indexArray[vertexInfo[neighbor[0]].triangleNeighbors[0]].index[i] == neighbor[0])
 				indexArray[vertexInfo[neighbor[0]].triangleNeighbors[0]].index[i] = currVert;
 		}
-		return false;
+		if (neighbor[0] == *currVertP)
+			return false;
 	}
 	if (vertexInfo[neighbor[1]].vertexNeighbors.size() == 2)
 	{
@@ -1386,7 +1392,8 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 			if (indexArray[vertexInfo[neighbor[1]].triangleNeighbors[1]].index[i] == neighbor[1])
 				indexArray[vertexInfo[neighbor[1]].triangleNeighbors[1]].index[i] = currVert;
 		}
-		return false;
+		if (neighbor[1] == *currVertP)
+			return false;
 	}
 
 
