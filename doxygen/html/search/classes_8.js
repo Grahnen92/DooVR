@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['triangle',['triangle',['../structtriangle.html',1,'']]]
+  ['vertex',['vertex',['../structvertex.html',1,'']]],
+  ['vertexinf',['vertexInf',['../structvertex_inf.html',1,'']]]
 ];

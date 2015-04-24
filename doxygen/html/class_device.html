@@ -130,18 +130,18 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_device.html#ad4cb1d810b93625db83d57c6517924cf">getButtonNumber</a> ()</td></tr>
 <tr class="memdesc:ad4cb1d810b93625db83d57c6517924cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get button number. <br /></td></tr>
 <tr class="separator:ad4cb1d810b93625db83d57c6517924cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa0fbf67bba4f395468298f35f9fce893"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa0fbf67bba4f395468298f35f9fce893"></a>
-std::map&lt; int, bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_device.html#aa0fbf67bba4f395468298f35f9fce893">getButton</a> ()</td></tr>
-<tr class="memdesc:aa0fbf67bba4f395468298f35f9fce893"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get both button number and the state. <br /></td></tr>
-<tr class="separator:aa0fbf67bba4f395468298f35f9fce893"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae82e811f5950a0e97eac9a4707685e9c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae82e811f5950a0e97eac9a4707685e9c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_device.html#ae82e811f5950a0e97eac9a4707685e9c">setTrackerPosition</a> (float t[3])</td></tr>
-<tr class="memdesc:ae82e811f5950a0e97eac9a4707685e9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set position vector of the device position to a variable. <br /></td></tr>
-<tr class="separator:ae82e811f5950a0e97eac9a4707685e9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac1e2e70d6dba22052261786736f29f4c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac1e2e70d6dba22052261786736f29f4c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_device.html#ac1e2e70d6dba22052261786736f29f4c">setTrackerRotation</a> (double o[16])</td></tr>
-<tr class="memdesc:ac1e2e70d6dba22052261786736f29f4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the rotation matrix for the device to a variable. <br /></td></tr>
-<tr class="separator:ac1e2e70d6dba22052261786736f29f4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21d5bc81fc0d9f1b1b5146177e77914e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a21d5bc81fc0d9f1b1b5146177e77914e"></a>
+bool *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_device.html#a21d5bc81fc0d9f1b1b5146177e77914e">getButton</a> ()</td></tr>
+<tr class="memdesc:a21d5bc81fc0d9f1b1b5146177e77914e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get both button number and the state, replaces the 2 button functions from above. <br /></td></tr>
+<tr class="separator:a21d5bc81fc0d9f1b1b5146177e77914e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40a1d69a8d6c2484cc10323ef02d79f1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a40a1d69a8d6c2484cc10323ef02d79f1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_device.html#a40a1d69a8d6c2484cc10323ef02d79f1">setTrackerPosition</a> (float *t)</td></tr>
+<tr class="memdesc:a40a1d69a8d6c2484cc10323ef02d79f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set position vector of the device position to a variable. <br /></td></tr>
+<tr class="separator:a40a1d69a8d6c2484cc10323ef02d79f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01024d26f0659c623e68ae87c77ba207"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a01024d26f0659c623e68ae87c77ba207"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_device.html#a01024d26f0659c623e68ae87c77ba207">setTrackerRotation</a> (double *o)</td></tr>
+<tr class="memdesc:a01024d26f0659c623e68ae87c77ba207"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the rotation matrix for the device to a variable. <br /></td></tr>
+<tr class="separator:a01024d26f0659c623e68ae87c77ba207"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a498520196ede58b0ca2924fe162d1705"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a498520196ede58b0ca2924fe162d1705"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_device.html#a498520196ede58b0ca2924fe162d1705">setButtonState</a> (bool b)</td></tr>
 <tr class="memdesc:a498520196ede58b0ca2924fe162d1705"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set button state to a variable. <br /></td></tr>
@@ -154,10 +154,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_device.html#a69bf19676b842892560ce62c7e0538af">setButton</a> (int n, bool b)</td></tr>
 <tr class="memdesc:a69bf19676b842892560ce62c7e0538af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set button number and the state. <br /></td></tr>
 <tr class="separator:a69bf19676b842892560ce62c7e0538af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46545ab980b12e56f53fc1e2d0567d48"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a46545ab980b12e56f53fc1e2d0567d48"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_device.html#a46545ab980b12e56f53fc1e2d0567d48">setAnalogPosition</a> (float pos[2])</td></tr>
-<tr class="memdesc:a46545ab980b12e56f53fc1e2d0567d48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set analog position of the device to a variable. <br /></td></tr>
-<tr class="separator:a46545ab980b12e56f53fc1e2d0567d48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abee200258bd3928a6e59df1d2ff14d59"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abee200258bd3928a6e59df1d2ff14d59"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_device.html#abee200258bd3928a6e59df1d2ff14d59">setAnalogPosition</a> (float *pos)</td></tr>
+<tr class="memdesc:abee200258bd3928a6e59df1d2ff14d59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set analog position of the device to a variable. <br /></td></tr>
+<tr class="separator:abee200258bd3928a6e59df1d2ff14d59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -225,7 +225,7 @@ vrpn_Tracker_Remote *&#160;</td><td class="memItemRight" valign="bottom"><a clas
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 24 2015 22:11:16 for DooVR by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 24 2015 09:38:36 for DooVR by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

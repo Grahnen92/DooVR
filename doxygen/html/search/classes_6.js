@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['plane',['Plane',['../class_plane.html',1,'']]]
+  ['shader',['Shader',['../class_shader.html',1,'']]],
+  ['sphere',['Sphere',['../class_sphere.html',1,'']]]
 ];

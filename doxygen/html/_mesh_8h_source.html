@@ -91,85 +91,89 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;Utilities.h&quot;</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;</div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structvertex.html">vertex</a> <a class="code" href="structvertex.html">vertex</a>;</div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structface.html">face</a> <a class="code" href="structface.html">face</a>;</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structvertex.html">vertex</a> <a class="code" href="structvertex.html">vertex</a>;</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;</div>
-<div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="structface.html">   10</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structface.html">face</a> {</div>
-<div class="line"><a name="l00012"></a><span class="lineno"><a class="line" href="structface.html#a0b3a29118527c9707f6bbeba31a4f663">   12</a></span>&#160;    <a class="code" href="structface.html">face</a> * <a class="code" href="structface.html#a0b3a29118527c9707f6bbeba31a4f663">nFace</a>[3];</div>
-<div class="line"><a name="l00014"></a><span class="lineno"><a class="line" href="structface.html#a57703648b43ac91faf9d4e7c557f1f48">   14</a></span>&#160;    <a class="code" href="structvertex.html">vertex</a> *<a class="code" href="structface.html#a57703648b43ac91faf9d4e7c557f1f48">vertices</a>[3];</div>
+<div class="line"><a name="l00007"></a><span class="lineno"><a class="line" href="structvertex.html">    7</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structvertex.html">vertex</a> {</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    GLfloat x;</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;    GLfloat y;</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    GLfloat z;</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    GLfloat nx;</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    GLfloat ny;</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    GLfloat nz;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    <span class="comment">//int arrayIndex;</span></div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;};</div>
-<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="structvertex.html">   17</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structvertex.html">vertex</a> {</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    GLfloat x;</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    GLfloat y;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    GLfloat z;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    GLfloat nx;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    GLfloat ny;</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    GLfloat nz;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="structface.html">face</a> *adjacentFace;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;};</div>
-<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="structtriangle.html">   27</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structtriangle.html">triangle</a> {</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    GLuint index1;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    GLuint index2;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    GLuint index3;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;};</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">/*</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">struct halfEdge{</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">    vertex* pVertex;</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">    face* bFace;</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">    halfEdge* nEdge;</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">    halfEdge* oEdge;</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">};</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">*/</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
-<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="class_mesh.html">   43</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_mesh.html">Mesh</a> {</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <a class="code" href="class_mesh.html">Mesh</a>();</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    ~<a class="code" href="class_mesh.html">Mesh</a>();</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;</div>
+<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="structvertex_inf.html">   17</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structvertex_inf.html">vertexInf</a></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;{</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <span class="keywordtype">int</span> vertexNeighbors[8];</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <span class="keywordtype">int</span> triangleNeighbors[8];</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;};</div>
+<div class="line"><a name="l00023"></a><span class="lineno"><a class="line" href="structtriangle.html">   23</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structtriangle.html">triangle</a> {</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    GLuint index1;</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    GLuint index2;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    GLuint index3;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;};</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
+<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="class_mesh.html">   31</a></span>&#160;<span class="keyword">class </span><a class="code" href="class_mesh.html">Mesh</a> {</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;  <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <a class="code" href="class_mesh.html">Mesh</a>();</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    ~<a class="code" href="class_mesh.html">Mesh</a>();</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="comment">//void updateVertexArray(float* p, bool but);</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keywordtype">void</span> dilate(<span class="keywordtype">float</span>* p, <span class="keywordtype">float</span> lp[3], <span class="keywordtype">float</span> rad, <span class="keywordtype">bool</span> but);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="comment">//void moveThroughMesh(int it);</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">void</span> render();</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">void</span> updateArea(<span class="keywordtype">int</span> currVert);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <a class="code" href="structvertex.html">vertex</a>* getVertexList();</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <a class="code" href="structtriangle.html">triangle</a>* getIndexList();</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">void</span> updateVertexArray(<span class="keywordtype">float</span>* p);</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordtype">void</span> updateVertexArray2(<span class="keywordtype">float</span>* p);</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordtype">void</span> moveThroughMesh(<span class="keywordtype">int</span> it);</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">void</span> render();</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <a class="code" href="structvertex.html">vertex</a>* getVertexList();</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <a class="code" href="structtriangle.html">triangle</a>* getIndexList();</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordtype">float</span>* getPosition(){ <span class="keywordflow">return</span> position; };</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <span class="keywordtype">float</span>* getOrientation(){ <span class="keywordflow">return</span> orientation; };</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordtype">void</span> setPosition(<span class="keywordtype">float</span>* p) { position[0] = p[0]; position[1] = p[1]; position[2] = p[2]; }</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <span class="keywordtype">void</span> setOrientation(<span class="keywordtype">float</span>* o) { std::copy(o, o + 16, orientation); }</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">float</span> vectorLength(<a class="code" href="structvertex.html">vertex</a> vertex1, <a class="code" href="structvertex.html">vertex</a> vertex2);</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordtype">bool</span> sortByXCord(<span class="keyword">const</span> <a class="code" href="structvertex.html">vertex</a> &amp;a, <span class="keyword">const</span> <a class="code" href="structvertex.html">vertex</a> &amp;b);</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    GLuint vao;          <span class="comment">// Vertex array object, the main handle for geometry</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    </div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    GLuint vertexbuffer; <span class="comment">// Buffer ID to bind to GL_ARRAY_BUFFER</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    GLuint indexbuffer;  <span class="comment">// Buffer ID to bind to GL_ELEMENT_ARRAY_BUFFER</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="comment">//vector&lt;GLfloat&gt; vertexArray; // Vertex array on interleaved format: x y z nx ny nz s t</span></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="comment">//vector&lt;GLuint&gt; indexArray;   // Element index array</span></div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    std::vector&lt;triangle&gt; indexArray;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    std::vector&lt;vertex&gt; vertexArray;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    <span class="keywordtype">float</span> position[3];</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordtype">float</span> orientation[16];</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;};</div>
-<div class="ttc" id="class_mesh_html"><div class="ttname"><a href="class_mesh.html">Mesh</a></div><div class="ttdoc">A class representing a modifiable 3D mesh. </div><div class="ttdef"><b>Definition:</b> Mesh.h:43</div></div>
-<div class="ttc" id="structvertex_html"><div class="ttname"><a href="structvertex.html">vertex</a></div><div class="ttdoc">Data structure containing the coordinates and normal coordinates of a vertex, aswell as a pointer to ...</div><div class="ttdef"><b>Definition:</b> Mesh.h:17</div></div>
-<div class="ttc" id="structtriangle_html"><div class="ttname"><a href="structtriangle.html">triangle</a></div><div class="ttdoc">Data structure containing three indices of the vertexArray that make a certain triangle. </div><div class="ttdef"><b>Definition:</b> Mesh.h:27</div></div>
-<div class="ttc" id="structface_html_a0b3a29118527c9707f6bbeba31a4f663"><div class="ttname"><a href="structface.html#a0b3a29118527c9707f6bbeba31a4f663">face::nFace</a></div><div class="ttdeci">face * nFace[3]</div><div class="ttdoc">Pointer to adjacent faces. </div><div class="ttdef"><b>Definition:</b> Mesh.h:12</div></div>
-<div class="ttc" id="structface_html_a57703648b43ac91faf9d4e7c557f1f48"><div class="ttname"><a href="structface.html#a57703648b43ac91faf9d4e7c557f1f48">face::vertices</a></div><div class="ttdeci">vertex * vertices[3]</div><div class="ttdoc">Pointer to the faces vertecies. </div><div class="ttdef"><b>Definition:</b> Mesh.h:14</div></div>
-<div class="ttc" id="structface_html"><div class="ttname"><a href="structface.html">face</a></div><div class="ttdoc">Data structure containing all necessary information regarding a facetrianglepolygon. </div><div class="ttdef"><b>Definition:</b> Mesh.h:10</div></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordtype">float</span>* getPosition(){ <span class="keywordflow">return</span> position; };</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keywordtype">float</span>* getOrientation(){ <span class="keywordflow">return</span> orientation; };</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordtype">void</span> setPosition(<span class="keywordtype">float</span>* p) { position[0] = p[0]; position[1] = p[1]; position[2] = p[2]; }</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;    <span class="keywordtype">void</span> setOrientation(<span class="keywordtype">float</span>* o) { std::copy(o, o + 16, orientation); }</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <span class="keywordtype">bool</span> getisMoved() { <span class="keywordflow">return</span> isMoved; }</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;    <span class="keywordtype">void</span> setisMoved(<span class="keywordtype">bool</span> b) { isMoved = b; }</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    <span class="keywordtype">float</span> vectorLength(<a class="code" href="structvertex.html">vertex</a> vertex1, <a class="code" href="structvertex.html">vertex</a> vertex2);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordtype">float</span> vecLenght(<span class="keywordtype">float</span> vec[3]);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="keywordtype">bool</span> sortByXCord(<span class="keyword">const</span> <a class="code" href="structvertex.html">vertex</a> &amp;a, <span class="keyword">const</span> <a class="code" href="structvertex.html">vertex</a> &amp;b);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <span class="keywordtype">void</span> calculateVec(<span class="keywordtype">float</span>* newVec, <span class="keywordtype">float</span> a[3], <span class="keywordtype">float</span> b[3]);</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordtype">int</span> rows;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    <span class="keywordtype">int</span> cols;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    GLuint vao;          <span class="comment">// Vertex array object, the main handle for geometry</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    </div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    GLuint vertexbuffer; <span class="comment">// Buffer ID to bind to GL_ARRAY_BUFFER</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    GLuint indexbuffer;  <span class="comment">// Buffer ID to bind to GL_ELEMENT_ARRAY_BUFFER</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    <span class="comment">//vector&lt;GLfloat&gt; vertexArray; // Vertex array on interleaved format: x y z nx ny nz s t</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    <span class="comment">//vector&lt;GLuint&gt; indexArray;   // Element index array</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    std::vector&lt;triangle&gt; indexArray;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    std::vector&lt;vertex&gt; vertexArray;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    std::vector&lt;vertexInf&gt; vertexInfo;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">float</span> position[3];</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordtype">float</span> orientation[16];</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <span class="keywordtype">bool</span> isMoved = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;};</div>
+<div class="ttc" id="class_mesh_html"><div class="ttname"><a href="class_mesh.html">Mesh</a></div><div class="ttdoc">A class representing a modifiable 3D mesh. </div><div class="ttdef"><b>Definition:</b> Mesh.h:31</div></div>
+<div class="ttc" id="structvertex_inf_html"><div class="ttname"><a href="structvertex_inf.html">vertexInf</a></div><div class="ttdef"><b>Definition:</b> Mesh.h:17</div></div>
+<div class="ttc" id="structvertex_html"><div class="ttname"><a href="structvertex.html">vertex</a></div><div class="ttdoc">Data structure containing the coordinates and normal coordinates of a vertex, aswell as a pointer to ...</div><div class="ttdef"><b>Definition:</b> Mesh.h:7</div></div>
+<div class="ttc" id="structtriangle_html"><div class="ttname"><a href="structtriangle.html">triangle</a></div><div class="ttdoc">Data structure containing three indices of the vertexArray that make a certain triangle. </div><div class="ttdef"><b>Definition:</b> Mesh.h:23</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 24 2015 22:11:16 for DooVR by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 24 2015 09:38:35 for DooVR by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

@@ -98,18 +98,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:afc10296b646642c843c7e9f1e2bb6dd6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afc10296b646642c843c7e9f1e2bb6dd6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>updateVertexArray</b> (float *p)</td></tr>
-<tr class="separator:afc10296b646642c843c7e9f1e2bb6dd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a634d5c42624875b480ca4046a22e21b7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a634d5c42624875b480ca4046a22e21b7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>updateVertexArray2</b> (float *p)</td></tr>
-<tr class="separator:a634d5c42624875b480ca4046a22e21b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2165ee33b736f9ec78be7d69d985f0ce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2165ee33b736f9ec78be7d69d985f0ce"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>moveThroughMesh</b> (int it)</td></tr>
-<tr class="separator:a2165ee33b736f9ec78be7d69d985f0ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1ae6875e1273baec1fe0047d2e0d59b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab1ae6875e1273baec1fe0047d2e0d59b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>dilate</b> (float *p, float lp[3], float rad, bool but)</td></tr>
+<tr class="separator:ab1ae6875e1273baec1fe0047d2e0d59b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa196429f3e87ecd53e8770ba979222f4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa196429f3e87ecd53e8770ba979222f4"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>render</b> ()</td></tr>
 <tr class="separator:aa196429f3e87ecd53e8770ba979222f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad57631f0404ce568baa9ac4678061448"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad57631f0404ce568baa9ac4678061448"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>updateArea</b> (int currVert)</td></tr>
+<tr class="separator:ad57631f0404ce568baa9ac4678061448"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afd141a180897ca9349606c3cb2b2a781"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afd141a180897ca9349606c3cb2b2a781"></a>
 <a class="el" href="structvertex.html">vertex</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getVertexList</b> ()</td></tr>
 <tr class="separator:afd141a180897ca9349606c3cb2b2a781"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -128,6 +125,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setPosition</b> (floa
 <tr class="memitem:a20610829e0d177c4fa2426ad7ec51949"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a20610829e0d177c4fa2426ad7ec51949"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setOrientation</b> (float *o)</td></tr>
 <tr class="separator:a20610829e0d177c4fa2426ad7ec51949"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac888053a1204fcd134bd2e3550e21ced"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac888053a1204fcd134bd2e3550e21ced"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>getisMoved</b> ()</td></tr>
+<tr class="separator:ac888053a1204fcd134bd2e3550e21ced"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81383dcef07e475a0d1e413b89995527"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a81383dcef07e475a0d1e413b89995527"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setisMoved</b> (bool b)</td></tr>
+<tr class="separator:a81383dcef07e475a0d1e413b89995527"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A class representing a modifiable 3D mesh. </p>
@@ -138,7 +141,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>setOrientation</b> (f
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Mar 24 2015 22:11:16 for DooVR by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 24 2015 09:38:36 for DooVR by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>
