@@ -1399,7 +1399,14 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 
 	//vertexInfo[currVert].vertexNeighbors.erase(vertexInfo[currVert].vertexNeighbors.begin() + count1);
 	
-
+	neighbor[0] = -1;
+	neighbor[1] = -1;
+	neighborTri[0] = -1;
+	neighborTri[1] = -1;
+	erase1[0] = -1;
+	erase1[1] = -1;
+	erase2[0] = -1;
+	erase2[1] = -1;
 
 	return true;
 }
