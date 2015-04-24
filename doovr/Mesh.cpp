@@ -654,8 +654,6 @@ bool Mesh::sortByXCord(const vertex &a, const vertex &b) {
 
 void Mesh::updateArea(int currVert) {
 	//DECLARE VARIABLES
-	//int needsUpdate[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
-
 	float tempNorm1[3] = { 0.0f, 0.0f, 0.0f };
 	float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
 
@@ -669,18 +667,18 @@ void Mesh::updateArea(int currVert) {
 	const float MAX_LENGTH = 0.06f;
 	const float MIN_LENGTH = 0.03f;
 
-	int neighbor1 = -1; int neighbor2 = -1; int n1 = -1; int n2 = -1;
-	int neighborTri1 = -1; int neighborTri2 = -1;
-	int neighborTri11 = -1; int neighborTri21 = -1;
-	int neighborTri12 = -1; int neighborTri22 = -1;
-
+	static int neighbor[2] = { -1, -1 };
+	//int n1 = -1; int n2 = -1;
+	static int neighborTri[2] = { -1, -1 };
+	static int neighborTri1[2] = { -1, -1 };
+	static int neighborTri2[2] = { -1, -1 };
 	int triPos = -2;
 	int vertPos;
 
-	int count1 = 0; int count2 = 0;
+	static int count1 = 0; int count2 = 0;
 	int t1 = 0; int t2 = 0;
-	int erase11 = -1; int erase12 = -1;
-	int erase21 = -1; int erase22 = -1;
+	static int erase1[2] = {-1, -1};
+	static int erase2[2] = {-1, -1};
 
 	bool isNeighbor1Tri = false; // true if neighbor1 is part of neighbor triangle 1
 
@@ -721,6 +719,7 @@ void Mesh::updateArea(int currVert) {
 	tempNorm2[0] = tempNorm2[0] / (count1 - 1);
 	tempNorm2[1] = tempNorm2[1] / (count1 - 1);
 	tempNorm2[2] = tempNorm2[2] / (count1 - 1);
+	cout << tempNorm2[0] << " " << tempNorm2[1] << " " << tempNorm2[2] << endl;
 
 	vertexArray[currVert].nx = tempNorm2[0];
 	vertexArray[currVert].ny = tempNorm2[1];
@@ -748,22 +747,22 @@ void Mesh::updateArea(int currVert) {
 			for (int i = 0; i < vertexInfo[currVert].vertexNeighbors.size(); i++) {
 				for (int j = 0; j < vertexInfo[vertPos].vertexNeighbors.size(); j++) {
 					if (vertexInfo[currVert].vertexNeighbors[i] == vertexInfo[vertPos].vertexNeighbors[j]) {
-						if (neighbor1 == -1) {
-							neighbor1 = vertexInfo[currVert].vertexNeighbors[i];
+						if (neighbor[0] == -1) {
+							neighbor[0] = vertexInfo[currVert].vertexNeighbors[i];
 						}
 						else {
-							neighbor2 = vertexInfo[currVert].vertexNeighbors[i];
+							neighbor[1] = vertexInfo[currVert].vertexNeighbors[i];
 							//break;
 						}
 						t1++;
 					}
 
 					if (vertexInfo[currVert].triangleNeighbors[i] == vertexInfo[vertPos].triangleNeighbors[j]) {
-						if (neighborTri1 == -1) {
-							neighborTri1 = vertexInfo[currVert].triangleNeighbors[i];
+						if (neighborTri[0] == -1) {
+							neighborTri[0] = vertexInfo[currVert].triangleNeighbors[i];
 						}
 						else {
-							neighborTri2 = vertexInfo[currVert].triangleNeighbors[i];
+							neighborTri[1] = vertexInfo[currVert].triangleNeighbors[i];
 							//break;
 						}
 					}
@@ -773,13 +772,13 @@ void Mesh::updateArea(int currVert) {
 			cout << t1;
 			t1 = 0;
 			//CHECK IF VECTORS BETWEEN NEIGHBOR'S NEIGHBORS ARE TOO SHORT////////////////////////////////////////////////////////////////
-			vPoint3[0] = vertexArray[neighbor1].x;
-			vPoint3[1] = vertexArray[neighbor1].y;
-			vPoint3[2] = vertexArray[neighbor1].z;
+			vPoint3[0] = vertexArray[neighbor[0]].x;
+			vPoint3[1] = vertexArray[neighbor[0]].y;
+			vPoint3[2] = vertexArray[neighbor[0]].z;
 
-			vPoint4[0] = vertexArray[neighbor2].x;
-			vPoint4[1] = vertexArray[neighbor2].y;
-			vPoint4[2] = vertexArray[neighbor2].z;
+			vPoint4[0] = vertexArray[neighbor[1]].x;
+			vPoint4[1] = vertexArray[neighbor[1]].y;
+			vPoint4[2] = vertexArray[neighbor[1]].z;
 
 			calculateVec(tempVec2, vPoint2, vPoint3);
 			calculateVec(tempVec3, vPoint2, vPoint4);
@@ -790,35 +789,35 @@ void Mesh::updateArea(int currVert) {
 			//FIRST NEIGHBOR///////////////////////////////////////////////
 			if (vecLenght(tempVec2) < MIN_LENGTH) {
 				//rmVertex(vPoint2, vPoint3, tempVec2, vertPos, neighbor1, &currVert, &count1);
-				if (!rmVertex(vPoint2, vPoint3, tempVec2, vertPos, neighbor1, &currVert, &count1))
+				if (!rmVertex(vPoint2, vPoint3, tempVec2, vertPos, neighbor[0], &currVert, &count1))
 					break;
 
 
-				neighbor1 = -1;
-				neighbor2 = -1;
-				neighborTri1 = -1;
-				neighborTri2 = -1;
+				neighbor[0] = -1;
+				neighbor[1] = -1;
+				neighborTri[0] = -1;
+				neighborTri[1] = -1;
 
 				//FINDING SHARED VERTEX NEIGHBORS AND TRIANGLE NEIGHBORS
 				for (int i = 0; i < vertexInfo[currVert].vertexNeighbors.size(); i++) {
 					for (int j = 0; j < vertexInfo[vertPos].vertexNeighbors.size(); j++) {
 						if (vertexInfo[currVert].vertexNeighbors[i] == vertexInfo[vertPos].vertexNeighbors[j]) {
-							if (neighbor1 == -1) {
-								neighbor1 = vertexInfo[currVert].vertexNeighbors[i];
+							if (neighbor[0] == -1) {
+								neighbor[0] = vertexInfo[currVert].vertexNeighbors[i];
 							}
 							else {
-								neighbor2 = vertexInfo[currVert].vertexNeighbors[i];
+								neighbor[1] = vertexInfo[currVert].vertexNeighbors[i];
 								//break;
 							}
 							t1++;
 						}
 
 						if (vertexInfo[currVert].triangleNeighbors[i] == vertexInfo[vertPos].triangleNeighbors[j]) {
-							if (neighborTri1 == -1) {
-								neighborTri1 = vertexInfo[currVert].triangleNeighbors[i];
+							if (neighborTri[0] == -1) {
+								neighborTri[0] = vertexInfo[currVert].triangleNeighbors[i];
 							}
 							else {
-								neighborTri2 = vertexInfo[currVert].triangleNeighbors[i];
+								neighborTri[1] = vertexInfo[currVert].triangleNeighbors[i];
 								//break;
 							}
 						}
@@ -829,34 +828,34 @@ void Mesh::updateArea(int currVert) {
 			
 			else if (vecLenght(tempVec3) < MIN_LENGTH) {
 				//rmVertex(vPoint2, vPoint4, tempVec3, vertPos, neighbor2, &currVert, &count1);
-				if (!rmVertex(vPoint2, vPoint4, tempVec3, vertPos, neighbor2, &currVert, &count1))
+				if (!rmVertex(vPoint2, vPoint4, tempVec3, vertPos, neighbor[1], &currVert, &count1))
 					break;
 
-				neighbor1 = -1;
-				neighbor2 = -1;
-				neighborTri1 = -1;
-				neighborTri2 = -1;
+				neighbor[0] = -1;
+				neighbor[2] = -1;
+				neighborTri[0] = -1;
+				neighborTri[1] = -1;
 
 				//FINDING SHARED VERTEX NEIGHBORS AND TRIANGLE NEIGHBORS
 				for (int i = 0; i < vertexInfo[currVert].vertexNeighbors.size(); i++) {
 					for (int j = 0; j < vertexInfo[vertPos].vertexNeighbors.size(); j++) {
 						if (vertexInfo[currVert].vertexNeighbors[i] == vertexInfo[vertPos].vertexNeighbors[j]) {
-							if (neighbor1 == -1){
-								neighbor1 = vertexInfo[currVert].vertexNeighbors[i];
+							if (neighbor[0] == -1){
+								neighbor[0] = vertexInfo[currVert].vertexNeighbors[i];
 							}
 							else {
-								neighbor2 = vertexInfo[currVert].vertexNeighbors[i];
+								neighbor[1] = vertexInfo[currVert].vertexNeighbors[i];
 								//break;
 							}
 							t1++;
 						}
 
 						if (vertexInfo[currVert].triangleNeighbors[i] == vertexInfo[vertPos].triangleNeighbors[j]) {
-							if (neighborTri1 == -1) {
-								neighborTri1 = vertexInfo[currVert].triangleNeighbors[i];
+							if (neighborTri[0] == -1) {
+								neighborTri[0] = vertexInfo[currVert].triangleNeighbors[i];
 							}
 							else {
-								neighborTri2 = vertexInfo[currVert].triangleNeighbors[i];
+								neighborTri[1] = vertexInfo[currVert].triangleNeighbors[i];
 								//break;
 							}
 						}
@@ -874,27 +873,27 @@ void Mesh::updateArea(int currVert) {
 			tempV.nz = vertexArray[currVert].nz;
 			vertexArray.push_back(tempV);
 
-			tempT.index[0] = indexArray[neighborTri1].index[0];
-			tempT.index[1] = indexArray[neighborTri1].index[1];
-			tempT.index[2] = indexArray[neighborTri1].index[2];
+			tempT.index[0] = indexArray[neighborTri[0]].index[0];
+			tempT.index[1] = indexArray[neighborTri[0]].index[1];
+			tempT.index[2] = indexArray[neighborTri[0]].index[2];
 			indexArray.push_back(tempT);
-			tempT.index[0] = indexArray[neighborTri2].index[0];
-			tempT.index[1] = indexArray[neighborTri2].index[1];
-			tempT.index[2] = indexArray[neighborTri2].index[2];
+			tempT.index[0] = indexArray[neighborTri[1]].index[0];
+			tempT.index[1] = indexArray[neighborTri[1]].index[1];
+			tempT.index[2] = indexArray[neighborTri[1]].index[2];
 			indexArray.push_back(tempT);
 
 			// replace the vertPos index in the existing triangles
 			for (int i = 0; i < 3; i++) {
-				if (indexArray[neighborTri1].index[i] == vertPos) {
-					indexArray[neighborTri1].index[i] = vertexArray.size() - 1;
+				if (indexArray[neighborTri[0]].index[i] == vertPos) {
+					indexArray[neighborTri[0]].index[i] = vertexArray.size() - 1;
 
 				}
-				else if (indexArray[neighborTri1].index[i] == neighbor1) {
+				else if (indexArray[neighborTri[0]].index[i] == neighbor[0]) {
 					isNeighbor1Tri = true;
 				}
 
-				if (indexArray[neighborTri2].index[i] == vertPos)
-					indexArray[neighborTri2].index[i] = vertexArray.size() - 1;
+				if (indexArray[neighborTri[1]].index[i] == vertPos)
+					indexArray[neighborTri[1]].index[i] = vertexArray.size() - 1;
 
 				if (indexArray[indexArray.size() - 2].index[i] == currVert)
 					indexArray[indexArray.size() - 2].index[i] = vertexArray.size() - 1;
@@ -906,15 +905,15 @@ void Mesh::updateArea(int currVert) {
 			////////////////////////////////////////////////////////////////////////////////////////////
 
 			//BINDING NEW VERTEX ///////////////////////////////////////////////////////////////////
-			tempVI.triangleNeighbors.push_back(neighborTri1);
-			tempVI.triangleNeighbors.push_back(neighborTri2);
+			tempVI.triangleNeighbors.push_back(neighborTri[0]);
+			tempVI.triangleNeighbors.push_back(neighborTri[1]);
 			tempVI.triangleNeighbors.push_back(indexArray.size() - 1);
 			tempVI.triangleNeighbors.push_back(indexArray.size() - 2);
 
 			tempVI.vertexNeighbors.push_back(currVert);
 			tempVI.vertexNeighbors.push_back(vertPos);
-			tempVI.vertexNeighbors.push_back(neighbor1);
-			tempVI.vertexNeighbors.push_back(neighbor2);
+			tempVI.vertexNeighbors.push_back(neighbor[0]);
+			tempVI.vertexNeighbors.push_back(neighbor[1]);
 
 			vertexInfo.push_back(tempVI);
 			tempVI.triangleNeighbors.clear();
@@ -928,27 +927,27 @@ void Mesh::updateArea(int currVert) {
 
 			//shared neighbors
 			if (isNeighbor1Tri)	{
-				vertexInfo[neighbor1].triangleNeighbors.push_back(indexArray.size() - 2);
-				vertexInfo[neighbor1].vertexNeighbors.push_back(vertexArray.size() - 1);
+				vertexInfo[neighbor[0]].triangleNeighbors.push_back(indexArray.size() - 2);
+				vertexInfo[neighbor[0]].vertexNeighbors.push_back(vertexArray.size() - 1);
 
-				vertexInfo[neighbor2].triangleNeighbors.push_back(indexArray.size() - 1);
-				vertexInfo[neighbor2].vertexNeighbors.push_back(vertexArray.size() - 1);
+				vertexInfo[neighbor[1]].triangleNeighbors.push_back(indexArray.size() - 1);
+				vertexInfo[neighbor[1]].vertexNeighbors.push_back(vertexArray.size() - 1);
 			}
 			else {
-				vertexInfo[neighbor1].triangleNeighbors.push_back(indexArray.size() - 1);
-				vertexInfo[neighbor1].vertexNeighbors.push_back(vertexArray.size() - 1);
+				vertexInfo[neighbor[0]].triangleNeighbors.push_back(indexArray.size() - 1);
+				vertexInfo[neighbor[0]].vertexNeighbors.push_back(vertexArray.size() - 1);
 
-				vertexInfo[neighbor2].triangleNeighbors.push_back(indexArray.size() - 2);
-				vertexInfo[neighbor2].vertexNeighbors.push_back(vertexArray.size() - 1);
+				vertexInfo[neighbor[1]].triangleNeighbors.push_back(indexArray.size() - 2);
+				vertexInfo[neighbor[1]].vertexNeighbors.push_back(vertexArray.size() - 1);
 			}
 
 			//current neighbor
 
 			for (int i = 0; i < vertexInfo[vertPos].triangleNeighbors.size(); i++) {
-				if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri1) {
+				if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri[0]) {
 					vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 2;
 				}
-				else if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri2) {
+				else if (vertexInfo[vertPos].triangleNeighbors[i] == neighborTri[0]) {
 					vertexInfo[vertPos].triangleNeighbors[i] = indexArray.size() - 1;
 				}
 			}
@@ -958,10 +957,10 @@ void Mesh::updateArea(int currVert) {
 					vertexInfo[vertPos].vertexNeighbors[i] = vertexArray.size() - 1;
 			}
 
-			neighbor1 = -1;
-			neighbor2 = -1;
-			neighborTri1 = -1;
-			neighborTri2 = -1;
+			neighbor[0] = -1;
+			neighbor[1] = -1;
+			neighborTri[0] = -1;
+			neighborTri[1] = -1;
 			//count2++;
 		}
 		//EDGE TOO SMALL /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -971,11 +970,11 @@ void Mesh::updateArea(int currVert) {
 			for (int i = 0; i < vertexInfo[currVert].vertexNeighbors.size(); i++) {
 				for (int j = 0; j < vertexInfo[vertPos].vertexNeighbors.size(); j++) {
 					if (vertexInfo[currVert].vertexNeighbors[i] == vertexInfo[vertPos].vertexNeighbors[j]) {
-						if (neighbor1 == -1){
-							neighbor1 = vertexInfo[currVert].vertexNeighbors[i];
+						if (neighbor[0] == -1){
+							neighbor[0] = vertexInfo[currVert].vertexNeighbors[i];
 						}
 						else {
-							neighbor2 = vertexInfo[currVert].vertexNeighbors[i];
+							neighbor[1] = vertexInfo[currVert].vertexNeighbors[i];
 							//break;
 						}
 					}
@@ -985,38 +984,38 @@ void Mesh::updateArea(int currVert) {
 			for (int i = 0; i < vertexInfo[currVert].triangleNeighbors.size(); i++) {
 				for (int j = 0; j < vertexInfo[vertPos].triangleNeighbors.size(); j++) {
 					if (vertexInfo[currVert].triangleNeighbors[i] == vertexInfo[vertPos].triangleNeighbors[j]) {
-						if (neighborTri1 == -1){
-							neighborTri1 = vertexInfo[currVert].triangleNeighbors[i];
+						if (neighborTri[0] == -1){
+							neighborTri[0] = vertexInfo[currVert].triangleNeighbors[i];
 
-							erase11 = i;//vertexInfo[currVert].triangleNeighbors.erase[i];
-							erase12 = j;//vertexInfo[vertPos].triangleNeighbors.erase[j];
+							erase1[0] = i;//vertexInfo[currVert].triangleNeighbors.erase[i];
+							erase1[1] = j;//vertexInfo[vertPos].triangleNeighbors.erase[j];
 						}
 						else {
-							neighborTri2 = vertexInfo[currVert].triangleNeighbors[i];
-							erase21 = i;//vertexInfo[currVert].triangleNeighbors.erase[i];
-							erase22 = j;//vertexInfo[vertPos].triangleNeighbors.erase[j];
+							neighborTri[1] = vertexInfo[currVert].triangleNeighbors[i];
+							erase2[0] = i;//vertexInfo[currVert].triangleNeighbors.erase[i];
+							erase2[1] = j;//vertexInfo[vertPos].triangleNeighbors.erase[j];
 						}
 					}
 				}
 			}
 
-			if (erase11 > erase21){
-				vertexInfo[currVert].triangleNeighbors.erase(vertexInfo[currVert].triangleNeighbors.begin() + erase11);
-				vertexInfo[currVert].triangleNeighbors.erase(vertexInfo[currVert].triangleNeighbors.begin() + erase21);
+			if (erase1[0] > erase2[0]){
+				vertexInfo[currVert].triangleNeighbors.erase(vertexInfo[currVert].triangleNeighbors.begin() + erase1[0]);
+				vertexInfo[currVert].triangleNeighbors.erase(vertexInfo[currVert].triangleNeighbors.begin() + erase2[0]);
 			}
 			else	{
-				vertexInfo[currVert].triangleNeighbors.erase(vertexInfo[currVert].triangleNeighbors.begin() + erase21);
-				vertexInfo[currVert].triangleNeighbors.erase(vertexInfo[currVert].triangleNeighbors.begin() + erase11);
+				vertexInfo[currVert].triangleNeighbors.erase(vertexInfo[currVert].triangleNeighbors.begin() + erase2[0]);
+				vertexInfo[currVert].triangleNeighbors.erase(vertexInfo[currVert].triangleNeighbors.begin() + erase1[0]);
 
 			}
-			if (erase12 > erase22) {
-				vertexInfo[vertPos].triangleNeighbors.erase(vertexInfo[vertPos].triangleNeighbors.begin() + erase12);
-				vertexInfo[vertPos].triangleNeighbors.erase(vertexInfo[vertPos].triangleNeighbors.begin() + erase22);
+			if (erase1[1] > erase2[1]) {
+				vertexInfo[vertPos].triangleNeighbors.erase(vertexInfo[vertPos].triangleNeighbors.begin() + erase1[1]);
+				vertexInfo[vertPos].triangleNeighbors.erase(vertexInfo[vertPos].triangleNeighbors.begin() + erase2[1]);
 			}
 			else
 			{
-				vertexInfo[vertPos].triangleNeighbors.erase(vertexInfo[vertPos].triangleNeighbors.begin() + erase22);
-				vertexInfo[vertPos].triangleNeighbors.erase(vertexInfo[vertPos].triangleNeighbors.begin() + erase12);
+				vertexInfo[vertPos].triangleNeighbors.erase(vertexInfo[vertPos].triangleNeighbors.begin() + erase2[1]);
+				vertexInfo[vertPos].triangleNeighbors.erase(vertexInfo[vertPos].triangleNeighbors.begin() + erase1[1]);
 			}
 
 
@@ -1053,13 +1052,13 @@ void Mesh::updateArea(int currVert) {
 			vertexArray[currVert].y = vPoint1[1] + tempVec1[1] / 2.0f;
 			vertexArray[currVert].z = vPoint1[2] + tempVec1[2] / 2.0f;
 
-			indexArray[neighborTri1].index[0] = -1;
-			indexArray[neighborTri1].index[1] = -1;
-			indexArray[neighborTri1].index[2] = -1;
+			indexArray[neighborTri[0]].index[0] = -1;
+			indexArray[neighborTri[0]].index[1] = -1;
+			indexArray[neighborTri[0]].index[2] = -1;
 
-			indexArray[neighborTri2].index[0] = -1;
-			indexArray[neighborTri2].index[1] = -1;
-			indexArray[neighborTri2].index[2] = -1;
+			indexArray[neighborTri[1]].index[0] = -1;
+			indexArray[neighborTri[1]].index[1] = -1;
+			indexArray[neighborTri[1]].index[2] = -1;
 
 
 			for (int i = 0; i < vertexInfo[vertPos].triangleNeighbors.size(); i++)
@@ -1077,7 +1076,7 @@ void Mesh::updateArea(int currVert) {
 
 			for (int i = 0; i < vertexInfo[vertPos].vertexNeighbors.size(); i++)
 			{
-				if (vertexInfo[vertPos].vertexNeighbors[i] != neighbor1 && vertexInfo[vertPos].vertexNeighbors[i] != neighbor2 && vertexInfo[vertPos].vertexNeighbors[i] != currVert)
+				if (vertexInfo[vertPos].vertexNeighbors[i] != neighbor[0] && vertexInfo[vertPos].vertexNeighbors[i] != neighbor[1] && vertexInfo[vertPos].vertexNeighbors[i] != currVert)
 				{
 					vertexInfo[currVert].vertexNeighbors.push_back(vertexInfo[vertPos].vertexNeighbors[i]);
 
@@ -1091,44 +1090,44 @@ void Mesh::updateArea(int currVert) {
 				}
 			}
 			//REMOVE LINKS FROM NEIGHBOR1
-			for (int i = 0; i < vertexInfo[neighbor1].vertexNeighbors.size(); i++)
+			for (int i = 0; i < vertexInfo[neighbor[0]].vertexNeighbors.size(); i++)
 			{
-				if (vertexInfo[neighbor1].vertexNeighbors[i] == vertPos)
+				if (vertexInfo[neighbor[0]].vertexNeighbors[i] == vertPos)
 				{
-					erase11 = i;
+					erase1[0] = i;
 				}
 
-				if (vertexInfo[neighbor1].triangleNeighbors[i] == neighborTri1)
+				if (vertexInfo[neighbor[0]].triangleNeighbors[i] == neighborTri[0])
 				{
-					erase22 = i;
+					erase2[1] = i;
 				}
-				else if (vertexInfo[neighbor1].triangleNeighbors[i] == neighborTri2)
+				else if (vertexInfo[neighbor[0]].triangleNeighbors[i] == neighborTri[1])
 				{
-					erase22 = i;
+					erase2[1] = i;
 				}
 			}
-			vertexInfo[neighbor1].vertexNeighbors.erase(vertexInfo[neighbor1].vertexNeighbors.begin() + erase11);
-			vertexInfo[neighbor1].triangleNeighbors.erase(vertexInfo[neighbor1].triangleNeighbors.begin() + erase22);
+			vertexInfo[neighbor[0]].vertexNeighbors.erase(vertexInfo[neighbor[0]].vertexNeighbors.begin() + erase1[0]);
+			vertexInfo[neighbor[0]].triangleNeighbors.erase(vertexInfo[neighbor[0]].triangleNeighbors.begin() + erase2[1]);
 
 			//REMOVE LINKS FROM NEIGHBOR2
-			for (int i = 0; i < vertexInfo[neighbor2].vertexNeighbors.size(); i++)
+			for (int i = 0; i < vertexInfo[neighbor[1]].vertexNeighbors.size(); i++)
 			{
-				if (vertexInfo[neighbor2].vertexNeighbors[i] == vertPos)
+				if (vertexInfo[neighbor[1]].vertexNeighbors[i] == vertPos)
 				{
-					erase11 = i;
+					erase1[0] = i;
 				}
 
-				if (vertexInfo[neighbor2].triangleNeighbors[i] == neighborTri1)
+				if (vertexInfo[neighbor[1]].triangleNeighbors[i] == neighborTri[0])
 				{
-					erase22 = i;
+					erase2[1] = i;
 				}
-				else if (vertexInfo[neighbor2].triangleNeighbors[i] == neighborTri2)
+				else if (vertexInfo[neighbor[1]].triangleNeighbors[i] == neighborTri[1])
 				{
-					erase22 = i;
+					erase2[1] = i;
 				}
 			}
-			vertexInfo[neighbor2].vertexNeighbors.erase(vertexInfo[neighbor2].vertexNeighbors.begin() + erase11);
-			vertexInfo[neighbor2].triangleNeighbors.erase(vertexInfo[neighbor2].triangleNeighbors.begin() + erase22);
+			vertexInfo[neighbor[1]].vertexNeighbors.erase(vertexInfo[neighbor[1]].vertexNeighbors.begin() + erase1[0]);
+			vertexInfo[neighbor[1]].triangleNeighbors.erase(vertexInfo[neighbor[1]].triangleNeighbors.begin() + erase2[1]);
 			/*
 			if (vertexInfo[neighbor1].vertexNeighbors.size() == 2)
 			{
@@ -1164,21 +1163,21 @@ void Mesh::updateArea(int currVert) {
 			count1--;
 		}
 
-		neighbor1 = -1;
-		neighbor2 = -1;
-		neighborTri1 = -1;
-		neighborTri2 = -1;
+		neighbor[0] = -1;
+		neighbor[1] = -1;
+		neighborTri[0] = -1;
+		neighborTri[1] = -1;
 		isNeighbor1Tri = false;
-		n1 = -1;
-		n2 = -1;
-		neighborTri11 = -1;
-		neighborTri12 = -1;
-		neighborTri21 = -1;
-		neighborTri22 = -1;
-		erase11 = -1;
-		erase12 = -1;
-		erase21 = -1;
-		erase22 = -1;
+		//n1 = -1;
+		//n2 = -1;
+		neighborTri1[0] = -1;
+		neighborTri1[1] = -1;
+		neighborTri2[0] = -1;
+		neighborTri2[1] = -1;
+		erase1[0] = -1;
+		erase1[1] = -1;
+		erase2[0] = -1;
+		erase2[1] = -1;
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////TEST
 		count1++;
 
