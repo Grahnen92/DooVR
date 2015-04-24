@@ -1052,13 +1052,13 @@ void Mesh::updateArea(int currVert) {
 			vertexArray[currVert].y = vPoint1[1] + tempVec1[1] / 2.0f;
 			vertexArray[currVert].z = vPoint1[2] + tempVec1[2] / 2.0f;
 
-			indexArray[neighborTri[0]].index[0] = -1;
-			indexArray[neighborTri[0]].index[1] = -1;
-			indexArray[neighborTri[0]].index[2] = -1;
+			indexArray[neighborTri[0]].index[0] = 0;
+			indexArray[neighborTri[0]].index[1] = 0;
+			indexArray[neighborTri[0]].index[2] = 0;
 
-			indexArray[neighborTri[1]].index[0] = -1;
-			indexArray[neighborTri[1]].index[1] = -1;
-			indexArray[neighborTri[1]].index[2] = -1;
+			indexArray[neighborTri[1]].index[0] = 0;
+			indexArray[neighborTri[1]].index[1] = 0;
+			indexArray[neighborTri[1]].index[2] = 0;
 
 
 			for (int i = 0; i < vertexInfo[vertPos].triangleNeighbors.size(); i++)
@@ -1182,6 +1182,8 @@ void Mesh::updateArea(int currVert) {
 		count1++;
 
 	}
+
+	count1 = 0;
 }
 
 void Mesh::addVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* currVertP, int* countP)
@@ -1190,10 +1192,10 @@ void Mesh::addVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVer
 }
 bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* currVertP, int* countP)
 {
-	int neighbor[2] = { -1, -1 };
-	int neighborTri[2] = { -1, -1 };
-	int erase1[2] = { -1, -1 };
-	int erase2[2] = { -1, -1 };
+	static int neighbor[2] = { -1, -1 };
+	static int neighborTri[2] = { -1, -1 };
+	static int erase1[2] = { -1, -1 };
+	static int erase2[2] = { -1, -1 };
 
 	//FINDING SHARED VERTEX NEIGHBORS
 	for (int i = 0; i < vertexInfo[currVert].vertexNeighbors.size(); i++) {
@@ -1251,13 +1253,13 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 	vertexArray[currVert].y = pA[1] + vecA2B[1] / 2.0f;
 	vertexArray[currVert].z = pA[2] + vecA2B[2] / 2.0f;
 
-	indexArray[neighborTri[0]].index[0] = -1;
-	indexArray[neighborTri[0]].index[1] = -1;
-	indexArray[neighborTri[0]].index[2] = -1;
+	indexArray[neighborTri[0]].index[0] = 0;
+	indexArray[neighborTri[0]].index[1] = 0;
+	indexArray[neighborTri[0]].index[2] = 0;
 
-	indexArray[neighborTri[1]].index[0] = -1;
-	indexArray[neighborTri[1]].index[1] = -1;
-	indexArray[neighborTri[1]].index[2] = -1;
+	indexArray[neighborTri[1]].index[0] = 0;
+	indexArray[neighborTri[1]].index[1] = 0;
+	indexArray[neighborTri[1]].index[2] = 0;
 
 
 	for (int i = 0; i < vertexInfo[nVert].triangleNeighbors.size(); i++) {
