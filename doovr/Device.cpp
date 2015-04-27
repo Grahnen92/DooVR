@@ -87,9 +87,9 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
 	*/
 
 	double T[16];
-	float floatT[16];
+	float floatT[16] = { 0.0f };
 	float invT[16];
-	float out[16];
+	float out[16] = { 0.0f };
 	q_to_ogl_matrix(T, t.quat);
 	std::copy(T, T + 16, floatT); // convert from double to float
 
@@ -97,9 +97,14 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
 	floatT[3] = t.pos[0];
 	floatT[7] = t.pos[1];
 	floatT[11] = t.pos[2];
+	floatT[15] = 1.0f;
 
 	// out = transformMatrix * floatT;
-	Utilities::matrixMult(posTracker->getTransformMatrix(), floatT, out);
+	//Utilities::matrixMult(posTracker->getTransformMatrix(), floatT, out);
+
+	out[3] = t.pos[0] + posTracker->getTransformMatrix()[3];
+	out[7] = -t.pos[2] + posTracker->getTransformMatrix()[7];
+	out[11] = t.pos[1] + posTracker->getTransformMatrix()[11];
 
 	float position[3] = { out[3], out[7], out[11] };
 
@@ -108,7 +113,8 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
 	//out[3] = 0.0;
 	//out[7] = 0.0;
 	//out[11] = 0.0;
-	posTracker->setTrackerRotation(out);
+	//posTracker->setTrackerRotation(out);
+	posTracker->setTrackerRotation(floatT);
 
 	
 
@@ -168,22 +174,22 @@ void Device::setTrackerPosition(float* t) {
 
 }
 void Device::setTrackerRotation(float* o ) {
-	//double temp;
-	//temp = o[1];
-	//o[1] = -o[2];
-	//o[2] = temp;
+	double temp;
+	temp = o[1];
+	o[1] = -o[2];
+	o[2] = temp;
 
-	//temp = o[5];
-	//o[5] = -o[6];
-	//o[6] = temp;
+	temp = o[5];
+	o[5] = -o[6];
+	o[6] = temp;
 
-	//temp = o[9];
-	//o[9] = -o[10];
-	//o[10] = temp;
-	for (int i = 0; i < 16; i++) {
+	temp = o[9];
+	o[9] = -o[10];
+	o[10] = temp;
+	/*for (int i = 0; i < 16; i++) {
 		trackerRotation[i] = o[i];
-	}
-	//std::copy(o, o + 16, trackerRotation);
+	}*/
+	std::copy(o, o + 16, trackerRotation);
 }
 void Device::setAnalogPosition(float* p) {
 	analogPos[0] = p[0];
