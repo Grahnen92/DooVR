@@ -33,6 +33,27 @@ void Utilities::matrixMult(float* M1, float* M2, float* Mout) {
 	}
 }
 
+void Utilities::matrixMultTHREE(float* M1, float* M2, float* Mout) {
+	// Compute result in a local variable to avoid conflicts
+	// with overwriting if Mout is the same variable as either
+	// M1 or M2.
+	float Mtemp[9];
+	int i, j;
+	// Perform the multiplication M3 = M1*M2
+	// (i is row index, j is column index)
+	for (i = 0; i<3; i++) {
+		for (j = 0; j<3; j++) {
+			Mtemp[3*i + j] = M1[i*3] * M2[j] + 
+							   M1[i*3 + 1] * M2[3 + j] + 
+							   M1[i*3 + 2] * M2[6 + j];
+		}
+	}
+	// Copy the result to the output variable
+	for (i = 0; i<9; i++) {
+		Mout[i] = Mtemp[i];
+	}
+}
+
 void Utilities::vectorMatrixMult(float* M1, float* V, float* Mout) {
 	float Mtemp[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	int i, j;
