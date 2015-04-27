@@ -18,11 +18,12 @@ using namespace std;
 static void WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height);
 void GLRenderCallsOculus();
 
+// Declare moveMesh - used for moving around the mesh in the scene.
+// TODO: refactor this function to TOOLS namespace?
 void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR);
 
 // --- Variable Declerations ------------
 const bool L_MULTISAMPLING = false;
-
 const int G_DISTORTIONCAPS = 0
 | ovrDistortionCap_Vignette
 | ovrDistortionCap_Chromatic
@@ -54,12 +55,11 @@ int Oculus::runOvr() {
 					  0.0f, 0.0f, -1.0f, -1.0f,
 					  0.0f, 0.0f, -0.2f, 0.0f };
 
+	// Lightposition 
 	GLfloat lightPos[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
 	GLfloat lightPosTemp[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
 	//glm::vec4 lightPos = { 0.0f, 0.5f, 2.0f, 1.0f };
 	glm::vec4 LP = glm::vec4(0);
-
 
 	// Save old positions and transforms
 	float changePos[3] = { 0.0f };
@@ -88,6 +88,7 @@ int Oculus::runOvr() {
 	//							0.0f, 0.0f, -0.5f, 0.5f,	// Sp3
 	//							1.0f, 1.0f, 1.0f, 1.0f };	// Sp4
 
+	//
 	float pos[16] = { 0.0f };
 	float transform[16] = { 0.0f };
 	float invPos[16] = { 0.0f };
@@ -101,8 +102,8 @@ int Oculus::runOvr() {
 
 	// Size of the wand tool
 	float wandRadius = 0.05f;
-
-
+	
+	//
 	glm::vec4 nullVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	glm::vec4 tempVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -110,9 +111,9 @@ int Oculus::runOvr() {
 	bool buttonPressed = false;
 	bool buttonHeld = false;
 	bool buttonReleased = false;
-
 	bool lines = false;
 
+	// Location used for UNIFORMS in shader
 	GLint locationLP;
 	GLint locationP;
 	GLint locationMV;
@@ -332,31 +333,34 @@ int Oculus::runOvr() {
 	//glfwSetKeyCallback(l_Window, KeyCallback);
 	glfwSetWindowSizeCallback(l_Window, WindowSizeCallback);
 
-	//DECLARE SCENE OBJECTS ///////////////////////////////////////////////////////////////////////////////////
+	//DECLARE AND CREATE SHADERS ///////////////////////////////////////////////////////////////////////////////////
 	Shader phongShader;
 	phongShader.createShader("vertexshader.glsl", "fragmentshader.glsl");
 
+	// CREATE MATRIX STACK
 	MatrixStack MVstack;
 	MVstack.init();
-	 
-	Sphere light(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
+	
+	//DECLARE SCENE OBJECTS ///////////////////////////////////////////////////////////////////////////////////
+	Sphere light(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);								// Sphere used for show light source in scene.
+	Sphere regSphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);							// Sphere used for co-registration.
 
-	Sphere regSphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
-
-	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));
+	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));			//Ground plane
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
-
-	// Camera box
 	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 1.5f, 0.3f));
 
-	// Wand
+	// Wand = Box + sphere
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.20f, 0.03f, 0.03f));
 	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
 	// Mesh
 	Mesh* mTest = new Mesh();
 
-	// Textures
+	// Initilise VRPN connection with the Intersense wand
+	//Device* wand = new Device(true, true, false, "Mouse");
+	Device* wand = new Device(true, true, true, "Wand");
+
+	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
 	// Wand function textures
 	Texture move("../Textures/test1.DDS");
@@ -368,14 +372,9 @@ int Oculus::runOvr() {
 	Texture meshTex("x.DDS");
 	Texture boxTex("x.DDS");
 
-
 	GLuint currentTexID = move.getTextureID();
 
-	// Initilise VRPN connection with the Intersense wand
-	//Device* wand = new Device(true, true, false, "Mouse");
-	Device* wand = new Device(true, true, true, "Wand");
-
-	//LINK VARIABLES WITH SHADER ///////////////////////////////////////////////////////////////////////////
+	//UNIFORM VARIABLES WITH SHADER ///////////////////////////////////////////////////////////////////////////
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");						// ModelView Matrix
 	locationOMV = glGetUniformLocation(phongShader.programID, "OMV");					//
 	locationP = glGetUniformLocation(phongShader.programID, "P");						// Perspective Matrix
@@ -389,8 +388,8 @@ int Oculus::runOvr() {
 	unsigned int l_FrameIndex = 0;
 	// RENDER LOOP ////////////////////////////////////////////////////////////////////////////////////////
 	while (!glfwWindowShouldClose(l_Window)) {
+		// Show fps at the top of the window
 		fps = Utilities::displayFPS(l_Window);
-
 
 		// STATES //////////////////////////////////////////////////////////////////////////////////////////////
 		// All states are originally false
@@ -420,16 +419,11 @@ int Oculus::runOvr() {
 						cout <<  "  " << wand->getTrackerPosition()[i] << "  ";
 					}
 					cout << endl << endl;
-
 					cout << "Transform to get world coordinates from wand coordinates. (T * wand = World):" << endl;
 					wand->print_transformMatrix();
-
 				}
-
-
 				break;
-			case 1: //Drag&Pull, first from the left
-				
+			case 1: //Drag&Pull, first from the left		
 				chooseFunction = newDILATE;
 				currentTexID = dnp.getTextureID();
 				break;
@@ -464,7 +458,6 @@ int Oculus::runOvr() {
 					}
 					cout << endl;
 					
-
 					pos[3 + 4 * regCounter] = 1.0f;
 					regCounter++;
 					if (regCounter == 4)
@@ -553,6 +546,8 @@ int Oculus::runOvr() {
 			}
 		}
 
+
+		// KEYBORD EVENTS
 		if (glfwGetKey(l_Window, GLFW_KEY_O)) {
 			ovrHmd_RecenterPose(hmd);
 			ovrHmd_DismissHSWDisplay(hmd);
@@ -567,11 +562,9 @@ int Oculus::runOvr() {
 			wandRadius -= 0.01f;
 		}
 		if (glfwGetKey(l_Window, GLFW_KEY_R)) {
-			// Reset mesh
-			delete mTest;
+			delete mTest; // Reset mesh
 			mTest = new Mesh();
 		}
-
 		// Activate wireframe (hold L)
 		if (glfwGetKey(l_Window, GLFW_KEY_L) == GLFW_PRESS && !lines) {
 			lines = true;
@@ -637,8 +630,6 @@ int Oculus::runOvr() {
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
 				// LIGHT //////////////////////////////////////////////////////////////////////////////////////////
-				
-				// Check if you should really use transpose
 				//glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
 				glm::mat4 pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
 				LP = pmat4 * glm::vec4(lightPos[0], lightPos[1], lightPos[2], 1.0f);
@@ -742,6 +733,7 @@ int Oculus::runOvr() {
 		// Back to the default framebuffer...
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		//Wand callback from VRPN
 		wand->sendtoMainloop();
 
 		// Do everything, distortion, front/back buffer swap...
