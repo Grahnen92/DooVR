@@ -433,6 +433,8 @@ void Mesh::test(float bRad, int vNR, bool plus) {
 	int oldIndArraySize = indexArray.size();
 	//MOVEMENT BETWEEN LAST FRAME AND THIS FRAME
 
+	float test1[3] = { 0.0f, 0.0f, 0.0f };
+	float test2[3] = { 1.0f, 1.0f, 1.0f };
 
 	//cout << pMove[0] << " " << pMove[1] << " " << pMove[2] << endl;
 
@@ -464,7 +466,7 @@ void Mesh::test(float bRad, int vNR, bool plus) {
 			if (!plus)
 				vertexArray[i].y -= 0.001f;
 			else
-				vertexArray[i].y += 0.001f;
+				vertexArray[i].y += 0.0001f;
 
 			changedVertices[changeCount] = i;
 			changeCount++;
@@ -502,6 +504,18 @@ void Mesh::test(float bRad, int vNR, bool plus) {
 		updateArea(changedVertices[changeCount]);
 		changeCount++;
 	}
+
+	glBegin(GL_LINES);
+	glColor3f(1.0f, 0.0f, 0.0f);
+
+	glVertex3fv(test1);
+	glVertex3fv(test2);
+
+	glEnd();
+
+
+
+
 
 	if (success == true) {
 
