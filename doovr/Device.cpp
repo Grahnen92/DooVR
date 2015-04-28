@@ -99,60 +99,35 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
 	floatT[11] = t.pos[2];
 	floatT[15] = 1.0f;
 
-	// out = transformMatrix * floatT;
-	//Utilities::matrixMult(posTracker->getTransformMatrix(), floatT, out);
+	float trans[16] = { 0.0f };
+	for (int i = 0; i < 16; i++) {
 
-	out[3] = t.pos[0] + posTracker->getTransformMatrix()[3];
+		if (posTracker->getTransformMatrix()[i] > 0.6)
+			trans[i] = 1.0f;
+		else if (posTracker->getTransformMatrix()[i] < -0.6)
+			trans[i] = -1.0f;
+		else
+			trans[i] = 0.0f;
+	}
+
+	// out = transformMatrix * floatT;
+	Utilities::matrixMult(floatT, posTracker->getTransformMatrix(), out);
+
+	/*out[3] = t.pos[0] + posTracker->getTransformMatrix()[3];
 	out[7] = -t.pos[2] + posTracker->getTransformMatrix()[7];
-	out[11] = t.pos[1] + posTracker->getTransformMatrix()[11];
+	out[11] = t.pos[1] + posTracker->getTransformMatrix()[11];*/
 
 	float position[3] = { out[3], out[7], out[11] };
 
 	posTracker->setTrackerPosition(position);
 
-	//out[3] = 0.0;
-	//out[7] = 0.0;
-	//out[11] = 0.0;
-	//posTracker->setTrackerRotation(out);
+	out[3] = 0.0;
+	out[7] = 0.0;
+	out[11] = 0.0;
 
-	float floatTROT[9] = { 0.0f };
-	float transformROT[9] = { 0.0f };
-	float outROT[9] = { 0.0f };
 
-	//floatTROT[0] = floatT[0];
-	//floatTROT[1] = floatT[1];
-	//floatTROT[2] = floatT[2];
-	//floatTROT[3] = floatT[4];
-	//floatTROT[4] = floatT[5];
-	//floatTROT[5] = floatT[6];
-	//floatTROT[6] = floatT[8];
-	//floatTROT[7] = floatT[9];
-	//floatTROT[8] = floatT[10];
 
-	floatTROT[0] = floatT[0];
-	floatTROT[1] = -floatT[2];
-	floatTROT[2] = floatT[1];
-	floatTROT[3] = floatT[4];
-	floatTROT[4] = -floatT[6];
-	floatTROT[5] = floatT[5];
-	floatTROT[6] = floatT[8];
-	floatTROT[7] = -floatT[10];
-	floatTROT[8] = floatT[9];
-
-	transformROT[0] = posTracker->getTransformMatrix()[0];
-	transformROT[1] = posTracker->getTransformMatrix()[1];
-	transformROT[2] = posTracker->getTransformMatrix()[2];
-	transformROT[3] = posTracker->getTransformMatrix()[4];
-	transformROT[4] = posTracker->getTransformMatrix()[5];
-	transformROT[5] = posTracker->getTransformMatrix()[6];
-	transformROT[6] = posTracker->getTransformMatrix()[8];
-	transformROT[7] = posTracker->getTransformMatrix()[9];
-	transformROT[8] = posTracker->getTransformMatrix()[10];
-
-	Utilities::matrixMultTHREE(floatTROT, transformROT, outROT);
-
-	posTracker->setTrackerRotation(floatT);
-	//posTracker->setTrackerRotation(outROT);
+	posTracker->setTrackerRotation(out);
 
 	// Tell the main loop that we got another report
 	gotReport = 1;
@@ -211,22 +186,22 @@ void Device::setTrackerPosition(float* t) {
 }
 void Device::setTrackerRotation(float* o ) {
 
-	double temp;
-	temp = o[1];
-	o[1] = -o[2];
-	o[2] = temp;
+	//double temp;
+	//temp = o[1];
+	//o[1] = -o[2];
+	//o[2] = temp;
 
-	temp = o[5];
-	o[5] = -o[6];
-	o[6] = temp;
+	//temp = o[5];
+	//o[5] = -o[6];
+	//o[6] = temp;
 
-	temp = o[9];
-	o[9] = -o[10];
-	o[10] = temp;
-	/*for (int i = 0; i < 16; i++) {
+	//temp = o[9];
+	//o[9] = -o[10];
+	//o[10] = temp;
+	//std::copy(o, o + 16, trackerRotation);
+	for (int i = 0; i < 16; i++) {
 		trackerRotation[i] = o[i];
-	}*/
-	std::copy(o, o + 16, trackerRotation);
+	}
 }
 void Device::setAnalogPosition(float* p) {
 	analogPos[0] = p[0];

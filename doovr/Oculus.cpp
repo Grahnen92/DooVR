@@ -80,15 +80,22 @@ int Oculus::runOvr() {
 	// Co-register variables
 	int regCounter = 0;
 	bool renderRegisterSpheres = false;
-	//float regSpherePos[16] =  { 0.0f, -1.0f, 0.0f, 1.0f,	// Sp1
-		//						1.0f, -0.5f, 0.0f, 1.0f,	// Sp2
-			//					1.0f, 0.0f, -0.5f, 1.0f,	// Sp3
-				//				1.0f, 0.0f, 0.5f, 1.0f };	// Sp4
 
-	float regSpherePos[16] = { 0.0f, 1.0f, 1.0f, 1.0f,	// Sp1
-								-1.0f, -0.5f, 0.0f, 0.0f,	// Sp2
-								0.0f, 0.0f, -0.5f, 0.5f,	// Sp3
+	//float regSpherePos[16] =	{ 0.0f, 1.0f, 1.0f, 1.0f,	// Sp1
+	//							-1.0f, -0.5f, 0.0f, 0.0f,	// Sp2
+	//							0.0f, 0.0f, -0.5f, 0.5f,	// Sp3
+	//							1.0f, 1.0f, 1.0f, 1.0f };	// Sp4
+
+	//float regSpherePos[16] =   { 0.2f,  0.4f, 0.2f, 0.4f,	// Sp1
+	//							-0.05f,  0.0f, 0.5f, 0.4f,	// Sp2
+	//							0.05f,   -0.3f,-0.4f, 0.0f,	// Sp3
+	//							1.0f, 1.0f, 1.0f, 1.0f };	// Sp4
+
+	float regSpherePos[16] =   { 0.0f, 1.0f,  0.0f, 1.0f,	// Sp1
+								-0.05f, 0.6f, -0.5f, 0.4f,	// Sp2
+								0.05f, -0.3f, -0.3f, 0.05f,	// Sp3
 								1.0f, 1.0f, 1.0f, 1.0f };	// Sp4
+
 
 	//
 	float pos[16] = { 0.0f };
@@ -383,7 +390,7 @@ int Oculus::runOvr() {
 	locationLP = glGetUniformLocation(phongShader.programID, "lightPos");				// Light position
 	locationTex = glGetUniformLocation(phongShader.programID, "tex");					// Texture Matrix
 
-	ovrHmd_RecenterPose(hmd);
+	//ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
 	// Main loop...
@@ -413,17 +420,6 @@ int Oculus::runOvr() {
 			case 0: // Dilate/Erosion, 2nd from the left
 				//chooseFunction = UPDATE_VERTEX_ARRAY;
 				currentTexID = dilate.getTextureID(); // erode later
-
-				if (buttonPressed) {
-					cout << "World coordinates after transform:" << endl;
-					for (int i = 0; i < 3; i++) {
-						cout << std::fixed << std::setprecision(2);
-						cout <<  "  " << wand->getTrackerPosition()[i] << "  ";
-					}
-					cout << endl << endl;
-					cout << "Transform to get world coordinates from wand coordinates. (T * wand = World):" << endl;
-					wand->print_transformMatrix();
-				}
 				break;
 			case 1: //Drag&Pull, first from the left		
 				chooseFunction = newDILATE;
@@ -489,16 +485,17 @@ int Oculus::runOvr() {
 						print_FLOAT_matrix(pos);
 						
 						cout << "invPos:" << endl;
-						print_FLOAT_matrix(pos);
+						print_FLOAT_matrix(invPos);
 
 						// transform = regSpherePos * invPos
-						// transform = invPos * regSpherePos    ------    regSpherePos = transform * pos
+						// transform = regSpherePos * invPos    ------   transform * pos = regSpherePos
 						
 						glm::mat4 transformGLM(1.0f);
 						transformGLM = regSpherePosGLM*invposGLM;
+						// (M1, M2, Mout) -> Mout = M2 * M1
 						Utilities::matrixMult(invPos, regSpherePos, transform);
 						// This two should be the same: transGLM <==> transform
-						
+
 						cout << "regSpherePosGLM:" << endl;
 						print_GLM_matrix(regSpherePosGLM);
 
