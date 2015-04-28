@@ -317,8 +317,8 @@ int Oculus::runOvr() {
 
 	// Initilise VRPN connection with the Intersense wand
 
-	//Device* wand = new Device(true, true, false, "Mouse");
-	Device* wand = new Device(true, true, true, "Wand");
+	Device* wand = new Device(true, true, false, "Mouse");
+	//Device* wand = new Device(true, true, true, "Wand");
 
 	float lastPos[3] = {0.0f, 0.0f, 0.0f};
 	float currPos[3] = { 0.0f, 0.0f, 0.0f };
@@ -501,6 +501,14 @@ int Oculus::runOvr() {
 
 					glLineWidth(1.0);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					
+					if (glfwGetKey(l_Window, GLFW_KEY_T)) {
+						mTest.test(sRadius, 5052, true);
+					}
+					if (glfwGetKey(l_Window, GLFW_KEY_Y)) {
+						mTest.test(sRadius, 5052, false);
+					}
+
 					mTest.render();
 
 				MVstack.pop();
@@ -547,13 +555,9 @@ int Oculus::runOvr() {
 							mTest.dilate(wand->getTrackerPosition(), lastPos, sRadius, true);
 						}
 
-						if (glfwGetKey(l_Window, GLFW_KEY_T)) {
-							mTest.test(sRadius, 5051, true);
-						}
+					
 
-						if (glfwGetKey(l_Window, GLFW_KEY_Y)) {
-							mTest.test(sRadius, 5051, false);
-						}
+					
 
 						lastPos[0] = wand->getTrackerPosition()[0];
 						lastPos[1] = wand->getTrackerPosition()[1];

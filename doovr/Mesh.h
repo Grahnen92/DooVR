@@ -86,7 +86,7 @@ class Mesh {
 	//! Calculates the vector between to points a and b and returns a pointer to the vec
 	void calculateVec(float* newVec, float a[3], float b[3]);
 
-	void updateArea(int currVert);
+	void updateArea(int* changeList, int listSize);
 
 	void addVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* currVertP, int* countP );
 	bool rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* currVertP, int* countP);
