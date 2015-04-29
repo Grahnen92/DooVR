@@ -304,8 +304,8 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	}
 
 	changeCount = 0;
-
-	updateArea(&changedVertices[0], changedVertices.size());
+	if (changedVertices.size() > 0)
+		updateArea(&changedVertices[0], changedVertices.size());
 
 	if (success == true) {
 
@@ -770,7 +770,7 @@ void Mesh::updateArea(int* changeList, int listSize) {
 
 		
 
-		//nT == loop that checks if the neighbors to currvert have any links other than the link to current vertex that are too long
+		//nT == loop that checks if the neighbors to currvert have any links other than the link to current vertex that are too short
 		for (int nT = 0; nT < vertexInfo[currVert].vertexNeighbors.size(); nT++) {
 			nVert = vertexInfo[currVert].vertexNeighbors[nT];
 
@@ -817,6 +817,34 @@ void Mesh::updateArea(int* changeList, int listSize) {
 
 		//cT = loop that checks if any of current vertex's links to its neighbors are too long
 		for (int cT = 0; cT < vertexInfo[currVert].vertexNeighbors.size(); cT++){
+			
+			nVert = vertexInfo[currVert].vertexNeighbors[cT];
+
+			vPoint1[0] = vertexArray[currVert].x;
+			vPoint1[1] = vertexArray[currVert].y;
+			vPoint1[2] = vertexArray[currVert].z;
+
+			vPoint2[0] = vertexArray[nVert].x;
+			vPoint2[1] = vertexArray[nVert].y;
+			vPoint2[2] = vertexArray[nVert].z;
+			calculateVec(tempVec1, vPoint2, vPoint1);
+			if (vecLenght(tempVec1) < MIN_LENGTH)
+			{
+				/*
+				for (int k = 0; k < vertexInfo[currVert].vertexNeighbors.size(); k++) {
+					for (int j = 0; j < vertexInfo[nVert].vertexNeighbors.size(); j++){
+						if (vertexInfo[currVert].vertexNeighbors[k] == vertexInfo[nVert].vertexNeighbors[j]){
+							if (sharedNeighbor[0] == -1)
+								sharedNeighbor[0] = vertexInfo[currVert].vertexNeighbors[k];
+							else
+								sharedNeighbor[1] = vertexInfo[currVert].vertexNeighbors[k];
+						}
+					}
+				}
+				*/
+				rmVertex(vPoint1, vPoint2, tempVec1, currVert, nVert, -1, &cT);
+
+			}
 
 		}
 
@@ -956,6 +984,27 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 	for (int i = 0; i < 2; i++) {
 
 		if (vertexInfo[sharedNeighbor[i]].vertexNeighbors.size() < 3) {
+
+			for (int j = 0; j < vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[0]].vertexNeighbors.size(); j++)
+			{
+				if (vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[0]].vertexNeighbors[j] == sharedNeighbor[i])
+					vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[0]].vertexNeighbors[j] = vertexInfo[sharedNeighbor[i]].vertexNeighbors[1];
+
+			}
+			for (int j = 0; j < vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[1]].vertexNeighbors.size(); j++)
+			{
+				if (vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[1]].vertexNeighbors[j] == sharedNeighbor[i])
+					vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[1]].vertexNeighbors[j] = vertexInfo[sharedNeighbor[i]].vertexNeighbors[0];
+
+			}
+
+			vertexInfo[sharedNeighbor[i]].vertexNeighbors.clear();
+			vertexInfo[sharedNeighbor[i]].triangleNeighbors.clear();
+
+			vertexArray[sharedNeighbor[i]].x = -1000;
+			vertexArray[sharedNeighbor[i]].y = -1000;
+			vertexArray[sharedNeighbor[i]].z = -1000;
+			/*
 			vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[0]].vertexNeighbors[
 				*find(vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[0]].vertexNeighbors.begin(),
 					  vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[0]].vertexNeighbors.end(), sharedNeighbor[i])] = vertexInfo[sharedNeighbor[i]].vertexNeighbors[1];
@@ -963,7 +1012,7 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 			vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[1]].vertexNeighbors[
 				*find(vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[1]].vertexNeighbors.begin(),
 					vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[1]].vertexNeighbors.end(), sharedNeighbor[i])] = vertexInfo[sharedNeighbor[i]].vertexNeighbors[0];
-
+					*/
 				if (sharedNeighbor[i] == currVertP)
 					return false;
 		}
