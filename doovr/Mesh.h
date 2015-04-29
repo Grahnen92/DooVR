@@ -88,8 +88,8 @@ class Mesh {
 
 	void updateArea(int* changeList, int listSize);
 
-	void addVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* currVertP, int* countP );
-	bool rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* currVertP, int* countP);
+	void addVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int currVertP, int* counter );
+	bool rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int currVertP, int* counter);
 
 	int rows;
 	int cols;
