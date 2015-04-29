@@ -459,17 +459,17 @@ void Mesh::test(float bRad, int vNR, bool plus) {
 	vector<int> endCol;		// last edited column on row
 
 	for (int i = 0; i < vertexArray.size(); i++) {
-		if (testPoint == i || testPoint == i + 1|| testPoint == i - 1|| testPoint == i + 100|| testPoint == i + 1 + 100|| testPoint == i - 1 + 100) {
-		//if (testPoint == i) {
+		//if (testPoint == i || testPoint == i + 1|| testPoint == i - 1|| testPoint == i + 100|| testPoint == i + 1 + 100|| testPoint == i - 1 + 100) {
+		if (testPoint == i) {
 
 			if (plus)
 			{
 
 			}
 			else
-				vertexArray[i].y += 0.0001f;
+				vertexArray[i].z += 0.0001f;
 
-			changedVertices.push_back(i);
+			changedVertices.push_back(5051);
 			changeCount++;
 
 			success = true;
@@ -502,6 +502,7 @@ void Mesh::test(float bRad, int vNR, bool plus) {
 
 	//if (vertexArray.size() > 5053)
 	//{
+	/*
 		glLineWidth(2.0);
 		for (int i = 0; i < vertexInfo[5053].vertexNeighbors.size() ; i++)
 		{
@@ -527,8 +528,9 @@ void Mesh::test(float bRad, int vNR, bool plus) {
 		//vertexInfo[4951].vertexNeighbors[]
 
 		glLineWidth(1.0);
+		*/
 	//}
-		/*
+		
 		glLineWidth(2.0);
 		for (int i = 0; i < vertexInfo[vNR].vertexNeighbors.size(); i++)
 		{
@@ -551,7 +553,7 @@ void Mesh::test(float bRad, int vNR, bool plus) {
 			glVertex3f(vertexArray[vertexInfo[vNR].vertexNeighbors[i]].x, vertexArray[vertexInfo[vNR].vertexNeighbors[i]].y + 0.01f, vertexArray[vertexInfo[vNR].vertexNeighbors[i]].z);
 			glEnd();
 		}
-		*/
+		
 	if (success == true) {
 
 		vertexP = &vertexArray[0];
@@ -706,7 +708,7 @@ void Mesh::updateArea(int* changeList, int listSize) {
 	float tempNorm1[3] = { 0.0f, 0.0f, 0.0f };
 	float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
 
-	static const float MIN_LENGTH = 0.005;
+	static const float MIN_LENGTH = 0.03;
 	static const float MAX_LENGTH = 0.01;
 
 	float tempVec1[3], tempVec2[3], tempVec3[3];
@@ -717,7 +719,7 @@ void Mesh::updateArea(int* changeList, int listSize) {
 
 	int currVert = -1; int nVert = -1; int nTri = -1;
 
-	
+	int sharedNeighbor[2] = {-1, -1};
 	//while (changeCount < listSize)
 
 	//c == loop that handles current vertex of the vertexes that need updating
@@ -766,28 +768,32 @@ void Mesh::updateArea(int* changeList, int listSize) {
 
 		// RETRIANGULATION ////////////////////////////////////////////////////////////////////////////////////////
 
-		vector<int>::iterator sharedNeighbor[2];
+		
 
 		//nT == loop that checks if the neighbors to currvert have any links other than the link to current vertex that are too long
 		for (int nT = 0; nT < vertexInfo[currVert].vertexNeighbors.size(); nT++) {
 			nVert = vertexInfo[currVert].vertexNeighbors[nT];
-			sharedNeighbor[0] = vertexInfo[nVert].vertexNeighbors.end();
-			sharedNeighbor[1] = vertexInfo[nVert].vertexNeighbors.end();
+
+			
 
 			for (int k = 0; k < vertexInfo[currVert].vertexNeighbors.size(); k++) {
-				if (sharedNeighbor[0] == vertexInfo[nVert].vertexNeighbors.end())
-					sharedNeighbor[0] = find(vertexInfo[nVert].vertexNeighbors.begin(), vertexInfo[nVert].vertexNeighbors.end(), vertexInfo[currVert].vertexNeighbors[k]);
-				else
-					sharedNeighbor[1] = find(vertexInfo[nVert].vertexNeighbors.begin(), vertexInfo[nVert].vertexNeighbors.end(), vertexInfo[currVert].vertexNeighbors[k]);
+				for (int j = 0; j < vertexInfo[nVert].vertexNeighbors.size(); j++){
+					if (vertexInfo[currVert].vertexNeighbors[k] == vertexInfo[nVert].vertexNeighbors[j]){
+						if (sharedNeighbor[0] == -1)
+							sharedNeighbor[0] = vertexInfo[currVert].vertexNeighbors[k];
+						else
+							sharedNeighbor[1] = vertexInfo[currVert].vertexNeighbors[k];
+					}
+				}
 			}
 
-			vPoint1[0] = vertexArray[*sharedNeighbor[0]].x;
-			vPoint1[1] = vertexArray[*sharedNeighbor[0]].y;
-			vPoint1[2] = vertexArray[*sharedNeighbor[0]].z;
+			vPoint1[0] = vertexArray[sharedNeighbor[0]].x;
+			vPoint1[1] = vertexArray[sharedNeighbor[0]].y;
+			vPoint1[2] = vertexArray[sharedNeighbor[0]].z;
 
-			vPoint2[0] = vertexArray[*sharedNeighbor[1]].x;
-			vPoint2[1] = vertexArray[*sharedNeighbor[1]].y;
-			vPoint2[2] = vertexArray[*sharedNeighbor[1]].z;
+			vPoint2[0] = vertexArray[sharedNeighbor[1]].x;
+			vPoint2[1] = vertexArray[sharedNeighbor[1]].y;
+			vPoint2[2] = vertexArray[sharedNeighbor[1]].z;
 
 			vPoint3[0] = vertexArray[nVert].x;
 			vPoint3[1] = vertexArray[nVert].y;
@@ -799,12 +805,14 @@ void Mesh::updateArea(int* changeList, int listSize) {
 
 			if (vecLenght(tempVec1) < MIN_LENGTH)
 			{
-				rmVertex(vPoint1, vPoint3, tempVec1, nVert, *sharedNeighbor[0], currVert, &nT);
+				rmVertex(vPoint3, vPoint1, tempVec1, nVert, sharedNeighbor[0], currVert, &nT);
 			}
 			/*maybe if*/else if (vecLenght(tempVec2) < MIN_LENGTH)
 			{
-				//rmVertex(vPoint2, vPoint3, tempVec2, nVert, *sharedNeighbor[1], currVert, &nT);
+				rmVertex(vPoint3, vPoint1, tempVec2, nVert, sharedNeighbor[1], currVert, &nT);
 			}
+			sharedNeighbor[0] = -1;
+			sharedNeighbor[1] = -1;
 		}
 
 		//cT = loop that checks if any of current vertex's links to its neighbors are too long
@@ -818,9 +826,150 @@ void Mesh::updateArea(int* changeList, int listSize) {
 
 void Mesh::addVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int currVertP, int* counter) {
 
+
+
 }
+//STILL NEED TO USE COUNTER DONT FORGET
 bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int currVertP, int* counter) {
 	
+	//vector<int>::iterator sharedNeighbor[2];
+	int sharedNeighbor[2] = { -1, -1 };
+	//vector<int>::iterator sharedTriNeighbor[2];
+	int sharedTriNeighbor[2] = { -1, -1 };
+
+	vertexArray[currVert].x = pA[0] + vecA2B[0];
+	vertexArray[currVert].y = pA[1] + vecA2B[1];
+	vertexArray[currVert].z = pA[2] + vecA2B[2];
+
+	// find shared neighbors between currVert and nVert
+	for (int k = 0; k < vertexInfo[currVert].vertexNeighbors.size(); k++) {
+		for (int j = 0; j < vertexInfo[nVert].vertexNeighbors.size(); j++){
+			if (vertexInfo[currVert].vertexNeighbors[k] == vertexInfo[nVert].vertexNeighbors[j]){
+				if (sharedNeighbor[0] == -1)
+					sharedNeighbor[0] = vertexInfo[currVert].vertexNeighbors[k];
+				else
+					sharedNeighbor[1] = vertexInfo[currVert].vertexNeighbors[k];
+			}
+			
+			if (vertexInfo[currVert].triangleNeighbors[k] == vertexInfo[nVert].triangleNeighbors[j]){
+				if (sharedTriNeighbor[0] == -1)
+					sharedTriNeighbor[0] = vertexInfo[currVert].triangleNeighbors[k];
+				else
+					sharedTriNeighbor[1] = vertexInfo[currVert].triangleNeighbors[k];
+			}
+		}
+	}
+	
+	
+	// REMOVE THE TRIANGLES
+	// remove the triangles from the first shared neighbor
+	vertexInfo[sharedNeighbor[0]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[0]].triangleNeighbors.begin(), 
+																  vertexInfo[sharedNeighbor[0]].triangleNeighbors.end(), 
+																  sharedTriNeighbor[0]), vertexInfo[sharedNeighbor[0]].triangleNeighbors.end());
+
+	vertexInfo[sharedNeighbor[0]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[0]].triangleNeighbors.begin(),
+																  vertexInfo[sharedNeighbor[0]].triangleNeighbors.end(),
+																  sharedTriNeighbor[1]), vertexInfo[sharedNeighbor[0]].triangleNeighbors.end());
+
+	// remove the triangles from the second shared neighbor
+	vertexInfo[sharedNeighbor[1]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[1]].triangleNeighbors.begin(),
+														   vertexInfo[sharedNeighbor[1]].triangleNeighbors.end(),
+														   sharedTriNeighbor[0]), vertexInfo[sharedNeighbor[1]].triangleNeighbors.end());
+
+	vertexInfo[sharedNeighbor[1]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[1]].triangleNeighbors.begin(),
+																  vertexInfo[sharedNeighbor[1]].triangleNeighbors.end(),
+																  sharedTriNeighbor[1]), vertexInfo[sharedNeighbor[1]].triangleNeighbors.end());
+
+	// remove the triangles from currVert
+	vertexInfo[currVert].triangleNeighbors.erase(remove(vertexInfo[currVert].triangleNeighbors.begin(),
+																  vertexInfo[currVert].triangleNeighbors.end(),
+																  sharedTriNeighbor[0]), vertexInfo[currVert].triangleNeighbors.end());
+
+	vertexInfo[currVert].triangleNeighbors.erase(remove(vertexInfo[currVert].triangleNeighbors.begin(),
+														vertexInfo[currVert].triangleNeighbors.end(),
+														sharedTriNeighbor[1]), vertexInfo[currVert].triangleNeighbors.end());
+
+	// remove the triangles from nVert
+	vertexInfo[nVert].triangleNeighbors.erase(remove(vertexInfo[nVert].triangleNeighbors.begin(),
+														vertexInfo[nVert].triangleNeighbors.end(),
+														sharedTriNeighbor[0]), vertexInfo[nVert].triangleNeighbors.end());
+
+	vertexInfo[nVert].triangleNeighbors.erase(remove(vertexInfo[nVert].triangleNeighbors.begin(),
+													 vertexInfo[nVert].triangleNeighbors.end(),
+													 sharedTriNeighbor[1]), vertexInfo[nVert].triangleNeighbors.end());
+
+	// remove the triangles from IndexArray
+	indexArray[sharedTriNeighbor[0]].index[0] = 0;
+	indexArray[sharedTriNeighbor[0]].index[1] = 0;
+	indexArray[sharedTriNeighbor[0]].index[2] = 0;
+
+	indexArray[sharedTriNeighbor[1]].index[0] = 0;
+	indexArray[sharedTriNeighbor[1]].index[1] = 0;
+	indexArray[sharedTriNeighbor[1]].index[2] = 0;
+
+	// insert remaining triangles in nVert in currVert
+	vertexInfo[currVert].triangleNeighbors.insert(vertexInfo[currVert].triangleNeighbors.end(), 
+												  vertexInfo[nVert].triangleNeighbors.begin(), 
+												  vertexInfo[nVert].triangleNeighbors.end());
+
+	// insert non-shared neighbors in currVert
+	for (int i = 0; i < vertexInfo[nVert].vertexNeighbors.size(); i++) {
+		if (vertexInfo[nVert].vertexNeighbors[i] != currVert && vertexInfo[nVert].vertexNeighbors[i] != sharedNeighbor[0] && vertexInfo[nVert].vertexNeighbors[i] != sharedNeighbor[1])
+		{
+			//add nVerts neighbors to currverts neighbors
+			vertexInfo[currVert].vertexNeighbors.push_back(vertexInfo[nVert].vertexNeighbors[i]);
+
+			for (int j = 0; j < vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors.size(); j++) {
+				if (vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors[j] == nVert) {
+					vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors[j] = currVert;
+
+				}
+
+			}
+			//replace nVert in nVerts neighbors with currvert
+			/*vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors[
+						*find(vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors.begin(),
+						vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors.end(), nVert)] = currVert;*/
+		}
+	}
+
+	// remove nVert from vertexNeighbors and currVert
+	vertexInfo[currVert].vertexNeighbors.erase(remove(vertexInfo[currVert].vertexNeighbors.begin(), vertexInfo[currVert].vertexNeighbors.end(), nVert), vertexInfo[currVert].vertexNeighbors.end());
+	vertexInfo[sharedNeighbor[0]].vertexNeighbors.erase(remove(vertexInfo[sharedNeighbor[0]].vertexNeighbors.begin(), vertexInfo[sharedNeighbor[0]].vertexNeighbors.end(), nVert), vertexInfo[sharedNeighbor[0]].vertexNeighbors.end());
+	vertexInfo[sharedNeighbor[1]].vertexNeighbors.erase(remove(vertexInfo[sharedNeighbor[1]].vertexNeighbors.begin(), vertexInfo[sharedNeighbor[1]].vertexNeighbors.end(), nVert), vertexInfo[sharedNeighbor[1]].vertexNeighbors.end());
+
+	// replace the nVert index in the triangleNeighbors of nVert with currVert 
+	for (int i = 0; i < vertexInfo[nVert].triangleNeighbors.size(); i++) {
+		for (int j = 0; j < 3; j++) {
+			if (indexArray[vertexInfo[nVert].triangleNeighbors[i]].index[j] == nVert)
+				indexArray[vertexInfo[nVert].triangleNeighbors[i]].index[j] = currVert;
+		}
+	}
+	
+	vertexArray[nVert].x = -1000;
+	vertexArray[nVert].y = -1000;
+	vertexArray[nVert].z = -1000;
+	vertexInfo[nVert].triangleNeighbors.clear();
+	vertexInfo[nVert].vertexNeighbors.clear();
+
+
+	for (int i = 0; i < 2; i++) {
+
+		if (vertexInfo[sharedNeighbor[i]].vertexNeighbors.size() < 3) {
+			vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[0]].vertexNeighbors[
+				*find(vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[0]].vertexNeighbors.begin(),
+					  vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[0]].vertexNeighbors.end(), sharedNeighbor[i])] = vertexInfo[sharedNeighbor[i]].vertexNeighbors[1];
+
+			vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[1]].vertexNeighbors[
+				*find(vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[1]].vertexNeighbors.begin(),
+					vertexInfo[vertexInfo[sharedNeighbor[i]].vertexNeighbors[1]].vertexNeighbors.end(), sharedNeighbor[i])] = vertexInfo[sharedNeighbor[i]].vertexNeighbors[0];
+
+				if (sharedNeighbor[i] == currVertP)
+					return false;
+		}
+	}
+
+	return true;
 }
 
 
