@@ -86,91 +86,22 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
 	posTracker->setTrackerRotation(orient_local);
 	*/
 
-	// Alternativ 1
-
-
-
-
-	
-	// Alternativ 2
-	float M[16] = { 1.0f, 0.0f, 0.0f, 0.0f,
-					0.0f, 0.0f, -1.0f, 0.0f,
-					0.0f, 1.0f, 0.0f, 0.0f,
-					0.0f, 0.0f, 0.0f, 1.0f };
-
-	//Moturs rotation runt x-axeln
-	float Mpost[16] = { 1.0f, 0.0f, 0.0f, 0.0f,
-						0.0f, -1.0f, 0.0f, 0.0f,
-						0.0f, 0.0f, -1.0f, 0.0f,
-						0.0f, 0.0f, 0.0f, 1.0f };
+	// Set the new position
+	float position[3];
+	position[0] = t.pos[0] + posTracker->getTransformMatrix()[3];
+	position[1] = -t.pos[2] + posTracker->getTransformMatrix()[7];
+	position[2] = t.pos[1] + posTracker->getTransformMatrix()[11];
+	posTracker->setTrackerPosition(position);
 
 	double T[16];
 	float floatT[16] = { 0.0f };
 	float out[16] = { 0.0f };
 	q_to_ogl_matrix(T, t.quat);
 	std::copy(T, T + 16, floatT); // convert from double to float
-
-	// save translation in one transform
-	floatT[3] = t.pos[0];
-	floatT[7] = t.pos[1];
-	floatT[11] = t.pos[2];
-	floatT[15] = 1.0f;
-
-	// fråga
-	float trans[16] = { 0.0f };
-	for (int i = 0; i < 16; i++) {
-
-		if (i != 3 || i != 7 || i != 11) {
-			if (posTracker->getTransformMatrix()[i] > 0.6)
-				trans[i] = 1.0f;
-			else if (posTracker->getTransformMatrix()[i] < -0.6)
-				trans[i] = -1.0f;
-			else
-				trans[i] = 0.0f;
-		}
-	}
-
-	// Skapa enhetsmatrix med translation
-	float trans2[16] = { 0.0f };
-	trans2[0] = 1.0f;
-	trans2[5] = 1.0f;
-	trans2[10] = 1.0f;
-	trans2[15] = 1.0f;
-
-	trans2[3] = posTracker->getTransformMatrix()[3];
-	trans2[7] = posTracker->getTransformMatrix()[7];
-	trans2[11] = posTracker->getTransformMatrix()[11];
-
-	// floatT = floatT*M
-	
-	// Mpre - Statiska förandringen 
-	//Utilities::matrixMult(M, floatT, floatT);
-	// out = transformMatrix * floatT;
-	// out = transformMatrix * floatT;
-	Utilities::matrixMult(floatT, posTracker->getTransformMatrix(), out);
-
-	//Utilities::matrixMult(floatT, trans2, out);
-
-	// Set the new position
-
-
-	out[3] = t.pos[0] + posTracker->getTransformMatrix()[3];
-	out[7] = -t.pos[2] + posTracker->getTransformMatrix()[7];
-	out[11] = t.pos[1] + posTracker->getTransformMatrix()[11];
-
-	float position[3] = { out[3], out[7], out[11] };
-	posTracker->setTrackerPosition(position);
-
-	//Utilities::matrixMult( out , Mpost, out);
-
-	// Set translation to zero in rotation matrix.
-	out[3] = 0.0;
-	out[7] = 0.0;
-	out[11] = 0.0;
-
 	floatT[3] = 0.0;
 	floatT[7] = 0.0;
 	floatT[11] = 0.0;
+	floatT[15] = 1.0f;
 	posTracker->setTrackerRotation(floatT);
 
 	// Tell the main loop that we got another report
@@ -223,14 +154,14 @@ void Device::setTrackerPosition(float* t) {
 	trackerPosition[2] = t[1] - 0.0f;
 	*/
 	trackerPosition[0] = t[0];
-	trackerPosition[1] = t[1]; // offset to get correct wand coordinates
+	trackerPosition[1] = t[1];
 	trackerPosition[2] = t[2];
 
 
 }
 void Device::setTrackerRotation(float* o ) {
 
-	double temp;
+	float temp;
 	temp = o[1];
 	o[1] = -o[2];
 	o[2] = temp;
@@ -243,9 +174,6 @@ void Device::setTrackerRotation(float* o ) {
 	o[9] = -o[10];
 	o[10] = temp;
 	std::copy(o, o + 16, trackerRotation);
-	//for (int i = 0; i < 16; i++) {
-	//	trackerRotation[i] = o[i];
-	//}
 }
 void Device::setAnalogPosition(float* p) {
 	analogPos[0] = p[0];

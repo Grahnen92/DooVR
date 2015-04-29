@@ -86,21 +86,28 @@ int Oculus::runOvr() {
 	//							0.0f, 0.0f, -0.5f, 0.5f,	// Sp3
 	//							1.0f, 1.0f, 1.0f, 1.0f };	// Sp4
 
-	//float regSpherePos[16] =   { 0.2f,  0.4f, 0.2f, 0.4f,	// Sp1
-	//							-0.05f,  0.0f, 0.5f, 0.4f,	// Sp2
-	//							0.05f,   -0.3f,-0.4f, 0.0f,	// Sp3
+	//float regSpherePos[16] =   { 0.2f,  0.4f, 0.2f, 0.4f,	// Sp1 0.2
+	//							-0.05f,  0.0f, -0.5f, -0.4f,	// Sp2 0.5
+	//							0.05f,  -0.3f,-0.4f, 0.0f,	// Sp3 0.45
 	//							1.0f, 1.0f, 1.0f, 1.0f };	// Sp4
 
-	float regSpherePos[16] =   { 0.0f, 1.0f,  0.0f, 1.0f,	// Sp1
-								-0.05f, 0.6f, -0.5f, 0.4f,	// Sp2
-								0.05f, -0.3f, -0.3f, 0.05f,	// Sp3
+	float regSpherePos[16] = { 0.0f, 0.0f, 0.4f, 0.4f,	// Sp1 0.2
+								0.0f, -0.4f, 0.0f, -0.4f,	// Sp2 0.5
+								-0.1f, -0.3f, -0.3f, -0.1f,	// Sp3 0.45
 								1.0f, 1.0f, 1.0f, 1.0f };	// Sp4
+
+	//float regSpherePos[16] =   { 0.0f, 1.0f,  0.0f, 1.0f,	// Sp1 1.0
+	//							-0.05f, 0.6f, -0.5f, 0.4f,	// Sp2 1.1
+	//							0.25f, -0.3f, -0.5f, 0.05f,	// Sp3 0.305
+	//							1.0f, 1.0f, 1.0f, 1.0f };	// Sp4
 
 
 	//
 	float pos[16] = { 0.0f };
 	float transform[16] = { 0.0f };
 	float invPos[16] = { 0.0f };
+	float eyeHeight = OVR_DEFAULT_EYE_HEIGHT;
+	float eye, floor;
 
 
 	// FPS
@@ -356,7 +363,7 @@ int Oculus::runOvr() {
 
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));			//Ground plane
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
-	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3f, 1.5f, 0.3f));
+	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.15f, 1.58f, 0.15f));
 
 	// Wand = Box + sphere
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.20f, 0.03f, 0.03f));
@@ -375,7 +382,7 @@ int Oculus::runOvr() {
 	Texture move("../Textures/test1.DDS");
 	Texture dilate("../Textures/test3.DDS");
 	Texture erode("../Textures/test5.DDS");
-	Texture dnp("../Textures/test5.DDS");
+	Texture dnp("../Textures/blue3.DDS");
 
 	Texture groundTex("x.DDS");
 	Texture meshTex("x.DDS");
@@ -432,11 +439,11 @@ int Oculus::runOvr() {
 				break;
 			case 3: // Recenter, first from the right
 				//chooseFunction = RECENTER;
-				ovrHmd_RecenterPose(hmd);
-				ovrHmd_DismissHSWDisplay(hmd);
 				break;
 			case 4: // co-register, analog button
 				chooseFunction = coREGISTER;
+				ovrHmd_RecenterPose(hmd);
+				ovrHmd_DismissHSWDisplay(hmd);
 				renderRegisterSpheres = true;
 				wand->setTransformMatrix(I);
 				break;
@@ -448,71 +455,34 @@ int Oculus::runOvr() {
 					mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
 				}
 				else if (chooseFunction == coREGISTER && buttonPressed) {
-					
-					cout << "Wand position for #" << regCounter << endl;
-					for (int i = 0; i < 3; i++) { // Save wand position & rotation 
 
-						//pos[i + 4 * regCounter] = wand->getTrackerPosition()[i]; //rad [ 0 1 2 3; 4]
-						pos[i * 4 + regCounter] = wand->getTrackerPosition()[i];
-
-						cout << pos[i + 4 * regCounter] << " ";
+					if (regCounter <= 3)
+					{
+						for (int i = 0; i < 3; i++) { // Save wand position & rotation 
+							pos[i * 4 + regCounter] = wand->getTrackerPosition()[i];
+						}
+						cout << endl;
+						pos[12 + regCounter] = 1.0f; // column --> sista raden med ettor
 					}
-					cout << endl;
-					//pos[3 + 4 * regCounter] = 1.0f; // radvis --> sista column med ettor
-					pos[12 + regCounter] = 1.0f; // column --> sista raden med ettor
-					regCounter++;
-
-					if (regCounter == 4) {
-						regCounter = 0;
-						// Create GLM matrix
-						glm::mat4 posGLM;
-						glm::mat4 regSpherePosGLM;
-						// copy from float pos matrix
-						memcpy(glm::value_ptr(posGLM), pos, sizeof(pos));
-						memcpy(glm::value_ptr(regSpherePosGLM), regSpherePos, sizeof(regSpherePos));
-						//inverse of the glm matrix
-						glm::mat4 invposGLM = glm::inverse(posGLM);
-						// O = transform*W <--> invPos = inv(pos)
-						Utilities::invertMatrix(pos, invPos);
-
-						cout << "pos GLM:" << endl;
-						print_GLM_matrix(posGLM);
-						
-						cout << "invposGLM:" << endl;
-						print_GLM_matrix(invposGLM);
-
-						cout << "pos: " << endl;
-						print_FLOAT_matrix(pos);
-						
-						cout << "invPos:" << endl;
-						print_FLOAT_matrix(invPos);
-
-						// transform = regSpherePos * invPos
+					if (regCounter == 3) {
 						// transform = regSpherePos * invPos    ------   transform * pos = regSpherePos
-						
-						glm::mat4 transformGLM(1.0f);
-						transformGLM = regSpherePosGLM*invposGLM;
 						// (M1, M2, Mout) -> Mout = M2 * M1
+						Utilities::invertMatrix(pos, invPos);
 						Utilities::matrixMult(invPos, regSpherePos, transform);
-						// This two should be the same: transGLM <==> transform
-
-						cout << "regSpherePosGLM:" << endl;
-						print_GLM_matrix(regSpherePosGLM);
-
-						cout << "regSpherePos:" << endl;
-						print_FLOAT_matrix(regSpherePos);
-
-						cout << "transformGLM:" << endl;
-						print_GLM_matrix(transformGLM);
-
-						cout << "transform: " << endl;
-						print_FLOAT_matrix(transform);
-
-
 						wand->setTransformMatrix(transform);
-
-						chooseFunction = newDILATE;
 						renderRegisterSpheres = false;
+					}
+					else if (regCounter == 4)
+						eye = wand->getTrackerPosition()[1];		// ta ögon höjd		regCounter = 4
+					else if (regCounter == 5)
+						floor = wand->getTrackerPosition()[1];	// ta golv höjd		regCounter = 5
+
+					regCounter++;
+					if (regCounter == 6)						// Configure done.
+					{
+						eyeHeight = eye - floor;
+						regCounter = 0;
+						chooseFunction = newDILATE;
 					}
 				}
 				break;
@@ -567,13 +537,12 @@ int Oculus::runOvr() {
 			lines = false;
 		}
 		// Reset offset when button is released
-		if (buttonReleased) {
+		/*if (buttonReleased) {
 			changePos[0] = 0.0f;
 			changePos[1] = 0.0f;
 			changePos[2] = 0.0f;
 			Utilities::makeUniform(differenceR);
-
-		}
+		}*/
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Save position of tracker from last frame to get deltaPos
 		lastPos[0] = wand->getTrackerPosition()[0];
@@ -644,7 +613,7 @@ int Oculus::runOvr() {
 				// Ground
 				MVstack.push();
 					translateVector[0] = 0.0f;
-					translateVector[1] = -1.088f;
+					translateVector[1] = -eyeHeight;
 					translateVector[2] = 0.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
@@ -655,7 +624,7 @@ int Oculus::runOvr() {
 				// Box camera
 				MVstack.push();
 					translateVector[0] = 0.0f;
-					translateVector[1] = 0.0f; // chair height
+					translateVector[1] = -eyeHeight + boxCamera.getDim().y / 2; // chair height
 					translateVector[2] = -2.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
@@ -666,7 +635,7 @@ int Oculus::runOvr() {
 				// Box (chair) with wand on
 				MVstack.push();
 					translateVector[0] = 1.0f;
-					translateVector[1] = -0.818f; // chair height
+					translateVector[1] = -eyeHeight + box.getDim().y / 2; // chair height
 					translateVector[2] = 0.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
@@ -677,12 +646,9 @@ int Oculus::runOvr() {
 				// Co-register spheres
 				if (renderRegisterSpheres) {
 					MVstack.push();
-						//translateVector[0] = regSpherePos[0 + 4 * regCounter];
-						//translateVector[1] = regSpherePos[1 + 4 * regCounter];
-						//translateVector[2] = regSpherePos[2 + 4 * regCounter];
-						translateVector[0] = regSpherePos[0 +  regCounter];
-						translateVector[1] = regSpherePos[4 +  regCounter];
-						translateVector[2] = regSpherePos[8 +  regCounter];
+						translateVector[0] = regSpherePos[0 + regCounter];
+						translateVector[1] = regSpherePos[4 + regCounter];
+						translateVector[2] = regSpherePos[8 + regCounter];
 						MVstack.translate(translateVector);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
@@ -709,7 +675,7 @@ int Oculus::runOvr() {
 					MVstack.push();
 						MVstack.scale(wandRadius);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
+						glBindTexture(GL_TEXTURE_2D, currentTexID);
 						sphereWand.render();
 						if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 					MVstack.pop();

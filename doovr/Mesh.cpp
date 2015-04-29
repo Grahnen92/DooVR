@@ -20,7 +20,7 @@ Mesh::Mesh() {
 	indexArray.reserve(100000);
 
 	position[0] = 0.0f;
-	position[1] = 0.0f;
+	position[1] = -0.2f;
 	position[2] = 0.0f;
 
 	orientation[0] = 1.0f;

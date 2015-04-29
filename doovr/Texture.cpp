@@ -5,7 +5,7 @@ using namespace std;
 
 
 Texture::Texture(){
-	cout << "Sleeping.." << endl;
+	cout << "Sleeping.." << endl; // empty constructor
 }
 
 Texture::~Texture() {
