@@ -555,10 +555,6 @@ int Oculus::runOvr() {
 							mTest.dilate(wand->getTrackerPosition(), lastPos, sRadius, true);
 						}
 
-					
-
-					
-
 						lastPos[0] = wand->getTrackerPosition()[0];
 						lastPos[1] = wand->getTrackerPosition()[1];
 						lastPos[2] = wand->getTrackerPosition()[2];
