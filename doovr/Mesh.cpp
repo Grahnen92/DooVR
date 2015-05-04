@@ -719,7 +719,9 @@ void Mesh::updateArea(int* changeList, int listSize) {
 
 	int currVert = -1; int nVert = -1; int nTri = -1;
 
-	int sharedNeighbor[2] = {-1, -1};
+	vector<int> sharedNeighbor;
+	sharedNeighbor.reserve(3);
+	int tmpIndex1 = -1; int tmpIndex2 = -1;
 	//while (changeCount < listSize)
 
 	//c == loop that handles current vertex of the vertexes that need updating
@@ -773,18 +775,14 @@ void Mesh::updateArea(int* changeList, int listSize) {
 		for (int nT = 0; nT < vertexInfo[currVert].vertexNeighbors.size(); nT++) {
 			nVert = vertexInfo[currVert].vertexNeighbors[nT];
 
-			
-
 			for (int k = 0; k < vertexInfo[currVert].vertexNeighbors.size(); k++) {
 				for (int j = 0; j < vertexInfo[nVert].vertexNeighbors.size(); j++){
-					if (vertexInfo[currVert].vertexNeighbors[k] == vertexInfo[nVert].vertexNeighbors[j]){
-						if (sharedNeighbor[0] == -1)
-							sharedNeighbor[0] = vertexInfo[currVert].vertexNeighbors[k];
-						else
-							sharedNeighbor[1] = vertexInfo[currVert].vertexNeighbors[k];
+					if (vertexInfo[currVert].vertexNeighbors[k] == vertexInfo[nVert].vertexNeighbors[j])
+						sharedNeighbor.push_back(vertexInfo[currVert].vertexNeighbors[k]);
+
 					}
 				}
-			}
+
 
 			vPoint1[0] = vertexArray[sharedNeighbor[0]].x;
 			vPoint1[1] = vertexArray[sharedNeighbor[0]].y;
@@ -812,11 +810,8 @@ void Mesh::updateArea(int* changeList, int listSize) {
 				if (!rmVertex(vPoint3, vPoint1, tempVec2, nVert, sharedNeighbor[1], currVert, &nT))
 					break;
 			}
-			sharedNeighbor[0] = -1;
-			sharedNeighbor[1] = -1;
+			sharedNeighbor.clear();
 		}
-		sharedNeighbor[0] = -1;
-		sharedNeighbor[1] = -1;
 
 		//cT = loop that checks if any of current vertex's links to its neighbors are too long or short
 		for (int cT = 0; cT < vertexInfo[currVert].vertexNeighbors.size(); cT++){
@@ -854,11 +849,10 @@ void Mesh::addVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVer
 //STILL NEED TO USE COUNTER DONT FORGET
 bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int currVertP, int* counter) {
 	
-	//vector<int>::iterator sharedNeighbor[2];
-	int sharedNeighbor[3] = { -1, -1, -1 };
-	//vector<int>::iterator sharedTriNeighbor[2];
+	vector <int> sharedNeighbor;
+	sharedNeighbor.reserve(3);
 	int sharedTriNeighbor[2] = { -1, -1 };
-	int tmpIndex1 = -1; //int index2 = -1;
+	int tmpIndex1 = -1; int tmpIndex2 = -1;
 
 	vertexArray[currVert].x = pA[0] + vecA2B[0];
 	vertexArray[currVert].y = pA[1] + vecA2B[1];
@@ -867,175 +861,384 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 	// find shared neighbors between currVert and nVert
 	for (int k = 0; k < vertexInfo[currVert].vertexNeighbors.size(); k++) {
 		for (int j = 0; j < vertexInfo[nVert].vertexNeighbors.size(); j++){
-			if (vertexInfo[currVert].vertexNeighbors[k] == vertexInfo[nVert].vertexNeighbors[j]){
-				if (sharedNeighbor[0] == -1)
-					sharedNeighbor[0] = vertexInfo[currVert].vertexNeighbors[k];
-				else if (sharedNeighbor[1] == -1) 
-					sharedNeighbor[1] = vertexInfo[currVert].vertexNeighbors[k];
-				else {
-					sharedNeighbor[2] = vertexInfo[currVert].vertexNeighbors[k];
-					break;
-				}
-			}
+			if (vertexInfo[currVert].vertexNeighbors[k] == vertexInfo[nVert].vertexNeighbors[j])
+					sharedNeighbor.push_back(vertexInfo[currVert].vertexNeighbors[k]);
 			
 			if (vertexInfo[currVert].triangleNeighbors[k] == vertexInfo[nVert].triangleNeighbors[j]){
 				if (sharedTriNeighbor[0] == -1)
 					sharedTriNeighbor[0] = vertexInfo[currVert].triangleNeighbors[k];
-				else{
+				else
 					sharedTriNeighbor[1] = vertexInfo[currVert].triangleNeighbors[k];
+				
+			}
+		}
+	}
+	
+	
+	if (sharedNeighbor.size() == 3) {
+		/*
+		for (int i = 0; i < 3; i++)
+		{
+			if (vertexInfo[sharedNeighbor[i]].vertexNeighbors.size() == 3){
+				tmpIndex2 = i;
+				for (int j = 0; j < 3; j++)
+				{
+					if (vertexInfo[sharedNeighbor[i]].vertexNeighbors[j] == sharedNeighbor[(tmpIndex2 + 1) % 3]){
+						tmpIndex1 = (tmpIndex2 + 1) % 3;
+					}
+					else if (vertexInfo[sharedNeighbor[i]].vertexNeighbors[j] == sharedNeighbor[(tmpIndex2 + 2) % 3]){
+						tmpIndex1 = (tmpIndex2 + 2) % 3;
+					}
+				}
+			}
+		}
+		sharedNeighbor.push_back(sharedNeighbor[tmpIndex1]);
+		sharedNeighbor.erase(sharedNeighbor.begin() + tmpIndex1);
+		*/
+
+
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (sharedNeighbor[i] == indexArray[sharedTriNeighbor[0]].index[j]) {
+					sharedNeighbor.insert(sharedNeighbor.begin(), sharedNeighbor[i]);
+					sharedNeighbor.erase(sharedNeighbor.begin() + i);
 					break;
 				}
 			}
 		}
+
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (sharedNeighbor[i] == indexArray[sharedTriNeighbor[1]].index[j]) {
+					sharedNeighbor.insert(sharedNeighbor.begin(), sharedNeighbor[i]);
+					sharedNeighbor.erase(sharedNeighbor.begin() + i);
+					break;
+				}
+			}
+		}
+		for (int i = 0; i < 3; i++){
+			if (vertexInfo[sharedNeighbor[i]].vertexNeighbors.size() == 3)
+				tmpIndex2 = i;
+		}
+		// REMOVE THE TRIANGLES
+		// remove the triangles from the first shared neighbor
+		vertexInfo[sharedNeighbor[0]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[0]].triangleNeighbors.begin(),
+			vertexInfo[sharedNeighbor[0]].triangleNeighbors.end(),
+			sharedTriNeighbor[0]), vertexInfo[sharedNeighbor[0]].triangleNeighbors.end());
+
+		vertexInfo[sharedNeighbor[0]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[0]].triangleNeighbors.begin(),
+			vertexInfo[sharedNeighbor[0]].triangleNeighbors.end(),
+			sharedTriNeighbor[1]), vertexInfo[sharedNeighbor[0]].triangleNeighbors.end());
+
+		// remove the triangles from the second shared neighbor
+		vertexInfo[sharedNeighbor[1]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[1]].triangleNeighbors.begin(),
+			vertexInfo[sharedNeighbor[1]].triangleNeighbors.end(),
+			sharedTriNeighbor[0]), vertexInfo[sharedNeighbor[1]].triangleNeighbors.end());
+
+		vertexInfo[sharedNeighbor[1]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[1]].triangleNeighbors.begin(),
+			vertexInfo[sharedNeighbor[1]].triangleNeighbors.end(),
+			sharedTriNeighbor[1]), vertexInfo[sharedNeighbor[1]].triangleNeighbors.end());
+
+		// remove the triangles from currVert
+		vertexInfo[currVert].triangleNeighbors.erase(remove(vertexInfo[currVert].triangleNeighbors.begin(),
+			vertexInfo[currVert].triangleNeighbors.end(),
+			sharedTriNeighbor[0]), vertexInfo[currVert].triangleNeighbors.end());
+
+		vertexInfo[currVert].triangleNeighbors.erase(remove(vertexInfo[currVert].triangleNeighbors.begin(),
+			vertexInfo[currVert].triangleNeighbors.end(),
+			sharedTriNeighbor[1]), vertexInfo[currVert].triangleNeighbors.end());
+
+		// remove the triangles from nVert
+		vertexInfo[nVert].triangleNeighbors.erase(remove(vertexInfo[nVert].triangleNeighbors.begin(),
+			vertexInfo[nVert].triangleNeighbors.end(),
+			sharedTriNeighbor[0]), vertexInfo[nVert].triangleNeighbors.end());
+
+		vertexInfo[nVert].triangleNeighbors.erase(remove(vertexInfo[nVert].triangleNeighbors.begin(),
+			vertexInfo[nVert].triangleNeighbors.end(),
+			sharedTriNeighbor[1]), vertexInfo[nVert].triangleNeighbors.end());
+
+		// remove the triangles from IndexArray
+		indexArray[sharedTriNeighbor[0]].index[0] = 0;
+		indexArray[sharedTriNeighbor[0]].index[1] = 0;
+		indexArray[sharedTriNeighbor[0]].index[2] = 0;
+
+		indexArray[sharedTriNeighbor[1]].index[0] = 0;
+		indexArray[sharedTriNeighbor[1]].index[1] = 0;
+		indexArray[sharedTriNeighbor[1]].index[2] = 0;
+
+		// insert remaining triangles in nVert in currVert
+		vertexInfo[currVert].triangleNeighbors.insert(vertexInfo[currVert].triangleNeighbors.end(),
+			vertexInfo[nVert].triangleNeighbors.begin(),
+			vertexInfo[nVert].triangleNeighbors.end());
+
+		//remove third sharedNeighbor
+		vertexInfo[nVert].vertexNeighbors.erase(remove(vertexInfo[nVert].vertexNeighbors.begin(),
+			vertexInfo[nVert].vertexNeighbors.end(),
+			sharedNeighbor[2]), vertexInfo[nVert].vertexNeighbors.end());
+
+		// insert non-shared neighbors in currVert
+		for (int i = 0; i < vertexInfo[nVert].vertexNeighbors.size(); i++) {
+			if (vertexInfo[nVert].vertexNeighbors[i] != currVert && vertexInfo[nVert].vertexNeighbors[i] != sharedNeighbor[0]
+				&& vertexInfo[nVert].vertexNeighbors[i] != sharedNeighbor[1]) 
+			{
+				//add nVerts neighbors to currverts neighbors
+				vertexInfo[currVert].vertexNeighbors.push_back(vertexInfo[nVert].vertexNeighbors[i]);
+
+				//replace nVert in nVerts neighbors with currvert
+				for (int j = 0; j < vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors.size(); j++) {
+					if (vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors[j] == nVert) {
+						vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors[j] = currVert;
+
+					}
+				}
+			}
+		}
+
+		// remove nVert from vertexNeighbors and currVert
+		vertexInfo[currVert].vertexNeighbors.erase(remove(vertexInfo[currVert].vertexNeighbors.begin(),
+			vertexInfo[currVert].vertexNeighbors.end(), nVert),
+			vertexInfo[currVert].vertexNeighbors.end());
+
+		vertexInfo[sharedNeighbor[0]].vertexNeighbors.erase(remove(vertexInfo[sharedNeighbor[0]].vertexNeighbors.begin(),
+			vertexInfo[sharedNeighbor[0]].vertexNeighbors.end(), nVert),
+			vertexInfo[sharedNeighbor[0]].vertexNeighbors.end());
+
+		vertexInfo[sharedNeighbor[1]].vertexNeighbors.erase(remove(vertexInfo[sharedNeighbor[1]].vertexNeighbors.begin(),
+			vertexInfo[sharedNeighbor[1]].vertexNeighbors.end(), nVert),
+			vertexInfo[sharedNeighbor[1]].vertexNeighbors.end());
+
+		vertexInfo[sharedNeighbor[2]].vertexNeighbors.erase(remove(vertexInfo[sharedNeighbor[2]].vertexNeighbors.begin(),
+			vertexInfo[sharedNeighbor[2]].vertexNeighbors.end(), nVert),
+			vertexInfo[sharedNeighbor[2]].vertexNeighbors.end());
+
+		// replace the nVert index in the triangleNeighbors of nVert with currVert 
+		for (int i = 0; i < vertexInfo[nVert].triangleNeighbors.size(); i++) {
+			for (int j = 0; j < 3; j++) {
+				if (indexArray[vertexInfo[nVert].triangleNeighbors[i]].index[j] == nVert)
+					indexArray[vertexInfo[nVert].triangleNeighbors[i]].index[j] = currVert;
+			}
+		}
+
+		//REMOVE VERTEX WITH ONLY TWO NEIGHBORS/////////////////////////////////////////////////////////////////////////////////////////
+		tmpIndex1 = vertexInfo[sharedNeighbor[tmpIndex2]].vertexNeighbors[0];
+		for (int j = 0; j < vertexInfo[tmpIndex1].vertexNeighbors.size(); j++) {
+			if (vertexInfo[tmpIndex1].vertexNeighbors[j] == sharedNeighbor[tmpIndex2]) {
+				vertexInfo[tmpIndex1].vertexNeighbors.erase(vertexInfo[tmpIndex1].vertexNeighbors.begin() + j);
+				break;
+			}
+
+		}
+		tmpIndex1 = vertexInfo[sharedNeighbor[tmpIndex2]].vertexNeighbors[1];
+		for (int j = 0; j < vertexInfo[tmpIndex1].vertexNeighbors.size(); j++) {
+			if (vertexInfo[tmpIndex1].vertexNeighbors[j] == sharedNeighbor[tmpIndex2]) {
+				vertexInfo[tmpIndex1].vertexNeighbors.erase(vertexInfo[tmpIndex1].vertexNeighbors.begin() + j);
+				break;
+			}
+
+		}
+
+		for (int j = 0; j < 3; j++) {
+			tmpIndex1 = indexArray[vertexInfo[sharedNeighbor[tmpIndex2]].triangleNeighbors[0]].index[j];
+			if (tmpIndex1 != sharedNeighbor[tmpIndex2]) {
+				vertexInfo[tmpIndex1].triangleNeighbors.erase(remove(vertexInfo[tmpIndex1].triangleNeighbors.begin(),
+					vertexInfo[tmpIndex1].triangleNeighbors.end(), vertexInfo[sharedNeighbor[tmpIndex2]].triangleNeighbors[0]),
+					vertexInfo[tmpIndex1].triangleNeighbors.end());
+			}
+		}
+		for (int j = 0; j < 3; j++) {
+			tmpIndex1 = indexArray[vertexInfo[sharedNeighbor[tmpIndex2]].triangleNeighbors[1]].index[j];
+			if (tmpIndex1 != sharedNeighbor[tmpIndex2]) {
+				vertexInfo[tmpIndex1].triangleNeighbors.erase(remove(vertexInfo[tmpIndex1].triangleNeighbors.begin(),
+					vertexInfo[tmpIndex1].triangleNeighbors.end(), vertexInfo[sharedNeighbor[tmpIndex2]].triangleNeighbors[1]),
+					vertexInfo[tmpIndex1].triangleNeighbors.end());
+			}
+		}
+
+		//remove the triangleNeighbors of the unnecesarry vertex
+		indexArray[vertexInfo[sharedNeighbor[tmpIndex2]].triangleNeighbors[0]].index[0] = 0;
+		indexArray[vertexInfo[sharedNeighbor[tmpIndex2]].triangleNeighbors[0]].index[1] = 0;
+		indexArray[vertexInfo[sharedNeighbor[tmpIndex2]].triangleNeighbors[0]].index[2] = 0;
+
+		indexArray[vertexInfo[sharedNeighbor[tmpIndex2]].triangleNeighbors[1]].index[0] = 0;
+		indexArray[vertexInfo[sharedNeighbor[tmpIndex2]].triangleNeighbors[1]].index[1] = 0;
+		indexArray[vertexInfo[sharedNeighbor[tmpIndex2]].triangleNeighbors[1]].index[2] = 0;
+
+		//clear data
+		vertexInfo[sharedNeighbor[tmpIndex2]].vertexNeighbors.clear();
+		vertexInfo[sharedNeighbor[tmpIndex2]].triangleNeighbors.clear();
+
+		vertexArray[sharedNeighbor[tmpIndex2]].x = -1000;
+		vertexArray[sharedNeighbor[tmpIndex2]].y = -1000;
+		vertexArray[sharedNeighbor[tmpIndex2]].z = -1000;
+
+		if (sharedNeighbor[tmpIndex2] == currVertP){
+			vertexArray[nVert].x = -1000;
+			vertexArray[nVert].y = -1000;
+			vertexArray[nVert].z = -1000;
+			vertexInfo[nVert].triangleNeighbors.clear();
+			vertexInfo[nVert].vertexNeighbors.clear();
+			return false;
+		}
+			
 	}
-	
-	
-	// REMOVE THE TRIANGLES
-	// remove the triangles from the first shared neighbor
-	vertexInfo[sharedNeighbor[0]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[0]].triangleNeighbors.begin(), 
-																  vertexInfo[sharedNeighbor[0]].triangleNeighbors.end(), 
-																  sharedTriNeighbor[0]), vertexInfo[sharedNeighbor[0]].triangleNeighbors.end());
+	else {
+		// REMOVE THE TRIANGLES
+		// remove the triangles from the first shared neighbor
+		vertexInfo[sharedNeighbor[0]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[0]].triangleNeighbors.begin(),
+			vertexInfo[sharedNeighbor[0]].triangleNeighbors.end(),
+			sharedTriNeighbor[0]), vertexInfo[sharedNeighbor[0]].triangleNeighbors.end());
 
-	vertexInfo[sharedNeighbor[0]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[0]].triangleNeighbors.begin(),
-																  vertexInfo[sharedNeighbor[0]].triangleNeighbors.end(),
-																  sharedTriNeighbor[1]), vertexInfo[sharedNeighbor[0]].triangleNeighbors.end());
+		vertexInfo[sharedNeighbor[0]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[0]].triangleNeighbors.begin(),
+			vertexInfo[sharedNeighbor[0]].triangleNeighbors.end(),
+			sharedTriNeighbor[1]), vertexInfo[sharedNeighbor[0]].triangleNeighbors.end());
 
-	// remove the triangles from the second shared neighbor
-	vertexInfo[sharedNeighbor[1]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[1]].triangleNeighbors.begin(),
-														   vertexInfo[sharedNeighbor[1]].triangleNeighbors.end(),
-														   sharedTriNeighbor[0]), vertexInfo[sharedNeighbor[1]].triangleNeighbors.end());
+		// remove the triangles from the second shared neighbor
+		vertexInfo[sharedNeighbor[1]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[1]].triangleNeighbors.begin(),
+			vertexInfo[sharedNeighbor[1]].triangleNeighbors.end(),
+			sharedTriNeighbor[0]), vertexInfo[sharedNeighbor[1]].triangleNeighbors.end());
 
-	vertexInfo[sharedNeighbor[1]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[1]].triangleNeighbors.begin(),
-																  vertexInfo[sharedNeighbor[1]].triangleNeighbors.end(),
-																  sharedTriNeighbor[1]), vertexInfo[sharedNeighbor[1]].triangleNeighbors.end());
+		vertexInfo[sharedNeighbor[1]].triangleNeighbors.erase(remove(vertexInfo[sharedNeighbor[1]].triangleNeighbors.begin(),
+			vertexInfo[sharedNeighbor[1]].triangleNeighbors.end(),
+			sharedTriNeighbor[1]), vertexInfo[sharedNeighbor[1]].triangleNeighbors.end());
 
-	// remove the triangles from currVert
-	vertexInfo[currVert].triangleNeighbors.erase(remove(vertexInfo[currVert].triangleNeighbors.begin(),
-																  vertexInfo[currVert].triangleNeighbors.end(),
-																  sharedTriNeighbor[0]), vertexInfo[currVert].triangleNeighbors.end());
+		// remove the triangles from currVert
+		vertexInfo[currVert].triangleNeighbors.erase(remove(vertexInfo[currVert].triangleNeighbors.begin(),
+			vertexInfo[currVert].triangleNeighbors.end(),
+			sharedTriNeighbor[0]), vertexInfo[currVert].triangleNeighbors.end());
 
-	vertexInfo[currVert].triangleNeighbors.erase(remove(vertexInfo[currVert].triangleNeighbors.begin(),
-														vertexInfo[currVert].triangleNeighbors.end(),
-														sharedTriNeighbor[1]), vertexInfo[currVert].triangleNeighbors.end());
+		vertexInfo[currVert].triangleNeighbors.erase(remove(vertexInfo[currVert].triangleNeighbors.begin(),
+			vertexInfo[currVert].triangleNeighbors.end(),
+			sharedTriNeighbor[1]), vertexInfo[currVert].triangleNeighbors.end());
 
-	// remove the triangles from nVert
-	vertexInfo[nVert].triangleNeighbors.erase(remove(vertexInfo[nVert].triangleNeighbors.begin(),
-														vertexInfo[nVert].triangleNeighbors.end(),
-														sharedTriNeighbor[0]), vertexInfo[nVert].triangleNeighbors.end());
+		// remove the triangles from nVert
+		vertexInfo[nVert].triangleNeighbors.erase(remove(vertexInfo[nVert].triangleNeighbors.begin(),
+			vertexInfo[nVert].triangleNeighbors.end(),
+			sharedTriNeighbor[0]), vertexInfo[nVert].triangleNeighbors.end());
 
-	vertexInfo[nVert].triangleNeighbors.erase(remove(vertexInfo[nVert].triangleNeighbors.begin(),
-													 vertexInfo[nVert].triangleNeighbors.end(),
-													 sharedTriNeighbor[1]), vertexInfo[nVert].triangleNeighbors.end());
+		vertexInfo[nVert].triangleNeighbors.erase(remove(vertexInfo[nVert].triangleNeighbors.begin(),
+			vertexInfo[nVert].triangleNeighbors.end(),
+			sharedTriNeighbor[1]), vertexInfo[nVert].triangleNeighbors.end());
 
-	// remove the triangles from IndexArray
-	indexArray[sharedTriNeighbor[0]].index[0] = 0;
-	indexArray[sharedTriNeighbor[0]].index[1] = 0;
-	indexArray[sharedTriNeighbor[0]].index[2] = 0;
+		// remove the triangles from IndexArray
+		indexArray[sharedTriNeighbor[0]].index[0] = 0;
+		indexArray[sharedTriNeighbor[0]].index[1] = 0;
+		indexArray[sharedTriNeighbor[0]].index[2] = 0;
 
-	indexArray[sharedTriNeighbor[1]].index[0] = 0;
-	indexArray[sharedTriNeighbor[1]].index[1] = 0;
-	indexArray[sharedTriNeighbor[1]].index[2] = 0;
+		indexArray[sharedTriNeighbor[1]].index[0] = 0;
+		indexArray[sharedTriNeighbor[1]].index[1] = 0;
+		indexArray[sharedTriNeighbor[1]].index[2] = 0;
 
-	// insert remaining triangles in nVert in currVert
-	vertexInfo[currVert].triangleNeighbors.insert(vertexInfo[currVert].triangleNeighbors.end(), 
-												  vertexInfo[nVert].triangleNeighbors.begin(), 
-												  vertexInfo[nVert].triangleNeighbors.end());
+		// insert remaining triangles in nVert in currVert
+		vertexInfo[currVert].triangleNeighbors.insert(vertexInfo[currVert].triangleNeighbors.end(),
+			vertexInfo[nVert].triangleNeighbors.begin(),
+			vertexInfo[nVert].triangleNeighbors.end());
 
-	// insert non-shared neighbors in currVert
-	for (int i = 0; i < vertexInfo[nVert].vertexNeighbors.size(); i++) {
-		if (vertexInfo[nVert].vertexNeighbors[i] != currVert && vertexInfo[nVert].vertexNeighbors[i] != sharedNeighbor[0] && vertexInfo[nVert].vertexNeighbors[i] != sharedNeighbor[1])
-		{
-			//add nVerts neighbors to currverts neighbors
-			vertexInfo[currVert].vertexNeighbors.push_back(vertexInfo[nVert].vertexNeighbors[i]);
+		// insert non-shared neighbors in currVert
+		for (int i = 0; i < vertexInfo[nVert].vertexNeighbors.size(); i++) {
+			if (vertexInfo[nVert].vertexNeighbors[i] != currVert && vertexInfo[nVert].vertexNeighbors[i] != sharedNeighbor[0]
+				&& vertexInfo[nVert].vertexNeighbors[i] != sharedNeighbor[1]) {
 
-			for (int j = 0; j < vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors.size(); j++) {
-				if (vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors[j] == nVert) {
-					vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors[j] = currVert;
+				//add nVerts neighbors to currverts neighbors
+				vertexInfo[currVert].vertexNeighbors.push_back(vertexInfo[nVert].vertexNeighbors[i]);
+
+				//replace nVert in nVerts neighbors with currvert
+				for (int j = 0; j < vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors.size(); j++) {
+					if (vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors[j] == nVert) {
+						vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors[j] = currVert;
+
+					}
+				}
+			}
+		}
+
+		// remove nVert from vertexNeighbors and currVert
+		vertexInfo[currVert].vertexNeighbors.erase(remove(vertexInfo[currVert].vertexNeighbors.begin(),
+			vertexInfo[currVert].vertexNeighbors.end(), nVert),
+			vertexInfo[currVert].vertexNeighbors.end());
+
+		vertexInfo[sharedNeighbor[0]].vertexNeighbors.erase(remove(vertexInfo[sharedNeighbor[0]].vertexNeighbors.begin(),
+			vertexInfo[sharedNeighbor[0]].vertexNeighbors.end(), nVert),
+			vertexInfo[sharedNeighbor[0]].vertexNeighbors.end());
+
+		vertexInfo[sharedNeighbor[1]].vertexNeighbors.erase(remove(vertexInfo[sharedNeighbor[1]].vertexNeighbors.begin(),
+			vertexInfo[sharedNeighbor[1]].vertexNeighbors.end(), nVert),
+			vertexInfo[sharedNeighbor[1]].vertexNeighbors.end());
+
+		// replace the nVert index in the triangleNeighbors of nVert with currVert 
+		for (int i = 0; i < vertexInfo[nVert].triangleNeighbors.size(); i++) {
+			for (int j = 0; j < 3; j++) {
+				if (indexArray[vertexInfo[nVert].triangleNeighbors[i]].index[j] == nVert)
+					indexArray[vertexInfo[nVert].triangleNeighbors[i]].index[j] = currVert;
+			}
+		}
+
+		/*
+		// if any of the sharedNeighbors now only have two vertexNeighbors, remove them
+		for (int i = 0; i < 2; i++) {
+
+			if (vertexInfo[sharedNeighbor[i]].vertexNeighbors.size() < 3) {
+
+				tmpIndex1 = vertexInfo[sharedNeighbor[i]].vertexNeighbors[0];
+				for (int j = 0; j < vertexInfo[tmpIndex1].vertexNeighbors.size(); j++) {
+					if (vertexInfo[tmpIndex1].vertexNeighbors[j] == sharedNeighbor[i])
+					{
+						vertexInfo[tmpIndex1].vertexNeighbors.erase(vertexInfo[tmpIndex1].vertexNeighbors.begin() + j);
+						break;
+					}
+
+				}
+				tmpIndex1 = vertexInfo[sharedNeighbor[i]].vertexNeighbors[1];
+				for (int j = 0; j < vertexInfo[tmpIndex1].vertexNeighbors.size(); j++) {
+					if (vertexInfo[tmpIndex1].vertexNeighbors[j] == sharedNeighbor[i])
+					{
+						vertexInfo[tmpIndex1].vertexNeighbors.erase(vertexInfo[tmpIndex1].vertexNeighbors.begin() + j);
+						break;
+					}
 
 				}
 
+
+				for (int j = 0; j < 3; j++) {
+					tmpIndex1 = indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[0]].index[j];
+					if (tmpIndex1 != sharedNeighbor[i]) {
+						vertexInfo[tmpIndex1].triangleNeighbors.erase(remove(vertexInfo[tmpIndex1].triangleNeighbors.begin(),
+							vertexInfo[tmpIndex1].triangleNeighbors.end(), vertexInfo[sharedNeighbor[i]].triangleNeighbors[0]),
+							vertexInfo[tmpIndex1].triangleNeighbors.end());
+					}
+				}
+
+				//remove the triangleNeighbors of the unnecesarry vertex
+				indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[0]].index[0] = 0;
+				indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[0]].index[1] = 0;
+				indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[0]].index[2] = 0;
+
+				indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[1]].index[0] = 0;
+				indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[1]].index[1] = 0;
+				indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[1]].index[2] = 0;
+
+				//clear data
+				vertexInfo[sharedNeighbor[i]].vertexNeighbors.clear();
+				vertexInfo[sharedNeighbor[i]].triangleNeighbors.clear();
+
+				vertexArray[sharedNeighbor[i]].x = -1000;
+				vertexArray[sharedNeighbor[i]].y = -1000;
+				vertexArray[sharedNeighbor[i]].z = -1000;
+
+				if (sharedNeighbor[i] == currVertP)
+					return false;
 			}
-			//replace nVert in nVerts neighbors with currvert
-			/*vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors[
-						*find(vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors.begin(),
-						vertexInfo[vertexInfo[nVert].vertexNeighbors[i]].vertexNeighbors.end(), nVert)] = currVert;*/
+			
 		}
+		*/
 	}
 
-	// remove nVert from vertexNeighbors and currVert
-	vertexInfo[currVert].vertexNeighbors.erase(remove(vertexInfo[currVert].vertexNeighbors.begin(), vertexInfo[currVert].vertexNeighbors.end(), nVert), vertexInfo[currVert].vertexNeighbors.end());
-	vertexInfo[sharedNeighbor[0]].vertexNeighbors.erase(remove(vertexInfo[sharedNeighbor[0]].vertexNeighbors.begin(), vertexInfo[sharedNeighbor[0]].vertexNeighbors.end(), nVert), vertexInfo[sharedNeighbor[0]].vertexNeighbors.end());
-	vertexInfo[sharedNeighbor[1]].vertexNeighbors.erase(remove(vertexInfo[sharedNeighbor[1]].vertexNeighbors.begin(), vertexInfo[sharedNeighbor[1]].vertexNeighbors.end(), nVert), vertexInfo[sharedNeighbor[1]].vertexNeighbors.end());
 
-	// replace the nVert index in the triangleNeighbors of nVert with currVert 
-	for (int i = 0; i < vertexInfo[nVert].triangleNeighbors.size(); i++) {
-		for (int j = 0; j < 3; j++) {
-			if (indexArray[vertexInfo[nVert].triangleNeighbors[i]].index[j] == nVert)
-				indexArray[vertexInfo[nVert].triangleNeighbors[i]].index[j] = currVert;
-		}
-	}
 	
 	vertexArray[nVert].x = -1000;
 	vertexArray[nVert].y = -1000;
 	vertexArray[nVert].z = -1000;
 	vertexInfo[nVert].triangleNeighbors.clear();
 	vertexInfo[nVert].vertexNeighbors.clear();
-
-	//if any of the sharedNeighbors now only have two vertexNeighbors, remove them
-	for (int i = 0; i < 2; i++) {
-
-		if (vertexInfo[sharedNeighbor[i]].vertexNeighbors.size() < 3) {
-
-			tmpIndex1 = vertexInfo[sharedNeighbor[i]].vertexNeighbors[0];
-			for (int j = 0; j < vertexInfo[tmpIndex1].vertexNeighbors.size(); j++) {
-				if (vertexInfo[tmpIndex1].vertexNeighbors[j] == sharedNeighbor[i])
-				{
-					vertexInfo[tmpIndex1].vertexNeighbors.erase(vertexInfo[tmpIndex1].vertexNeighbors.begin() + j);
-					break;
-				}
-
-			}
-			tmpIndex1 = vertexInfo[sharedNeighbor[i]].vertexNeighbors[1];
-			for (int j = 0; j < vertexInfo[tmpIndex1].vertexNeighbors.size(); j++) {
-				if (vertexInfo[tmpIndex1].vertexNeighbors[j] == sharedNeighbor[i])
-				{
-					vertexInfo[tmpIndex1].vertexNeighbors.erase(vertexInfo[tmpIndex1].vertexNeighbors.begin() + j);
-					break;
-				}
-					
-			}
-			
-
-			for (int j = 0; j < 3; j++) {
-				tmpIndex1 = indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[0]].index[j];
-				if (tmpIndex1 != sharedNeighbor[i]) {
-					vertexInfo[tmpIndex1].triangleNeighbors.erase(remove(vertexInfo[tmpIndex1].triangleNeighbors.begin(), 
-																		 vertexInfo[tmpIndex1].triangleNeighbors.end(), vertexInfo[sharedNeighbor[i]].triangleNeighbors[0]), 
-																		 vertexInfo[tmpIndex1].triangleNeighbors.end());
-				}
-			}
-
-			//remove the triangleNeighbors of the unnecesarry vertex
-			indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[0]].index[0] = 0;
-			indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[0]].index[1] = 0;
-			indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[0]].index[2] = 0;
-
-			indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[1]].index[0] = 0;
-			indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[1]].index[1] = 0;
-			indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[1]].index[2] = 0;
-			
-			//clear data
-			vertexInfo[sharedNeighbor[i]].vertexNeighbors.clear();
-			vertexInfo[sharedNeighbor[i]].triangleNeighbors.clear();
-			
-			vertexArray[sharedNeighbor[i]].x = -1000;
-			vertexArray[sharedNeighbor[i]].y = -1000;
-			vertexArray[sharedNeighbor[i]].z = -1000;
-
-			if (sharedNeighbor[i] == currVertP)
-				return false;
-		}
-	}
 
 	return true;
 }
