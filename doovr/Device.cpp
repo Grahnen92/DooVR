@@ -50,6 +50,9 @@ Device::Device(bool analog, bool button, bool tracker, string name) {
 
 }
 Device::~Device() {
+	delete vrpnAnalog;
+	delete vrpnButton;
+	delete vrpnTracker;
 }
 
 // VRPN Callbacks
