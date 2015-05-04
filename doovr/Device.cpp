@@ -18,8 +18,6 @@ Device::Device(bool analog, bool button, bool tracker, string name) {
 	if (name == "Wand") {
 		// Default port "@localhost:3883"
 		// DNS adress "@130.236.142.1"
-		// vrpn_print_devices.exe Wand@130.236.142.25
-		// vrpn_print_devices.exe Wand@itn-vortex.itn.liu.se
 
 		additionalAddress = "IS900@itn-vortex.itn.liu.se";
 		name = name + "@itn-vortex.itn.liu.se";
@@ -56,7 +54,6 @@ Device::~Device() {
 void VRPN_CALLBACK handle_analog(void* userData, const vrpn_ANALOGCB a) {
 	Device* analogTracker = static_cast<Device*> (userData);
 	float analog[3] = { a.channel[0], a.channel[1], 0.0f };
-	//cout << "Button '" << a.channel[0] << "': " << a.channel[1] << endl;
 	analogTracker->setAnalogPosition(analog);
 }
 													
@@ -75,17 +72,6 @@ void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b) {
 void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
 	Device* posTracker = static_cast<Device*> (userData);
 
-	/*
-	// Handle position data
-	float position[3] = { t.pos[0], t.pos[1], t.pos[2] };
-	posTracker->setTrackerPosition(position);
-
-	// Handle rotation data
-	double orient_local[16];
-	q_to_ogl_matrix(orient_local, t.quat);
-	posTracker->setTrackerRotation(orient_local);
-	*/
-
 	// Set the new position
 	float position[3];
 	position[0] = t.pos[0] + posTracker->getTransformMatrix()[3];
@@ -95,7 +81,6 @@ void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
 
 	double T[16];
 	float floatT[16] = { 0.0f };
-	float out[16] = { 0.0f };
 	q_to_ogl_matrix(T, t.quat);
 	std::copy(T, T + 16, floatT); // convert from double to float
 	floatT[3] = 0.0;
@@ -146,21 +131,11 @@ float* Device::getTrackerRotation() {
 
 // Set functions
 void Device::setTrackerPosition(float* t) {
-	// fix point: 1.088f from floor.
-	// Wierd copies due to fixing axis and multiplying movement
-	/*
-	trackerPosition[0] = t[0] + 0.2067f;
-	trackerPosition[1] = -t[2] + 1.005; // offset to get correct wand coordinates
-	trackerPosition[2] = t[1] - 0.0f;
-	*/
 	trackerPosition[0] = t[0];
 	trackerPosition[1] = t[1];
 	trackerPosition[2] = t[2];
-
-
 }
 void Device::setTrackerRotation(float* o ) {
-
 	float temp;
 	temp = o[1];
 	o[1] = -o[2];

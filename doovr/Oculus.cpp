@@ -183,18 +183,15 @@ int Oculus::runOvr() {
 		    printf("No monitors found, exiting...\n");
 			exit(EXIT_FAILURE);
 			break;
-		  }
-		  case 1: {
+		  } case 1: {
 			printf("Two monitors expected, found only one, using primary...\n");
 			l_Monitor = glfwGetPrimaryMonitor();
 			break;
-		  }
-		  case 2: {
+		  } case 2: {
 			printf("Two monitors found, using second monitor...\n");
 			l_Monitor = l_Monitors[1];
 			break;
-		  }
-		  default: {
+		  } default: {
 			printf("More than two monitors found, using second monitor...\n");
 			l_Monitor = l_Monitors[1];
 		  }
@@ -373,8 +370,8 @@ int Oculus::runOvr() {
 	Mesh* mTest = new Mesh();
 
 	// Initilise VRPN connection with the Intersense wand
-	//Device* wand = new Device(true, true, false, "Mouse");
-	Device* wand = new Device(true, true, true, "Wand");
+	Device* wand = new Device(true, true, false, "Mouse");
+	//Device* wand = new Device(true, true, true, "Wand");
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -411,12 +408,10 @@ int Oculus::runOvr() {
 		// All states are originally false
 		if (wand->getButtonState() && !buttonPressed && !buttonHeld) { // Button pressed
 			buttonPressed = true;
-		}
-		else if (!wand->getButtonState()) { // Button released
+		} else if (!wand->getButtonState()) { // Button released
 			buttonReleased = buttonHeld;
 			buttonHeld = false;
-		}
-		else if (buttonPressed || buttonHeld) { // Button held down
+		} else if (buttonPressed || buttonHeld) { // Button held down
 			buttonHeld = true;
 			buttonPressed = false;
 		}
@@ -450,20 +445,17 @@ int Oculus::runOvr() {
 			case 5: // Use chosen function
 				if (chooseFunction == UPDATE_VERTEX_ARRAY) {
 					//mTest->updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
-				}
-				else if (chooseFunction == newDILATE) {
+				} else if (chooseFunction == newDILATE) {
 					mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
-				}
-				else if (chooseFunction == coREGISTER && buttonPressed) {
+				} else if (chooseFunction == coREGISTER && buttonPressed) {
 
-					if (regCounter <= 3)
-					{
+					if (regCounter <= 3) {
 						for (int i = 0; i < 3; i++) { // Save wand position & rotation 
 							pos[i * 4 + regCounter] = wand->getTrackerPosition()[i];
 						}
 						cout << endl;
 						pos[12 + regCounter] = 1.0f; // column --> sista raden med ettor
-					}
+					} 
 					if (regCounter == 3) {
 						// transform = regSpherePos * invPos    ------   transform * pos = regSpherePos
 						// (M1, M2, Mout) -> Mout = M2 * M1
@@ -471,15 +463,13 @@ int Oculus::runOvr() {
 						Utilities::matrixMult(invPos, regSpherePos, transform);
 						wand->setTransformMatrix(transform);
 						renderRegisterSpheres = false;
-					}
-					else if (regCounter == 4)
+					} else if (regCounter == 4)
 						eye = wand->getTrackerPosition()[1];		// ta ögon höjd		regCounter = 4
 					else if (regCounter == 5)
 						floor = wand->getTrackerPosition()[1];	// ta golv höjd		regCounter = 5
 
 					regCounter++;
-					if (regCounter == 6)						// Configure done.
-					{
+					if (regCounter == 6) {						// Configure done.
 						eyeHeight = eye - floor;
 						regCounter = 0;
 						chooseFunction = newDILATE;
@@ -494,18 +484,14 @@ int Oculus::runOvr() {
 
 		// ANALOG BUTTON - change tool size
 		if (wand->getAnalogPosition()[0] != 0 || wand->getAnalogPosition()[1] != 0) {
-
 			const float MAX_RADIUS_WAND_TOOL = 0.2f;
 			const float MIN_RADIUS_WAND_TOOL = 0.02f;
-
 			// check if tool is to small or to big
 			if (wandRadius > MIN_RADIUS_WAND_TOOL && wandRadius < MAX_RADIUS_WAND_TOOL) {
 				wandRadius += 0.001f*wand->getAnalogPosition()[1];
-			}
-			else if (wandRadius <= MIN_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] > 0) {
+			} else if (wandRadius <= MIN_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] > 0) {
 				wandRadius += 0.001f*wand->getAnalogPosition()[1];
-			}
-			else if (wandRadius >= MAX_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] < 0) {
+			} else if (wandRadius >= MAX_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] < 0) {
 				wandRadius += 0.001f*wand->getAnalogPosition()[1];
 			}
 		}
@@ -532,17 +518,9 @@ int Oculus::runOvr() {
 		// Activate wireframe (hold L)
 		if (glfwGetKey(l_Window, GLFW_KEY_L) == GLFW_PRESS && !lines) {
 			lines = true;
-		}
-		else if (glfwGetKey(l_Window, GLFW_KEY_L) == GLFW_RELEASE && lines){
+		} else if (glfwGetKey(l_Window, GLFW_KEY_L) == GLFW_RELEASE && lines){
 			lines = false;
 		}
-		// Reset offset when button is released
-		/*if (buttonReleased) {
-			changePos[0] = 0.0f;
-			changePos[1] = 0.0f;
-			changePos[2] = 0.0f;
-			Utilities::makeUniform(differenceR);
-		}*/
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Save position of tracker from last frame to get deltaPos
 		lastPos[0] = wand->getTrackerPosition()[0];
@@ -562,8 +540,7 @@ int Oculus::runOvr() {
 		GLRenderCallsOculus();
 		if (lines) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
-		else if (!lines) {
+		} else if (!lines) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 		
@@ -791,7 +768,7 @@ void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, f
 void print_GLM_matrix(glm::mat4 M) {
 	double dArray[16] = { 0.0 };
 	const float *pSource = (const float*)glm::value_ptr(M);
-	for (int i = 0; i < 16; ++i){
+	for (int i = 0; i < 16; ++i) {
 		dArray[i] = pSource[i];
 		cout << std::fixed << std::setprecision(2);
 		cout << dArray[i] << "  ";
