@@ -94,6 +94,9 @@ class Mesh {
 	int rows;
 	int cols;
 
+	const float MAX_LENGTH = 0.08;
+	const float MIN_LENGTH = 0.0399;
+
 	GLuint vao;          // Vertex array object, the main handle for geometry
 	
 	GLuint vertexbuffer; // Buffer ID to bind to GL_ARRAY_BUFFER
