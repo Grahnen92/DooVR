@@ -59,7 +59,7 @@ void VRPN_CALLBACK handle_analog(void* userData, const vrpn_ANALOGCB a) {
 													
 void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b) {
 
-	//cout << "Button '" << b.button << "': " << b.state << endl;
+	cout << "Button '" << b.button << "': " << b.state << endl;
 	Device* buttonTracker = static_cast<Device*> (userData);
 
 	buttonTracker->setButtonNumber((int) b.button);

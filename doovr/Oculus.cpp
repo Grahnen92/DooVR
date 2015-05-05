@@ -360,7 +360,8 @@ int Oculus::runOvr() {
 
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));			//Ground plane
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
-	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.15f, 1.58f, 0.15f));
+	/*Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.15f, 1.58f, 0.15f));*/
+	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.20f, 0.18f, 0.18f));
 
 	// Wand = Box + sphere
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.20f, 0.03f, 0.03f));
@@ -377,13 +378,13 @@ int Oculus::runOvr() {
 	glEnable(GL_TEXTURE_2D);
 	// Wand function textures
 	Texture move("../Textures/test1.DDS");
-	Texture dilate("../Textures/test3.DDS");
+	Texture dilate("../Textures/up.DDS");
 	Texture erode("../Textures/test5.DDS");
-	Texture dnp("../Textures/blue3.DDS");
+	Texture dnp("../Textures/down.DDS");
 
-	Texture groundTex("x.DDS");
-	Texture meshTex("x.DDS");
-	Texture boxTex("x.DDS");
+	Texture groundTex("../Textures/x.DDS");
+	Texture meshTex("../Textures/x.DDS");
+	Texture boxTex("../Textures/test3.DDS");
 
 	GLuint currentTexID = move.getTextureID();
 
@@ -601,22 +602,22 @@ int Oculus::runOvr() {
 				// Box camera
 				MVstack.push();
 					translateVector[0] = 0.0f;
-					translateVector[1] = -eyeHeight + boxCamera.getDim().y / 2; // chair height
+					translateVector[1] = -eyeHeight + boxCamera.getDim().y / 2;
 					translateVector[2] = -2.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
+					//glBindTexture(GL_TEXTURE_2D, boxTex.getTextureID());
 					boxCamera.render();
 				MVstack.pop();
 
 				// Box (chair) with wand on
 				MVstack.push();
 					translateVector[0] = 1.0f;
-					translateVector[1] = -eyeHeight + box.getDim().y / 2; // chair height
+					translateVector[1] = -eyeHeight + box.getDim().y / 2;
 					translateVector[2] = 0.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
+					glBindTexture(GL_TEXTURE_2D, boxTex.getTextureID());
 					box.render();
 				MVstack.pop();
 	

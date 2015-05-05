@@ -21,37 +21,37 @@ void Box::createBox(float xSize, float ySize, float zSize)
 
 	GLfloat vertex_array_data[] = {
 		//		Vertex								Normals										Texture  
-		-xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 0.0f, 0.0f, 1.0f,			 0.0f, 0.0f, //1 - 0
-		xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 0.0f, 0.0f, 1.0f,			 0.33333f, 0.0f, //2 - 1
-		xSize / 2.0f, ySize / 2.0f,			 zSize / 2.0f, 0.0f, 0.0f, 1.0f,			 0.0f, 0.5f, //3 - 2
-		-xSize / 2.0f, ySize / 2.0f,		 zSize / 2.0f, 0.0f, 0.0f, 1.0f,			 0.33333f, 0.5f, //4 - 3 
+		-xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 0.0f, 0.0f, 1.0f,			 0.0f, 1.0f, //1 - 0
+		xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 0.0f, 0.0f, 1.0f,			 0.0f, 0.0f, //2 - 1
+		xSize / 2.0f, ySize / 2.0f,			 zSize / 2.0f, 0.0f, 0.0f, 1.0f,			 1.0f, 0.0f, //3 - 2
+		-xSize / 2.0f, ySize / 2.0f,		 zSize / 2.0f, 0.0f, 0.0f, 1.0f,			 1.0f, 1.0f, //4 - 3 
 
-		-xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 0.0f, 0.0f, -1.0f,			 0.0f, 0.0f, //5 - 4 
-		xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 0.0f, 0.0f, -1.0f,			 0.33333f, 0.0f, //6 - 5
-		xSize / 2.0f, ySize / 2.0f,			 -zSize / 2.0f, 0.0f, 0.0f, -1.0f,			 0.0f, 0.5f, //7 - 6 
-		-xSize / 2.0f, ySize / 2.0f,		 -zSize / 2.0f, 0.0f, 0.0f, -1.0f,			 0.33333f, 0.5f, //8 - 7
-
-
-		-xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 0.0f, -1.0f, 0.0f,			 0.0f, 0.0f, //1 - 8
-		xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 0.0f, -1.0f, 0.0f,			 0.33333f, 0.0f, //2 - 9
-		xSize / 2.0f, ySize / 2.0f,			 zSize / 2.0f, 0.0f, 1.0f, 0.0f,			 0.0f, 0.5f, //3 - 10
-		-xSize / 2.0f, ySize / 2.0f,		 zSize / 2.0f, 0.0f, 1.0f, 0.0f,			 0.33333f, 0.5f, //4 - 11
-
-		-xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 0.0f, -1.0f, 0.0f,			 0.0f, 0.0f, //5 - 12
-		xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 0.0f, -1.0f, 0.0f,			 0.33333f, 0.0f, //6 - 13
-		xSize / 2.0f, ySize / 2.0f,			 -zSize / 2.0f, 0.0f, 1.0f, 0.0f,			 0.0f, 0.5f, //7 - 14
-		-xSize / 2.0f, ySize / 2.0f,		 -zSize / 2.0f, 0.0f, 1.0f, 0.0f,			 0.33333f, 0.5f, //8 - 15
+		-xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 0.0f, 0.0f, -1.0f,			 0.0f, 1.0f, //5 - 4 
+		xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 0.0f, 0.0f, -1.0f,			 0.0f, 0.0f, //6 - 5
+		xSize / 2.0f, ySize / 2.0f,			 -zSize / 2.0f, 0.0f, 0.0f, -1.0f,			 1.0f, 0.0f, //7 - 6 
+		-xSize / 2.0f, ySize / 2.0f,		 -zSize / 2.0f, 0.0f, 0.0f, -1.0f,			 1.0f, 1.0f, //8 - 7
 
 
-		-xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 0.0f, 0.0f, //1 - 16
-		xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 0.33333f, 0.0f, //2 - 17
-		xSize / 2.0f, ySize / 2.0f,			 zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 0.0f, 0.5f,  //3 - 18
-		-xSize / 2.0f, ySize / 2.0f,		 zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 0.33333f, 0.5f,  //4 - 19
+		-xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 0.0f, -1.0f, 0.0f,			 0.0f, 1.0f, //1 - 8
+		xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 0.0f, -1.0f, 0.0f,			 0.0f, 0.0f, //2 - 9
+		xSize / 2.0f, ySize / 2.0f,			 zSize / 2.0f, 0.0f, 1.0f, 0.0f,			 1.0f, 0.0f, //3 - 10
+		-xSize / 2.0f, ySize / 2.0f,		 zSize / 2.0f, 0.0f, 1.0f, 0.0f,			 1.0f, 1.0f, //4 - 11
 
-		-xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 0.0f, 0.0f, //5 - 20
-		xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 0.33333f, 0.0f, //6 - 21
-		xSize / 2.0f, ySize / 2.0f,			 -zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 0.0f, 0.5f, //7 - 22
-		-xSize / 2.0f, ySize / 2.0f,		 -zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 0.33333f, 0.5f, //8 - 23
+		-xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 0.0f, -1.0f, 0.0f,			 1.0f, 0.0f, //5 - 12
+		xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 0.0f, -1.0f, 0.0f,			 1.0f, 1.0f, //6 - 13
+		xSize / 2.0f, ySize / 2.0f,			 -zSize / 2.0f, 0.0f, 1.0f, 0.0f,			 0.0f, 0.0f, //7 - 14
+		-xSize / 2.0f, ySize / 2.0f,		 -zSize / 2.0f, 0.0f, 1.0f, 0.0f,			 0.0f, 1.0f, //8 - 15
+
+
+		-xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 0.0f, 1.0f, //1 - 16 fel
+		xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 0.0f, 0.0f, //2 - 17
+		xSize / 2.0f, ySize / 2.0f,			 zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 1.0f, 0.0f,  //3 - 18
+		-xSize / 2.0f, ySize / 2.0f,		 zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 0.0f, 1.0f,  //4 - 19
+
+		-xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 1.0f, 0.0f, //5 - 20
+		xSize / 2.0f, -ySize / 2.0f,		 -zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 0.0f, 1.0f, //6 - 21
+		xSize / 2.0f, ySize / 2.0f,			 -zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 1.0f, 1.0f, //7 - 22
+		-xSize / 2.0f, ySize / 2.0f,		 -zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 0.0f, 0.0f, //8 - 23
 	};
 
 	static const GLuint index_array_data[] = {
@@ -65,7 +65,7 @@ void Box::createBox(float xSize, float ySize, float zSize)
 		11, 14, 15, //
 		17, 21, 18, //X-positiv/ovan
 		18, 21, 22, //
-		16, 19, 23, //X-negativ/under
+		16, 19, 23, //X-negativ/under // 0 3 7
 		20, 16, 23, //  
 	};
 	nverts = 24;

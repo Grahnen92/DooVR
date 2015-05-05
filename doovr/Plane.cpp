@@ -3,10 +3,10 @@
 #include "math.h"
 
 Plane::Plane(glm::vec3 _pos, glm::vec2 _dim) {
-	vertex tempV;
+	planeVertexData tempV;
 	triangle tempT;
 
-	vertex* vertexP;
+	planeVertexData* vertexP;
 	triangle* indexP;
 
 	tempV.y = 0.0f;
@@ -20,7 +20,6 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim) {
 	position[2] = _pos.z;
 
 	dim = _dim;
-	normal = { 0, 1, 0 };
 
 	color.x = 0.1f;
 	color.y = 0.7f;
@@ -31,23 +30,30 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim) {
 			tempV.x = i;
 			tempV.z = j;
 			vertexArray.push_back(tempV);
+
+			if (fmod(j,2) == 0 && fmod(i,2) == 0) { // om j är jämn o i jämn
+				tempV.u = 0.0f;
+				tempV.v = 0.0f;
+			}
+			else if (fmod(j, 2) == 0 && fmod(i, 2) != 0) { // om j är jämn o i ojämn
+				tempV.u = 1.0f;
+				tempV.v = 0.0f;
+			}
+			else if (fmod(j, 2) != 0 && fmod(i, 2) != 0) { // om j är ojämn o i ojämn
+				tempV.u = 1.0f;
+				tempV.v = 1.0f;
+			}
+			else if (fmod(j, 2) != 0 && fmod(i, 2) == 0) { // om j är ojämn o i jämn
+				tempV.u = 0.0f;
+				tempV.v = 1.0f;
+			}
+			
 		}
 	}
-	/*
-	GLfloat vertex_array_data[] = {_dim.x/2.0f,		0.0f,		_dim.y/2.0f,	0.0f, 1.0f, 0.0f,
-									-_dim.x/2.0f,	0.0f,		-_dim.y/2.0f,	0.0f, 1.0f, 0.0f,
-									-_dim.x/2.0f,	0.0f,		_dim.y/2.0f,	0.0f, 1.0f, 0.0f,
-									_dim.x/2.0f,	0.0f,		-_dim.y/2.0f,	0.0f, 1.0f, 0.0f };
-
-	static const GLuint index_array_data[] = {0, 1, 2,
-											  0, 3, 1 };
-	nverts = 4;
-	ntris = 2;
-	*/
 	
 	for (int i = 0; i < _dim.x - 1 ; i++) {
 		for (int j = 0; j < _dim.y - 1; j++) { 
-			tempT.index1 = i*_dim.x + j; 
+			tempT.index1 = i*_dim.x + j;
 			tempT.index2 = i*_dim.x + j + 1;
 			tempT.index3 = (i + 1)*_dim.x + j;
 
@@ -80,6 +86,7 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim) {
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
 	glEnableVertexAttribArray(1); // Normals
+	glEnableVertexAttribArray(2); // Texture
 	// Specify how OpenGL should interpret the vertex buffer data:
 	// Attributes 0, 1, 2 (must match the lines above and the layout in the shader)
 	// Number of dimensions (3 means vec3 in the shader, 2 means vec2)
@@ -88,9 +95,11 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim) {
 	// Stride 8 (interleaved array with 8 floats per vertex)
 	// Array buffer offset 0, 3, 6 (offset into first vertex)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-						  6 * sizeof(GLfloat), (void*)0); // xyz coordinates
+						  8 * sizeof(GLfloat), (void*)0); // xyz coordinates
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,
-						  6 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
+						  8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // normals
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
+		8 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat))); // texture
 
 
 	// Activate the index buffer
@@ -118,6 +127,8 @@ void Plane::render() {
 	//glColor3f(color.x, color.y, color.z);
 
 	glDrawElements(GL_TRIANGLES, 3 * indexArray.size()*sizeof(GLuint), GL_UNSIGNED_INT, (void*)0);
+
+	
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);
 }

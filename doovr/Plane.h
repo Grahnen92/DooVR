@@ -4,6 +4,19 @@
 #include <vector>
 #include "Mesh.h"
 
+//! Data structure containing the coordinates and normal coordinates of a vertex, aswell as a pointer to an adjacent face
+struct planeVertexData {
+	GLfloat x;
+	GLfloat y;
+	GLfloat z;
+	GLfloat nx;
+	GLfloat ny;
+	GLfloat nz;
+	GLfloat u;
+	GLfloat v;
+	//int arrayIndex;
+};
+
 class Plane :
 	public Entity
 {
@@ -21,26 +34,20 @@ public:
 	Plane(glm::vec3 _pos, glm::vec2 _dim);
 	~Plane(void);
 
-	glm::vec3 getNormal() { return normal; }
-	void setNormal(glm::vec3 n){ normal = n;}
-
-	void updateVertexArray(double x, double y );
-
 	void render();
 	glm::vec2 getDim(){ return dim; }
 
 private:
 	GLuint vao;          // Vertex array object, the main handle for geometry
-	int nverts; // Number of vertices in the vertex array
-	int ntris;  // Number of triangles in the index array (may be zero)
+	int nverts;			 // Number of vertices in the vertex array
+	int ntris;			 // Number of triangles in the index array (may be zero)
 	GLuint vertexbuffer; // Buffer ID to bind to GL_ARRAY_BUFFER
 	GLuint indexbuffer;  // Buffer ID to bind to GL_ELEMENT_ARRAY_BUFFER
 
-	vector<vertex> vertexArray; // Vertex array on interleaved format: x y z nx ny nz s t
+	vector<planeVertexData> vertexArray;	   // Vertex array on interleaved format: x y z nx ny nz u v
 	vector<triangle> indexArray;   // Element index array
 
 	glm::vec2 dim;
-	glm::vec3 normal;
 
 	void display(ostream& os) const;
 };
