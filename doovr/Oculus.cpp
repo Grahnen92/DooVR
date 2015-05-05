@@ -385,7 +385,7 @@ int Oculus::runOvr() {
 	Texture move("../Textures/test1.DDS");
 	Texture dilate("../Textures/test3.DDS");
 	Texture erode("../Textures/test5.DDS");
-	Texture dnp("../Textures/blue3.DDS");
+	Texture dnp("../Textures/stone34.DDS");
 
 	Texture groundTex("x.DDS");
 	Texture meshTex("x.DDS");

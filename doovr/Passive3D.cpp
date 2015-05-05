@@ -1,12 +1,12 @@
 #include "Passive3D.h"
 
+using namespace wand3d;
 
 Passive3D::Passive3D()
 {
 	try {
-		wand = new wand3d::Wand3d("COM4"); // usb port
-	}
-	catch (wand3d::Wand3dSerialException error) {
+		wand = new Wand3d("COM4"); // usb port
+	} catch (Wand3dSerialException error) {
 		std::cout << error.what() << std::endl;
 	}
 	wand->addObserver(this);
@@ -16,13 +16,12 @@ Passive3D::Passive3D()
 Passive3D::~Passive3D() {
 	wand->removeObserver(this);
 	delete wand;
-	delete this;
 }
 
-void Passive3D::wand3dCallback(wand3d::WandData data) {
+void Passive3D::wand3dCallback(WandData data) {
 	//std::cout << data << std::endl;
 	setWandPosition(data.position);
-	wand3d::utils::getGLRotMatrix(data, wandOrientation);
+	utils::getGLRotMatrix(data, wandOrientation);
 }
 
 void Passive3D::start() {
@@ -45,7 +44,5 @@ void Passive3D::setWandPosition(double* t) {
 }
 
 void Passive3D::setWandOrientation(double* o) {
-	for (int i = 0; i < 16; i++) {
-		wandOrientation[i] = o[i];
-	}
+	std::copy(o, o + 16, wandOrientation);
 }
