@@ -828,10 +828,11 @@ void Mesh::updateArea(int* changeList, int listSize) {
 			vPoint2[2] = vertexArray[nVert].z;
 			calculateVec(tempVec1, vPoint2, vPoint1);
 			if (vecLength(tempVec1) < MIN_LENGTH) {
-				//rmVertex(vPoint1, vPoint2, tempVec1, currVert, nVert, -1, &cT);
+				rmVertex(vPoint1, vPoint2, tempVec1, currVert, nVert, -1, &cT);
+				cT--;
 			}
 			else if (vecLength(tempVec1) > MAX_LENGTH) {
-				addVertex(vPoint1, vPoint2, tempVec1, currVert, nVert, -1, &cT);
+				//addVertex(vPoint1, vPoint2, tempVec1, currVert, nVert, -1, &cT);
 			}
 		}
 
@@ -1133,13 +1134,14 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 	//REMOVE VERTEX WITH ONLY TWO NEIGHBORS/////////////////////////////////////////////////////////////////////////////////////////
 	for (int i = 0; i < sharedNeighbor.size(); i++) {
 		if (vertexInfo[sharedNeighbor[i]].vertexNeighbors.size() == 2) {
+
+			// remove the vertex with only two neighbors from its neighbors
 			tmpIndex1 = vertexInfo[sharedNeighbor[i]].vertexNeighbors[0];
 			for (int j = 0; j < vertexInfo[tmpIndex1].vertexNeighbors.size(); j++) {
 				if (vertexInfo[tmpIndex1].vertexNeighbors[j] == sharedNeighbor[i]) {
 					vertexInfo[tmpIndex1].vertexNeighbors.erase(vertexInfo[tmpIndex1].vertexNeighbors.begin() + j);
 					break;
 				}
-
 			}
 			tmpIndex1 = vertexInfo[sharedNeighbor[i]].vertexNeighbors[1];
 			for (int j = 0; j < vertexInfo[tmpIndex1].vertexNeighbors.size(); j++) {
@@ -1150,6 +1152,7 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 
 			}
 
+			// remove the links to the triangles that belong to the vertex that is deleted.
 			for (int j = 0; j < 3; j++) {
 				tmpIndex1 = indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[0]].index[j];
 				if (tmpIndex1 != sharedNeighbor[i]) {
@@ -1158,6 +1161,7 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 						vertexInfo[tmpIndex1].triangleNeighbors.end());
 				}
 			}
+
 			for (int j = 0; j < 3; j++) {
 				tmpIndex1 = indexArray[vertexInfo[sharedNeighbor[i]].triangleNeighbors[1]].index[j];
 				if (tmpIndex1 != sharedNeighbor[i]) {
@@ -1192,6 +1196,14 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 				vertexInfo[nVert].vertexNeighbors.clear();
 				return false;
 			}
+
+			// check if the removed vertex is a neighbor of currVert that has not yet been checked
+			if (find(vertexInfo[currVertP].vertexNeighbors.begin() + *counter, vertexInfo[currVertP].vertexNeighbors.begin(),
+				sharedNeighbor[i]) != vertexInfo[currVertP].vertexNeighbors.end()) {
+
+				*counter = *counter + 1;
+			}
+
 		}
 	}
 	
@@ -1200,6 +1212,7 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 	vertexArray[nVert].z = -1000;
 	vertexInfo[nVert].triangleNeighbors.clear();
 	vertexInfo[nVert].vertexNeighbors.clear();
+
 
 	return true;
 }
