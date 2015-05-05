@@ -24,8 +24,8 @@ Mesh::Mesh() {
 	vertex tempV;
 	vertexInf tempVI;
 
-	vertexArray.reserve(1000000);
-	indexArray.reserve(1000000);
+	vertexArray.reserve(10000000);
+	indexArray.reserve(10000000);
 
 	position[0] = 0.0f;
 	position[1] = 0.0f;
@@ -54,12 +54,9 @@ Mesh::Mesh() {
 	triangle* indexP;
 	vertex * vertexP;
 
-	rows = 100;
-	cols = 100;
-
 	float scaleF = 0.0f;
 
-	scaleF = 1.0f / (rows * 2) * 10.0f;
+	scaleF = 1.0f / (ROWS * 2) * 4.0f;
 
 	tempV.y = 0.0f;
 	tempV.nx = 0.0f;
@@ -67,9 +64,9 @@ Mesh::Mesh() {
 	tempV.nz = 0.2f;
 
 	// Place vertices
-	for (int i = -rows / 2; i < rows / 2; i++) {
+	for (int i = -ROWS / 2; i < ROWS / 2; i++) {
 
-		for (int j = -cols / 2; j < cols / 2; j++) {
+		for (int j = -COLS / 2; j < COLS / 2; j++) {
 
 			if (i % 2 != 0){
 				tempV.x = ((float)(j)+0.5f)*scaleF;
@@ -86,68 +83,68 @@ Mesh::Mesh() {
 	}
 
 	// set triangle indecies and bind faces
-	for (int i = 1; i < rows - 1; i++) {
-		for (int j = 1; j < cols - 1; j++) {
+	for (int i = 1; i < ROWS - 1; i++) {
+		for (int j = 1; j < COLS - 1; j++) {
 
-			//if (i != 0 && j !=0 && i != rows - 1 && j != cols - 1) {
+			//if (i != 0 && j !=0 && i != ROWS - 1 && j != COLS - 1) {
 			if (i % 2 == 0) {
 
-				vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j - 1);
-				vertexInfo[i * rows + j].vertexNeighbors.push_back((i - 1) * rows + j);
-				vertexInfo[i * rows + j].vertexNeighbors.push_back((i - 1) * rows + j - 1);
-				vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j);
-				vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j - 1);
-				vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j + 1);
+				vertexInfo[i * ROWS + j].vertexNeighbors.push_back(i * ROWS + j - 1);
+				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i - 1) * ROWS + j);
+				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i - 1) * ROWS + j - 1);
+				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i + 1) * ROWS + j);
+				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i + 1) * ROWS + j - 1);
+				vertexInfo[i * ROWS + j].vertexNeighbors.push_back(i * ROWS + j + 1);
 
-				if (i > 1 && j > 1 && i < rows - 2 && j < cols - 2) {
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i - 1) * 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i - 1) * 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2) + (i - 1) * 2 * (cols - 2));
+				if (i > 1 && j > 1 && i < ROWS - 2 && j < COLS - 2) {
+					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 2) + (i - 1) * 2 * (COLS - 2));
+					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 1) + (i - 1) * 2 * (COLS - 2));
+					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2) + (i - 1) * 2 * (COLS - 2));
 
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 3) + (i)* 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i)* 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i)* 2 * (cols - 2));
+					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 3) + (i)* 2 * (COLS - 2));
+					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 2) + (i)* 2 * (COLS - 2));
+					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 1) + (i)* 2 * (COLS - 2));
 				}
 
-				tempT.index[0] = (i - 1)*rows + j - 1;
-				tempT.index[1] = (i)*rows + j - 1;
-				tempT.index[2] = i*rows + j;
+				tempT.index[0] = (i - 1)*ROWS + j - 1;
+				tempT.index[1] = (i)*ROWS + j - 1;
+				tempT.index[2] = i*ROWS + j;
 				indexArray.push_back(tempT);
 
-				tempT.index[0] = (i - 1)*rows + j;
-				tempT.index[1] = (i - 1)*rows + j - 1;
-				tempT.index[2] = i * rows + j;
+				tempT.index[0] = (i - 1)*ROWS + j;
+				tempT.index[1] = (i - 1)*ROWS + j - 1;
+				tempT.index[2] = i * ROWS + j;
 				indexArray.push_back(tempT);
 
 
 			}
 			else { // uneven row
 
-				vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j - 1);
-				vertexInfo[i * rows + j].vertexNeighbors.push_back((i - 1) * rows + j);
-				vertexInfo[i * rows + j].vertexNeighbors.push_back((i - 1) * rows + j + 1);
-				vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j);
-				vertexInfo[i * rows + j].vertexNeighbors.push_back((i + 1) * rows + j + 1);
-				vertexInfo[i * rows + j].vertexNeighbors.push_back(i * rows + j + 1);
+				vertexInfo[i * ROWS + j].vertexNeighbors.push_back(i * ROWS + j - 1);
+				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i - 1) * ROWS + j);
+				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i - 1) * ROWS + j + 1);
+				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i + 1) * ROWS + j);
+				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i + 1) * ROWS + j + 1);
+				vertexInfo[i * ROWS + j].vertexNeighbors.push_back(i * ROWS + j + 1);
 
-				if (i > 1 && j > 1 && i < rows - 1 && j < cols - 2) {
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 2) + (i - 1) * 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i - 1) * 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2) + (i - 1) * 2 * (cols - 2));
+				if (i > 1 && j > 1 && i < ROWS - 1 && j < COLS - 2) {
+					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 2) + (i - 1) * 2 * (COLS - 2));
+					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 1) + (i - 1) * 2 * (COLS - 2));
+					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2) + (i - 1) * 2 * (COLS - 2));
 
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 - 1) + (i)* 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2) + (i)* 2 * (cols - 2));
-					vertexInfo[i * rows + j].triangleNeighbors.push_back((j * 2 + 1) + (i)* 2 * (cols - 2));
+					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 1) + (i)* 2 * (COLS - 2));
+					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2) + (i)* 2 * (COLS - 2));
+					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 + 1) + (i)* 2 * (COLS - 2));
 				}
 
-				tempT.index[0] = (i - 1)*rows + j;
-				tempT.index[1] = (i)*rows + j - 1;
-				tempT.index[2] = i*rows + j;
+				tempT.index[0] = (i - 1)*ROWS + j;
+				tempT.index[1] = (i)*ROWS + j - 1;
+				tempT.index[2] = i*ROWS + j;
 				indexArray.push_back(tempT);
 
-				tempT.index[0] = (i - 1)*rows + j + 1;
-				tempT.index[1] = (i - 1)*rows + j;
-				tempT.index[2] = i*rows + j;
+				tempT.index[0] = (i - 1)*ROWS + j + 1;
+				tempT.index[1] = (i - 1)*ROWS + j;
+				tempT.index[2] = i*ROWS + j;
 				indexArray.push_back(tempT);
 
 			}
@@ -182,7 +179,7 @@ Mesh::Mesh() {
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Present our vertex coordinates to OpenGL
 	glBufferData(GL_ARRAY_BUFFER,
-		(vertexArray.size() + 1000)*sizeof(vertex), vertexP, GL_STREAM_DRAW);
+		(vertexArray.size() + 10000)*sizeof(vertex), vertexP, GL_STREAM_DRAW);
 
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
@@ -220,6 +217,8 @@ Mesh::~Mesh(void) {
 void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	glm::vec4 tempvec;
 	vertex tempV;
+	float tempVec1[3]; float tempVec2[3];
+	float wPoint[3]; float vPoint[3];
 
 	vector<int> changedVertices;
 	changedVertices.reserve(100);
@@ -227,38 +226,11 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 
 	int oldArraySize = vertexArray.size();
 	int oldIndArraySize = indexArray.size();
-	//MOVEMENT BETWEEN LAST FRAME AND THIS FRAME
-	float pMove[3];
-	pMove[0] = (p[0] - lp[0]);
-	pMove[1] = (p[1] - lp[1]);
-	pMove[2] = (p[2] - lp[2]);
-
-	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(pMove[0], pMove[1], pMove[2], 1.0f);
-	pMove[0] = tempvec.x;
-	pMove[1] = tempvec.y;
-	pMove[2] = tempvec.z;
-
-
-	//cout << pMove[0] << " " << pMove[1] << " " << pMove[2] << endl;
-
-	tempV.z = 0;
-	vertex point;
-	point.x = p[0] - position[0];
-	point.y = p[1] - position[1];
-	point.z = p[2] - position[2];
-
-	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(point.x, point.y, point.z, 1.0f);
-	point.x = tempvec.x;
-	point.y = tempvec.y;
-	point.z = tempvec.z;
-	//float radius = rad;
-
 
 	triangle* indexP;
 	vertex* vertexP;
 
 	bool success = false;
-
 
 	int startRow = -1;
 	int endRow = -1;
@@ -266,12 +238,48 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	vector<int> startCol;	// first edited column on row
 	vector<int> endCol;		// last edited column on row
 
-	for (int i = 0; i < vertexArray.size(); i++) {
-		if (vectorLength(point, vertexArray[i]) < rad) {
+	//MOVEMENT BETWEEN LAST FRAME AND THIS FRAME
+	float mLength = 0.0f;
+	float pMove[3];
+	pMove[0] = (p[0] - lp[0]);
+	pMove[1] = (p[1] - lp[1]);
+	pMove[2] = (p[2] - lp[2]);
+	mLength = vecLength(pMove);
 
-			vertexArray[i].x += pMove[0];
-			vertexArray[i].y += pMove[1];
-			vertexArray[i].z += pMove[2];
+	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(pMove[0], pMove[1], pMove[2], 1.0f);
+	pMove[0] = tempvec.x;
+	pMove[1] = tempvec.y;
+	pMove[2] = tempvec.z;
+
+	tempV.z = 0;
+	
+	wPoint[0] = p[0] - position[0];
+	wPoint[1] = p[1] - position[1];
+	wPoint[2] = p[2] - position[2];
+
+	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(wPoint[0], wPoint[1], wPoint[2], 1.0f);
+	wPoint[0] = tempvec.x;
+	wPoint[1] = tempvec.y;
+	wPoint[2] = tempvec.z;
+
+	for (int i = 0; i < vertexArray.size(); i++) {
+		vPoint[0] = vertexArray[i].x;
+		vPoint[1] = vertexArray[i].y;
+		vPoint[2] = vertexArray[i].z;
+		tempVec1[0] = vPoint[0] - wPoint[0];
+		tempVec1[1] = vPoint[1] - wPoint[1];
+		tempVec1[2] = vPoint[2] - wPoint[2];
+		
+		if ( vecLength(tempVec1) < rad) {
+
+			normVec(tempVec1);
+
+			tempVec2[0] = (tempVec1[0] + vertexArray[i].nx) / 2.0f;
+			tempVec2[1] = (tempVec1[1] + vertexArray[i].ny) / 2.0f;
+			tempVec2[2] = (tempVec1[2] + vertexArray[i].nz) / 2.0f;
+			vertexArray[i].x += tempVec2[0]*mLength;
+			vertexArray[i].y += tempVec2[1] * mLength;
+			vertexArray[i].z += tempVec2[2] * mLength;
 
 			changedVertices.push_back(i);
 			changeCount++;
@@ -280,23 +288,23 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 			/*
 			// get range of changed vertices
 			if (startRow == -1) {
-			startRow = (i - (i % rows)) / rows;
+			startRow = (i - (i % ROWS)) / ROWS;
 			endRow = startRow; // first element is also last element as yet
 			}
 			else {
 			prevRow = endRow;
-			endRow = (i - (i % rows)) / rows;
+			endRow = (i - (i % ROWS)) / ROWS;
 			}
 			if (startCol.size() != 0 && endRow == prevRow) {		//  check if the last added column is on the same row, endRow will always be the current row
 			endCol.pop_back();									//  if it is the same row it is the last element as yet, 20 elements on each row
-			endCol.push_back(i - endRow * rows);
+			endCol.push_back(i - endRow * ROWS);
 			//endCol.push_back(i % 20);
 			}
 			else {												// first element on row
 			//startCol.push_back(i % 20);
-			startCol.push_back(i - endRow * rows);
+			startCol.push_back(i - endRow * ROWS);
 			//endCol.push_back(i % 20);
-			endCol.push_back(i - endRow * rows);
+			endCol.push_back(i - endRow * ROWS);
 			}
 			*/
 		}
@@ -321,7 +329,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 		// update the buffer where if has changed
 		for (int j = 0; currentRow <= endRow && j < endCol.size() && j < startCol.size(); j++, currentRow++) {
 		range = endCol[j] + 1 - startCol[j];
-		beginning = currentRow * rows + startCol[j];
+		beginning = currentRow * ROWS + startCol[j];
 		// Present our vertex coordinates to OpenGL
 		vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, beginning*sizeof(vertex), sizeof(vertex)*range,
 		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
@@ -473,23 +481,23 @@ void Mesh::test(float bRad, int vNR, bool plus) {
 			/*
 			// get range of changed vertices
 			if (startRow == -1) {
-			startRow = (i - (i % rows)) / rows;
+			startRow = (i - (i % ROWS)) / ROWS;
 			endRow = startRow; // first element is also last element as yet
 			}
 			else {
 			prevRow = endRow;
-			endRow = (i - (i % rows)) / rows;
+			endRow = (i - (i % ROWS)) / ROWS;
 			}
 			if (startCol.size() != 0 && endRow == prevRow) {		//  check if the last added column is on the same row, endRow will always be the current row
 			endCol.pop_back();									//  if it is the same row it is the last element as yet, 20 elements on each row
-			endCol.push_back(i - endRow * rows);
+			endCol.push_back(i - endRow * ROWS);
 			//endCol.push_back(i % 20);
 			}
 			else {												// first element on row
 			//startCol.push_back(i % 20);
-			startCol.push_back(i - endRow * rows);
+			startCol.push_back(i - endRow * ROWS);
 			//endCol.push_back(i % 20);
-			endCol.push_back(i - endRow * rows);
+			endCol.push_back(i - endRow * ROWS);
 			}
 			*/
 		}
@@ -565,7 +573,7 @@ void Mesh::test(float bRad, int vNR, bool plus) {
 		// update the buffer where if has changed
 		for (int j = 0; currentRow <= endRow && j < endCol.size() && j < startCol.size(); j++, currentRow++) {
 		range = endCol[j] + 1 - startCol[j];
-		beginning = currentRow * rows + startCol[j];
+		beginning = currentRow * ROWS + startCol[j];
 		// Present our vertex coordinates to OpenGL
 		vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, beginning*sizeof(vertex), sizeof(vertex)*e,
 		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
@@ -692,7 +700,7 @@ float Mesh::vectorLength(vertex vertex1, vertex vertex2) {
 	return sqrt(vector.x*vector.x + vector.y*vector.y + vector.z*vector.z);
 }
 
-float Mesh::vecLenght(float vec[3]) {
+float Mesh::vecLength(float vec[3]) {
 	return sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
 }
 
@@ -793,14 +801,14 @@ void Mesh::updateArea(int* changeList, int listSize) {
 			calculateVec(tempVec2, vPoint2, vPoint3);
 
 
-			if (vecLenght(tempVec1) < MIN_LENGTH)
+			if (vecLength(tempVec1) < MIN_LENGTH)
 			{
-				if (!rmVertex(vPoint3, vPoint1, tempVec1, nVert, sharedNeighbor[0], currVert, &nT))
+				//if (!rmVertex(vPoint3, vPoint1, tempVec1, nVert, sharedNeighbor[0], currVert, &nT))
 					break;
 			}
-			/*maybe if*/else if (vecLenght(tempVec2) < MIN_LENGTH)
+			/*maybe if*/else if (vecLength(tempVec2) < MIN_LENGTH)
 			{
-				if (!rmVertex(vPoint3, vPoint1, tempVec2, nVert, sharedNeighbor[1], currVert, &nT))
+				//if (!rmVertex(vPoint3, vPoint1, tempVec2, nVert, sharedNeighbor[1], currVert, &nT))
 					break;
 			}
 			sharedNeighbor.clear();
@@ -819,10 +827,10 @@ void Mesh::updateArea(int* changeList, int listSize) {
 			vPoint2[1] = vertexArray[nVert].y;
 			vPoint2[2] = vertexArray[nVert].z;
 			calculateVec(tempVec1, vPoint2, vPoint1);
-			if (vecLenght(tempVec1) < MIN_LENGTH) {
-				rmVertex(vPoint1, vPoint2, tempVec1, currVert, nVert, -1, &cT);
+			if (vecLength(tempVec1) < MIN_LENGTH) {
+				//rmVertex(vPoint1, vPoint2, tempVec1, currVert, nVert, -1, &cT);
 			}
-			else if (vecLenght(tempVec1) > MAX_LENGTH) {
+			else if (vecLength(tempVec1) > MAX_LENGTH) {
 				addVertex(vPoint1, vPoint2, tempVec1, currVert, nVert, -1, &cT);
 			}
 		}
@@ -1123,8 +1131,7 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 	}
 
 	//REMOVE VERTEX WITH ONLY TWO NEIGHBORS/////////////////////////////////////////////////////////////////////////////////////////
-	for (int i = 0; i < sharedNeighbor.size(); i++)
-	{
+	for (int i = 0; i < sharedNeighbor.size(); i++) {
 		if (vertexInfo[sharedNeighbor[i]].vertexNeighbors.size() == 2) {
 			tmpIndex1 = vertexInfo[sharedNeighbor[i]].vertexNeighbors[0];
 			for (int j = 0; j < vertexInfo[tmpIndex1].vertexNeighbors.size(); j++) {

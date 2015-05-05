@@ -4,19 +4,6 @@
 typedef struct face face;
 typedef struct vertex vertex;
 
-//! Data structure containing all necessary information regarding a facetrianglepolygon
-struct face {
-
-	//! Pointer to adjacent faces
-	face * nFace[3];
-	//int arrayIndex;
-
-	//! Pointer to the faces vertecies
-	//vertex *vertices[3];
-	GLuint index1 = -1;
-	GLuint index2 = -1;
-	GLuint index3 = -1;
-};
 //! Data structure containing the coordinates and normal coordinates of a vertex, aswell as a pointer to an adjacent face
 struct vertex {
 	GLfloat x;
@@ -28,28 +15,16 @@ struct vertex {
 	//int arrayIndex;
 };
 
-struct vertexInf
-{
+//! Data structure containing information about a vertex neighboring verecies and neighboring triangles it is part of. 
+struct vertexInf {
 	std::vector<int> vertexNeighbors;
 	std::vector<int> triangleNeighbors;
 };
 //! Data structure containing three indices of the vertexArray that make a certain triangle
 struct triangle {
-
 	GLuint index[3];
-	//GLuint index1 = -1;
-	//GLuint index2 = -1;
-	//GLuint index3 = -1;
 };
 
-/*
-struct halfEdge{
-	vertex* pVertex;
-	face* bFace;
-	halfEdge* nEdge;
-	halfEdge* oEdge;
-};
-*/
 
 //! A class representing a modifiable 3D mesh 
 class Mesh {
@@ -57,14 +32,9 @@ class Mesh {
 	Mesh();
 	~Mesh();
 
-
-	//void updateVertexArray(float* p, bool but);
-
 	void dilate(float* p, float lp[3], float rad, bool but);
-
 	void test(float bRad, int vNR, bool plus);
 
-	//void moveThroughMesh(int it);
 	void render();
 
 	vertex* getVertexList();
@@ -80,22 +50,30 @@ class Mesh {
 	//! Calculates the vector lenght between two vertex
 	float vectorLength(vertex vertex1, vertex vertex2);
 	//! Calculates the lenght of a vector
-	float vecLenght(float vec[3]);
+	float vecLength(float vec[3]);
 	//! Sorts vertecies by the x coordinate into ascending order
 	bool sortByXCord(const vertex &a, const vertex &b);
 	//! Calculates the vector between to points a and b and returns a pointer to the vec
 	void calculateVec(float* newVec, float a[3], float b[3]);
 
+	//! updates the changed vertecies normal and checks if retriangulation is needed.
 	void updateArea(int* changeList, int listSize);
-
+	//! adds a vertex in the middle between the vertexpoints pA and pB.
+	/*! pA is the position of currVert, pB is the position of nVert,
+		currVert and nVert are the indecies of the vertecies in the vertexArray,
+		counter is the number of changed vertecies */
 	void addVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int currVertP, int* counter );
+	//! removes the vertexpoint nVert and moves currVert halfway to nVert.
+	/*! pA is the position of currVert, pB is the position of nVert, 
+		currVert and nVert are the indecies of the vertecies in the vertexArray,
+		counter is what element in the changedCounter we are in */
 	bool rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int currVertP, int* counter);
 
-	int rows;
-	int cols;
+	const int ROWS = 100;
+	const int COLS = 100;
 
-	const float MAX_LENGTH = 0.08;
-	const float MIN_LENGTH = 0.0399;
+	const float MAX_LENGTH = 0.08f*(2.0f / 5.0f);
+	const float MIN_LENGTH = 0.0399f*(2.0f / 5.0f);
 
 	GLuint vao;          // Vertex array object, the main handle for geometry
 	
