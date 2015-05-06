@@ -43,7 +43,7 @@ void Box::createBox(float xSize, float ySize, float zSize)
 		-xSize / 2.0f, ySize / 2.0f,		 -zSize / 2.0f, 0.0f, 1.0f, 0.0f,			 0.0f, 1.0f, //8 - 15
 
 
-		-xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 0.0f, 1.0f, //1 - 16 fel
+		-xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 1.0f, 1.0f, //1 - 16
 		xSize / 2.0f, -ySize / 2.0f,		 zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 0.0f, 0.0f, //2 - 17
 		xSize / 2.0f, ySize / 2.0f,			 zSize / 2.0f, 1.0f, 0.0f, 0.0f,			 1.0f, 0.0f,  //3 - 18
 		-xSize / 2.0f, ySize / 2.0f,		 zSize / 2.0f, -1.0f, 0.0f, 0.0f,			 0.0f, 1.0f,  //4 - 19

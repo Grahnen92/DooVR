@@ -133,8 +133,11 @@ int Oculus::runOvr() {
 	GLint locationLP;
 	GLint locationP;
 	GLint locationMV;
-	GLint locationOMV;
 	GLint locationTex;
+
+	GLint locationMeshMV;
+	GLint locationMeshLP;
+	GLint locationMeshP;
 
 	//INITIALIZE OVR /////////////////////////////////////////////////////
 	ovr_Initialize();
@@ -349,6 +352,8 @@ int Oculus::runOvr() {
 	//DECLARE AND CREATE SHADERS ///////////////////////////////////////////////////////////////////////////////////
 	Shader phongShader;
 	phongShader.createShader("vertexshader.glsl", "fragmentshader.glsl");
+	Shader meshShader;
+	meshShader.createShader("vshader.glsl", "fshader.glsl");
 
 	// CREATE MATRIX STACK
 	MatrixStack MVstack;
@@ -360,8 +365,7 @@ int Oculus::runOvr() {
 
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));			//Ground plane
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
-	/*Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.15f, 1.58f, 0.15f));*/
-	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.20f, 0.18f, 0.18f));
+	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.15f, 1.58f, 0.15f));
 
 	// Wand = Box + sphere
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.20f, 0.03f, 0.03f));
@@ -390,10 +394,13 @@ int Oculus::runOvr() {
 
 	//UNIFORM VARIABLES WITH SHADER ///////////////////////////////////////////////////////////////////////////
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");						// ModelView Matrix
-	locationOMV = glGetUniformLocation(phongShader.programID, "OMV");					//
 	locationP = glGetUniformLocation(phongShader.programID, "P");						// Perspective Matrix
 	locationLP = glGetUniformLocation(phongShader.programID, "lightPos");				// Light position
 	locationTex = glGetUniformLocation(phongShader.programID, "tex");					// Texture Matrix
+
+	locationMeshMV = glGetUniformLocation(phongShader.programID, "MV");					// ModelView Matrix
+	locationMeshP = glGetUniformLocation(phongShader.programID, "P");					// Perspective Matrix
+	locationMeshLP = glGetUniformLocation(phongShader.programID, "lightPos");			// Light position
 
 	//ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
@@ -431,7 +438,7 @@ int Oculus::runOvr() {
 			case 2: // Move, 2nd from the right
 				//chooseFunction = MOVE;
 				currentTexID = move.getTextureID();
-				moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
+				//moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
 				break;
 			case 3: // Recenter, first from the right
 				//chooseFunction = RECENTER;
@@ -558,7 +565,6 @@ int Oculus::runOvr() {
 
 			// Pass projection matrix on to OpenGL...
 			glUniformMatrix4fv(locationP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
-
 			glUniform1i(locationTex, 0);
 
 			// SCENEGRAPH //////////////////////////////////////////////////////////////////////////////////////////
@@ -595,7 +601,7 @@ int Oculus::runOvr() {
 					translateVector[2] = 0.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
+					//glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
 					ground.render();
 				MVstack.pop();
 
@@ -606,7 +612,7 @@ int Oculus::runOvr() {
 					translateVector[2] = -2.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					//glBindTexture(GL_TEXTURE_2D, boxTex.getTextureID());
+					glBindTexture(GL_TEXTURE_2D, boxTex.getTextureID());
 					boxCamera.render();
 				MVstack.pop();
 
@@ -629,20 +635,10 @@ int Oculus::runOvr() {
 						translateVector[2] = regSpherePos[8 + regCounter];
 						MVstack.translate(translateVector);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
+						//glBindTexture(GL_TEXTURE_2D, coregister.getTextureID()); //röd
 						regSphere.render();
 					MVstack.pop();
 				}
-				
-				// MESH
-				MVstack.push();
-					MVstack.translate(mTest->getPosition());
-					MVstack.multiply(mTest->getOrientation());
-					glLineWidth(1.0);
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
-					mTest->render();
-				MVstack.pop();
 
 				// WAND
 				MVstack.push();
@@ -657,7 +653,7 @@ int Oculus::runOvr() {
 						sphereWand.render();
 						if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 					MVstack.pop();
-						MVstack.push();
+					MVstack.push();
 						translateVector[0] = -0.1f;
 						translateVector[1] = 0.0f;
 						translateVector[2] = 0.0f;
@@ -666,6 +662,21 @@ int Oculus::runOvr() {
 						glBindTexture(GL_TEXTURE_2D, currentTexID);
 						boxWand.render();
 					MVstack.pop();
+				MVstack.pop();
+
+
+				glUseProgram(meshShader.programID);
+				glUniformMatrix4fv(locationMeshP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
+				glUniform4fv(locationMeshLP, 1, lightPosTemp);
+				glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+
+				// MESH
+				MVstack.push();
+					MVstack.translate(mTest->getPosition());
+					MVstack.multiply(mTest->getOrientation());
+					glLineWidth(1.0);
+					glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					mTest->render();
 				MVstack.pop();
 
 			MVstack.pop();
