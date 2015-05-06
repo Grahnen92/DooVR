@@ -828,6 +828,7 @@ void Mesh::updateArea(int* changeList, int listSize) {
 			vPoint2[2] = vertexArray[nVert].z;
 			calculateVec(tempVec1, vPoint2, vPoint1);
 			if (vecLength(tempVec1) < MIN_LENGTH) {
+
 				rmVertex(vPoint1, vPoint2, tempVec1, currVert, nVert, -1, &cT);
 				cT--;
 			}
