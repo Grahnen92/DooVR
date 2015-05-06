@@ -62,12 +62,12 @@ class Mesh {
 	/*! pA is the position of currVert, pB is the position of nVert,
 		currVert and nVert are the indecies of the vertecies in the vertexArray,
 		counter is the number of changed vertecies */
-	void addVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int currVertP, int* counter );
+	void addVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* sharedTriNeighbor, int* counter);
 	//! removes the vertexpoint nVert and moves currVert halfway to nVert.
 	/*! pA is the position of currVert, pB is the position of nVert, 
 		currVert and nVert are the indecies of the vertecies in the vertexArray,
 		counter is what element in the changedCounter we are in */
-	bool rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int currVertP, int* counter);
+	bool rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* sharedTriNeighbor, int* counter);
 
 	const int ROWS = 100;
 	const int COLS = 100;
