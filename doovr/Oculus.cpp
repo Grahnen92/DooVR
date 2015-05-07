@@ -377,7 +377,9 @@ int Oculus::runOvr() {
 	Device* wand = new Device(true, true, false, "Mouse");
 	//Device* wand = new Device(true, true, true, "Wand");
 
-	wand3d::Wand3dObserver* wand3d = new Passive3D();
+	Passive3D* wand3d = new Passive3D();
+
+	wand3d->start();
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -424,6 +426,8 @@ int Oculus::runOvr() {
 			buttonPressed = false;
 		}
 		
+		cout << "X: " << wand3d->getWandOrientation()[0] << "Y: " << wand3d->getWandOrientation()[1] << "Z: " << wand3d->getWandOrientation()[2] << endl;
+
 		// INTERACTION ////////////////////////////////////////////////////////////////////////////////////////
 		if (buttonPressed || buttonHeld) {
 			switch (wand->getButtonNumber()) {
@@ -433,7 +437,6 @@ int Oculus::runOvr() {
 				break;
 			case 1: //Drag&Pull, first from the left		
 				chooseFunction = newDILATE;
-				//cout << "X: " << wand3d->getWandOrientation()[0] << "Y: " << wand3d->getWandOrientation()[1] << "Z: " << wand3d->getWandOrientation()[2] << endl;
 				currentTexID = dnp.getTextureID();
 				break;
 			case 2: // Move, 2nd from the right
@@ -703,7 +706,7 @@ int Oculus::runOvr() {
 		//Wand callback from VRPN
 		wand->sendtoMainloop();
 
-		//wand3d->start();
+	
 
 		// Do everything, distortion, front/back buffer swap...
 		ovrHmd_EndFrame(hmd, g_EyePoses, g_EyeTextures);

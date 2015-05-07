@@ -9,7 +9,8 @@ Passive3D::Passive3D()
 	} catch (Wand3dSerialException error) {
 		std::cout << error.what() << std::endl;
 	}
-	wand->addObserver(this);
+	Wand3dObserver* observer = this;
+	wand->addObserver(observer);
 }
 
 
