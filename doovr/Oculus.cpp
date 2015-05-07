@@ -386,9 +386,10 @@ int Oculus::runOvr() {
 	Texture erode("../Textures/test5.DDS");
 	Texture dnp("../Textures/down.DDS");
 
-	Texture groundTex("../Textures/x.DDS");
-	Texture meshTex("../Textures/x.DDS");
-	Texture boxTex("../Textures/test3.DDS");
+	Texture groundTex("../Textures/floor3.DDS");
+	Texture boxTex("../Textures/scifibox3.DDS"); // change a bit (copyright)
+	Texture coregister("../Textures/coregister3.DDS");
+	Texture refBox("../Textures/tree3.DDS"); // temporary
 
 	GLuint currentTexID = move.getTextureID();
 
@@ -601,7 +602,7 @@ int Oculus::runOvr() {
 					translateVector[2] = 0.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					//glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
+					glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
 					ground.render();
 				MVstack.pop();
 
@@ -612,7 +613,7 @@ int Oculus::runOvr() {
 					translateVector[2] = -2.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					glBindTexture(GL_TEXTURE_2D, boxTex.getTextureID());
+					glBindTexture(GL_TEXTURE_2D, refBox.getTextureID());
 					boxCamera.render();
 				MVstack.pop();
 
@@ -635,7 +636,7 @@ int Oculus::runOvr() {
 						translateVector[2] = regSpherePos[8 + regCounter];
 						MVstack.translate(translateVector);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						//glBindTexture(GL_TEXTURE_2D, coregister.getTextureID()); //röd
+						glBindTexture(GL_TEXTURE_2D, coregister.getTextureID());
 						regSphere.render();
 					MVstack.pop();
 				}
