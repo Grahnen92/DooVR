@@ -226,7 +226,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	pMove[2] = tempvec.z;
 
 
-	//cout << pMove[0] << " " << pMove[1] << " " << pMove[2] << endl;
+	cout << pMove[0] << " " << pMove[1] << " " << pMove[2] << endl;
 
 	tempV.z = 0;
 	vertex point;

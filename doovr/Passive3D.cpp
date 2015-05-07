@@ -39,9 +39,11 @@ float* Passive3D::getWandOrientation() {
 }
 
 void Passive3D::setWandPosition(double* t) {
-	wandPosition[0] = t[0];
-	wandPosition[1] = t[1];
-	wandPosition[2] = t[2];
+
+	// Change the coordinatesystem to match Oculus x->x, y->z, z->-y
+	wandPosition[0] = (float) t[0]*10;
+	wandPosition[1] = (float) t[2] * 10;
+	wandPosition[2] = (float) -t[1] * 10;
 }
 
 void Passive3D::setWandOrientation(double* o) {
