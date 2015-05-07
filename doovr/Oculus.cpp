@@ -710,10 +710,10 @@ int Oculus::runOvr() {
 				// MESH
 				MVstack.push();
 
-					translateVector[0] = 0.0f;
-					translateVector[1] = -0.55f;
-					translateVector[2] = -0.5f;
-					MVstack.translate(translateVector);
+					//translateVector[0] = 0.0f;
+					//translateVector[1] = -0.55f;
+					//translateVector[2] = -0.5f;
+					//MVstack.translate(translateVector);
 					MVstack.translate(mTest->getPosition());
 					MVstack.multiply(mTest->getOrientation());
 
@@ -730,10 +730,10 @@ int Oculus::runOvr() {
 					//MVstack.multiply(wand->getTrackerRotation());
 					
 					// Passive3D wand
-					translateVector[0] = 0.0f;
-					translateVector[1] = -0.75f;
-					translateVector[2] = -0.5f;
-					MVstack.translate(translateVector);
+					//translateVector[0] = 0.0f;
+					//translateVector[1] = -0.75f;
+					//translateVector[2] = -0.5f;
+					//MVstack.translate(translateVector);
 					MVstack.translate(wand3d->getWandPosition());
 
 					MVstack.multiply(wand3d->getWandOrientation());
