@@ -24,8 +24,9 @@ Mesh::Mesh() {
 	vertex tempV;
 	vertexInf tempVI;
 
-	vertexArray.reserve(10000000);
-	indexArray.reserve(10000000);
+	vertexArray.reserve(1000000);
+	indexArray.reserve(1000000);
+	vertexInfo.reserve(1000000);
 
 	position[0] = 0.0f;
 	position[1] = 0.0f;
@@ -56,7 +57,7 @@ Mesh::Mesh() {
 
 	float scaleF = 0.0f;
 
-	scaleF = 1.0f / (ROWS * 2) * 4.0f;
+	scaleF = 1.0f / (ROWS * 2) ;
 
 	tempV.y = 0.0f;
 	tempV.nx = 0.0f;
@@ -179,7 +180,20 @@ Mesh::Mesh() {
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Present our vertex coordinates to OpenGL
 	glBufferData(GL_ARRAY_BUFFER,
-		(vertexArray.size() + 10000)*sizeof(vertex), vertexP, GL_STREAM_DRAW);
+		(vertexArray.size() + 100000)*sizeof(vertex), NULL, GL_STREAM_DRAW);
+
+	vertexP = (vertex*)glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(vertex)*vertexArray.size(),
+		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+
+	for (int i = 0; i < vertexArray.size(); i++) {
+		vertexP[i].x = vertexArray[i].x;
+		vertexP[i].y = vertexArray[i].y;
+		vertexP[i].z = vertexArray[i].z;
+		vertexP[i].nx = vertexArray[i].nx;
+		vertexP[i].ny = vertexArray[i].ny;
+		vertexP[i].nz = vertexArray[i].nz;
+	}
+	glUnmapBuffer(GL_ARRAY_BUFFER);
 
 	// Specify how many attribute arrays we have in our VAO
 	glEnableVertexAttribArray(0); // Vertex coordinates
@@ -200,7 +214,18 @@ Mesh::Mesh() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 	// Present our vertex indices to OpenGL
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-		(indexArray.size() + 10000)*sizeof(triangle), indexP, GL_STREAM_DRAW);
+		(indexArray.size() + 100000)*sizeof(triangle), NULL, GL_STREAM_DRAW);
+
+	indexP = (triangle*)glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(triangle) * indexArray.size(),
+		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+
+	for (int i = 0; i < indexArray.size(); i++) {
+		indexP[i].index[0] = indexArray[i].index[0];
+		indexP[i].index[1] = indexArray[i].index[1];
+		indexP[i].index[2] = indexArray[i].index[2];
+	}
+
+	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
 
 	// Deactivate (unbind) the VAO and the buffers again.
 	// Do NOT unbind the buffers while the VAO is still bound.
