@@ -14,16 +14,14 @@ struct vertex {
 	//int arrayIndex;
 };
 
-struct vertexInf
-{
-	int vertexNeighbors[8];
-	int triangleNeighbors[8];
+//! Data structure containing information about a vertex neighboring verecies and neighboring triangles it is part of. 
+struct vertexInf {
+	std::vector<int> vertexNeighbors;
+	std::vector<int> triangleNeighbors;
 };
 //! Data structure containing three indices of the vertexArray that make a certain triangle
 struct triangle {
-	GLuint index1;
-	GLuint index2;
-	GLuint index3;
+	GLuint index[3];
 };
 
 
@@ -33,14 +31,10 @@ class Mesh {
 	Mesh();
 	~Mesh();
 
-	//void updateVertexArray(float* p, bool but);
-
 	void dilate(float* p, float lp[3], float rad, bool but);
+	void test(float bRad, int vNR, bool plus);
 
-	//void moveThroughMesh(int it);
 	void render();
-
-	void updateArea(int currVert);
 
 	vertex* getVertexList();
 	triangle* getIndexList();
@@ -58,14 +52,30 @@ class Mesh {
 	//! Calculates the vector lenght between two vertex
 	float vectorLength(vertex vertex1, vertex vertex2);
 	//! Calculates the lenght of a vector
-	float vecLenght(float vec[3]);
+	float vecLength(float vec[3]);
 	//! Sorts vertecies by the x coordinate into ascending order
 	bool sortByXCord(const vertex &a, const vertex &b);
 	//! Calculates the vector between to points a and b and returns a pointer to the vec
 	void calculateVec(float* newVec, float a[3], float b[3]);
 
-	int rows;
-	int cols;
+	//! updates the changed vertecies normal and checks if retriangulation is needed.
+	void updateArea(int* changeList, int listSize);
+	//! adds a vertex in the middle between the vertexpoints pA and pB.
+	/*! pA is the position of currVert, pB is the position of nVert,
+		currVert and nVert are the indecies of the vertecies in the vertexArray,
+		counter is the number of changed vertecies */
+	void addVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* sharedTriNeighbor, int* counter);
+	//! removes the vertexpoint nVert and moves currVert halfway to nVert.
+	/*! pA is the position of currVert, pB is the position of nVert, 
+		currVert and nVert are the indecies of the vertecies in the vertexArray,
+		counter is what element in the changedCounter we are in */
+	bool rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* sharedTriNeighbor, int* counter);
+
+	const int ROWS = 100;
+	const int COLS = 100;
+
+	const float MAX_LENGTH = 0.08f*0.1f;
+	const float MIN_LENGTH = 0.0399f*0.1f;
 
 	GLuint vao;          // Vertex array object, the main handle for geometry
 	

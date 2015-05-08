@@ -371,12 +371,9 @@ int Oculus::runOvr() {
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.20f, 0.03f, 0.03f));
 	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
-	// Mesh
-	Mesh* mTest = new Mesh();
-
 	// Initilise VRPN connection with the Intersense wand
-	Device* wand = new Device(true, true, false, "Mouse");
-	//Device* wand = new Device(true, true, true, "Wand");
+	//Device* wand = new Device(true, true, false, "Mouse");
+	Device* wand = new Device(true, true, true, "Wand");
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -405,6 +402,10 @@ int Oculus::runOvr() {
 
 	//ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
+
+	Mesh* mTest = new Mesh();
+
+	float sRadius = 0.05f;
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
@@ -627,7 +628,7 @@ int Oculus::runOvr() {
 					glBindTexture(GL_TEXTURE_2D, boxTex.getTextureID());
 					box.render();
 				MVstack.pop();
-	
+
 				// Co-register spheres
 				if (renderRegisterSpheres) {
 					MVstack.push();
@@ -640,6 +641,42 @@ int Oculus::runOvr() {
 						regSphere.render();
 					MVstack.pop();
 				}
+
+				// MESH
+				MVstack.push();
+					// Move around with the mesh
+					if (wand->getButtonState() && (wand->getButtonNumber() == 2)  ) {
+						mTest->setPosition(wand->getTrackerPosition());
+						mTest->setOrientation(wand->getTrackerRotation());
+					}
+
+
+
+					// Test to implement the erosion function on the mesh.
+					if (wand->getButtonState() && (wand->getButtonNumber() == 0)) {
+						//mTest.updateVertexArray(wand->getTrackerPosition(), false);
+						cout << "not used" << endl;
+					}
+
+					//std::cout << wand->getButtonNumber() << std::endl;
+
+					MVstack.translate(mTest->getPosition());
+					MVstack.multiply(mTest->getOrientation());
+
+					glLineWidth(1.0);
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					
+					if (glfwGetKey(l_Window, GLFW_KEY_T)) {
+						mTest->test(sRadius, 5052, true);
+					}
+					if (glfwGetKey(l_Window, GLFW_KEY_Y)) {
+						mTest->test(sRadius, 5052, false);
+					}
+
+					mTest->render();
+
+				MVstack.pop();
+
 
 				// WAND
 				MVstack.push();

@@ -53,15 +53,16 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim) {
 	
 	for (int i = 0; i < _dim.x - 1 ; i++) {
 		for (int j = 0; j < _dim.y - 1; j++) { 
-			tempT.index1 = i*_dim.x + j;
-			tempT.index2 = i*_dim.x + j + 1;
-			tempT.index3 = (i + 1)*_dim.x + j;
+
+			tempT.index[0] = i*_dim.x + j; 
+			tempT.index[1] = i*_dim.x + j + 1;
+			tempT.index[2] = (i + 1)*_dim.x + j;
 
 			indexArray.push_back(tempT);
 
-			tempT.index1 = (i + 1)*_dim.x + j;
-			tempT.index2 = i*_dim.x + j + 1;
-			tempT.index3 = (i + 1)*_dim.x + j+1;
+			tempT.index[0] = (i + 1)*_dim.x + j;
+			tempT.index[1] = i*_dim.x + j + 1;
+			tempT.index[2] = (i + 1)*_dim.x + j + 1;
 
 			indexArray.push_back(tempT);
 		}
