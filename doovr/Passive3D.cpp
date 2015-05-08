@@ -11,6 +11,8 @@ Passive3D::Passive3D()
 	}
 	Wand3dObserver* observer = this;
 	wand->addObserver(observer);
+
+	wand->start();
 }
 
 
@@ -25,27 +27,14 @@ void Passive3D::wand3dCallback(WandData data) {
 	utils::getGLRotMatrix(data, wandOrientation);
 }
 
-void Passive3D::start() {
-	wand->start();
-}
-
-
-float* Passive3D::getWandPosition() {
-	return wandPosition;
-}
-
-float* Passive3D::getWandOrientation() {
-	return wandOrientation;
-}
-
 void Passive3D::setWandPosition(double* t) {
-
 	// Change the coordinatesystem to match Oculus x->x, y->z, z->-y
-	wandPosition[0] = (float) t[0]*5 +0.0f;
-	wandPosition[1] = (float) t[2]*5 -0.75f;
-	wandPosition[2] = (float) -t[1]*5 -0.5f;
+	wandPosition[0] = (float) t[0] + 0.1f;
+	wandPosition[1] = (float) t[2] - 0.75f;
+	wandPosition[2] = (float) -t[1] - 0.25f;
 }
 
 void Passive3D::setWandOrientation(double* o) {
+
 	std::copy(o, o + 16, wandOrientation);
 }

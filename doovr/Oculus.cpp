@@ -5,8 +5,11 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Box.h"
+#include "hexBox.h"
 #include "Cylinder.h"
 #include "Texture.h"
+#include "Wand.h"
+#include "Vrpn.h"
 #include "Passive3D.h"
 
 //#define GLFW_EXPOSE_NATIVE_WIN32
@@ -21,8 +24,7 @@ void GLRenderCallsOculus();
 
 // Declare moveMesh - used for moving around the mesh in the scene.
 // TODO: refactor this function to TOOLS namespace?
-void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR);
-void moveMesh(Passive3D* wand, Mesh* mTest, float* changePos, float* differenceR, bool *buttonPressed);
+void moveMesh(Wand* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR);
 
 void print_GLM_matrix(glm::mat4 M);
 void print_FLOAT_matrix(float* M);
@@ -369,22 +371,21 @@ int Oculus::runOvr() {
 
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));			//Ground plane
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
+	hexBox hexbox(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
 	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.15f, 1.58f, 0.15f));
 
 	// Wand = Box + sphere
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.20f, 0.03f, 0.03f));
 	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
+
 	// Mesh
 	Mesh* mTest = new Mesh();
 
-	// Initilise VRPN connection with the Intersense wand
-	Device* wand = new Device(true, true, false, "Mouse");
-	//Device* wand = new Device(true, true, true, "Wand");
-
-	Passive3D* wand3d = new Passive3D();
-
-	wand3d->start();
+	// Initilise Vrpn connection with the Intersense wand
+	//Vrpn* wand = new Vrpn(true, true, false, "Mouse");
+	//Vrpn* wand = new Vrpn(true, true, true, "Wand");
+	Passive3D* wand = new Passive3D();
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -417,6 +418,7 @@ int Oculus::runOvr() {
 		// Show fps at the top of the window
 		fps = Utilities::displayFPS(l_Window);
 
+		/*
 
 		// STATES //////////////////////////////////////////////////////////////////////////////////////////////
 		// All states are originally false
@@ -450,8 +452,6 @@ int Oculus::runOvr() {
 				//chooseFunction = MOVE;
 				currentTexID = move.getTextureID();
 				//moveMesh(wand, mTest, buttonPressed, changePos, differenceR); // For intersense wand
-
-				//moveMesh(wand3d, mTest, changePos, differenceR, keyDown);		// For passive3D wand
 				break;
 			case 3: // Recenter, first from the right
 				//chooseFunction = RECENTER;
@@ -468,20 +468,14 @@ int Oculus::runOvr() {
 					//mTest->updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
 				}
 				else if (chooseFunction == newDILATE) {
-
-					// for the intersense wand
-					mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
-
-					// for the passive3d wand
-
-
+					mTest->dilate(wand->getWandPosition(), lastPos, wandRadius, true);
 				}
 				else if (chooseFunction == coREGISTER && buttonPressed) {
 
 					if (regCounter <= 3)
 					{
 						for (int i = 0; i < 3; i++) { // Save wand position & rotation 
-							pos[i * 4 + regCounter] = wand->getTrackerPosition()[i];
+							pos[i * 4 + regCounter] = wand->getWandPosition()[i];
 						}
 						cout << endl;
 						pos[12 + regCounter] = 1.0f; // column --> sista raden med ettor
@@ -495,9 +489,9 @@ int Oculus::runOvr() {
 						renderRegisterSpheres = false;
 					}
 					else if (regCounter == 4)
-						eye = wand->getTrackerPosition()[1];		// ta ögon höjd		regCounter = 4
+						eye = wand->getWandPosition()[1];		// ta ögon höjd		regCounter = 4
 					else if (regCounter == 5)
-						floor = wand->getTrackerPosition()[1];	// ta golv höjd		regCounter = 5
+						floor = wand->getWandPosition()[1];	// ta golv höjd		regCounter = 5
 
 					regCounter++;
 					if (regCounter == 6)						// Configure done.
@@ -512,7 +506,6 @@ int Oculus::runOvr() {
 				chooseFunction = -1;
 			}
 		}
-
 
 		// ANALOG BUTTON - change tool size
 		if (wand->getAnalogPosition()[0] != 0 || wand->getAnalogPosition()[1] != 0) {
@@ -531,6 +524,7 @@ int Oculus::runOvr() {
 				wandRadius += 0.001f*wand->getAnalogPosition()[1];
 			}
 		}
+		*/
 
 
 		// KEYBORD EVENTS
@@ -558,47 +552,23 @@ int Oculus::runOvr() {
 		else if (glfwGetKey(l_Window, GLFW_KEY_L) == GLFW_RELEASE && lines){
 			lines = false;
 		}
-		
 		// Passive 3D wand keyboard
-		if (glfwGetKey(l_Window, GLFW_KEY_Z) ) {
-			*keyDown = !(*keyDown);
-		}
-
 		if (glfwGetKey(l_Window, GLFW_KEY_X)) {
 			//cout << "hello " << endl;
-			mTest->dilate(wand3d->getWandPosition(), lastPos, wandRadius, true);
-
+			mTest->dilate(wand->getWandPosition(), lastPos, wandRadius, true);
 		}
-
 		if (glfwGetKey(l_Window, GLFW_KEY_C)) {
 			//cout << "hello " << endl;
-			mTest->setPosition(wand3d->getWandPosition());
+			mTest->setPosition(wand->getWandPosition());
+			mTest->setOrientation(wand->getWandOrientation());
 		}
 
 
-
-			// for the passive3d wand}
-
-		//cout << *keyDown << endl;
-
-
-		// Reset offset when button is released
-		/*if (buttonReleased) {
-			changePos[0] = 0.0f;
-			changePos[1] = 0.0f;
-			changePos[2] = 0.0f;
-			Utilities::makeUniform(differenceR);
-		}*/
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
 		//// Save position of tracker from last frame to get deltaPos
-		//lastPos[0] = wand->getTrackerPosition()[0];
-		//lastPos[1] = wand->getTrackerPosition()[1];
-		//lastPos[2] = wand->getTrackerPosition()[2];
-
-		// Save position of tracker from last frame to get deltaPos
-		lastPos[0] = wand3d->getWandPosition()[0];
-		lastPos[1] = wand3d->getWandPosition()[1];
-		lastPos[2] = wand3d->getWandPosition()[2];
+		lastPos[0] = wand->getWandPosition()[0];
+		lastPos[1] = wand->getWandPosition()[1];
+		lastPos[2] = wand->getWandPosition()[2];
 
 		// Begin the frame...
 		ovrHmd_BeginFrame(hmd, l_FrameIndex);
@@ -691,7 +661,9 @@ int Oculus::runOvr() {
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					//glBindTexture(GL_TEXTURE_2D, uniqueTexture.getTexID());
+					
 					box.render();
+					//hexbox.render();
 				MVstack.pop();
 	
 				// Co-register spheres
@@ -709,11 +681,6 @@ int Oculus::runOvr() {
 				
 				// MESH
 				MVstack.push();
-
-					//translateVector[0] = 0.0f;
-					//translateVector[1] = -0.55f;
-					//translateVector[2] = -0.5f;
-					//MVstack.translate(translateVector);
 					MVstack.translate(mTest->getPosition());
 					MVstack.multiply(mTest->getOrientation());
 
@@ -725,19 +692,8 @@ int Oculus::runOvr() {
 
 				// WAND
 				MVstack.push();
-					// Intersense wand
-					//MVstack.translate(wand->getTrackerPosition());
-					//MVstack.multiply(wand->getTrackerRotation());
-					
-					// Passive3D wand
-					//translateVector[0] = 0.0f;
-					//translateVector[1] = -0.75f;
-					//translateVector[2] = -0.5f;
-					//MVstack.translate(translateVector);
-					MVstack.translate(wand3d->getWandPosition());
-
-					MVstack.multiply(wand3d->getWandOrientation());
-
+					MVstack.translate(wand->getWandPosition());
+					MVstack.multiply(wand->getWandOrientation());
 
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					MVstack.push();
@@ -765,7 +721,7 @@ int Oculus::runOvr() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		//Wand callback from VRPN
-		wand->sendtoMainloop();
+		//wand->sendtoMainloop();
 
 	
 
@@ -819,6 +775,7 @@ void GLRenderCallsOculus(){
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glFrontFace(GL_CCW);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	if (L_MULTISAMPLING) {
 		glEnable(GL_MULTISAMPLE);
 	}
@@ -827,41 +784,7 @@ void GLRenderCallsOculus(){
 	}
 }
 
-void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR) {
-	// Save first wand rotation transform in wandR
-	float* wandR = wand->getTrackerRotation();
-	float resultR[16];
-	float resultPos[3];
-
-	if (buttonPressed) {
-		// Offset translation back to the original position of the mesh
-		changePos[0] = mTest->getPosition()[0] - wand->getTrackerPosition()[0];
-		changePos[1] = mTest->getPosition()[1] - wand->getTrackerPosition()[1];
-		changePos[2] = mTest->getPosition()[2] - wand->getTrackerPosition()[2];
-
-		// Get the difference betweeen the original mesh rotation transform and wandR  --   wandR * differenceR = meshR
-		float* meshR = mTest->getOrientation();
-		float invWandR[16] = { 0.0f };
-		Utilities::invertMatrix(wandR, invWandR);
-		Utilities::matrixMult(invWandR, meshR, differenceR);
-	}
-
-	// Resulting translation to be made on the mesh calculated from origin.
-	resultPos[0] = wand->getTrackerPosition()[0] + changePos[0];
-	resultPos[1] = wand->getTrackerPosition()[1] + changePos[1];
-	resultPos[2] = wand->getTrackerPosition()[2] + changePos[2];
-
-	// Resulting rotation to be made on the mesh
-	Utilities::matrixMult(wandR, differenceR, resultR);
-
-	mTest->setPosition(resultPos);
-	mTest->setOrientation(resultR);
-}
-
-
-
-// Move mesh for Passive3D
-void moveMesh(Passive3D* wand, Mesh* mTest, float* changePos, float* differenceR, bool *buttonPressed) {
+void moveMesh(Wand* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR) {
 	// Save first wand rotation transform in wandR
 	float* wandR = wand->getWandOrientation();
 	float resultR[16];
@@ -878,13 +801,12 @@ void moveMesh(Passive3D* wand, Mesh* mTest, float* changePos, float* differenceR
 		float invWandR[16] = { 0.0f };
 		Utilities::invertMatrix(wandR, invWandR);
 		Utilities::matrixMult(invWandR, meshR, differenceR);
-		(*buttonPressed) = false;
 	}
 
 	// Resulting translation to be made on the mesh calculated from origin.
-	resultPos[0] = wand->getWandPosition()[0]; 
-	resultPos[1] = wand->getWandPosition()[1];
-	resultPos[2] = wand->getWandPosition()[2];
+	resultPos[0] = wand->getWandPosition()[0] + changePos[0];
+	resultPos[1] = wand->getWandPosition()[1] + changePos[1];
+	resultPos[2] = wand->getWandPosition()[2] + changePos[2];
 
 	// Resulting rotation to be made on the mesh
 	Utilities::matrixMult(wandR, differenceR, resultR);

@@ -1,12 +1,13 @@
 #include "twoDim.h"
-
+#include "Wand.h"
+#include "Vrpn.h"
 #include "Shader.h"
 #include "MatrixStack.h"
 #include "Sphere.h"
 #include "Plane.h"
 #include "Cylinder.h"
 // ---- Function dectarations ---- 
-void modifyMesh(Mesh* mesh, GLFWwindow* w, Device* wand);
+void modifyMesh(Mesh* mesh, GLFWwindow* w, Wand* wand);
 void GLRenderCalls();
 //! Sets up the GLFW viewport
 void setupViewport(GLFWwindow *window, GLfloat *P);
@@ -72,8 +73,7 @@ int twoDim::run2D() {
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
 
 	// Initilise VRPN connection
-	//Device* wand = new Device(true, true, true, "Wand");
-	Device* mouse = new Device(true, true, false, "Mouse");
+	Vrpn* mouse = new Vrpn(true, true, false, "Mouse");
 
 
 	float test[3] = { 0.0f, 0.0f, 0.0f };
@@ -121,50 +121,6 @@ int twoDim::run2D() {
 			translateVector[2] = -1.0f;
 			MVstack.translate(translateVector);
 			MVstack.rotAxis(glm::vec3(1.0f, 0.0f, 0.0f), -0.8f);
-			/*
-			//WAND TRANSFORMS //////////////////////////////////////////////////////////////////////////
-			MVstack.push();
-				//MVstack.translate(glm::vec3(wand->getAnalogPosition()[0], 0.0f, wand->getAnalogPosition()[1]));
-
-				MVstack.translate(wand->getTrackerPosition());
-				//MVstack.multiply(&(wand->getTrackerRotation()[0][0]));
-				MVstack.multiply( wand->getTrackerRotation() );
-				
-
-				if (wand->getButtonState()) {
-					MVstack.translate(wand->getAnalogPosition());
-				}
-				else if (!wand->getButtonState()) {
-					MVstack.translate(wand->getAnalogPosition());
-				}
-
-				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-
-				// Wand testing, coordinate axis
-				float orgio[3] = { 0, 0, 0 };
-				float X[3] = { 1, 0, 0 };
-				float Y[3] = { 0, 0.5, 0 };
-				float Z[3] = { 0, 0, 0.3 };
-
-				glLineWidth(5.0);
-				glBegin(GL_LINES);
-				glColor3f(1.0f, 0.0f, 0.0f);
-
-				glVertex3fv(orgio);
-				glVertex3fv(X);
-
-				glColor3f(0.0f, 1.0f, 0.0f);
-				glVertex3fv(orgio);
-				glVertex3fv(Y);
-
-				glLineWidth(8.0);
-				glColor3f(0.0f, 0.0f, 1.0f);
-				glVertex3fv(orgio);
-				glVertex3fv(Z);
-				glEnd();
-				glLineWidth(1.0);
-			MVstack.pop();
-			*/
 			//SCENE TRANSFORMS ////////////////////////////////////////////////////////////////////////////////////////////////////
 			// ground render
 			MVstack.push();
@@ -221,7 +177,7 @@ void GLRenderCalls() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
-void modifyMesh(Mesh* mesh, GLFWwindow* window, Device* wand) {
+void modifyMesh(Mesh* mesh, GLFWwindow* window, Wand* wand) {
 	glfwPollEvents();
 	float test[3] = { 0.0f, 0.0f, 0.0f };
 	float wandRadius = 0.1;

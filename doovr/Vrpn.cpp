@@ -1,4 +1,4 @@
-#include "Device.h"
+#include "Vrpn.h"
 
 
 using namespace std;
@@ -13,11 +13,9 @@ void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b);
 void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t);
 
 
-Device::Device(bool analog, bool button, bool tracker, string name) {
+Vrpn::Vrpn(bool analog, bool button, bool tracker, string name) {
 	// Add additional cases for STEM and Kienct2
 	if (name == "Wand") {
-		// Default port "@localhost:3883"
-		// DNS adress "@130.236.142.1"
 		// vrpn_print_devices.exe Wand@130.236.142.25
 		// vrpn_print_devices.exe Wand@itn-vortex.itn.liu.se
 
@@ -44,12 +42,8 @@ Device::Device(bool analog, bool button, bool tracker, string name) {
 		vrpnTracker->register_change_handler(this, handle_tracker, 0);
 		// the last argument --> handle_tracker will be called only when sensor #1 (wand) is updated. How do we handle this generally?
 	}
-
-	Utilities::makeUniform(transformMatrix);
-
-
 }
-Device::~Device() {
+Vrpn::~Vrpn() {
 	delete vrpnAnalog;
 	delete vrpnButton;
 	delete vrpnTracker;
@@ -57,61 +51,45 @@ Device::~Device() {
 
 // VRPN Callbacks
 void VRPN_CALLBACK handle_analog(void* userData, const vrpn_ANALOGCB a) {
-	Device* analogTracker = static_cast<Device*> (userData);
+	Vrpn* analogTracker = static_cast<Vrpn*> (userData);
 	float analog[3] = { a.channel[0], a.channel[1], 0.0f };
-	//cout << "Button '" << a.channel[0] << "': " << a.channel[1] << endl;
 	analogTracker->setAnalogPosition(analog);
+	//cout << "Button '" << a.channel[0] << "': " << a.channel[1] << endl;
 }
 													
 void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b) {
-
-	//cout << "Button '" << b.button << "': " << b.state << endl;
-	Device* buttonTracker = static_cast<Device*> (userData);
-
+	Vrpn* buttonTracker = static_cast<Vrpn*> (userData);
 	buttonTracker->setButtonNumber((int) b.button);
 	buttonTracker->setButtonState(b.state);
-
-	//handles buttons in an array of bools instead. Can now handle more than one button at a time.
-	buttonTracker->setButton(b.button, b.state);
+	//cout << "Button '" << b.button << "': " << b.state << endl;
 }
 
 void VRPN_CALLBACK handle_tracker(void* userData, const vrpn_TRACKERCB t) {
-	Device* posTracker = static_cast<Device*> (userData);
-
-	/*
-	// Handle position data
-	float position[3] = { t.pos[0], t.pos[1], t.pos[2] };
-	posTracker->setTrackerPosition(position);
-
-	// Handle rotation data
-	double orient_local[16];
-	q_to_ogl_matrix(orient_local, t.quat);
-	posTracker->setTrackerRotation(orient_local);
-	*/
+	Vrpn* posTracker = static_cast<Vrpn*> (userData);
 
 	// Set the new position
-	float position[3];
+	double position[3];
 	position[0] = t.pos[0] + posTracker->getTransformMatrix()[3];
 	position[1] = -t.pos[2] + posTracker->getTransformMatrix()[7];
 	position[2] = t.pos[1] + posTracker->getTransformMatrix()[11];
-	posTracker->setTrackerPosition(position);
+	posTracker->setWandPosition(position);
 
+	// Set new orientation
 	double T[16];
 	float floatT[16] = { 0.0f };
 	float out[16] = { 0.0f };
 	q_to_ogl_matrix(T, t.quat);
-	std::copy(T, T + 16, floatT); // convert from double to float
-	floatT[3] = 0.0;
-	floatT[7] = 0.0;
-	floatT[11] = 0.0;
-	floatT[15] = 1.0f;
-	posTracker->setTrackerRotation(floatT);
+	T[3] = 0.0;
+	T[7] = 0.0;
+	T[11] = 0.0;
+	T[15] = 1.0f;
+	posTracker->setWandOrientation(T);
 
 	// Tell the main loop that we got another report
 	gotReport = 1;
 }
 
-void Device::sendtoMainloop() {
+void Vrpn::sendtoMainloop() {
 	// Run mainloop only if pointer has been initialised.
 	if (vrpnAnalog) vrpnAnalog->mainloop();
 	if (vrpnButton) vrpnButton->mainloop();
@@ -124,47 +102,15 @@ void Device::sendtoMainloop() {
 	//SleepEx(1, FALSE); //  <16.6ms for 60fps on render loop
 }
 
-// Get functions
-bool Device::getButtonState() {
-	return buttonState;
-}
-
-int Device::getButtonNumber() {
-	return buttonNumber;
-}
-
-bool* Device::getButton() {
-	return button;
-}
-
-float* Device::getAnalogPosition() {
-	return analogPos;
-}
-float* Device::getTrackerPosition() {
-	return trackerPosition;
-}
-float* Device::getTrackerRotation() {
-	return trackerRotation;
-}
-
 // Set functions
-void Device::setTrackerPosition(float* t) {
-	// fix point: 1.088f from floor.
-	// Wierd copies due to fixing axis and multiplying movement
-	/*
-	trackerPosition[0] = t[0] + 0.2067f;
-	trackerPosition[1] = -t[2] + 1.005; // offset to get correct wand coordinates
-	trackerPosition[2] = t[1] - 0.0f;
-	*/
-	trackerPosition[0] = t[0];
-	trackerPosition[1] = t[1];
-	trackerPosition[2] = t[2];
-
-
+void Vrpn::setWandPosition(double* t) {
+	wandPosition[0] = (float) t[0];
+	wandPosition[1] = (float) t[1];
+	wandPosition[2] = (float) t[2];
 }
-void Device::setTrackerRotation(float* o ) {
 
-	float temp;
+void Vrpn::setWandOrientation(double* o ) {
+	double temp;
 	temp = o[1];
 	o[1] = -o[2];
 	o[2] = temp;
@@ -176,38 +122,16 @@ void Device::setTrackerRotation(float* o ) {
 	temp = o[9];
 	o[9] = -o[10];
 	o[10] = temp;
-	std::copy(o, o + 16, trackerRotation);
+	std::copy(o, o + 16, wandOrientation);
 }
-void Device::setAnalogPosition(float* p) {
+void Vrpn::setAnalogPosition(float* p) {
 	analogPos[0] = p[0];
 	analogPos[1] = p[1];
 	analogPos[2] = p[2];
 }
-void Device::setButtonState(bool b) {
+void Vrpn::setButtonState(bool b) {
 	buttonState = b;
 }
-void Device::setButtonNumber(int b) {
+void Vrpn::setButtonNumber(int b) {
 	buttonNumber = b;
-}
-
-void Device::setButton(int n, bool b) {
-	button[n] = b;
-}
-
-void Device::setTransformMatrix(float* T){
-	for (int i = 0; i < 16; i++) {
-		transformMatrix[i] = T[i];
-	}
-}
-
-// Print functions
-void Device::print_transformMatrix() {
-
-	for (int i = 0; i < 16; i++) {
-		cout << std::fixed << std::setprecision(2);
-		cout << "  " << transformMatrix[i] << "  ";
-		if (i == 3 || i == 7 || i == 11)	cout << endl;
-	}
-	cout << endl << endl;
-
 }
