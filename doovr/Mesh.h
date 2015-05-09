@@ -11,17 +11,22 @@ struct vertex {
 	GLfloat nx;
 	GLfloat ny;
 	GLfloat nz;
-	//int arrayIndex;
+	halfEdge* edge;
 };
 
-//! Data structure containing information about a vertex neighboring verecies and neighboring triangles it is part of. 
-struct vertexInf {
-	std::vector<int> vertexNeighbors;
-	std::vector<int> triangleNeighbors;
-};
-//! Data structure containing three indices of the vertexArray that make a certain triangle
+//! Data structure containing three indices of the vertexArray that make a certain triangle. Points to one edge in the triangle
 struct triangle {
 	GLuint index[3];
+	halfEdge* edge;
+};
+
+//! Data structure halfEdge pointing to the next edge in the triangle counter clockwise.
+struct halfEdge {
+	halfEdge* next;
+	halfEdge* sibling;
+	triangle* tri;
+	vertex* vert;
+	bool needsUpdate = false;
 };
 
 
@@ -86,7 +91,6 @@ class Mesh {
 
 	std::vector<triangle> indexArray;
 	std::vector<vertex> vertexArray;
-	std::vector<vertexInf> vertexInfo;
 
 	float position[3];
 	float orientation[16];

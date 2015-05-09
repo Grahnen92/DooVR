@@ -5,6 +5,7 @@
 #include <iterator>
 
 using namespace std;
+#define M_PI 3.14159265358979323846
 
 void normVec(float* vec) {
 	float length = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
@@ -22,11 +23,15 @@ void crossProd(float normal[3], float* vec1, float* vec2) {
 Mesh::Mesh() {
 	triangle tempT;
 	vertex tempV;
-	vertexInf tempVI;
+	halfEdge edgeTop;
+	halfEdge edgeLeft;
+	halfEdge edgeRight;
+
+	int segments = 13;
+	int vertNR;
 
 	vertexArray.reserve(1000000);
 	indexArray.reserve(1000000);
-	vertexInfo.reserve(1000000);
 
 	position[0] = 0.0f;
 	position[1] = 0.0f;
@@ -55,105 +60,59 @@ Mesh::Mesh() {
 	triangle* indexP;
 	vertex * vertexP;
 
-	float scaleF = 0.0f;
-
-	scaleF = 1.0f / (ROWS * 2) ;
-
-	tempV.y = 0.0f;
-	tempV.nx = 0.0f;
-	tempV.ny = 1.0f;
-	tempV.nz = 0.2f;
+	int vertexIndex;
+	float scaleF = 1.0f / (ROWS * 2);
 
 	// Place vertices
-	for (int i = -ROWS / 2; i < ROWS / 2; i++) {
-
-		for (int j = -COLS / 2; j < COLS / 2; j++) {
-
-			if (i % 2 != 0){
-				tempV.x = ((float)(j)+0.5f)*scaleF;
-				tempV.z = ((float)(i))*0.86602540378f*scaleF;
-			}
-			else {
-				tempV.x = ((float)(j))*scaleF;
-				tempV.z = ((float)(i))*0.86602540378f*scaleF;
-			}
-
-			vertexArray.push_back(tempV);
-			vertexInfo.push_back(tempVI);
-		}
+	//make middle row
+	for (float j = 0 ; j < M_PI*2.0f; j = j + (M_PI*2.0f)/((segments/2)*6)) {
+		tempV.x = cos(j);
+		tempV.y = 0.0f;
+		tempV.z = sin(j);
+		tempV.nx = cos(j);
+		tempV.ny = 0.0f;
+		tempV.nz = sin(j);
+		vertexArray.push_back(tempV);
 	}
-
-	// set triangle indecies and bind faces
-	for (int i = 1; i < ROWS - 1; i++) {
-		for (int j = 1; j < COLS - 1; j++) {
-
-			//if (i != 0 && j !=0 && i != ROWS - 1 && j != COLS - 1) {
-			if (i % 2 == 0) {
-
-				vertexInfo[i * ROWS + j].vertexNeighbors.push_back(i * ROWS + j - 1);
-				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i - 1) * ROWS + j);
-				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i - 1) * ROWS + j - 1);
-				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i + 1) * ROWS + j);
-				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i + 1) * ROWS + j - 1);
-				vertexInfo[i * ROWS + j].vertexNeighbors.push_back(i * ROWS + j + 1);
-
-				if (i > 1 && j > 1 && i < ROWS - 2 && j < COLS - 2) {
-					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 2) + (i - 1) * 2 * (COLS - 2));
-					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 1) + (i - 1) * 2 * (COLS - 2));
-					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2) + (i - 1) * 2 * (COLS - 2));
-
-					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 3) + (i)* 2 * (COLS - 2));
-					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 2) + (i)* 2 * (COLS - 2));
-					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 1) + (i)* 2 * (COLS - 2));
-				}
-
-				tempT.index[0] = (i - 1)*ROWS + j - 1;
-				tempT.index[1] = (i)*ROWS + j - 1;
-				tempT.index[2] = i*ROWS + j;
-				indexArray.push_back(tempT);
-
-				tempT.index[0] = (i - 1)*ROWS + j;
-				tempT.index[1] = (i - 1)*ROWS + j - 1;
-				tempT.index[2] = i * ROWS + j;
-				indexArray.push_back(tempT);
-
-
-			}
-			else { // uneven row
-
-				vertexInfo[i * ROWS + j].vertexNeighbors.push_back(i * ROWS + j - 1);
-				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i - 1) * ROWS + j);
-				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i - 1) * ROWS + j + 1);
-				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i + 1) * ROWS + j);
-				vertexInfo[i * ROWS + j].vertexNeighbors.push_back((i + 1) * ROWS + j + 1);
-				vertexInfo[i * ROWS + j].vertexNeighbors.push_back(i * ROWS + j + 1);
-
-				if (i > 1 && j > 1 && i < ROWS - 1 && j < COLS - 2) {
-					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 2) + (i - 1) * 2 * (COLS - 2));
-					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 1) + (i - 1) * 2 * (COLS - 2));
-					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2) + (i - 1) * 2 * (COLS - 2));
-
-					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 - 1) + (i)* 2 * (COLS - 2));
-					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2) + (i)* 2 * (COLS - 2));
-					vertexInfo[i * ROWS + j].triangleNeighbors.push_back((j * 2 + 1) + (i)* 2 * (COLS - 2));
-				}
-
-				tempT.index[0] = (i - 1)*ROWS + j;
-				tempT.index[1] = (i)*ROWS + j - 1;
-				tempT.index[2] = i*ROWS + j;
-				indexArray.push_back(tempT);
-
-				tempT.index[0] = (i - 1)*ROWS + j + 1;
-				tempT.index[1] = (i - 1)*ROWS + j;
-				tempT.index[2] = i*ROWS + j;
-				indexArray.push_back(tempT);
-
-			}
-
-			//	}
-
-			/////////////////////////////////////////////////////////////////////////////////////
+	vertNR = (segments / 2) * 6 - 6;
+	for (float i = (M_PI / 2.0f) / (segments / 2); i < M_PI / 2.0f; i = i + (M_PI / 2.0f) / (segments / 2)){
+		for (float j = 0; j < M_PI*2.0f; j = j + (M_PI*2.0f) / vertNR) {
+			tempV.x = cos(j)*cos(i);
+			tempV.y = sin(i);
+			tempV.z = sin(j)*cos(i);
+			tempV.nx = cos(j)*cos(i);
+			tempV.ny = sin(i);
+			tempV.nz = sin(j)*cos(i);
+			vertexArray.push_back(tempV);
 		}
+		vertNR = vertNR - 6;
+	}
+	vertNR = (segments / 2) * 6 - 6;
+	for (float i = -(M_PI / 2.0f) / (segments / 2); i > - M_PI / 2.0f; i = i - (M_PI / 2.0f) / (segments / 2)){
+		for (float j = 0; j < M_PI*2.0f; j = j + (M_PI*2.0f) / vertNR) {
+			tempV.x = cos(j)*cos(i);
+			tempV.y = sin(i);
+			tempV.z = sin(j)*cos(i);
+			tempV.nx = cos(j)*cos(i);
+			tempV.ny = sin(i);
+			tempV.nz = sin(j)*cos(i);
+			vertexArray.push_back(tempV);
+		}
+		vertNR = vertNR - 6;
+	}
+	
+	// bind the vertices in the mid segment
+	for (int i = 0; i < (segments / 2) * 6; i++) {
+		tempT.index[0] = i;
+		tempT.index[1] = ;
+		tempT.index[2] = i + 1;
+		indexArray.push_back(tempT);
+
+		tempT.index[0] = i + 1;
+		tempT.index[1] = ;
+		tempT.index[2] = ;
+		indexArray.push_back(tempT);
+
 	}
 
 	vector<triangle> tempList;
