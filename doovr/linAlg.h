@@ -1,3 +1,6 @@
+#include "math.h"
+#include <iostream>
+
 namespace linAlg {
 
 	void normVec(float* vec);
