@@ -43,7 +43,7 @@ Device::Device(bool analog, bool button, bool tracker, string name) {
 		// the last argument --> handle_tracker will be called only when sensor #1 (wand) is updated. How do we handle this generally?
 	}
 
-	Utilities::makeUniform(transformMatrix);
+	linAlg::makeUniform(transformMatrix);
 
 
 }

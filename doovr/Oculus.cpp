@@ -469,8 +469,8 @@ int Oculus::runOvr() {
 					if (regCounter == 3) {
 						// transform = regSpherePos * invPos    ------   transform * pos = regSpherePos
 						// (M1, M2, Mout) -> Mout = M2 * M1
-						Utilities::invertMatrix(pos, invPos);
-						Utilities::matrixMult(invPos, regSpherePos, transform);
+						linAlg::invertMatrix(pos, invPos);
+						linAlg::matrixMult(invPos, regSpherePos, transform);
 						wand->setTransformMatrix(transform);
 						renderRegisterSpheres = false;
 					} else if (regCounter == 4)
@@ -799,8 +799,8 @@ void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, f
 		// Get the difference betweeen the original mesh rotation transform and wandR  --   wandR * differenceR = meshR
 		float* meshR = mTest->getOrientation();
 		float invWandR[16] = { 0.0f };
-		Utilities::invertMatrix(wandR, invWandR);
-		Utilities::matrixMult(invWandR, meshR, differenceR);
+		linAlg::invertMatrix(wandR, invWandR);
+		linAlg::matrixMult(invWandR, meshR, differenceR);
 	}
 
 	// Resulting translation to be made on the mesh calculated from origin.
@@ -809,7 +809,7 @@ void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, f
 	resultPos[2] = wand->getTrackerPosition()[2] + changePos[2];
 
 	// Resulting rotation to be made on the mesh
-	Utilities::matrixMult(wandR, differenceR, resultR);
+	linAlg::matrixMult(wandR, differenceR, resultR);
 
 	mTest->setPosition(resultPos);
 	mTest->setOrientation(resultR);

@@ -1,4 +1,5 @@
 #include "Utilities.h"
+#include "linAlg.h"
 
 //! Namespace that handles rendering to an Oculus Rift
 namespace Oculus {

@@ -28,17 +28,7 @@
 #include <iomanip>      // std::setprecision
 
 namespace Utilities {
-
-	void normVec(float* vec);
-	void crossProd(float* normal, float* vec1, float* vec2);
-	void matrixMult(float* M1, float* M2, float* Mout);
-	void invertMatrix(float* m, float* invOut);
-	void transpose(float* m, float* out);
-	void vectorMatrixMult(float* M1, float* M2, float* Mout);
-	void matrixMultTHREE(float* M1, float* M2, float* Mout);
-
-	void makeUniform(float* m);
-
+	
 	double displayFPS(GLFWwindow* window);
 	
 }
