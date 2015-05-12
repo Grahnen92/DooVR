@@ -139,6 +139,10 @@ int Oculus::runOvr() {
 	GLint locationMeshLP;
 	GLint locationMeshP;
 
+	GLint locationWandMV;
+	GLint locationWandLP;
+	GLint locationWandP;
+
 	//INITIALIZE OVR /////////////////////////////////////////////////////
 	ovr_Initialize();
 	int det;
@@ -354,6 +358,8 @@ int Oculus::runOvr() {
 	phongShader.createShader("vertexshader.glsl", "fragmentshader.glsl");
 	Shader meshShader;
 	meshShader.createShader("vshader.glsl", "fshader.glsl");
+	Shader sphereShader;
+	sphereShader.createShader("vShaderWand.glsl", "fShaderWand.glsl");
 
 	// CREATE MATRIX STACK
 	MatrixStack MVstack;
@@ -396,9 +402,13 @@ int Oculus::runOvr() {
 	locationLP = glGetUniformLocation(phongShader.programID, "lightPos");				// Light position
 	locationTex = glGetUniformLocation(phongShader.programID, "tex");					// Texture Matrix
 
-	locationMeshMV = glGetUniformLocation(phongShader.programID, "MV");					// ModelView Matrix
-	locationMeshP = glGetUniformLocation(phongShader.programID, "P");					// Perspective Matrix
-	locationMeshLP = glGetUniformLocation(phongShader.programID, "lightPos");			// Light position
+	locationMeshMV = glGetUniformLocation(meshShader.programID, "MV");					// ModelView Matrix
+	locationMeshP = glGetUniformLocation(meshShader.programID, "P");					// Perspective Matrix
+	locationMeshLP = glGetUniformLocation(meshShader.programID, "lightPos");			// Light position
+
+	locationWandMV = glGetUniformLocation(sphereShader.programID, "MV");					// ModelView Matrix
+	locationWandP = glGetUniformLocation(sphereShader.programID, "P");					// Perspective Matrix
+	locationWandLP = glGetUniformLocation(sphereShader.programID, "lightPos");			// Light position
 
 	//ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
@@ -684,6 +694,12 @@ int Oculus::runOvr() {
 					MVstack.multiply(wand->getTrackerRotation());
 					
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					glUseProgram(sphereShader.programID);
+
+					glUniformMatrix4fv(locationWandP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
+					glUniform4fv(locationWandLP, 1, lightPosTemp);
+					glUniformMatrix4fv(locationWandMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+
 					MVstack.push();
 						MVstack.scale(wandRadius);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
@@ -691,6 +707,7 @@ int Oculus::runOvr() {
 						sphereWand.render();
 						if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 					MVstack.pop();
+					glUseProgram(phongShader.programID);
 					MVstack.push();
 						translateVector[0] = -0.1f;
 						translateVector[1] = 0.0f;
