@@ -618,7 +618,7 @@ int Oculus::runOvr() {
 				MVstack.pop();
 
 				// Box camera
-				MVstack.push();
+				/*MVstack.push();
 					translateVector[0] = 0.0f;
 					translateVector[1] = -eyeHeight + boxCamera.getDim().y / 2;
 					translateVector[2] = -2.0f;
@@ -626,10 +626,10 @@ int Oculus::runOvr() {
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					glBindTexture(GL_TEXTURE_2D, refBox.getTextureID());
 					boxCamera.render();
-				MVstack.pop();
+				MVstack.pop();*/
 
 				// Box (chair) with wand on
-				MVstack.push();
+				/*MVstack.push();
 					translateVector[0] = 1.0f;
 					translateVector[1] = -eyeHeight + box.getDim().y / 2;
 					translateVector[2] = 0.0f;
@@ -637,7 +637,7 @@ int Oculus::runOvr() {
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					glBindTexture(GL_TEXTURE_2D, boxTex.getTextureID());
 					box.render();
-				MVstack.pop();
+				MVstack.pop();*/
 
 				// Co-register spheres
 				if (renderRegisterSpheres) {

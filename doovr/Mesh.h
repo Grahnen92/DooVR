@@ -74,8 +74,8 @@ class Mesh {
 	const int ROWS = 100;
 	const int COLS = 100;
 
-	const float MAX_LENGTH = 0.08f*0.1f;
-	const float MIN_LENGTH = 0.0399f*0.1f;
+	const float MAX_LENGTH = 0.08f*(2.f/5.f);//*0.1f;
+	const float MIN_LENGTH = 0.0399f*(2.f / 5.f);// *0.1f;
 
 	GLuint vao;          // Vertex array object, the main handle for geometry
 	
