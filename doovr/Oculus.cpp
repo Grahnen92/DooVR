@@ -384,10 +384,10 @@ int Oculus::runOvr() {
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
 	// Wand function textures
-	Texture move("../Textures/test1.DDS");
+	Texture move("../Textures/move.DDS");
 	Texture dilate("../Textures/up.DDS");
-	Texture erode("../Textures/test5.DDS");
-	Texture dnp("../Textures/down.DDS");
+	Texture erode("../Textures/down.DDS");
+	Texture dnp("../Textures/push.DDS");
 
 	Texture groundTex("../Textures/floor3.DDS");
 	Texture boxTex("../Textures/scifibox3.DDS"); // change a bit (copyright)
@@ -450,7 +450,7 @@ int Oculus::runOvr() {
 			case 2: // Move, 2nd from the right
 				//chooseFunction = MOVE;
 				currentTexID = move.getTextureID();
-				//moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
+				moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
 				break;
 			case 3: // Recenter, first from the right
 				//chooseFunction = RECENTER;
@@ -459,6 +459,7 @@ int Oculus::runOvr() {
 				chooseFunction = coREGISTER;
 				ovrHmd_RecenterPose(hmd);
 				ovrHmd_DismissHSWDisplay(hmd);
+				regCounter = 0;
 				renderRegisterSpheres = true;
 				wand->setTransformMatrix(I);
 				break;
@@ -473,7 +474,6 @@ int Oculus::runOvr() {
 						for (int i = 0; i < 3; i++) { // Save wand position & rotation 
 							pos[i * 4 + regCounter] = wand->getTrackerPosition()[i];
 						}
-						cout << endl;
 						pos[12 + regCounter] = 1.0f; // column --> sista raden med ettor
 					} 
 					if (regCounter == 3) {
@@ -652,61 +652,37 @@ int Oculus::runOvr() {
 					MVstack.pop();
 				}
 
+				glUseProgram(meshShader.programID);
+				glUniformMatrix4fv(locationMeshP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
+				glUniform4fv(locationMeshLP, 1, lightPosTemp);
+				glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+
 				// MESH
 				MVstack.push();
-					// Move around with the mesh
-					if (wand->getButtonState() && (wand->getButtonNumber() == 2)  ) {
-						mTest->setPosition(wand->getTrackerPosition());
-						mTest->setOrientation(wand->getTrackerRotation());
-					}
-
-
-
-					// Test to implement the erosion function on the mesh.
-					if (wand->getButtonState() && (wand->getButtonNumber() == 0)) {
-						//mTest.updateVertexArray(wand->getTrackerPosition(), false);
-						cout << "not used" << endl;
-					}
-
-					//std::cout << wand->getButtonNumber() << std::endl;
-
 					MVstack.translate(mTest->getPosition());
 					MVstack.multiply(mTest->getOrientation());
-
-					glLineWidth(1.0);
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					
-					if (glfwGetKey(l_Window, GLFW_KEY_T)) {
-						mTest->test(sRadius, 5052, true);
-					}
-					if (glfwGetKey(l_Window, GLFW_KEY_Y)) {
-						mTest->test(sRadius, 5052, false);
-					}
-
+					glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					mTest->render();
-
 				MVstack.pop();
 
+
+				glUseProgram(sphereShader.programID);
+				glUniformMatrix4fv(locationWandP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
+				glUniform4fv(locationWandLP, 1, lightPosTemp);
+				glUniformMatrix4fv(locationWandMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				// WAND
 				MVstack.push();
 					MVstack.translate(wand->getTrackerPosition());
-					MVstack.multiply(wand->getTrackerRotation());
-					
+					MVstack.multiply(wand->getTrackerRotation());					
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					glUseProgram(sphereShader.programID);
-
-					glUniformMatrix4fv(locationWandP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
-					glUniform4fv(locationWandLP, 1, lightPosTemp);
-					glUniformMatrix4fv(locationWandMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-
 					MVstack.push();
 						MVstack.scale(wandRadius);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						glBindTexture(GL_TEXTURE_2D, currentTexID);
 						sphereWand.render();
 						if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 					MVstack.pop();
+
 					glUseProgram(phongShader.programID);
 					MVstack.push();
 						translateVector[0] = -0.1f;
@@ -717,21 +693,6 @@ int Oculus::runOvr() {
 						glBindTexture(GL_TEXTURE_2D, currentTexID);
 						boxWand.render();
 					MVstack.pop();
-				MVstack.pop();
-
-
-				glUseProgram(meshShader.programID);
-				glUniformMatrix4fv(locationMeshP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
-				glUniform4fv(locationMeshLP, 1, lightPosTemp);
-				glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-
-				// MESH
-				MVstack.push();
-					MVstack.translate(mTest->getPosition());
-					MVstack.multiply(mTest->getOrientation());
-					glLineWidth(1.0);
-					glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					mTest->render();
 				MVstack.pop();
 
 			MVstack.pop();

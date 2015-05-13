@@ -269,7 +269,16 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	pMove[0] = (p[0] - lp[0]);
 	pMove[1] = (p[1] - lp[1]);
 	pMove[2] = (p[2] - lp[2]);
-	mLength = vecLength(pMove);
+
+	cout << vecLength(pMove) << endl;
+
+	if (vecLength(pMove) > 0.0009) {
+		mLength = 0.0009;
+	}
+	else {
+		mLength = vecLength(pMove);
+	}
+
 
 	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(pMove[0], pMove[1], pMove[2], 1.0f);
 	pMove[0] = tempvec.x;

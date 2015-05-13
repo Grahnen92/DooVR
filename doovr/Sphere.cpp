@@ -29,7 +29,7 @@ Sphere::Sphere(glm::vec3 _pos, float _rad)
 
 
 	radius = _rad;
-	createSphere(_rad, 10);
+	createSphere(_rad, 32);
 
 	color.x = 0.7f;
 	color.y = 0.7f;
