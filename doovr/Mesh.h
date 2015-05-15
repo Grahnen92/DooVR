@@ -11,21 +11,19 @@ struct vertex {
 	GLfloat nx;
 	GLfloat ny;
 	GLfloat nz;
-	halfEdge* edge;
 };
 
 //! Data structure containing three indices of the vertexArray that make a certain triangle. Points to one edge in the triangle
 struct triangle {
 	GLuint index[3];
-	halfEdge* edge;
 };
 
 //! Data structure halfEdge pointing to the next edge in the triangle counter clockwise.
 struct halfEdge {
-	halfEdge* next;
+	halfEdge* nextEdge;
 	halfEdge* sibling;
-	triangle* tri;
-	vertex* vert;
+	int triangle;
+	int vertex;
 	bool needsUpdate = false;
 };
 
@@ -33,7 +31,7 @@ struct halfEdge {
 //! A class representing a modifiable 3D mesh 
 class Mesh {
   public:
-	Mesh();
+	Mesh(float rad);
 	~Mesh();
 
 	void dilate(float* p, float lp[3], float rad, bool but);
@@ -64,12 +62,12 @@ class Mesh {
 	void calculateVec(float* newVec, float a[3], float b[3]);
 
 	//! updates the changed vertecies normal and checks if retriangulation is needed.
-	void updateArea(int* changeList, int listSize);
+	//void updateArea(int* changeList, int listSize);
 	//! adds a vertex in the middle between the vertexpoints pA and pB.
 	/*! pA is the position of currVert, pB is the position of nVert,
 		currVert and nVert are the indecies of the vertecies in the vertexArray,
 		counter is the number of changed vertecies */
-	void addVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* sharedTriNeighbor, int* counter);
+	void addVertex(float* pA, float* pB, float* vecA2B, halfEdge* edge);
 	//! removes the vertexpoint nVert and moves currVert halfway to nVert.
 	/*! pA is the position of currVert, pB is the position of nVert, 
 		currVert and nVert are the indecies of the vertecies in the vertexArray,
@@ -91,6 +89,9 @@ class Mesh {
 
 	std::vector<triangle> indexArray;
 	std::vector<vertex> vertexArray;
+
+	std::vector<halfEdge*> vertexEPtr;
+	std::vector<halfEdge*> triEPtr;
 
 	float position[3];
 	float orientation[16];

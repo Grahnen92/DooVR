@@ -403,7 +403,7 @@ int Oculus::runOvr() {
 	//ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
-	Mesh* mTest = new Mesh();
+	Mesh* mTest = new Mesh(0.5f);
 
 	float sRadius = 0.05f;
 
@@ -523,7 +523,7 @@ int Oculus::runOvr() {
 		}
 		if (glfwGetKey(l_Window, GLFW_KEY_R)) {
 			delete mTest; // Reset mesh
-			mTest = new Mesh();
+			mTest = new Mesh(0.5f);
 		}
 		// Activate wireframe (hold L)
 		if (glfwGetKey(l_Window, GLFW_KEY_L) == GLFW_PRESS && !lines) {
