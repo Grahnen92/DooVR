@@ -8,7 +8,8 @@ uniform vec4 lightPos;
 
 void main () {
 
-	vec3 LightIntensity = vec3(0.9098f,0.8745f,0.8274f);
+	//vec3 LightIntensity = vec3(0.9098f,0.8745f,0.8274f);
+	vec3 LightIntensity = vec3(0.6098f,0.5745f,0.6274f);
 
 	vec3 Kd = vec3(0.7f, 0.7f, 0.7f);                // Diffuse reflectivity
 	vec3 Ka = vec3(0.1f, 0.1f, 0.1f);                // Ambient reflectivity
