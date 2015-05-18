@@ -27,12 +27,15 @@ Mesh::Mesh(float rad) {
 	halfEdge* tempE2;
 	halfEdge* tempE3;
 
+	float tempP1[3]; float tempP2[3]; float tempVec[3];
+	int tempSize = 0;
+
 	vertexArray.reserve(1000000);
 	indexArray.reserve(1000000);
 
 	vertexEPtr.reserve(1000000);
 	triEPtr.reserve(1000000);
-	vertexEPtr.resize(8);
+	vertexEPtr.resize(6);
 	triEPtr.resize(8);
 	position[0] = 0.0f;
 	position[1] = -0.75f;
@@ -233,18 +236,66 @@ Mesh::Mesh(float rad) {
 	triEPtr[3]->nextEdge->sibling = triEPtr[7]->nextEdge;
 	triEPtr[7]->nextEdge->sibling = triEPtr[3]->nextEdge;
 
-	vector<triangle> tempList;
-	triangle tempTri;
+	
 
-	for (int i = 0; i < indexArray.size(); i++) {
-		tempTri.index[0] = indexArray[i].index[0];
-		tempTri.index[1] = indexArray[i].index[1];
-		tempTri.index[2] = indexArray[i].index[2];
-		tempList.push_back(tempTri);
+	for (int i = 0; i < 4; i++)
+	{
+		tempSize = vertexArray.size();
+		for (int j = 0; j < tempSize; j++)
+		{
+			tempE1 = vertexEPtr[j];
+			if (!(i % 2))
+			{
+				if (!tempE1->needsUpdate)
+				{
+					addVertex(tempP1, tempP2, tempVec, tempE1);
+					tempE1->needsUpdate = true;
+					tempE1->sibling->needsUpdate = true;
+					triEPtr[triEPtr.size() - 1]->needsUpdate = true;
+					triEPtr[triEPtr.size() - 1]->sibling->needsUpdate = true;
+
+				}
+			}
+			else
+			{
+				if (tempE1->needsUpdate)
+				{
+					addVertex(tempP1, tempP2, tempVec, tempE1);
+					tempE1->needsUpdate = false;
+					tempE1->sibling->needsUpdate = false;
+				}
+			}
+
+			tempE1 = tempE1->nextEdge->sibling;
+			while (tempE1 != vertexEPtr[j])
+			{
+				if (!(i % 2))
+				{
+					if (!tempE1->needsUpdate)
+					{
+						addVertex(tempP1, tempP2, tempVec, tempE1);
+						tempE1->needsUpdate = true;
+						tempE1->sibling->needsUpdate = true;
+						triEPtr[triEPtr.size() - 1]->needsUpdate = true;
+						triEPtr[triEPtr.size() - 1]->sibling->needsUpdate = true;
+					}
+				}
+				else
+				{
+					if (tempE1->needsUpdate)
+					{
+						addVertex(tempP1, tempP2, tempVec, tempE1);
+						tempE1->needsUpdate = false;
+						tempE1->sibling->needsUpdate = false;
+					}
+				}
+				tempE1 = tempE1->nextEdge->sibling;
+			}
+		}
 	}
 
 	vertexP = &vertexArray[0];
-	indexP = &tempList[0];
+	indexP = &indexArray[0];
 	// Generate one vertex array object (VAO) and bind it
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -845,8 +896,9 @@ void Mesh::addVertex(float* pA, float* pB, float* vecA2B, halfEdge* edge) {
 	
 
 	// rebind old edge vertex
+	vertexEPtr[edge->vertex]
+
 	edge->vertex = vertexArray.size() - 1;
-	edge->sibling->vertex = vertexArray.size() - 1;
 
 }
 //STILL NEED TO USE COUNTER DONT FORGET
