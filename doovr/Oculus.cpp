@@ -70,12 +70,12 @@ int Oculus::runOvr() {
 	float currPos[3] = { 0.0f, 0.0f, 0.0f };
 
 	// Switch case variables
-	int chooseFunction = 1;
 	const int newDILATE = 1;
 	const int UPDATE_VERTEX_ARRAY = 0;
 	const int MOVE = 2;
 	const int RECENTER = 3;
 	const int coREGISTER = 4;
+	int chooseFunction = coREGISTER;
 
 	// Co-register variables
 	int regCounter = 0;
@@ -93,7 +93,7 @@ int Oculus::runOvr() {
 
 	float regSpherePos[16] = { 0.0f, 0.0f, 0.4f, 0.4f,	// Sp1 0.2
 								0.0f, -0.4f, 0.0f, -0.4f,	// Sp2 0.5
-								-0.1f, -0.3f, -0.3f, -0.1f,	// Sp3 0.45
+								-0.2f, -0.4f, -0.4f, -0.2f,	// Sp3 0.45
 								1.0f, 1.0f, 1.0f, 1.0f };	// Sp4
 
 	//float regSpherePos[16] =   { 0.0f, 1.0f,  0.0f, 1.0f,	// Sp1 1.0
@@ -378,8 +378,8 @@ int Oculus::runOvr() {
 	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
 	// Initilise VRPN connection with the Intersense wand
-	//Device* wand = new Device(true, true, false, "Mouse");
-	Device* wand = new Device(true, true, true, "Wand");
+	Device* wand = new Device(true, true, false, "Mouse");
+	//Device* wand = new Device(true, true, true, "Wand");
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -607,18 +607,21 @@ int Oculus::runOvr() {
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 		
 				// Ground
-				MVstack.push();
-					translateVector[0] = 0.0f;
-					translateVector[1] = -eyeHeight;
-					translateVector[2] = 0.0f;
-					MVstack.translate(translateVector);
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
-					ground.render();
-				MVstack.pop();
+				if (!renderRegisterSpheres)
+				{
+					MVstack.push();
+						translateVector[0] = 0.0f;
+						translateVector[1] = -eyeHeight;
+						translateVector[2] = 0.0f;
+						MVstack.translate(translateVector);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
+						ground.render();
+					MVstack.pop();
+				}
 
 				// Box camera
-				/*MVstack.push();
+				MVstack.push();
 					translateVector[0] = 0.0f;
 					translateVector[1] = -eyeHeight + boxCamera.getDim().y / 2;
 					translateVector[2] = -2.0f;
@@ -626,18 +629,8 @@ int Oculus::runOvr() {
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					glBindTexture(GL_TEXTURE_2D, refBox.getTextureID());
 					boxCamera.render();
-				MVstack.pop();*/
-
-				// Box (chair) with wand on
-				/*MVstack.push();
-					translateVector[0] = 1.0f;
-					translateVector[1] = -eyeHeight + box.getDim().y / 2;
-					translateVector[2] = 0.0f;
-					MVstack.translate(translateVector);
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					glBindTexture(GL_TEXTURE_2D, boxTex.getTextureID());
-					box.render();
-				MVstack.pop();*/
+				MVstack.pop();
+					
 
 				// Co-register spheres
 				if (renderRegisterSpheres) {
@@ -658,13 +651,15 @@ int Oculus::runOvr() {
 				glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				// MESH
-				MVstack.push();
-					MVstack.translate(mTest->getPosition());
-					MVstack.multiply(mTest->getOrientation());
-					glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					mTest->render();
-				MVstack.pop();
-
+				if (renderRegisterSpheres)
+				{
+					MVstack.push();
+						MVstack.translate(mTest->getPosition());
+						MVstack.multiply(mTest->getOrientation());
+						glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						mTest->render();
+					MVstack.pop();
+				}
 
 				glUseProgram(sphereShader.programID);
 				glUniformMatrix4fv(locationWandP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
@@ -672,29 +667,31 @@ int Oculus::runOvr() {
 				glUniformMatrix4fv(locationWandMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				// WAND
-				MVstack.push();
-					MVstack.translate(wand->getTrackerPosition());
-					MVstack.multiply(wand->getTrackerRotation());					
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+				if (!renderRegisterSpheres)
+				{
 					MVstack.push();
-						MVstack.scale(wandRadius);
+						MVstack.translate(wand->getTrackerPosition());
+						MVstack.multiply(wand->getTrackerRotation());					
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						sphereWand.render();
-						if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					MVstack.pop();
+						MVstack.push();
+							MVstack.scale(wandRadius);
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							sphereWand.render();
+							if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						MVstack.pop();
 
-					glUseProgram(phongShader.programID);
-					MVstack.push();
-						translateVector[0] = -0.1f;
-						translateVector[1] = 0.0f;
-						translateVector[2] = 0.0f;
-						MVstack.translate(translateVector);
-						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						glBindTexture(GL_TEXTURE_2D, currentTexID);
-						boxWand.render();
+						glUseProgram(phongShader.programID);
+						MVstack.push();
+							translateVector[0] = -0.1f;
+							translateVector[1] = 0.0f;
+							translateVector[2] = 0.0f;
+							MVstack.translate(translateVector);
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glBindTexture(GL_TEXTURE_2D, currentTexID);
+							boxWand.render();
+						MVstack.pop();
 					MVstack.pop();
-				MVstack.pop();
-
+				}
 			MVstack.pop();
 		}
 

@@ -29,8 +29,8 @@ Mesh::Mesh() {
 	vertexInfo.reserve(1000000);
 
 	position[0] = 0.0f;
-	position[1] = 0.0f;
-	position[2] = 0.0f;
+	position[1] = -0.75f;
+	position[2] = -0.75f;
 
 	orientation[0] = 1.0f;
 	orientation[1] = 0.0f;
