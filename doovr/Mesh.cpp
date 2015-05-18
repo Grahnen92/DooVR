@@ -38,8 +38,10 @@ Mesh::Mesh(float rad) {
 	vertexEPtr.resize(6);
 	triEPtr.resize(8);
 	position[0] = 0.0f;
-	position[1] = -0.75f;
-	position[2] = -0.75f;
+	//position[1] = -0.75f;
+	//position[2] = -0.75f;
+	position[1] = 0.0f;
+	position[2] = 0.0f;
 
 	orientation[0] = 1.0f;
 	orientation[1] = 0.0f;
@@ -119,83 +121,79 @@ Mesh::Mesh(float rad) {
 	//first tri
 	tempE1 = new halfEdge;	tempE1->vertex = 0; tempE1->triangle = 0;
 	triEPtr[0] = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 3; tempE1->triangle = 0;
-	triEPtr[0]->nextEdge = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 5; tempE1->triangle = 0;
-	triEPtr[0]->nextEdge->nextEdge = tempE1;
-	tempE1->nextEdge = triEPtr[0];
 
-	vertexEPtr[0] = tempE1;
+	triEPtr[0]->nextEdge = new halfEdge; triEPtr[0]->nextEdge->vertex = 3; triEPtr[0]->nextEdge->triangle = 0;
+	triEPtr[0]->nextEdge->nextEdge = new halfEdge; triEPtr[0]->nextEdge->nextEdge->vertex = 5; triEPtr[0]->nextEdge->nextEdge->triangle = 0;
+	triEPtr[0]->nextEdge->nextEdge->nextEdge = triEPtr[0];
+
+	vertexEPtr[0] = triEPtr[0]->nextEdge->nextEdge;
 
 	//second tri
 	tempE1 = new halfEdge;	tempE1->vertex = 0; tempE1->triangle = 1;
 	triEPtr[1] = tempE1;
-	vertexEPtr[5] = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 5; tempE1->triangle = 1;
-	triEPtr[1]->nextEdge = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 2; tempE1->triangle = 1;
-	triEPtr[1]->nextEdge->nextEdge = tempE1;
-	tempE1->nextEdge = triEPtr[1];
+	
+	triEPtr[1]->nextEdge = new halfEdge; triEPtr[1]->nextEdge->vertex = 5; triEPtr[1]->nextEdge->triangle = 1;
+	triEPtr[1]->nextEdge->nextEdge = new halfEdge; triEPtr[1]->nextEdge->nextEdge->vertex = 2; triEPtr[1]->nextEdge->nextEdge->triangle = 1;
+	triEPtr[1]->nextEdge->nextEdge->nextEdge = triEPtr[1];
+
+	vertexEPtr[5] = triEPtr[1];
 
 	//third tri
 	tempE1 = new halfEdge;	tempE1->vertex = 0; tempE1->triangle = 2;
 	triEPtr[2] = tempE1;
-	vertexEPtr[2] = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 2; tempE1->triangle = 2;
-	triEPtr[2]->nextEdge = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 4; tempE1->triangle = 2;
-	triEPtr[2]->nextEdge->nextEdge = tempE1;
-	tempE1->nextEdge = triEPtr[2];
+
+	triEPtr[2]->nextEdge = new halfEdge; triEPtr[2]->nextEdge->vertex = 2; triEPtr[2]->nextEdge->triangle = 2;
+	triEPtr[2]->nextEdge->nextEdge = new halfEdge; triEPtr[2]->nextEdge->nextEdge->vertex = 4; triEPtr[2]->nextEdge->nextEdge->triangle = 2;
+	triEPtr[2]->nextEdge->nextEdge->nextEdge = triEPtr[2];
+
+	vertexEPtr[2] = triEPtr[2];
 
 	//fourth tri
 	tempE1 = new halfEdge;	tempE1->vertex = 0; tempE1->triangle = 3;
 	triEPtr[3] = tempE1;
-	vertexEPtr[4] = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 4; tempE1->triangle = 3;
-	triEPtr[3]->nextEdge = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 3; tempE1->triangle = 3;
-	triEPtr[3]->nextEdge->nextEdge = tempE1;
-	tempE1->nextEdge = triEPtr[3];
+
+	triEPtr[3]->nextEdge = new halfEdge; triEPtr[3]->nextEdge->vertex = 4; triEPtr[3]->nextEdge->triangle = 3;
+	triEPtr[3]->nextEdge->nextEdge = new halfEdge; triEPtr[3]->nextEdge->nextEdge->vertex = 3; triEPtr[3]->nextEdge->nextEdge->triangle = 3;
+	triEPtr[3]->nextEdge->nextEdge->nextEdge = triEPtr[3];
+
+	vertexEPtr[4] = triEPtr[3];
 
 	//BOTTOM
 	//fifth tri
 	tempE1 = new halfEdge;	tempE1->vertex = 1; tempE1->triangle = 4;
 	triEPtr[4] = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 5; tempE1->triangle = 4;
-	triEPtr[4]->nextEdge = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 3; tempE1->triangle = 4;
-	triEPtr[4]->nextEdge->nextEdge = tempE1;
-	tempE1->nextEdge = triEPtr[4];
 
-	vertexEPtr[1] = tempE1;
+	triEPtr[4]->nextEdge = new halfEdge; triEPtr[4]->nextEdge->vertex = 5; triEPtr[4]->nextEdge->triangle = 4;
+	triEPtr[4]->nextEdge->nextEdge = new halfEdge; triEPtr[4]->nextEdge->nextEdge->vertex = 3; triEPtr[4]->nextEdge->nextEdge->triangle = 4;
+	triEPtr[4]->nextEdge->nextEdge->nextEdge = triEPtr[4];
+
+	vertexEPtr[1] = triEPtr[4]->nextEdge->nextEdge;
 
 	//sixth tri
 	tempE1 = new halfEdge;	tempE1->vertex = 1; tempE1->triangle = 5;
 	triEPtr[5] = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 2; tempE1->triangle = 5;
-	triEPtr[5]->nextEdge = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 5; tempE1->triangle = 5;
-	triEPtr[5]->nextEdge->nextEdge = tempE1;
-	tempE1->nextEdge = triEPtr[5];
+	
+	triEPtr[5]->nextEdge = new halfEdge; triEPtr[5]->nextEdge->vertex = 2; triEPtr[5]->nextEdge->triangle = 5;
+	triEPtr[5]->nextEdge->nextEdge = new halfEdge; triEPtr[5]->nextEdge->nextEdge->vertex = 5; triEPtr[5]->nextEdge->nextEdge->triangle = 5;
+	triEPtr[5]->nextEdge->nextEdge->nextEdge = triEPtr[5];
 
 	//seventh tri
 	tempE1 = new halfEdge;	tempE1->vertex = 1; tempE1->triangle = 6;
 	triEPtr[6] = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 4; tempE1->triangle = 6;
-	triEPtr[6]->nextEdge = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 2; tempE1->triangle = 6;
-	triEPtr[6]->nextEdge->nextEdge = tempE1;
-	tempE1->nextEdge = triEPtr[6];
+	
+	triEPtr[6]->nextEdge = new halfEdge; triEPtr[6]->nextEdge->vertex = 4; triEPtr[6]->nextEdge->triangle = 6;
+	triEPtr[6]->nextEdge->nextEdge = new halfEdge; triEPtr[6]->nextEdge->nextEdge->vertex = 2; triEPtr[6]->nextEdge->nextEdge->triangle = 6;
+	triEPtr[6]->nextEdge->nextEdge->nextEdge = triEPtr[6];
 
 	//seventh tri
 	tempE1 = new halfEdge;	tempE1->vertex = 1; tempE1->triangle = 7;
 	triEPtr[7] = tempE1;
-	vertexEPtr[3] = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 3; tempE1->triangle = 7;
-	triEPtr[7]->nextEdge = tempE1;
-	tempE1 = new halfEdge;	tempE1->vertex = 4; tempE1->triangle = 7;
-	triEPtr[7]->nextEdge->nextEdge = tempE1;
-	tempE1->nextEdge = triEPtr[7];
+	
+	triEPtr[7]->nextEdge = new halfEdge; triEPtr[7]->nextEdge->vertex = 3; triEPtr[7]->nextEdge->triangle = 7;
+	triEPtr[7]->nextEdge->nextEdge = new halfEdge; triEPtr[7]->nextEdge->nextEdge->vertex = 4; triEPtr[7]->nextEdge->nextEdge->triangle = 7;
+	triEPtr[7]->nextEdge->nextEdge->nextEdge = triEPtr[7];
+
+	vertexEPtr[3] = triEPtr[7];
 
 	//TOP SIBLINGS
 	triEPtr[0]->sibling = triEPtr[3]->nextEdge->nextEdge;
@@ -235,15 +233,24 @@ Mesh::Mesh(float rad) {
 
 	triEPtr[3]->nextEdge->sibling = triEPtr[7]->nextEdge;
 	triEPtr[7]->nextEdge->sibling = triEPtr[3]->nextEdge;
-
 	
-
 	for (int i = 0; i < 4; i++)
 	{
 		tempSize = vertexArray.size();
 		for (int j = 0; j < tempSize; j++)
 		{
 			tempE1 = vertexEPtr[j];
+
+			tempP1[0] = vertexArray[j].x;
+			tempP1[1] = vertexArray[j].y;
+			tempP1[2] = vertexArray[j].z;
+
+			tempP2[0] = vertexArray[tempE1->vertex].x;
+			tempP2[1] = vertexArray[tempE1->vertex].y;
+			tempP2[2] = vertexArray[tempE1->vertex].z;
+
+			calculateVec(tempVec, tempP2, tempP1);
+
 			if (!(i % 2))
 			{
 				if (!tempE1->needsUpdate)
@@ -269,6 +276,17 @@ Mesh::Mesh(float rad) {
 			tempE1 = tempE1->nextEdge->sibling;
 			while (tempE1 != vertexEPtr[j])
 			{
+
+				tempP1[0] = vertexArray[tempE1->sibling->vertex].x;
+				tempP1[1] = vertexArray[tempE1->sibling->vertex].y;
+				tempP1[2] = vertexArray[tempE1->sibling->vertex].z;
+
+				tempP2[0] = vertexArray[tempE1->vertex].x;
+				tempP2[1] = vertexArray[tempE1->vertex].y;
+				tempP2[2] = vertexArray[tempE1->vertex].z;
+
+				calculateVec(tempVec, tempP2, tempP1);
+
 				if (!(i % 2))
 				{
 					if (!tempE1->needsUpdate)
@@ -293,9 +311,20 @@ Mesh::Mesh(float rad) {
 			}
 		}
 	}
+	
+	vector<triangle> tempList;
+	triangle tempTri;
+
+	for (int i = 0; i < indexArray.size(); i++) {
+		tempTri.index[0] = indexArray[i].index[0];
+		tempTri.index[1] = indexArray[i].index[1];
+		tempTri.index[2] = indexArray[i].index[2];
+		tempList.push_back(tempTri);
+	}
 
 	vertexP = &vertexArray[0];
-	indexP = &indexArray[0];
+	indexP = &tempList[0];
+
 	// Generate one vertex array object (VAO) and bind it
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -865,8 +894,8 @@ void Mesh::addVertex(float* pA, float* pB, float* vecA2B, halfEdge* edge) {
 
 	triEPtr[tempIndex]->nextEdge->nextEdge->vertex = edge->nextEdge->nextEdge->vertex;
 	triEPtr[tempIndex]->nextEdge->nextEdge->triangle = tempIndex;
-	triEPtr[tempIndex]->nextEdge->nextEdge->sibling = edge->nextEdge->nextEdge->sibling;
 	triEPtr[tempIndex]->nextEdge->nextEdge->nextEdge = triEPtr[tempIndex];
+	triEPtr[tempIndex]->nextEdge->nextEdge->sibling = edge->nextEdge->nextEdge->sibling;
 	//rebind sibling of existing triangle
 	edge->nextEdge->nextEdge->sibling->sibling = triEPtr[tempIndex]->nextEdge->nextEdge;
 	//rebind sibling of old triangle
@@ -876,6 +905,9 @@ void Mesh::addVertex(float* pA, float* pB, float* vecA2B, halfEdge* edge) {
 	tempIndex = triEPtr.size() - 1;
 
 	triEPtr[tempIndex]->sibling = triEPtr[tempIndex - 1];
+	//bind sibling of first newEdge
+	triEPtr[tempIndex - 1]->sibling = triEPtr[tempIndex];
+	//continue
 	triEPtr[tempIndex]->vertex = vertexArray.size() - 1;
 	triEPtr[tempIndex]->triangle = tempIndex;
 	triEPtr[tempIndex]->nextEdge = new halfEdge;
@@ -889,16 +921,17 @@ void Mesh::addVertex(float* pA, float* pB, float* vecA2B, halfEdge* edge) {
 
 	triEPtr[tempIndex]->nextEdge->nextEdge->vertex = edge->sibling->nextEdge->nextEdge->vertex;
 	triEPtr[tempIndex]->nextEdge->nextEdge->triangle = tempIndex;
-	triEPtr[tempIndex]->nextEdge->nextEdge->sibling = edge->sibling->nextEdge->sibling;
+	triEPtr[tempIndex]->nextEdge->nextEdge->sibling = edge->sibling->nextEdge; // =======
 	//rebind sibling of old triangle
 	edge->sibling->nextEdge->sibling = triEPtr[tempIndex]->nextEdge->nextEdge;
 	triEPtr[tempIndex]->nextEdge->nextEdge->nextEdge = triEPtr[tempIndex];
 	
 
 	// rebind old edge vertex
-	vertexEPtr[edge->vertex]
+	vertexEPtr[edge->vertex] = triEPtr[tempIndex];
 
 	edge->vertex = vertexArray.size() - 1;
+	edge->sibling->nextEdge->vertex = vertexArray.size() - 1;
 
 }
 //STILL NEED TO USE COUNTER DONT FORGET
