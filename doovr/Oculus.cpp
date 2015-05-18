@@ -5,6 +5,7 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Box.h"
+#include "hexBox.h"
 #include "Cylinder.h"
 #include "Texture.h"
 
@@ -372,6 +373,14 @@ int Oculus::runOvr() {
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));			//Ground plane
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
 	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.15f, 1.58f, 0.15f));
+	hexBox testBox1(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
+
+	hexBox testBox2(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
+	hexBox testBox3(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
+	hexBox testBox4(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
+	hexBox testBox5(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
+	hexBox testBox6(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
+	hexBox testBox7(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
 
 	// Wand = Box + sphere
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.20f, 0.03f, 0.03f));
@@ -388,11 +397,10 @@ int Oculus::runOvr() {
 	Texture dilate("../Textures/up.DDS");
 	Texture erode("../Textures/down.DDS");
 	Texture dnp("../Textures/push.DDS");
-
+	
 	Texture groundTex("../Textures/floor3.DDS");
-	Texture boxTex("../Textures/scifibox3.DDS"); // change a bit (copyright)
 	Texture coregister("../Textures/coregister3.DDS");
-	Texture refBox("../Textures/tree3.DDS"); // temporary
+	Texture refBox("../Textures/smallPillarRotated3.DDS"); // temporary
 
 	GLuint currentTexID = move.getTextureID();
 
@@ -623,12 +631,71 @@ int Oculus::runOvr() {
 				// Box camera
 				MVstack.push();
 					translateVector[0] = 0.0f;
-					translateVector[1] = -eyeHeight + boxCamera.getDim().y / 2;
-					translateVector[2] = -2.0f;
+					translateVector[1] = -eyeHeight + testBox1.getHeight()/2.0f;
+					translateVector[2] = -0.5f; //-2.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 					glBindTexture(GL_TEXTURE_2D, refBox.getTextureID());
-					boxCamera.render();
+					testBox1.render();
+					MVstack.push();
+						translateVector[0] = 0.0f;
+						translateVector[1] = 0.0f;
+						translateVector[2] = -0.0815f;
+						MVstack.translate(translateVector);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glBindTexture(GL_TEXTURE_2D, refBox.getTextureID());
+						testBox2.render();
+					MVstack.pop();
+
+					MVstack.push();
+						translateVector[0] = 0.0f;
+						translateVector[1] = 0.0f;
+						translateVector[2] = 0.0815f;
+						MVstack.translate(translateVector);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glBindTexture(GL_TEXTURE_2D, refBox.getTextureID());
+						testBox3.render();
+					MVstack.pop();
+
+					MVstack.push();
+						translateVector[0] = 0.07058f;
+						translateVector[1] = 0.0f;
+						translateVector[2] = 0.04075f;
+						MVstack.translate(translateVector);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glBindTexture(GL_TEXTURE_2D, refBox.getTextureID());
+						testBox4.render();
+					MVstack.pop();
+
+					MVstack.push();
+						translateVector[0] = 0.07058f;
+						translateVector[1] = 0.0f;
+						translateVector[2] = -0.04075f;
+						MVstack.translate(translateVector);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glBindTexture(GL_TEXTURE_2D, refBox.getTextureID());
+						testBox5.render();
+					MVstack.pop();
+
+					MVstack.push();
+						translateVector[0] = -0.07058f;
+						translateVector[1] = 0.0f;
+						translateVector[2] = 0.04075f;
+						MVstack.translate(translateVector);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glBindTexture(GL_TEXTURE_2D, refBox.getTextureID());
+						testBox6.render();
+					MVstack.pop();
+
+					MVstack.push();
+						translateVector[0] = -0.07058f;
+						translateVector[1] = 0.0f;
+						translateVector[2] = -0.04075f;
+						MVstack.translate(translateVector);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glBindTexture(GL_TEXTURE_2D, refBox.getTextureID());
+						testBox7.render();
+					MVstack.pop();
 				MVstack.pop();
 					
 
@@ -690,6 +757,8 @@ int Oculus::runOvr() {
 							glBindTexture(GL_TEXTURE_2D, currentTexID);
 							boxWand.render();
 						MVstack.pop();
+
+
 					MVstack.pop();
 				}
 			MVstack.pop();
