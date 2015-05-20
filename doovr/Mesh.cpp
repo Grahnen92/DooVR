@@ -38,10 +38,8 @@ Mesh::Mesh(float rad) {
 	vertexEPtr.resize(6);
 	triEPtr.resize(8);
 	position[0] = 0.0f;
-	//position[1] = -0.75f;
-	//position[2] = -0.75f;
-	position[1] = 0.0f;
-	position[2] = 0.0f;
+	position[1] = -0.75f;
+	position[2] = -0.75f;
 
 	orientation[0] = 1.0f;
 	orientation[1] = 0.0f;
@@ -235,7 +233,7 @@ Mesh::Mesh(float rad) {
 	triEPtr[7]->nextEdge->sibling = triEPtr[3]->nextEdge;
 
 	// create sphere by subdivision
-	for (int i = 0; i < 20; i++) {
+	for (int i = 0; i < 6; i++) {
 		tempSize = vertexArray.size();
 		for (int j = 0; j < tempSize; j++) {
 			tempE1 = vertexEPtr[j];
@@ -249,14 +247,12 @@ Mesh::Mesh(float rad) {
 			tempP2[2] = vertexArray[tempE1->vertex].z;
 
 			calculateVec(tempVec, tempP2, tempP1);
-			if (vecLength(tempVec) > 0.05f) {
-				addVertex(tempP1, tempP2, tempVec, tempE1);
+			if (vecLength(tempVec) > MAX_LENGTH) {
+				addVertex(tempP1, tempVec, tempE1);
 			}
 
 			tempE1 = tempE1->nextEdge->sibling;
 			while (tempE1 != vertexEPtr[j]) {
-
-				cout << j << endl;
 				tempP1[0] = vertexArray[tempE1->sibling->vertex].x;
 				tempP1[1] = vertexArray[tempE1->sibling->vertex].y;
 				tempP1[2] = vertexArray[tempE1->sibling->vertex].z;
@@ -267,8 +263,8 @@ Mesh::Mesh(float rad) {
 
 				calculateVec(tempVec, tempP2, tempP1);
 
-				if (vecLength(tempVec) > 0.05f) {
-					addVertex(tempP1, tempP2, tempVec, tempE1);
+				if (vecLength(tempVec) > MAX_LENGTH) {
+					addVertex(tempP1, tempVec, tempE1);
 				}
 
 				tempE1 = tempE1->nextEdge->sibling;
@@ -511,7 +507,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 
 			// mark the vertex edges as needUpdate
 			vertexEPtr[i]->needsUpdate = true;
-			tempEdge = vertexEPtr[i]->nextEdge;
+			tempEdge = vertexEPtr[i]->nextEdge->sibling;
 			while (tempEdge != vertexEPtr[i]) {
 				tempEdge->needsUpdate = true;
 				tempEdge = tempEdge->nextEdge->sibling;
@@ -525,7 +521,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 
 	changeCount = 0;
 	if (changedVertices.size() > 0)
-		//updateArea(&changedVertices[0], changedVertices.size());
+		updateArea(&changedVertices[0], changedVertices.size());
 
 	if (success == true) {
 
@@ -767,14 +763,12 @@ void Mesh::updateArea(int* changeList, int listSize) {
 	float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
 	halfEdge* tempEdge;
 	int vert1, vert2; 
-	int eNR = 0;
+	int eNR = 0, edgeLenght;
 
 
 	for (int i = 0; i < listSize; i++) {
 
-		// Update normal
-		//visit first edge
-
+		// Update normal /////////////////////////////////////////////////////////////////////////////
 		vPoint1[0] = vertexArray[changeList[i]].x;
 		vPoint1[1] = vertexArray[changeList[i]].y;
 		vPoint1[2] = vertexArray[changeList[i]].z;
@@ -809,143 +803,44 @@ void Mesh::updateArea(int* changeList, int listSize) {
 		 } while (tempEdge != vertexEPtr[changeList[i]]);
 
 		 //eNR kanske fel dont forget
-		 tempNorm2[0] = tempNorm2[0] / eNR;
-		 tempNorm2[1] = tempNorm2[1] / eNR;
-		 tempNorm2[2] = tempNorm2[2] / eNR;
+		 vertexArray[changeList[i]].nx = tempNorm2[0] / eNR;
+		 vertexArray[changeList[i]].nx = tempNorm2[1] / eNR;
+		 vertexArray[changeList[i]].nx = tempNorm2[2] / eNR;
 		 eNR = 0;
 
+
+		 // Retriangulation //////////////////////////////////////////////////////////////////////////////////////////
+		 // check if edge needs update
+		 tempEdge = vertexEPtr[changeList[i]];
+		 do {
+			 if (tempEdge->needsUpdate == true){
+				tempEdge->needsUpdate = false;
+
+				// calculate edge lenght
+				vert1 = tempEdge->vertex;
+				vert2 = tempEdge->nextEdge->nextEdge->vertex;
+
+				vPoint2[0] = vertexArray[vert1].x;
+				vPoint2[1] = vertexArray[vert1].y;
+				vPoint2[2] = vertexArray[vert1].z;
+				 
+				calculateVec(tempVec1, vPoint2, vPoint1);
+				edgeLenght = vecLength(tempVec1);
+
+				// check if edge is to long/short
+				if (edgeLenght < MIN_LENGTH) {
+					//rmVertex()
+				} else if (edgeLenght > MAX_LENGTH) {
+					addVertex(vPoint1, tempVec1, tempEdge);
+				}
+			 }
+
+			 tempEdge = tempEdge->nextEdge->sibling;
+		 } while (tempEdge != vertexEPtr[changeList[i]]);
 	}
-
-	/*
-	//DECLARE VARIABLES
-	float tempNorm1[3] = { 0.0f, 0.0f, 0.0f };
-	float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
-
-	float tempVec1[3], tempVec2[3], tempVec3[3];
-
-	vertex tempV; vertexInf tempVI; triangle tempT;
-
-	float vPoint1[3], vPoint2[3], vPoint3[3], vPoint4[3];
-
-	int currVert = -1; int nVert = -1; int nTri = -1;
-
-
-	vector<int> sharedTriNeighbor;
-	sharedTriNeighbor.reserve(3);
-
-	vector<int> badTri;
-	badTri.reserve(2);
-
-	int iSharedTriNeighbor[2];
-	int tmpIndex1 = -1; int tmpIndex2 = -1; int tmpIndex3 = -1; 
-	//while (changeCount < listSize)
-
-	//c == loop that handles current vertex of the vertexes that need updating
-	for (int c = 0; c < listSize; c++) {
-		currVert = changeList[c];
-
-		//UPDATE NORMAL //////////////////////////////////////////////////////////////////////////////////////////////
-		vertexArray[currVert].nx = 0.0f; vertexArray[currVert].ny = 0.0f; vertexArray[currVert].nz = 0.0f;
-		//while (uN < vertexInfo[currVert].vertexNeighbors.size()) {
-		//uN == loop that updates the normal of the current vertex
-		//for (int uN = 0; uN < vertexInfo[currVert].vertexNeighbors.size(); uN++) {
-		for (int uN = 0; uN < vertexInfo[currVert].triangleNeighbors.size(); uN++) {
-			nTri = vertexInfo[currVert].triangleNeighbors[uN];
-
-			vPoint1[0] = vertexArray[indexArray[nTri].index[0]].x;
-			vPoint1[1] = vertexArray[indexArray[nTri].index[0]].y;
-			vPoint1[2] = vertexArray[indexArray[nTri].index[0]].z;
-
-			vPoint2[0] = vertexArray[indexArray[nTri].index[1]].x;
-			vPoint2[1] = vertexArray[indexArray[nTri].index[1]].y;
-			vPoint2[2] = vertexArray[indexArray[nTri].index[1]].z;
-
-			vPoint3[0] = vertexArray[indexArray[nTri].index[2]].x;
-			vPoint3[1] = vertexArray[indexArray[nTri].index[2]].y;
-			vPoint3[2] = vertexArray[indexArray[nTri].index[2]].z;
-
-			calculateVec(tempVec1, vPoint2, vPoint1);
-			calculateVec(tempVec2, vPoint3, vPoint1);
-
-			crossProd(tempNorm1, tempVec1, tempVec2);
-
-			normVec(tempNorm1);
-
-			tempNorm2[0] += tempNorm1[0];
-			tempNorm2[1] += tempNorm1[1];
-			tempNorm2[2] += tempNorm1[2];
-
-		}
-
-		tempNorm2[0] = tempNorm2[0] / (vertexInfo[currVert].vertexNeighbors.size() - 1);
-		tempNorm2[1] = tempNorm2[1] / (vertexInfo[currVert].vertexNeighbors.size() - 1);
-		tempNorm2[2] = tempNorm2[2] / (vertexInfo[currVert].vertexNeighbors.size() - 1);
-		vertexArray[currVert].nx = tempNorm2[0];
-		vertexArray[currVert].ny = tempNorm2[1];
-		vertexArray[currVert].nz = tempNorm2[2];
-
-		// RETRIANGULATION ////////////////////////////////////////////////////////////////////////////////////////
-		//cT = loop that checks if any of current vertex's links to its neighbors are too long or short
-		for (int cT = 0; cT < vertexInfo[currVert].vertexNeighbors.size(); cT++){
-			
-			nVert = vertexInfo[currVert].vertexNeighbors[cT];
-
-			vPoint1[0] = vertexArray[currVert].x;
-			vPoint1[1] = vertexArray[currVert].y;
-			vPoint1[2] = vertexArray[currVert].z;
-
-			vPoint2[0] = vertexArray[nVert].x;
-			vPoint2[1] = vertexArray[nVert].y;
-			vPoint2[2] = vertexArray[nVert].z;
-			calculateVec(tempVec1, vPoint2, vPoint1);
-			if (vecLength(tempVec1) < MIN_LENGTH) {
-				//c
-					//////////////////////////////////////////////////////////////////////////////////////
-
-				//remove bad triangles and vertex
-				for (int k = 0; k < vertexInfo[currVert].triangleNeighbors.size(); k++) {
-					for (int j = 0; j < vertexInfo[nVert].triangleNeighbors.size(); j++) {
-						if (vertexInfo[currVert].triangleNeighbors[k] == vertexInfo[nVert].triangleNeighbors[j]) {
-							sharedTriNeighbor.push_back(vertexInfo[currVert].triangleNeighbors[k]);
-						}
-					}
-				}
-					
-
-				iSharedTriNeighbor[0] = sharedTriNeighbor[0];
-				iSharedTriNeighbor[1] = sharedTriNeighbor[1];
-
-				rmVertex(vPoint1, vPoint2, tempVec1, currVert, nVert, iSharedTriNeighbor, &cT);
-				cT--;
-
-				
-				
-			}
-			else if (vecLength(tempVec1) > MAX_LENGTH) {
-
-				//remove bad triangles and vertex
-				for (int k = 0; k < vertexInfo[currVert].triangleNeighbors.size(); k++) {
-					for (int j = 0; j < vertexInfo[nVert].triangleNeighbors.size(); j++) {
-						if (vertexInfo[currVert].triangleNeighbors[k] == vertexInfo[nVert].triangleNeighbors[j]) {
-							sharedTriNeighbor.push_back(vertexInfo[currVert].triangleNeighbors[k]);
-						}
-					}
-				}
-					
-
-				iSharedTriNeighbor[0] = sharedTriNeighbor[0];
-				iSharedTriNeighbor[1] = sharedTriNeighbor[1];
-
-				addVertex(vPoint1, vPoint2, tempVec1, currVert, nVert, iSharedTriNeighbor, &cT);
-				
-			}
-			sharedTriNeighbor.clear();
-		}
-
-	}*/
 }
 
-void Mesh::addVertex(float* pA, float* pB, float* vecA2B, halfEdge* &edge) {
+void Mesh::addVertex(float* pA, float* vecA2B, halfEdge* &edge) {
 
 	vertex tempV;
 	triangle tempT;

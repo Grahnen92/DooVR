@@ -65,9 +65,8 @@ class Mesh {
 	void updateArea(int* changeList, int listSize);
 	//! adds a vertex in the middle between the vertexpoints pA and pB.
 	/*! pA is the position of currVert, pB is the position of nVert,
-		currVert and nVert are the indecies of the vertecies in the vertexArray,
-		counter is the number of changed vertecies */
-	void addVertex(float* pA, float* pB, float* vecA2B, halfEdge* &edge);
+		edge is the edge that is to long*/
+	void addVertex(float* pA, float* vecA2B, halfEdge* &edge);
 	//! removes the vertexpoint nVert and moves currVert halfway to nVert.
 	/*! pA is the position of currVert, pB is the position of nVert, 
 		currVert and nVert are the indecies of the vertecies in the vertexArray,
@@ -77,7 +76,7 @@ class Mesh {
 	const int ROWS = 100;
 	const int COLS = 100;
 
-	const float MAX_LENGTH = 0.08f*0.1f;
+	const float MAX_LENGTH = 0.05f; // 0.08f*0.1f;
 	const float MIN_LENGTH = 0.0399f*0.1f;
 
 	GLuint vao;          // Vertex array object, the main handle for geometry

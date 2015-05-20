@@ -442,8 +442,11 @@ int Oculus::runOvr() {
 				currentTexID = move.getTextureID();
 				moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
 				break;
-			case 3: // Recenter, first from the right
-				//chooseFunction = RECENTER;
+			case 3: // show wireframe
+				if (lines == false)
+					lines = true;
+				else
+					lines = false;
 				break;
 			case 4: // co-register, analog button
 				chooseFunction = coREGISTER;
