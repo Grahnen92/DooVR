@@ -6,19 +6,6 @@
 
 using namespace std;
 
-void normVec(float* vec) {
-	float length = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-	vec[0] = vec[0] / length;
-	vec[1] = vec[1] / length;
-	vec[2] = vec[2] / length;
-}
-
-void crossProd(float normal[3], float* vec1, float* vec2) {
-	normal[0] = (vec1[1] * vec2[2] - vec1[2] * vec2[1]);
-	normal[1] = -(vec1[0] * vec2[2] - vec1[2] * vec2[0]);
-	normal[2] = (vec1[0] * vec2[1] - vec1[1] * vec2[0]);
-}
-
 Mesh::Mesh() {
 	triangle tempT;
 	vertex tempV;
@@ -29,8 +16,8 @@ Mesh::Mesh() {
 	vertexInfo.reserve(1000000);
 
 	position[0] = 0.0f;
-	position[1] = 0.0f;
-	position[2] = 0.0f;
+	position[1] = -0.75f;
+	position[2] = -0.75f;
 
 	orientation[0] = 1.0f;
 	orientation[1] = 0.0f;
@@ -274,7 +261,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	//	mLength = 0.0015;
 	//}
 	//else {
-		mLength = vecLength(pMove);
+		mLength = linAlg::vecLength(pMove);
 	//}
 
 	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(pMove[0], pMove[1], pMove[2], 1.0f);
@@ -301,9 +288,9 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 		tempVec1[1] = vPoint[1] - wPoint[1];
 		tempVec1[2] = vPoint[2] - wPoint[2];
 		
-		if ( vecLength(tempVec1) < rad) {
+		if ( linAlg::vecLength(tempVec1) < rad) {
 
-			normVec(tempVec1);
+			linAlg::normVec(tempVec1);
 
 			tempVec2[0] = (tempVec1[0] + vertexArray[i].nx) / 2.0f;
 			tempVec2[1] = (tempVec1[1] + vertexArray[i].ny) / 2.0f;
@@ -537,20 +524,6 @@ void Mesh::render() {
 	glBindVertexArray(0);
 }
 
-float Mesh::vectorLength(vertex vertex1, vertex vertex2) {
-	vertex vector;
-
-	vector.x = vertex1.x - vertex2.x;
-	vector.y = vertex1.y - vertex2.y;
-	vector.z = vertex1.z - vertex2.z;
-
-	return sqrt(vector.x*vector.x + vector.y*vector.y + vector.z*vector.z);
-}
-
-float Mesh::vecLength(float vec[3]) {
-	return sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-}
-
 bool Mesh::sortByXCord(const vertex &a, const vertex &b) {
 	return a.x < b.x;
 }
@@ -606,9 +579,9 @@ void Mesh::updateArea(int* changeList, int listSize) {
 			calculateVec(tempVec1, vPoint2, vPoint1);
 			calculateVec(tempVec2, vPoint3, vPoint1);
 
-			crossProd(tempNorm1, tempVec1, tempVec2);
+			linAlg::crossProd(tempNorm1, tempVec1, tempVec2);
 
-			normVec(tempNorm1);
+			linAlg::normVec(tempNorm1);
 
 			tempNorm2[0] += tempNorm1[0];
 			tempNorm2[1] += tempNorm1[1];
@@ -637,7 +610,7 @@ void Mesh::updateArea(int* changeList, int listSize) {
 			vPoint2[1] = vertexArray[nVert].y;
 			vPoint2[2] = vertexArray[nVert].z;
 			calculateVec(tempVec1, vPoint2, vPoint1);
-			if (vecLength(tempVec1) < MIN_LENGTH) {
+			if (linAlg::vecLength(tempVec1) < MIN_LENGTH) {
 				//c
 					//////////////////////////////////////////////////////////////////////////////////////
 
@@ -660,7 +633,7 @@ void Mesh::updateArea(int* changeList, int listSize) {
 				
 				
 			}
-			else if (vecLength(tempVec1) > MAX_LENGTH) {
+			else if (linAlg::vecLength(tempVec1) > MAX_LENGTH) {
 
 				//remove bad triangles and vertex
 				for (int k = 0; k < vertexInfo[currVert].triangleNeighbors.size(); k++) {

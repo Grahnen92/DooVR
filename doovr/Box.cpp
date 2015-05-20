@@ -2,6 +2,7 @@
 
 Box::Box(glm::vec3 _pos, glm::vec3 _dim)
 {
+	oType = 'B';
 	position[0] = _pos.x;
 	position[1] = _pos.y;
 	position[2] = _pos.z;

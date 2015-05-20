@@ -33,6 +33,10 @@ void linAlg::matrixMult(float* M1, float* M2, float* Mout) {
 	}
 }
 
+float linAlg::vecLength(float* vec) {
+	return sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+}
+
 void linAlg::matrixMultTHREE(float* M1, float* M2, float* Mout) {
 	// Compute result in a local variable to avoid conflicts
 	// with overwriting if Mout is the same variable as either

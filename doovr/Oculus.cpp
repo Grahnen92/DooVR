@@ -5,6 +5,7 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Box.h"
+#include "hexBox.h"
 #include "Cylinder.h"
 #include "Texture.h"
 
@@ -21,6 +22,7 @@ void GLRenderCallsOculus();
 // Declare moveMesh - used for moving around the mesh in the scene.
 // TODO: refactor this function to TOOLS namespace?
 void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR);
+void moveEntity(Device* wand, vector<Entity*> *objectList, vector<Entity*> *selectedList, bool buttonPressed, float wandRadius);
 void print_GLM_matrix(glm::mat4 M);
 void print_FLOAT_matrix(float* M);
 
@@ -70,12 +72,12 @@ int Oculus::runOvr() {
 	float currPos[3] = { 0.0f, 0.0f, 0.0f };
 
 	// Switch case variables
-	int chooseFunction = 1;
 	const int newDILATE = 1;
 	const int UPDATE_VERTEX_ARRAY = 0;
 	const int MOVE = 2;
 	const int RECENTER = 3;
 	const int coREGISTER = 4;
+	int chooseFunction = coREGISTER;
 
 	// Co-register variables
 	int regCounter = 0;
@@ -93,7 +95,7 @@ int Oculus::runOvr() {
 
 	float regSpherePos[16] = { 0.0f, 0.0f, 0.4f, 0.4f,	// Sp1 0.2
 								0.0f, -0.4f, 0.0f, -0.4f,	// Sp2 0.5
-								-0.1f, -0.3f, -0.3f, -0.1f,	// Sp3 0.45
+								-0.2f, -0.4f, -0.4f, -0.2f,	// Sp3 0.45
 								1.0f, 1.0f, 1.0f, 1.0f };	// Sp4
 
 	//float regSpherePos[16] =   { 0.0f, 1.0f,  0.0f, 1.0f,	// Sp1 1.0
@@ -108,6 +110,7 @@ int Oculus::runOvr() {
 	float invPos[16] = { 0.0f };
 	float eyeHeight = OVR_DEFAULT_EYE_HEIGHT;
 	float eye, floor;
+	float newPos[3];
 
 
 	// FPS
@@ -372,14 +375,45 @@ int Oculus::runOvr() {
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));			//Ground plane
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
 	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.15f, 1.58f, 0.15f));
+	hexBox refBox(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 1.5f);
+
+
+	vector<Entity*> selectedList;
+	vector<Entity*> objectList;
+	vector<Entity*> *oPointer;
+	vector<Entity*> *selectPointer;
+	vector<Entity*>::iterator it;
+	float offset = 0;
+	for (int i = 0; i < 48; i++)
+	{
+		if (i % 2)
+			offset = 0;
+		else
+			offset = -0.04075f;
+		for (int j = 0; j < 24; j++)
+			objectList.push_back(new hexBox(glm::vec3(-1.5f + i * 0.07058,						// X-axis
+											  -eyeHeight - 0.26f,								// Y-axis (height)
+											  -1.0f + 0.0815f * j + offset),					// Z-axis
+											  0.0465f, 0.5f));									// Radius, Height
+	}
+	//objectList.push_back(new hexBox(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f));
+	hexBox testBox1(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
+	hexBox testBox2(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
+	hexBox testBox3(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
+	hexBox testBox4(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
+	hexBox testBox5(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
+	hexBox testBox6(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
+	hexBox testBox7(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, 0.5f);
+	oPointer = &objectList;
+	selectPointer = &selectedList;
 
 	// Wand = Box + sphere
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.20f, 0.03f, 0.03f));
 	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
 	// Initilise VRPN connection with the Intersense wand
-	//Device* wand = new Device(true, true, false, "Mouse");
-	Device* wand = new Device(true, true, true, "Wand");
+	Device* wand = new Device(true, true, false, "Mouse");
+	//Device* wand = new Device(true, true, true, "Wand");
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -388,11 +422,10 @@ int Oculus::runOvr() {
 	Texture dilate("../Textures/up.DDS");
 	Texture erode("../Textures/down.DDS");
 	Texture dnp("../Textures/push.DDS");
-
+	
 	Texture groundTex("../Textures/floor3.DDS");
-	Texture boxTex("../Textures/scifibox3.DDS"); // change a bit (copyright)
 	Texture coregister("../Textures/coregister3.DDS");
-	Texture refBox("../Textures/tree3.DDS"); // temporary
+	Texture refBoxTex("../Textures/smallPillarRotated3.DDS"); // temporary
 
 	GLuint currentTexID = move.getTextureID();
 
@@ -454,6 +487,7 @@ int Oculus::runOvr() {
 				break;
 			case 3: // Recenter, first from the right
 				//chooseFunction = RECENTER;
+				moveEntity(wand, oPointer, selectPointer, buttonPressed, wandRadius);
 				break;
 			case 4: // co-register, analog button
 				chooseFunction = coREGISTER;
@@ -493,6 +527,22 @@ int Oculus::runOvr() {
 						eyeHeight = eye - floor;
 						regCounter = 0;
 						chooseFunction = newDILATE;
+
+						// new height on objectList
+						it = objectList.begin();
+						while (it != objectList.end())
+						{
+							if ((*it)->getOtype() == 'H')
+							{
+								hexBox* tempHex = static_cast<hexBox*> ((*it));
+								newPos[0] = tempHex->getPosition()[0];
+								newPos[1] = eyeHeight - 0.01f + tempHex->getHeight() / 2.0f;
+								newPos[2] = tempHex->getPosition()[2];
+								tempHex->setPosition(newPos);
+							}
+							// if ((*it)->getOtype() == 'S') // new pos for lightsources
+							++(*it);
+						}
 					}
 				}
 				break;
@@ -607,37 +657,119 @@ int Oculus::runOvr() {
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 		
 				// Ground
+				if (!renderRegisterSpheres)
+				{
+					MVstack.push();
+						translateVector[0] = 0.0f;
+						translateVector[1] = -eyeHeight;
+						translateVector[2] = 0.0f;
+						MVstack.translate(translateVector);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
+						ground.render();
+					MVstack.pop();
+				}
+
+				// Reference camera box
 				MVstack.push();
 					translateVector[0] = 0.0f;
-					translateVector[1] = -eyeHeight;
-					translateVector[2] = 0.0f;
-					MVstack.translate(translateVector);
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
-					ground.render();
-				MVstack.pop();
-
-				// Box camera
-				/*MVstack.push();
-					translateVector[0] = 0.0f;
-					translateVector[1] = -eyeHeight + boxCamera.getDim().y / 2;
+					translateVector[1] = -eyeHeight + refBox.getHeight()/2.0f;
 					translateVector[2] = -2.0f;
 					MVstack.translate(translateVector);
 					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					glBindTexture(GL_TEXTURE_2D, refBox.getTextureID());
-					boxCamera.render();
-				MVstack.pop();*/
+					glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
+					refBox.render();
+				MVstack.pop();
 
-				// Box (chair) with wand on
-				/*MVstack.push();
-					translateVector[0] = 1.0f;
-					translateVector[1] = -eyeHeight + box.getDim().y / 2;
-					translateVector[2] = 0.0f;
-					MVstack.translate(translateVector);
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					glBindTexture(GL_TEXTURE_2D, boxTex.getTextureID());
-					box.render();
-				MVstack.pop();*/
+
+				// objectList consisting of lightsources, function-hexBox and movable hexBoxes
+				if (!renderRegisterSpheres)
+				{
+					it = objectList.begin();
+					while (it != objectList.end())
+					{
+						MVstack.push();
+							MVstack.translate((*it)->getPosition());
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
+							(*it)->render();
+						MVstack.pop();
+						++it;
+					}
+				}
+
+
+				if (renderRegisterSpheres)
+				{
+					MVstack.push();
+						translateVector[0] = 0.0f;
+						translateVector[1] = -eyeHeight + testBox1.getHeight()/2.0f;
+						translateVector[2] = -0.5f;
+						MVstack.translate(translateVector);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
+						testBox1.render();
+						MVstack.push();
+							translateVector[0] = 0.0f;
+							translateVector[1] = 0.0f;
+							translateVector[2] = -0.0815f;
+							MVstack.translate(translateVector);
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
+							testBox2.render();
+						MVstack.pop();
+
+						MVstack.push();
+							translateVector[0] = 0.0f;
+							translateVector[1] = 0.0f;
+							translateVector[2] = 0.0815f;
+							MVstack.translate(translateVector);
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
+							testBox3.render();
+						MVstack.pop();
+
+						MVstack.push();
+							translateVector[0] = 0.07058f;
+							translateVector[1] = 0.0f;
+							translateVector[2] = 0.04075f;
+							MVstack.translate(translateVector);
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
+							testBox4.render();
+						MVstack.pop();
+
+						MVstack.push();
+							translateVector[0] = 0.07058f;
+							translateVector[1] = 0.0f;
+							translateVector[2] = -0.04075f;
+							MVstack.translate(translateVector);
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
+							testBox5.render();
+						MVstack.pop();
+
+						MVstack.push();
+							translateVector[0] = -0.07058f;
+							translateVector[1] = 0.0f;
+							translateVector[2] = 0.04075f;
+							MVstack.translate(translateVector);
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
+							testBox6.render();
+						MVstack.pop();
+
+						MVstack.push();
+							translateVector[0] = -0.07058f;
+							translateVector[1] = 0.0f;
+							translateVector[2] = -0.04075f;
+							MVstack.translate(translateVector);
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
+							testBox7.render();
+						MVstack.pop();
+					MVstack.pop();
+				}	
 
 				// Co-register spheres
 				if (renderRegisterSpheres) {
@@ -658,13 +790,15 @@ int Oculus::runOvr() {
 				glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				// MESH
-				MVstack.push();
-					MVstack.translate(mTest->getPosition());
-					MVstack.multiply(mTest->getOrientation());
-					glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					mTest->render();
-				MVstack.pop();
-
+				if (renderRegisterSpheres)
+				{
+					MVstack.push();
+						MVstack.translate(mTest->getPosition());
+						MVstack.multiply(mTest->getOrientation());
+						glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						mTest->render();
+					MVstack.pop();
+				}
 
 				glUseProgram(sphereShader.programID);
 				glUniformMatrix4fv(locationWandP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
@@ -672,29 +806,33 @@ int Oculus::runOvr() {
 				glUniformMatrix4fv(locationWandMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				// WAND
-				MVstack.push();
-					MVstack.translate(wand->getTrackerPosition());
-					MVstack.multiply(wand->getTrackerRotation());					
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+				if (!renderRegisterSpheres)
+				{
 					MVstack.push();
-						MVstack.scale(wandRadius);
+						MVstack.translate(wand->getTrackerPosition());
+						MVstack.multiply(wand->getTrackerRotation());					
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						sphereWand.render();
-						if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					MVstack.pop();
+						MVstack.push();
+							MVstack.scale(wandRadius);
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							sphereWand.render();
+							if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						MVstack.pop();
 
-					glUseProgram(phongShader.programID);
-					MVstack.push();
-						translateVector[0] = -0.1f;
-						translateVector[1] = 0.0f;
-						translateVector[2] = 0.0f;
-						MVstack.translate(translateVector);
-						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						glBindTexture(GL_TEXTURE_2D, currentTexID);
-						boxWand.render();
-					MVstack.pop();
-				MVstack.pop();
+						glUseProgram(phongShader.programID);
+						MVstack.push();
+							translateVector[0] = -0.1f;
+							translateVector[1] = 0.0f;
+							translateVector[2] = 0.0f;
+							MVstack.translate(translateVector);
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glBindTexture(GL_TEXTURE_2D, currentTexID);
+							boxWand.render();
+						MVstack.pop();
 
+
+					MVstack.pop();
+				}
 			MVstack.pop();
 		}
 
@@ -791,6 +929,53 @@ void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, f
 
 	mTest->setPosition(resultPos);
 	mTest->setOrientation(resultR);
+}
+
+void moveEntity(Device* wand, vector<Entity*> *objectList, vector<Entity*> *selectedList, bool buttonPressed, float wandRadius) {
+	float resultPos[3];
+	float pos[3];
+	float vLength[3];
+	hexBox *tempHex;
+	Sphere *tempSphere;
+
+	// Choose entity to move
+	if (buttonPressed) {
+		for (int i = 0; i < objectList->size(); i++) {
+			if (objectList->at(i)->getOtype() == 'H') {
+				tempHex = static_cast<hexBox*> (objectList->at(i));
+				pos[0] = tempHex->getPosition()[0];
+				pos[1] = tempHex->getPosition()[1] + tempHex->getHeight() / 2.0f;
+				pos[2] = tempHex->getPosition()[2];
+			}
+			else {
+				pos[0] = objectList->at(i)->getPosition()[0];
+				pos[1] = objectList->at(i)->getPosition()[1];
+				pos[2] = objectList->at(i)->getPosition()[2];
+			}
+			// Create vector between wand and object
+			vLength[0] = wand->getTrackerPosition()[0] - pos[0];
+			vLength[1] = wand->getTrackerPosition()[1] - pos[1];
+			vLength[2] = wand->getTrackerPosition()[2] - pos[2];
+			// Select object if the distance is smaller than wandRadius
+			if (linAlg::vecLength(vLength) < wandRadius) {
+				selectedList->push_back(objectList->at(i));
+			}
+		}
+	}
+	// Move selected objects
+	for (int i = 0; i < selectedList->size(); i++) {
+		if (selectedList->at(i)->getOtype() == 'H') {
+			tempHex = static_cast<hexBox*> (objectList->at(i));
+			pos[0] = tempHex->getPosition()[0];
+			pos[1] = wand->getTrackerPosition()[1] - tempHex->getHeight() / 2.0f;
+			pos[2] = tempHex->getPosition()[2];
+			selectedList->at(i)->setPosition(pos);
+		}
+		else {
+			selectedList->at(1)->setPosition(wand->getTrackerPosition());
+		}
+	}
+		
 }
 
 void print_GLM_matrix(glm::mat4 M) {
