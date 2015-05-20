@@ -3,6 +3,7 @@
 #include "math.h"
 
 Plane::Plane(glm::vec3 _pos, glm::vec2 _dim) {
+	oType = 'P';
 	planeVertexData tempV;
 	triangle tempT;
 

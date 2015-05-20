@@ -11,4 +11,5 @@ namespace linAlg {
 	void vectorMatrixMult(float* M1, float* M2, float* Mout);
 	void matrixMultTHREE(float* M1, float* M2, float* Mout);
 	void makeUniform(float* m);
+	float vecLength(float* vec);
 }

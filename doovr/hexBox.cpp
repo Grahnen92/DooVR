@@ -2,6 +2,7 @@
 
 hexBox::hexBox(glm::vec3 _pos, float r, float h)
 {
+	oType = 'H';
 	position[0] = _pos.x;
 	position[1] = _pos.y;
 	position[2] = _pos.z;
@@ -13,48 +14,14 @@ hexBox::hexBox(glm::vec3 _pos, float r, float h)
 
 hexBox::~hexBox(void)
 {
-	cout << "A hexbox has died." << endl;
+	//cout << "A hexbox has died." << endl;
 }
 
 void hexBox::createhexBox(float radius, float height)
 {
 
 	GLfloat vertex_array_data[] = {
-		////		Vertex								Normals										Texture  
-		////top
-		//-0.05f, height/2.0f, 0.086f,				 0.0f, 1.0f, 0.0f,								 0.3f, 0.65f,
-		//0.05f, height/2.0f, 0.086f,					 0.0f, 1.0f, 0.0f,								 0.7f, 0.65f,
-		//0.10f, height/2.0f, 0.0f,					 0.0f, 1.0f, 0.0f,								 0.9f, 0.81f,
-		//0.05f, height/2.0f, -0.086f,				 0.0f, 1.0f, 0.0f,								 0.7f, 0.97f,
-		//-0.05f, height/2.0f, -0.086f,				 0.0f, 1.0f, 0.0f,								 0.3f, 0.97f,
-		//-0.10f, height/2.0f, 0.0f,					 0.0f, 1.0f, 0.0f,								 0.09f, 0.81f,
-		//0.0f, height/2.0f, 0.0f,					 0.0f, 1.0f, 0.0f,								 0.5f, 0.81f,
-		////bottom
-		//-0.05f, -height/2.0f, 0.086f,				 0.0f, -1.0f, 0.0f,								 0.3f, 0.65f,
-		//0.05f, -height/2.0f, 0.086f,				 0.0f, -1.0f, 0.0f,								 0.7f, 0.65f,
-		//0.10f, -height/2.0f, 0.0f,					 0.0f, -1.0f, 0.0f,								 0.9f, 0.81f,
-		//0.05f, -height/2.0f, -0.086f,				 0.0f, -1.0f, 0.0f,								 0.7f, 0.97f,
-		//-0.05f, -height/2.0f, -0.086f,				 0.0f, -1.0f, 0.0f,								 0.3f, 0.97f,
-		//-0.1f, -height/2.0f, 0.0f,					 0.0f, -1.0f, 0.0f,								 0.09f, 0.81f,
-		//0.0f, -height/2.0f, 0.0f,					 0.0f, -1.0f, 0.0f,								 0.5f, 0.81f,
-		////sides+
-		//-0.05f, height/2.0f, 0.086f,				 0.0f, 0.0f, 1.0f,								 0.0f, 0.6f,		// bak ruta
-		//0.05f, height/2.0f, 0.086f,					 0.0f, 0.0f, 1.0f,								 1.0f, 0.6f,
-		//0.10f, height/2.0f, 0.0f,					 1.0f, 0.0f, 0.0f,								 0.0f, 0.4f,
-		//0.05f, height/2.0f, -0.086f,				 0.0f, 0.0f, -1.0f,								 0.0f, 0.6f,		//framruta
-		//-0.05f, height/2.0f, -0.086f,				 0.0f, 0.0f, -1.0f,								 1.0f, 0.6f,
-		//-0.1f, height/2.0f, 0.0f,					 -1.0f, 0.0f, 0.0f,								 0.0f, 0.4f,
-
-		//-0.05f, -height/2.0f, 0.086f,				 0.0f, 0.0f, 1.0f,								 0.4f, 0.6f,		// bak ruta
-		//0.05f, -height/2.0f, 0.086f,				 0.0f, 0.0f, 1.0f,								 1.0f, 0.4f,
-		//0.10f, -height/2.0f, 0.0f,					 1.0f, 0.0f, 0.0f,								 1.0f, 0.6f,
-		//0.05f, -height/2.0f, -0.086f,				 0.0f, 0.0f, -1.0f,								 0.0f, 0.6f,		// fram ruta
-		//-0.05f, -height/2.0f, -0.086f,				 0.0f, 0.0f, -1.0f,								 1.0f, 0.4f,
-		//-0.1f, -height/2.0f, 0.0f,					 -1.0f, 0.0f, 0.0f,								 1.0f, 0.6f,
-
-
-
-				//		Vertex								Normals										Texture  
+		//						Vertex								Normals										Texture  
 		//top
 		-radius/2.0f,	height/2.0f, radius*0.86f,				 0.0f, 1.0f, 0.0f,								 0.3f, 0.65f,
 		radius/2.0f,	height/2.0f, radius*0.86f,				 0.0f, 1.0f, 0.0f,								 0.7f, 0.65f,
