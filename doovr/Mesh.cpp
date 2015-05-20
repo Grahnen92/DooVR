@@ -233,7 +233,55 @@ Mesh::Mesh(float rad) {
 
 	triEPtr[3]->nextEdge->sibling = triEPtr[7]->nextEdge;
 	triEPtr[7]->nextEdge->sibling = triEPtr[3]->nextEdge;
-	
+
+	for (int i = 0; i < 10; i++)
+	{
+		tempSize = vertexArray.size();
+		for (int j = 0; j < tempSize; j++)
+		{
+			tempE1 = vertexEPtr[j];
+
+			tempP1[0] = vertexArray[j].x;
+			tempP1[1] = vertexArray[j].y;
+			tempP1[2] = vertexArray[j].z;
+
+			tempP2[0] = vertexArray[tempE1->vertex].x;
+			tempP2[1] = vertexArray[tempE1->vertex].y;
+			tempP2[2] = vertexArray[tempE1->vertex].z;
+
+			calculateVec(tempVec, tempP2, tempP1);
+			if (vecLength(tempVec) > 0.1f)
+			{
+				addVertex(tempP1, tempP2, tempVec, tempE1);
+			}
+
+			tempE1 = tempE1->nextEdge->sibling;
+			while (tempE1 != vertexEPtr[j])
+			{
+
+				tempP1[0] = vertexArray[tempE1->sibling->vertex].x;
+				tempP1[1] = vertexArray[tempE1->sibling->vertex].y;
+				tempP1[2] = vertexArray[tempE1->sibling->vertex].z;
+
+				tempP2[0] = vertexArray[tempE1->vertex].x;
+				tempP2[1] = vertexArray[tempE1->vertex].y;
+				tempP2[2] = vertexArray[tempE1->vertex].z;
+
+				calculateVec(tempVec, tempP2, tempP1);
+
+				if (vecLength(tempVec) > 0.1f)
+				{
+					addVertex(tempP1, tempP2, tempVec, tempE1);
+				}
+
+				tempE1 = tempE1->nextEdge->sibling;
+			}
+
+		}
+	}
+
+	/*
+	//////
 	for (int i = 0; i < 4; i++)
 	{
 		tempSize = vertexArray.size();
@@ -311,7 +359,7 @@ Mesh::Mesh(float rad) {
 			}
 		}
 	}
-	
+	*/
 	vector<triangle> tempList;
 	triangle tempTri;
 
@@ -841,97 +889,166 @@ void Mesh::addVertex(float* pA, float* pB, float* vecA2B, halfEdge* edge) {
 	triangle tempT;
 	halfEdge* tempE;
 	int tempIndex;
+	int tempIndex2;
+	float temp[3];
+	float temp2[3];
+	float temp3[3];
+	
+	tempIndex = edge->nextEdge->nextEdge->vertex;
+	tempIndex2 = edge->sibling->nextEdge->nextEdge->vertex;
 
-	// create new vertex point 
-	tempV.x = pA[0] + (vecA2B[0] / 2.0f);
-	tempV.y = pA[1] + (vecA2B[1] / 2.0f);
-	tempV.z = pA[2] + (vecA2B[2] / 2.0f);
+	temp[0] = vertexArray[tempIndex].x;
+	temp[1] = vertexArray[tempIndex].y;
+	temp[2] = vertexArray[tempIndex].z;
 
-	tempV.nx = vertexArray[edge->vertex].nx; tempV.ny = vertexArray[edge->vertex].ny; tempV.nz = vertexArray[edge->vertex].nz;
-	vertexArray.push_back(tempV);
+	temp2[0] = vertexArray[tempIndex2].x;
+	temp2[1] = vertexArray[tempIndex2].y;
+	temp2[2] = vertexArray[tempIndex2].z;
+	calculateVec(temp3, temp, temp2);
 
-	//copy triangles
-	tempT.index[0] = indexArray[edge->triangle].index[0];
-	tempT.index[1] = indexArray[edge->triangle].index[1];
-	tempT.index[2] = indexArray[edge->triangle].index[2];
-	indexArray.push_back(tempT);
+	if (vecLength(temp3) < 0.1)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			if (indexArray[edge->triangle].index[i] == edge->vertex)
+				indexArray[edge->triangle].index[i] = tempIndex2;
 
-	tempT.index[0] = indexArray[edge->sibling->triangle].index[0];
-	tempT.index[1] = indexArray[edge->sibling->triangle].index[1];
-	tempT.index[2] = indexArray[edge->sibling->triangle].index[2];
-	indexArray.push_back(tempT);
+			if (indexArray[edge->sibling->triangle].index[i] == edge->sibling->vertex)
+				indexArray[edge->sibling->triangle].index[i] = tempIndex;
+		}
 
-	// rebind old triangles
-	for (int i = 0; i < 3; i++) {
-		if (indexArray[edge->triangle].index[i] == edge->vertex)
-			indexArray[edge->triangle].index[i] = vertexArray.size() - 1;
+		edge->sibling->nextEdge->nextEdge->triangle = edge->triangle;
+		edge->nextEdge->nextEdge->triangle = edge->sibling->triangle;
+		////
+		edge->sibling->nextEdge->nextEdge->nextEdge = edge->nextEdge;
+		edge->nextEdge->nextEdge->nextEdge = edge->sibling->nextEdge;
+		////
+		edge->nextEdge->nextEdge = edge;
+		edge->sibling->nextEdge->nextEdge = edge->sibling;
+		//
+		edge->nextEdge = edge->sibling->nextEdge->nextEdge;
+		edge->sibling->nextEdge = edge->nextEdge->nextEdge;
 
-		if (indexArray[edge->sibling->triangle].index[i] == edge->vertex)
-			indexArray[edge->sibling->triangle].index[i] = vertexArray.size() - 1;
+		edge->vertex = edge->sibling->nextEdge->vertex;
+		edge->sibling->vertex = edge->nextEdge->vertex;
+
+		vertexEPtr[edge->nextEdge->nextEdge->vertex] = edge->nextEdge;
+		vertexEPtr[edge->sibling->nextEdge->nextEdge->vertex] = edge->sibling->nextEdge;
+
+	}
+	else
+	{
+	
+		temp[0] = pA[0] + (vecA2B[0] / 2.0f);
+		temp[1] = pA[1] + (vecA2B[1] / 2.0f);
+		temp[2] = pA[2] + (vecA2B[2] / 2.0f);
+
+		normVec(temp);
+		tempV.nx = temp[0];
+		tempV.ny = temp[1];
+		tempV.nz = temp[2];
+
+		temp[0] = 0.5f*temp[0];
+		temp[1] = 0.5f*temp[1];
+		temp[2] = 0.5f*temp[2];
+
+		tempV.x = temp[0];
+		tempV.y = temp[1];
+		tempV.z = temp[2];
+		/*
+		// create new vertex point
+		tempV.x = pA[0] + (vecA2B[0] / 2.0f);
+		tempV.y = pA[1] + (vecA2B[1] / 2.0f);
+		tempV.z = pA[2] + (vecA2B[2] / 2.0f);
+		*/
+		//tempV.nx = vertexArray[edge->vertex].nx; tempV.ny = vertexArray[edge->vertex].ny; tempV.nz = vertexArray[edge->vertex].nz;
+		vertexArray.push_back(tempV);
+
+		//copy triangles
+		tempT.index[0] = indexArray[edge->triangle].index[0];
+		tempT.index[1] = indexArray[edge->triangle].index[1];
+		tempT.index[2] = indexArray[edge->triangle].index[2];
+		indexArray.push_back(tempT);
+
+		tempT.index[0] = indexArray[edge->sibling->triangle].index[0];
+		tempT.index[1] = indexArray[edge->sibling->triangle].index[1];
+		tempT.index[2] = indexArray[edge->sibling->triangle].index[2];
+		indexArray.push_back(tempT);
+
+		// rebind old triangles
+		for (int i = 0; i < 3; i++) {
+			if (indexArray[edge->triangle].index[i] == edge->vertex)
+				indexArray[edge->triangle].index[i] = vertexArray.size() - 1;
+
+			if (indexArray[edge->sibling->triangle].index[i] == edge->vertex)
+				indexArray[edge->sibling->triangle].index[i] = vertexArray.size() - 1;
+		}
+
+		// rebind new triangles
+		for (int i = 0; i < 3; i++) {
+			if (indexArray[indexArray.size() - 2].index[i] == edge->sibling->vertex)
+				indexArray[indexArray.size() - 2].index[i] = vertexArray.size() - 1;
+
+			if (indexArray[indexArray.size() - 1].index[i] == edge->sibling->vertex)
+				indexArray[indexArray.size() - 1].index[i] = vertexArray.size() - 1;
+		}
+
+		triEPtr.push_back(new halfEdge);
+		tempIndex = triEPtr.size() - 1;
+		vertexEPtr.push_back(triEPtr[tempIndex]);
+
+		triEPtr[tempIndex]->vertex = edge->vertex;
+		triEPtr[tempIndex]->triangle = tempIndex;
+		triEPtr[tempIndex]->nextEdge = new halfEdge;
+
+		triEPtr[tempIndex]->nextEdge->vertex = vertexArray.size() - 1;
+		triEPtr[tempIndex]->nextEdge->triangle = tempIndex;
+		triEPtr[tempIndex]->nextEdge->sibling = edge->nextEdge->nextEdge;
+		triEPtr[tempIndex]->nextEdge->nextEdge = new halfEdge;
+
+		triEPtr[tempIndex]->nextEdge->nextEdge->vertex = edge->nextEdge->nextEdge->vertex;
+		triEPtr[tempIndex]->nextEdge->nextEdge->triangle = tempIndex;
+		triEPtr[tempIndex]->nextEdge->nextEdge->nextEdge = triEPtr[tempIndex];
+		triEPtr[tempIndex]->nextEdge->nextEdge->sibling = edge->nextEdge->nextEdge->sibling;
+		//rebind sibling of existing triangle
+		edge->nextEdge->nextEdge->sibling->sibling = triEPtr[tempIndex]->nextEdge->nextEdge;
+		//rebind sibling of old triangle
+		edge->nextEdge->nextEdge->sibling = triEPtr[tempIndex]->nextEdge;
+
+		triEPtr.push_back(new halfEdge);
+		tempIndex = triEPtr.size() - 1;
+
+		triEPtr[tempIndex]->sibling = triEPtr[tempIndex - 1];
+		//bind sibling of first newEdge
+		triEPtr[tempIndex - 1]->sibling = triEPtr[tempIndex];
+		//continue
+		triEPtr[tempIndex]->vertex = vertexArray.size() - 1;
+		triEPtr[tempIndex]->triangle = tempIndex;
+		triEPtr[tempIndex]->nextEdge = new halfEdge;
+
+		triEPtr[tempIndex]->nextEdge->vertex = edge->vertex;
+		triEPtr[tempIndex]->nextEdge->triangle = tempIndex;
+		triEPtr[tempIndex]->nextEdge->sibling = edge->sibling->nextEdge->sibling;
+		//rebind sibling of existing triangle
+		edge->sibling->nextEdge->sibling->sibling = triEPtr[tempIndex]->nextEdge;
+		triEPtr[tempIndex]->nextEdge->nextEdge = new halfEdge;
+
+		triEPtr[tempIndex]->nextEdge->nextEdge->vertex = edge->sibling->nextEdge->nextEdge->vertex;
+		triEPtr[tempIndex]->nextEdge->nextEdge->triangle = tempIndex;
+		triEPtr[tempIndex]->nextEdge->nextEdge->sibling = edge->sibling->nextEdge; // =======
+		//rebind sibling of old triangle
+		edge->sibling->nextEdge->sibling = triEPtr[tempIndex]->nextEdge->nextEdge;
+		triEPtr[tempIndex]->nextEdge->nextEdge->nextEdge = triEPtr[tempIndex];
+
+
+		// rebind old edge vertex
+		vertexEPtr[edge->vertex] = triEPtr[tempIndex];
+
+		edge->vertex = vertexArray.size() - 1;
+		edge->sibling->nextEdge->vertex = vertexArray.size() - 1;
 	}
 
-	// rebind new triangles
-	for (int i = 0; i < 3; i++) {
-		if (indexArray[indexArray.size() - 2].index[i] == edge->sibling->vertex)
-			indexArray[indexArray.size() - 2].index[i] = vertexArray.size() - 1;
-
-		if (indexArray[indexArray.size() - 1].index[i] == edge->sibling->vertex)
-			indexArray[indexArray.size() - 1].index[i] = vertexArray.size() - 1;
-	}
-
-	triEPtr.push_back(new halfEdge); 
-	tempIndex = triEPtr.size() - 1;
-	vertexEPtr.push_back(triEPtr[tempIndex]);
-
-	triEPtr[tempIndex]->vertex = edge->vertex;
-	triEPtr[tempIndex]->triangle = tempIndex;
-	triEPtr[tempIndex]->nextEdge = new halfEdge;
-
-	triEPtr[tempIndex]->nextEdge->vertex = vertexArray.size() - 1;
-	triEPtr[tempIndex]->nextEdge->triangle = tempIndex;
-	triEPtr[tempIndex]->nextEdge->sibling = edge->nextEdge->nextEdge;
-	triEPtr[tempIndex]->nextEdge->nextEdge = new halfEdge;
-
-	triEPtr[tempIndex]->nextEdge->nextEdge->vertex = edge->nextEdge->nextEdge->vertex;
-	triEPtr[tempIndex]->nextEdge->nextEdge->triangle = tempIndex;
-	triEPtr[tempIndex]->nextEdge->nextEdge->nextEdge = triEPtr[tempIndex];
-	triEPtr[tempIndex]->nextEdge->nextEdge->sibling = edge->nextEdge->nextEdge->sibling;
-	//rebind sibling of existing triangle
-	edge->nextEdge->nextEdge->sibling->sibling = triEPtr[tempIndex]->nextEdge->nextEdge;
-	//rebind sibling of old triangle
-	edge->nextEdge->nextEdge->sibling = triEPtr[tempIndex]->nextEdge;
 	
-	triEPtr.push_back(new halfEdge);
-	tempIndex = triEPtr.size() - 1;
-
-	triEPtr[tempIndex]->sibling = triEPtr[tempIndex - 1];
-	//bind sibling of first newEdge
-	triEPtr[tempIndex - 1]->sibling = triEPtr[tempIndex];
-	//continue
-	triEPtr[tempIndex]->vertex = vertexArray.size() - 1;
-	triEPtr[tempIndex]->triangle = tempIndex;
-	triEPtr[tempIndex]->nextEdge = new halfEdge;
-
-	triEPtr[tempIndex]->nextEdge->vertex = edge->vertex;
-	triEPtr[tempIndex]->nextEdge->triangle = tempIndex;
-	triEPtr[tempIndex]->nextEdge->sibling = edge->sibling->nextEdge->sibling;
-	//rebind sibling of existing triangle
-	edge->sibling->nextEdge->sibling->sibling = triEPtr[tempIndex]->nextEdge;
-	triEPtr[tempIndex]->nextEdge->nextEdge = new halfEdge;
-
-	triEPtr[tempIndex]->nextEdge->nextEdge->vertex = edge->sibling->nextEdge->nextEdge->vertex;
-	triEPtr[tempIndex]->nextEdge->nextEdge->triangle = tempIndex;
-	triEPtr[tempIndex]->nextEdge->nextEdge->sibling = edge->sibling->nextEdge; // =======
-	//rebind sibling of old triangle
-	edge->sibling->nextEdge->sibling = triEPtr[tempIndex]->nextEdge->nextEdge;
-	triEPtr[tempIndex]->nextEdge->nextEdge->nextEdge = triEPtr[tempIndex];
-	
-
-	// rebind old edge vertex
-	vertexEPtr[edge->vertex] = triEPtr[tempIndex];
-
-	edge->vertex = vertexArray.size() - 1;
-	edge->sibling->nextEdge->vertex = vertexArray.size() - 1;
 
 }
 //STILL NEED TO USE COUNTER DONT FORGET

@@ -440,7 +440,7 @@ int Oculus::runOvr() {
 			case 2: // Move, 2nd from the right
 				//chooseFunction = MOVE;
 				currentTexID = move.getTextureID();
-				//moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
+				moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
 				break;
 			case 3: // Recenter, first from the right
 				//chooseFunction = RECENTER;
@@ -548,6 +548,7 @@ int Oculus::runOvr() {
 		glBindFramebuffer(GL_FRAMEBUFFER, l_FBOId);
 
 		GLRenderCallsOculus();
+		//if (lines) {
 		if (lines) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		} else if (!lines) {
@@ -641,41 +642,6 @@ int Oculus::runOvr() {
 						regSphere.render();
 					MVstack.pop();
 				}
-
-				// MESH
-				MVstack.push();
-					// Move around with the mesh
-					if (wand->getButtonState() && (wand->getButtonNumber() == 2)  ) {
-						mTest->setPosition(wand->getTrackerPosition());
-						mTest->setOrientation(wand->getTrackerRotation());
-					}
-
-
-
-					// Test to implement the erosion function on the mesh.
-					if (wand->getButtonState() && (wand->getButtonNumber() == 0)) {
-						//mTest.updateVertexArray(wand->getTrackerPosition(), false);
-						cout << "not used" << endl;
-					}
-
-					//std::cout << wand->getButtonNumber() << std::endl;
-
-					MVstack.translate(mTest->getPosition());
-					MVstack.multiply(mTest->getOrientation());
-
-					glLineWidth(1.0);
-					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-					
-					if (glfwGetKey(l_Window, GLFW_KEY_T)) {
-						mTest->test(sRadius, 5052, true);
-					}
-					if (glfwGetKey(l_Window, GLFW_KEY_Y)) {
-						mTest->test(sRadius, 5052, false);
-					}
-
-					mTest->render();
-
-				MVstack.pop();
 
 
 				// WAND
