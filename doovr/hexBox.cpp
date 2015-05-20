@@ -3,6 +3,7 @@
 hexBox::hexBox(glm::vec3 _pos, float r, float h)
 {
 	oType = 'H';
+	function = -1;
 	position[0] = _pos.x;
 	position[1] = _pos.y;
 	position[2] = _pos.z;
