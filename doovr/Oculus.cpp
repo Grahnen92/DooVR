@@ -369,7 +369,7 @@ int Oculus::runOvr() {
 	float offset = 0;
 
 	// Function-boxes
-	objectList.push_back(new hexBox(glm::vec3(0.0f, -eyeHeight /*+ 0.25f*/ - 100, -0.5f), 0.0465f, 0.5f));	// First object in function menu
+	objectList.push_back(new hexBox(glm::vec3(0.0f, -eyeHeight + 2.25f, -0.5f), 0.0465f, 0.5f));	// First object in function menu
 	objectList.push_back(new hexBox(glm::vec3(0.0f, 0, -0.0815f), 0.0465f, 0.5f));
 	objectList.push_back(new hexBox(glm::vec3(0.0f, 0, 0.0815f), 0.0465f, 0.5f));
 	objectList.push_back(new hexBox(glm::vec3(0.07058f, 0, 0.04075f), 0.0465f, 0.5f));
@@ -384,10 +384,10 @@ int Oculus::runOvr() {
 		else
 			offset = -0.04075f;
 		for (int j = 0; j < 24; j++)
-			objectList.push_back(new hexBox(glm::vec3(-1.5f + i * 0.07058,						// X-axis
-											  -eyeHeight + 0.10f,								// Y-axis (height)
-											  -1.0f + 0.0815f * j + offset),					// Z-axis
-											  0.0465f, 0.5f));									// Radius, Height
+			objectList.push_back(new hexBox(glm::vec3(-1.5f + i * 0.07058,					// X-axis
+											  -0.5f,										// Y-axis (height)
+											  1.0f + 0.0815f * j + offset),					// Z-axis
+											  0.0465f, 0.5f));								// Radius, Height
 	}
 	// Lightsources
 
@@ -687,8 +687,6 @@ int Oculus::runOvr() {
 						int n = 0;
 						hexBox *tempHex = static_cast<hexBox*> ((*it));
 						tempHex->setFunction(n);
-						MVstack.translate((*it)->getPosition());
-						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						glBindTexture(GL_TEXTURE_2D, texList.at(n)->getTextureID()); // function texture
 						(*it)->render();
 						++it;
@@ -696,26 +694,18 @@ int Oculus::runOvr() {
 						while (it != objectList.begin()+7) {
 							n++;
 							hexBox *tempHex = static_cast<hexBox*> ((*it));
-							tempHex->setFunction(n);
-							MVstack.push();
-								MVstack.translate((*it)->getPosition());
-								glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-								glBindTexture(GL_TEXTURE_2D, texList.at(n)->getTextureID()); // function texture
-								(*it)->render();
-							MVstack.pop();
+							tempHex->setFunction(n);;
+							glBindTexture(GL_TEXTURE_2D, texList.at(n)->getTextureID()); // function texture
+							(*it)->render();
 							++it;
 						}
 					MVstack.pop();
 					// Movable hexBoxes
 					//if (renderRegisterSpheres)	// take away later
+					glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
 					while (it != objectList.end())
 					{
-						MVstack.push();
-							MVstack.translate((*it)->getPosition());
-							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-							glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
-							(*it)->render();
-						MVstack.pop();
+						(*it)->render();
 						++it;
 					}
 				}
@@ -908,11 +898,8 @@ void moveEntity(Device* wand, vector<Entity*> *objectList, vector<Entity*> *sele
 	// Move selected objects
 	for (int i = 0; i < selectedList->size(); i++) {
 		if (selectedList->at(i)->getOtype() == 'H') {
-			tempHex = static_cast<hexBox*> (objectList->at(i));
-			pos[0] = tempHex->getPosition()[0];
-			pos[1] = wand->getTrackerPosition()[1] - tempHex->getHeight() / 2.0f;
-			pos[2] = tempHex->getPosition()[2];
-			selectedList->at(i)->setPosition(pos);
+			tempHex = static_cast<hexBox*> (selectedList->at(i));
+			tempHex->move(wand->getTrackerPosition()[1] - tempHex->getHeight() / 2.0f);
 		}
 		else {
 			selectedList->at(1)->setPosition(wand->getTrackerPosition());
