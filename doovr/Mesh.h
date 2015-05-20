@@ -62,12 +62,12 @@ class Mesh {
 	void calculateVec(float* newVec, float a[3], float b[3]);
 
 	//! updates the changed vertecies normal and checks if retriangulation is needed.
-	//void updateArea(int* changeList, int listSize);
+	void updateArea(int* changeList, int listSize);
 	//! adds a vertex in the middle between the vertexpoints pA and pB.
 	/*! pA is the position of currVert, pB is the position of nVert,
 		currVert and nVert are the indecies of the vertecies in the vertexArray,
 		counter is the number of changed vertecies */
-	void addVertex(float* pA, float* pB, float* vecA2B, halfEdge* edge);
+	void addVertex(float* pA, float* pB, float* vecA2B, halfEdge* &edge);
 	//! removes the vertexpoint nVert and moves currVert halfway to nVert.
 	/*! pA is the position of currVert, pB is the position of nVert, 
 		currVert and nVert are the indecies of the vertecies in the vertexArray,

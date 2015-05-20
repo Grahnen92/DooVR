@@ -234,11 +234,10 @@ Mesh::Mesh(float rad) {
 	triEPtr[3]->nextEdge->sibling = triEPtr[7]->nextEdge;
 	triEPtr[7]->nextEdge->sibling = triEPtr[3]->nextEdge;
 
-	for (int i = 0; i < 10; i++)
-	{
+	// create sphere by subdivision
+	for (int i = 0; i < 20; i++) {
 		tempSize = vertexArray.size();
-		for (int j = 0; j < tempSize; j++)
-		{
+		for (int j = 0; j < tempSize; j++) {
 			tempE1 = vertexEPtr[j];
 
 			tempP1[0] = vertexArray[j].x;
@@ -250,15 +249,14 @@ Mesh::Mesh(float rad) {
 			tempP2[2] = vertexArray[tempE1->vertex].z;
 
 			calculateVec(tempVec, tempP2, tempP1);
-			if (vecLength(tempVec) > 0.1f)
-			{
+			if (vecLength(tempVec) > 0.05f) {
 				addVertex(tempP1, tempP2, tempVec, tempE1);
 			}
 
 			tempE1 = tempE1->nextEdge->sibling;
-			while (tempE1 != vertexEPtr[j])
-			{
+			while (tempE1 != vertexEPtr[j]) {
 
+				cout << j << endl;
 				tempP1[0] = vertexArray[tempE1->sibling->vertex].x;
 				tempP1[1] = vertexArray[tempE1->sibling->vertex].y;
 				tempP1[2] = vertexArray[tempE1->sibling->vertex].z;
@@ -269,14 +267,12 @@ Mesh::Mesh(float rad) {
 
 				calculateVec(tempVec, tempP2, tempP1);
 
-				if (vecLength(tempVec) > 0.1f)
-				{
+				if (vecLength(tempVec) > 0.05f) {
 					addVertex(tempP1, tempP2, tempVec, tempE1);
 				}
 
 				tempE1 = tempE1->nextEdge->sibling;
 			}
-
 		}
 	}
 
@@ -459,6 +455,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 
 	triangle* indexP;
 	vertex* vertexP;
+	halfEdge* tempEdge;
 
 	bool success = false;
 
@@ -510,8 +507,16 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 			vertexArray[i].x += tempVec2[0]*mLength;
 			vertexArray[i].y += tempVec2[1] * mLength;
 			vertexArray[i].z += tempVec2[2] * mLength;
-
 			changedVertices.push_back(i);
+
+			// mark the vertex edges as needUpdate
+			vertexEPtr[i]->needsUpdate = true;
+			tempEdge = vertexEPtr[i]->nextEdge;
+			while (tempEdge != vertexEPtr[i]) {
+				tempEdge->needsUpdate = true;
+				tempEdge = tempEdge->nextEdge->sibling;
+			}
+
 			changeCount++;
 
 			success = true;
@@ -753,8 +758,65 @@ float Mesh::vecLength(float vec[3]) {
 bool Mesh::sortByXCord(const vertex &a, const vertex &b) {
 	return a.x < b.x;
 }
-/*
+
 void Mesh::updateArea(int* changeList, int listSize) {
+
+	float vPoint1[3], vPoint2[3], vPoint3[3], vPoint4[3];
+	float tempVec1[3], tempVec2[3], tempVec3[3];
+	float tempNorm1[3] = { 0.0f, 0.0f, 0.0f };
+	float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
+	halfEdge* tempEdge;
+	int vert1, vert2; 
+	int eNR = 0;
+
+
+	for (int i = 0; i < listSize; i++) {
+
+		// Update normal
+		//visit first edge
+
+		vPoint1[0] = vertexArray[changeList[i]].x;
+		vPoint1[1] = vertexArray[changeList[i]].y;
+		vPoint1[2] = vertexArray[changeList[i]].z;
+
+		tempEdge = vertexEPtr[changeList[i]];
+		// loop through the rest of the edges
+		 do {
+			 vert1 = tempEdge->vertex;
+			 vert2 = tempEdge->nextEdge->nextEdge->vertex;
+
+			 vPoint2[0] = vertexArray[vert1].x;
+			 vPoint2[1] = vertexArray[vert1].y;
+			 vPoint2[2] = vertexArray[vert1].z;
+
+			 vPoint3[0] = vertexArray[vert2].x;
+			 vPoint3[1] = vertexArray[vert2].y;
+			 vPoint3[2] = vertexArray[vert2].z;
+
+			calculateVec(tempVec1, vPoint2, vPoint1);
+			calculateVec(tempVec2, vPoint3, vPoint1);
+
+			crossProd(tempNorm1, tempVec1, tempVec2);
+
+			normVec(tempNorm1);
+
+			tempNorm2[0] += tempNorm1[0];
+			tempNorm2[1] += tempNorm1[1];
+			tempNorm2[2] += tempNorm1[2];
+			eNR++;
+
+			tempEdge = tempEdge->nextEdge->sibling;
+		 } while (tempEdge != vertexEPtr[changeList[i]]);
+
+		 //eNR kanske fel dont forget
+		 tempNorm2[0] = tempNorm2[0] / eNR;
+		 tempNorm2[1] = tempNorm2[1] / eNR;
+		 tempNorm2[2] = tempNorm2[2] / eNR;
+		 eNR = 0;
+
+	}
+
+	/*
 	//DECLARE VARIABLES
 	float tempNorm1[3] = { 0.0f, 0.0f, 0.0f };
 	float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
@@ -880,10 +942,10 @@ void Mesh::updateArea(int* changeList, int listSize) {
 			sharedTriNeighbor.clear();
 		}
 
-	}
+	}*/
 }
-*/
-void Mesh::addVertex(float* pA, float* pB, float* vecA2B, halfEdge* edge) {
+
+void Mesh::addVertex(float* pA, float* pB, float* vecA2B, halfEdge* &edge) {
 
 	vertex tempV;
 	triangle tempT;
@@ -893,6 +955,8 @@ void Mesh::addVertex(float* pA, float* pB, float* vecA2B, halfEdge* edge) {
 	float temp[3];
 	float temp2[3];
 	float temp3[3];
+
+	halfEdge* tempE2;
 	
 	tempIndex = edge->nextEdge->nextEdge->vertex;
 	tempIndex2 = edge->sibling->nextEdge->nextEdge->vertex;
@@ -905,35 +969,40 @@ void Mesh::addVertex(float* pA, float* pB, float* vecA2B, halfEdge* edge) {
 	temp2[1] = vertexArray[tempIndex2].y;
 	temp2[2] = vertexArray[tempIndex2].z;
 	calculateVec(temp3, temp, temp2);
-
-	if (vecLength(temp3) < 0.1)
-	{
-		for (int i = 0; i < 3; i++)
-		{
+	
+	if (vecLength(temp3) < 0.1) {
+		for (int i = 0; i < 3; i++) {
 			if (indexArray[edge->triangle].index[i] == edge->vertex)
 				indexArray[edge->triangle].index[i] = tempIndex2;
 
 			if (indexArray[edge->sibling->triangle].index[i] == edge->sibling->vertex)
 				indexArray[edge->sibling->triangle].index[i] = tempIndex;
 		}
-
+		// rebind triangles
 		edge->sibling->nextEdge->nextEdge->triangle = edge->triangle;
 		edge->nextEdge->nextEdge->triangle = edge->sibling->triangle;
 		////
 		edge->sibling->nextEdge->nextEdge->nextEdge = edge->nextEdge;
 		edge->nextEdge->nextEdge->nextEdge = edge->sibling->nextEdge;
 		////
+		
+		tempE = edge->nextEdge->nextEdge;
 		edge->nextEdge->nextEdge = edge;
+
+		tempE2 = edge->sibling->nextEdge->nextEdge;
 		edge->sibling->nextEdge->nextEdge = edge->sibling;
-		//
-		edge->nextEdge = edge->sibling->nextEdge->nextEdge;
-		edge->sibling->nextEdge = edge->nextEdge->nextEdge;
+
+		edge->sibling->nextEdge = tempE;
+		edge->nextEdge = tempE2;
 
 		edge->vertex = edge->sibling->nextEdge->vertex;
 		edge->sibling->vertex = edge->nextEdge->vertex;
 
 		vertexEPtr[edge->nextEdge->nextEdge->vertex] = edge->nextEdge;
 		vertexEPtr[edge->sibling->nextEdge->nextEdge->vertex] = edge->sibling->nextEdge;
+
+		//pass on
+		edge = edge->nextEdge;
 
 	}
 	else
@@ -1048,8 +1117,6 @@ void Mesh::addVertex(float* pA, float* pB, float* vecA2B, halfEdge* edge) {
 		edge->sibling->nextEdge->vertex = vertexArray.size() - 1;
 	}
 
-	
-
 }
 //STILL NEED TO USE COUNTER DONT FORGET
 bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* sharedTriNeighbor, int* counter) {
@@ -1058,7 +1125,7 @@ bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert
 	return true;
 }
 
-
+//! calcualte vector from b to a
 void Mesh::calculateVec(float* newVec, float* a, float* b) {
 	newVec[0] = a[0] - b[0];
 	newVec[1] = a[1] - b[1];
