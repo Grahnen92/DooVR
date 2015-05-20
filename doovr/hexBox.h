@@ -20,8 +20,9 @@ public:
 	~hexBox(void);
 
 	float getHeight() { return height; }
-
 	void createhexBox(float r, float h);
+	void setFunction(int f) { function = f; }
+	
 
 	void render();
 
@@ -36,6 +37,6 @@ private:
 	glm::vec3 vertices[8];
 	float radius;
 	float height;
-
+	int function;
 	void display(ostream& os) const;
 };
