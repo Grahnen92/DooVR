@@ -9,7 +9,6 @@ hexBox::hexBox(glm::vec3 _pos, float r, float h)
 	position[2] = _pos.z;
 	height = h;
 	radius = r;
-	
 
 
 	GLfloat vertex_array_data[] = {
@@ -165,10 +164,21 @@ hexBox::~hexBox(void)
 void hexBox::move(float f)
 {
 
-	for (int i = 1; i < 208; i = i + 8)
+	for (int i = 1; i < 56; i = i + 8)
 	{
-		vertexarray[i] = f;
+		if (vertexarray[i] < f)
+			vertexarray[i] += 0.01f*(f - vertexarray[i]);
+		else
+			vertexarray[i]-= 0.01f*(vertexarray[i] - f);
 	}
+	for (int i = 112; i < 160; i = i + 8)
+	{
+		if (vertexarray[i] < f)
+			vertexarray[i] += 0.01f*(f - vertexarray[i]);
+		else
+			vertexarray[i] -= 0.01f*(vertexarray[i] - f);
+	}
+	height = vertexarray[1] - vertexarray[57];
 
 	// Activate the vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);

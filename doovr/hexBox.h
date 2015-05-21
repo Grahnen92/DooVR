@@ -21,6 +21,7 @@ public:
 
 	float getHeight() { return height; }
 	void setFunction(int f) { function = f; }
+	int getFunction() { return function; }
 
 	void move(float h);
 	
