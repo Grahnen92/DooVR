@@ -54,7 +54,7 @@ void linAlg::matrixMultTHREE(float* M1, float* M2, float* Mout) {
 	}
 }
 
-void linAlg::vectorMatrixMult(float* M1, float* V, float* Mout) {
+void linAlg::vectorMatrixMult(float* M1, float* V, float* Vout) {
 	float Mtemp[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	int i, j;
 	// Perform the multiplication M3 = M1*M2
@@ -66,7 +66,7 @@ void linAlg::vectorMatrixMult(float* M1, float* V, float* Mout) {
 	}
 	// Copy the result to the output variable
 	for (i = 0; i<4; i++) {
-		Mout[i] = Mtemp[i];
+		Vout[i] = Mtemp[i];
 	}
 }
 

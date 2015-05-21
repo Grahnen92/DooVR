@@ -1,4 +1,5 @@
 #include "Utilities.h"
+#include "linAlg.h"
 #include <vector>
 
 typedef struct vertex vertex;
@@ -72,6 +73,8 @@ class Mesh {
 		currVert and nVert are the indecies of the vertecies in the vertexArray,
 		counter is what element in the changedCounter we are in */
 	bool rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* sharedTriNeighbor, int* counter);
+
+	void edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge);
 
 	const int ROWS = 100;
 	const int COLS = 100;
