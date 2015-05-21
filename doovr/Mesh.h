@@ -72,7 +72,7 @@ class Mesh {
 	/*! pA is the position of currVert, pB is the position of nVert, 
 		currVert and nVert are the indecies of the vertecies in the vertexArray,
 		counter is what element in the changedCounter we are in */
-	bool rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* sharedTriNeighbor, int* counter);
+	void rmVertex(float* vPoint, float* vec, halfEdge* &edge);
 
 	void edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge);
 
@@ -80,7 +80,7 @@ class Mesh {
 	const int COLS = 100;
 
 	const float MAX_LENGTH = 0.05f; // 0.08f*0.1f;
-	const float MIN_LENGTH = 0.0399f*0.1f;
+	const float MIN_LENGTH = 0.024f;
 
 	GLuint vao;          // Vertex array object, the main handle for geometry
 	

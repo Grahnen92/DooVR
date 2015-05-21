@@ -504,9 +504,9 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 
 			//normVec(tempVec1);
 
-			vertexArray[i].x += vertexArray[i].nx * 0.005f;
-			vertexArray[i].y += vertexArray[i].ny * 0.005f;
-			vertexArray[i].z += vertexArray[i].nz * 0.005f;
+			vertexArray[i].x -= vertexArray[i].nx * 0.005f;
+			vertexArray[i].y -= vertexArray[i].ny * 0.005f;
+			vertexArray[i].z -= vertexArray[i].nz * 0.005f;
 			changedVertices.push_back(i);
 
 			// mark the vertex edges as needUpdate
@@ -779,7 +779,11 @@ void Mesh::updateArea(int* changeList, int listSize) {
 
 		 // Retriangulation //////////////////////////////////////////////////////////////////////////////////////////
 		 // check if edge needs update
-		 tempEdge = vertexEPtr[changeList[i]];
+		if (vertexEPtr[changeList[i]] != nullptr)
+			tempEdge = vertexEPtr[changeList[i]];
+		else
+			continue;
+
 		 do {
 			 if (tempEdge->needsUpdate == true){
 				tempEdge->needsUpdate = false;
@@ -797,13 +801,16 @@ void Mesh::updateArea(int* changeList, int listSize) {
 
 				// check if edge is to long/short
 				if (edgeLenght < MIN_LENGTH) {
-					//rmVertex()
+					rmVertex(vPoint1, tempVec1, tempEdge);
+					//edge already incremented, something needs to be done.
 				} else if (edgeLenght > MAX_LENGTH) {
 					addVertex(vPoint1, tempVec1, tempEdge);
 				}
-			 }
 
-			 tempEdge = tempEdge->nextEdge->sibling;
+			 }
+			
+			tempEdge = tempEdge->nextEdge->sibling;
+
 		 } while (tempEdge != vertexEPtr[changeList[i]]);
 
 		 // Update normal /////////////////////////////////////////////////////////////////////////////
@@ -1050,10 +1057,63 @@ void Mesh::addVertex(float* pA, float* vecA2B, halfEdge* &edge) {
 
 }
 //STILL NEED TO USE COUNTER DONT FORGET
-bool Mesh::rmVertex(float* pA, float* pB, float* vecA2B, int currVert, int nVert, int* sharedTriNeighbor, int* counter) {
+void Mesh::rmVertex(float* vPoint, float* vec, halfEdge* &edge) {
 	
+	halfEdge* tempE;
+	static int currVert = edge->sibling->vertex;
+	static int nVert = edge->vertex;
+	vertexArray[currVert].x = vPoint[0] + (vec[0] / 2.0f);
+	vertexArray[currVert].y = vPoint[1] + (vec[1] / 2.0f);
+	vertexArray[currVert].z = vPoint[2] + (vec[2] / 2.0f);
+
+	tempE = edge->nextEdge->nextEdge->sibling;
+	while (tempE != edge)
+	{
+		tempE->vertex = currVert;
+
+		for (int i = 0; i < 3; i++)
+		{
+			if (indexArray[tempE->triangle].index[i] == nVert)
+			{
+				indexArray[tempE->triangle].index[i] = currVert;
+				break;
+			}
+		}
+		tempE = tempE->nextEdge->nextEdge->sibling;
+		cout << "hej";
+	}
+	tempE = edge->nextEdge->sibling;
+
+	edge->nextEdge->sibling->sibling = edge->nextEdge->nextEdge->sibling;
+	edge->nextEdge->nextEdge->sibling->sibling = edge->nextEdge->sibling;
+
+	edge->sibling->nextEdge->sibling->sibling = edge->sibling->nextEdge->nextEdge->sibling;
+	edge->sibling->nextEdge->nextEdge->sibling->sibling = edge->sibling->nextEdge->sibling;
+
+	vertexEPtr[currVert] = edge->nextEdge->sibling;
+
+	indexArray[edge->triangle].index[0] = 0;
+	indexArray[edge->triangle].index[1] = 0;
+	indexArray[edge->triangle].index[2] = 0;
+	indexArray[edge->sibling->triangle].index[0] = 0;
+	indexArray[edge->sibling->triangle].index[1] = 0;
+	indexArray[edge->sibling->triangle].index[2] = 0;
 	
-	return true;
+	vertexArray[nVert].x = -1000;
+	vertexArray[nVert].y = -1000;
+	vertexArray[nVert].z = -1000;
+	vertexArray[nVert].nx = 0;
+	vertexArray[nVert].ny = 0;
+	vertexArray[nVert].nz = 0;
+	vertexEPtr[nVert] = nullptr;
+	
+	delete edge->sibling->nextEdge->nextEdge;
+	delete edge->sibling->nextEdge;
+	delete edge->sibling;
+	delete edge->nextEdge->nextEdge;
+	delete edge->nextEdge;
+	delete edge;
+	edge = tempE;
 }
 
 void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge) {

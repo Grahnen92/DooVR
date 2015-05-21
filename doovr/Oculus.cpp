@@ -658,7 +658,7 @@ int Oculus::runOvr() {
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						glBindTexture(GL_TEXTURE_2D, currentTexID);
 						sphereWand.render();
-						if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						if (true) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 					MVstack.pop();
 					MVstack.push();
 						translateVector[0] = -0.1f;
