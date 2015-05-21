@@ -48,6 +48,23 @@ ovrVector3f g_CameraPosition;
 const float EYEHEIGHT{ OVR_DEFAULT_EYE_HEIGHT };
 // --------------------------------------
 
+// Global Constant variables
+const int nFunctions = 7;
+const int nLightsources = 2;
+
+const float MAX_HEX_HEIGHT = 1.1f;
+const float MIN_HEX_HEIGHT = 0.9f;
+
+// Function ID's
+const int DRAGnPULL = 1;
+const int DILATE = 0;
+const int MOVE = 2;
+const int moveENTITY = 3;
+const int coREGISTER = 4;
+int chooseFunction = coREGISTER;
+
+
+
 int Oculus::runOvr() {
 
 	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f,
@@ -70,14 +87,6 @@ int Oculus::runOvr() {
 	float differenceR[16] = { 0.0f };
 	float lastPos[3] = { 0.0f, 0.0f, 0.0f };
 	float currPos[3] = { 0.0f, 0.0f, 0.0f };
-
-	// Function ID's
-	const int DRAGnPULL = 1;
-	const int DILATE = 0;
-	const int MOVE = 2;
-	const int moveENTITY = 3;
-	const int coREGISTER = 4;
-	int chooseFunction = coREGISTER;
 
 	// Configuration variables
 	int regCounter = 0;
@@ -369,13 +378,13 @@ int Oculus::runOvr() {
 	float offset = 0;
 
 	// Function-boxes
-	objectList.push_back(new hexBox(glm::vec3(0.0f, -eyeHeight /*+ 0.25f*/ - 100, -0.5f), 0.0465f, 0.5f));	// First object in function menu
-	objectList.push_back(new hexBox(glm::vec3(0.0f, 0, -0.0815f), 0.0465f, 0.5f));
-	objectList.push_back(new hexBox(glm::vec3(0.0f, 0, 0.0815f), 0.0465f, 0.5f));
-	objectList.push_back(new hexBox(glm::vec3(0.07058f, 0, 0.04075f), 0.0465f, 0.5f));
-	objectList.push_back(new hexBox(glm::vec3(0.07058f, 0, -0.04075f), 0.0465f, 0.5f));
-	objectList.push_back(new hexBox(glm::vec3(-0.07058f, 0, 0.04075f), 0.0465f, 0.5f));
-	objectList.push_back(new hexBox(glm::vec3(-0.07058f, 0, -0.04075f), 0.0465f, 0.5f));
+	objectList.push_back(new hexBox(glm::vec3(0.0f, 0.0f, 0.0f), 0.0465f, MIN_HEX_HEIGHT));	// First object in function menu
+	objectList.push_back(new hexBox(glm::vec3(0.0f, 0.0f, -0.0815f), 0.0465f, MIN_HEX_HEIGHT));
+	objectList.push_back(new hexBox(glm::vec3(0.0f, 0.0f, 0.0815f), 0.0465f, MIN_HEX_HEIGHT));
+	objectList.push_back(new hexBox(glm::vec3(0.07058f, 0.0f, 0.04075f), 0.0465f, MIN_HEX_HEIGHT));
+	objectList.push_back(new hexBox(glm::vec3(0.07058f, 0.0f, -0.04075f), 0.0465f, MIN_HEX_HEIGHT));
+	objectList.push_back(new hexBox(glm::vec3(-0.07058f, 0.0f, 0.04075f), 0.0465f, MIN_HEX_HEIGHT));
+	objectList.push_back(new hexBox(glm::vec3(-0.07058f, 0.0f, -0.04075f), 0.0465f, MIN_HEX_HEIGHT));
 	// Movable hexBoxes
 	for (int i = 0; i < 48; i++)
 	{
@@ -384,10 +393,10 @@ int Oculus::runOvr() {
 		else
 			offset = -0.04075f;
 		for (int j = 0; j < 24; j++)
-			objectList.push_back(new hexBox(glm::vec3(-1.5f + i * 0.07058,						// X-axis
-											  -eyeHeight + 0.10f,								// Y-axis (height)
+			objectList.push_back(new hexBox(glm::vec3(-1.5f + i * 0.07058,					// X-axis
+											  0.0f,										// Y-axis (height)
 											  -1.0f + 0.0815f * j + offset),					// Z-axis
-											  0.0465f, 0.5f));									// Radius, Height
+											  0.0465f, 0.3f));								// Radius, Height
 	}
 	// Lightsources
 
@@ -485,6 +494,16 @@ int Oculus::runOvr() {
 				//chooseFunction = moveENTITY;
 				currentTexID = move.getTextureID();
 				moveEntity(wand, oPointer, selectPointer, buttonPressed, wandRadius);
+				it = objectList.begin();
+				// Set chooseFunction after function-hexBoxes
+				while (it != objectList.begin() + nFunctions) {
+					hexBox* tempHex = static_cast<hexBox*> ((*it));
+					if (tempHex->getHeight() == MAX_HEX_HEIGHT && tempHex->getFunction() != -1) {
+						chooseFunction = tempHex->getFunction();
+						break;
+					}
+					++it;
+				}	
 				break;
 			case 4: // co-register, analog button
 				chooseFunction = coREGISTER;
@@ -524,20 +543,6 @@ int Oculus::runOvr() {
 						eyeHeight = eye - floor;
 						regCounter = 0;
 						chooseFunction = DRAGnPULL;
-
-						// new height on objectList
-						it = objectList.begin();
-						while (it != objectList.end()) {
-							if ((*it)->getOtype() == 'H')
-							{
-								hexBox* tempHex = static_cast<hexBox*> ((*it));
-								newPos[0] = tempHex->getPosition()[0];
-								newPos[1] = -eyeHeight - 0.01f + tempHex->getHeight() / 2.0f;
-								newPos[2] = tempHex->getPosition()[2];
-								tempHex->setPosition(newPos);
-							}
-							++(*it);
-						}
 					}
 				}
 				break;
@@ -545,8 +550,20 @@ int Oculus::runOvr() {
 				chooseFunction = -1;
 			}
 		}
-		if (buttonReleased)
+		// Done when button is released
+		if (buttonReleased && wand->getButtonNumber() == moveENTITY) {
 			selectedList.clear();
+			it = objectList.begin();
+			while (it != objectList.begin() + nFunctions) {
+				hexBox* tempHex = static_cast<hexBox*> ((*it));
+				if (chooseFunction == tempHex->getFunction())
+					tempHex->move(MAX_HEX_HEIGHT);	// should move instantly
+				else
+					tempHex->move(MIN_HEX_HEIGHT);
+				++it;
+			}
+		}
+			
 
 
 		// ANALOG BUTTON - change tool size
@@ -681,43 +698,38 @@ int Oculus::runOvr() {
 				// Render objectList
 				if (!renderRegisterSpheres)
 				{
-					// first object (middle hexBox in menu)
-					it = objectList.begin();
 					MVstack.push();
-						int n = 0;
-						hexBox *tempHex = static_cast<hexBox*> ((*it));
-						tempHex->setFunction(n);
-						MVstack.translate((*it)->getPosition());
+						translateVector[0] = 0.5f;
+						translateVector[1] = -eyeHeight + 0.45f;	// function boxes height
+						translateVector[2] = -0.1f;
+						MVstack.translate(translateVector);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						glBindTexture(GL_TEXTURE_2D, texList.at(n)->getTextureID()); // function texture
-						(*it)->render();
-						++it;
-						// 6 objects around
+						it = objectList.begin();
+						int n = 0;
 						while (it != objectList.begin()+7) {
-							n++;
 							hexBox *tempHex = static_cast<hexBox*> ((*it));
 							tempHex->setFunction(n);
-							MVstack.push();
-								MVstack.translate((*it)->getPosition());
-								glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-								glBindTexture(GL_TEXTURE_2D, texList.at(n)->getTextureID()); // function texture
-								(*it)->render();
-							MVstack.pop();
+							glBindTexture(GL_TEXTURE_2D, texList.at(n)->getTextureID()); // function texture
+							(*it)->render();
+							n++;
 							++it;
 						}
 					MVstack.pop();
 					// Movable hexBoxes
-					//if (renderRegisterSpheres)	// take away later
-					while (it != objectList.end())
-					{
-						MVstack.push();
-							MVstack.translate((*it)->getPosition());
-							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-							glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
+					MVstack.push();
+						translateVector[0] = 0.0f;
+						translateVector[1] = -eyeHeight - 0.16f;
+						translateVector[2] = 0.0f;
+						MVstack.translate(translateVector);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
+						while (it != objectList.end())
+						{
 							(*it)->render();
-						MVstack.pop();
-						++it;
-					}
+							++it;
+						}
+					MVstack.pop();
+					// Lightsources - remember to send as uniform
 				}
 
 				// Co-register spheres
@@ -878,41 +890,69 @@ void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, f
 }
 
 void moveEntity(Device* wand, vector<Entity*> *objectList, vector<Entity*> *selectedList, bool buttonPressed, float wandRadius) {
-	float resultPos[3];
-	float pos[3];
-	float vLength[3];
 	hexBox *tempHex;
 	Sphere *tempSphere;
 
 	// Choose entity to move
 	if (buttonPressed) {
-		for (int i = 0; i < objectList->size(); i++) {
-			// Create vectors between wand and object, depending on object type
-			if (objectList->at(i)->getOtype() == 'H') {
-				tempHex = static_cast<hexBox*> (objectList->at(i));
+		bool find = false;
+		float pos[3];
+		float vLength[3];
+		vector<Entity*>::iterator it;
+		
+		it = objectList->begin();
+		while (it != objectList->begin() + nFunctions) {
+			vLength[0] = wand->getTrackerPosition()[0] - (*it)->getPosition()[0];
+			vLength[1] = wand->getTrackerPosition()[1] - (*it)->getPosition()[1];
+			vLength[2] = wand->getTrackerPosition()[2] - (*it)->getPosition()[2];
+			if (linAlg::vecLength(vLength) < wandRadius) {
+				find = true;
+				selectedList->push_back((*it));
+				break;
+			}
+			++it;
+		}
+		/*it = objectList->end() - nLightsources;
+		if (!find) {
+			while (it != objectList->end()) {
+			
+				vLength[0] = wand->getTrackerPosition()[0] - (*it)->getPosition()[0];
+				vLength[1] = wand->getTrackerPosition()[1] - (*it)->getPosition()[1];
+				vLength[2] = wand->getTrackerPosition()[2] - (*it)->getPosition()[2];
+				if (linAlg::vecLength(vLength) < wandRadius) {
+					find = true;
+					selectedList->push_back((*it));
+				}
+				++it;
+			}
+		}*/
+		if (!find) {
+			it = objectList->begin() + nFunctions;
+			while (it != objectList->end() - nLightsources) {
+				// Create vectors between wand and object, depending on object type
+				tempHex = static_cast<hexBox*> ((*it));
 				vLength[0] = wand->getTrackerPosition()[0] - tempHex->getPosition()[0];
 				vLength[1] = 0.0f;
 				vLength[2] = wand->getTrackerPosition()[2] - tempHex->getPosition()[2];
-			}
-			else {
-				vLength[0] = wand->getTrackerPosition()[0] - objectList->at(i)->getPosition()[0];
-				vLength[1] = wand->getTrackerPosition()[1] - objectList->at(i)->getPosition()[1];
-				vLength[2] = wand->getTrackerPosition()[2] - objectList->at(i)->getPosition()[2];
-			}
-			// Select object if the distance is smaller than wandRadius
-			if (linAlg::vecLength(vLength) < wandRadius) {
-				selectedList->push_back(objectList->at(i));
+				// Select object if the distance is smaller than wandRadius
+				if (linAlg::vecLength(vLength) < wandRadius) {
+					selectedList->push_back((*it));
+				}
+				++it;
 			}
 		}
 	}
 	// Move selected objects
 	for (int i = 0; i < selectedList->size(); i++) {
 		if (selectedList->at(i)->getOtype() == 'H') {
-			tempHex = static_cast<hexBox*> (objectList->at(i));
-			pos[0] = tempHex->getPosition()[0];
-			pos[1] = wand->getTrackerPosition()[1] - tempHex->getHeight() / 2.0f;
-			pos[2] = tempHex->getPosition()[2];
-			selectedList->at(i)->setPosition(pos);
+			tempHex = static_cast<hexBox*> (selectedList->at(i));
+			tempHex->move(wand->getTrackerPosition()[1]);
+			if (tempHex->getFunction() != -1) {
+				if (wand->getTrackerPosition()[1] > MAX_HEX_HEIGHT)
+					tempHex->move(MAX_HEX_HEIGHT);
+				else if (wand->getTrackerPosition()[1] < MIN_HEX_HEIGHT)
+					tempHex->move(MIN_HEX_HEIGHT);
+			}
 		}
 		else {
 			selectedList->at(1)->setPosition(wand->getTrackerPosition());
