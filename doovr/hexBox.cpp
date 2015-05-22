@@ -1,41 +1,40 @@
 #include "hexBox.h"
 
-hexBox::hexBox(glm::vec3 _pos, float r, float h)
+hexBox::hexBox(float x, float y, float z)
 {
 	oType = 'H';
 	function = -1;
-	position[0] = _pos.x;
-	position[1] = _pos.y;
-	position[2] = _pos.z;
-	height = h;
-	radius = r;
+	position[0] = x;
+	position[1] = y;
+	position[2] = z;
+	float radius = 0.0465f;
 
 
 	GLfloat vertex_array_data[] = {
 		//						Vertex																Normals										Texture  
 		//top
-		-radius/2.0f + _pos.x,		height/2.0f + _pos.y,	radius*0.86f + _pos.z,			 0.0f, 1.0f, 0.0f,								 0.3f, 0.65f,
-		radius/2.0f + _pos.x,		height/2.0f + _pos.y,	radius*0.86f + _pos.z,			 0.0f, 1.0f, 0.0f,								 0.7f, 0.65f,
-		radius + _pos.x,			height/2.0f + _pos.y,	0.0f + _pos.z,					 0.0f, 1.0f, 0.0f,								 0.9f, 0.81f,
-		radius/2.0f + _pos.x,		height/2.0f + _pos.y,	-radius*0.86f + _pos.z,			 0.0f, 1.0f, 0.0f,								 0.7f, 0.97f,
-		-radius/2.0f + _pos.x,		height/2.0f + _pos.y,	-radius*0.86f + _pos.z,			 0.0f, 1.0f, 0.0f,								 0.3f, 0.97f,
-		-radius + _pos.x,			height/2.0f + _pos.y,	0.0f + _pos.z,					 0.0f, 1.0f, 0.0f,								 0.09f, 0.81f,
-		0.0f + _pos.x,				height/2.0f + _pos.y,	0.0f + _pos.z,					 0.0f, 1.0f, 0.0f,								 0.5f, 0.81f,
+		-radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 0.3f, 0.65f,
+		radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 0.7f, 0.65f,
+		radius + x,				y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 0.9f, 0.81f,
+		radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 0.7f, 0.97f,
+		-radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 0.3f, 0.97f,
+		-radius + x,			y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 0.09f, 0.81f,
+		0.0f + x,				y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 0.5f, 0.81f,
 
 		//sides+
-		-radius/2.0f + _pos.x,		height/2.0f + _pos.y,	radius*0.86f + _pos.z,			 0.0f, 0.0f, 1.0f,								 0.0f, 0.6f,		// bak ruta
-		radius/2.0f + _pos.x,		height/2.0f + _pos.y,	radius*0.86f + _pos.z,			 0.0f, 0.0f, 1.0f,								 1.0f, 0.6f,
-		radius + _pos.x,			height/2.0f + _pos.y,	0.0f + _pos.z,					 1.0f, 0.0f, 0.0f,								 0.0f, 0.4f,
-		radius/2.0f + _pos.x,		height/2.0f + _pos.y,	-radius*0.86f + _pos.z,			 0.0f, 0.0f, -1.0f,								 0.0f, 0.6f,		//framruta
-		-radius/2.0f + _pos.x,		height/2.0f + _pos.y,	-radius*0.86f + _pos.z,			 0.0f, 0.0f, -1.0f,								 1.0f, 0.6f,
-		-radius + _pos.x,			height/2.0f + _pos.y,	0.0f + _pos.z,					 -1.0f, 0.0f, 0.0f,								 0.0f, 0.4f,
+		-radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 0.0f, 1.0f,								 0.0f, 0.6f,		// bak ruta
+		radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 0.0f, 1.0f,								 1.0f, 0.6f,
+		radius + x,				y,	0.0f + z,					 1.0f, 0.0f, 0.0f,								 0.0f, 0.4f,
+		radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 0.0f, -1.0f,								 0.0f, 0.6f,		//framruta
+		-radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 0.0f, -1.0f,								 1.0f, 0.6f,
+		-radius + x,			y,	0.0f + z,					 -1.0f, 0.0f, 0.0f,								 0.0f, 0.4f,
 		//sides-
-		-radius/2.0f + _pos.x,		-height/2.0f + _pos.y,	radius*0.86f + _pos.z,			 0.0f, 0.0f, 1.0f,								 0.4f, 0.6f,		// bak ruta
-		radius/2.0f + _pos.x,		-height/2.0f + _pos.y,	radius*0.86f + _pos.z,			 0.0f, 0.0f, 1.0f,								 1.0f, 0.4f,
-		radius + _pos.x,			-height/2.0f + _pos.y,	0.0f + _pos.z,					 1.0f, 0.0f, 0.0f,								 1.0f, 0.6f,
-		radius/2.0f + _pos.x,		-height/2.0f + _pos.y,	-radius*0.86f + _pos.z,			 0.0f, 0.0f, -1.0f,								 0.0f, 0.6f,		// fram ruta
-		-radius/2.0f + _pos.x,		-height/2.0f + _pos.y,	-radius*0.86f + _pos.z,			 0.0f, 0.0f, -1.0f,								 1.0f, 0.4f,
-		-radius + _pos.x,			-height/2.0f + _pos.y,	0.0f + _pos.z,					 -1.0f, 0.0f, 0.0f,								 1.0f, 0.6f,
+		-radius/2.0f + x,		-3.0f,	radius*0.86f + z,			 0.0f, 0.0f, 1.0f,								 0.4f, 0.6f,		// bak ruta
+		radius/2.0f + x,		-3.0f,	radius*0.86f + z,			 0.0f, 0.0f, 1.0f,								 1.0f, 0.4f,
+		radius + x,				-3.0f,	0.0f + z,					 1.0f, 0.0f, 0.0f,								 1.0f, 0.6f,
+		radius/2.0f + x,		-3.0f,	-radius*0.86f + z,			 0.0f, 0.0f, -1.0f,								 0.0f, 0.6f,		// fram ruta
+		-radius/2.0f + x,		-3.0f,	-radius*0.86f + z,			 0.0f, 0.0f, -1.0f,								 1.0f, 0.4f,
+		-radius + x,			-3.0f,	0.0f + z,					 -1.0f, 0.0f, 0.0f,								 1.0f, 0.6f,
 
 
 	};
@@ -103,29 +102,28 @@ hexBox::~hexBox(void)
 
 void hexBox::move(float f)
 {
-	f /= 2.0f;
 	for (int i = 1; i < 105; i = i + 8)
 	{
 		if (vertexarray[i] < f)
-			vertexarray[i] += 0.01f*(f - vertexarray[i]);
+			vertexarray[i] += 0.04f*(f - vertexarray[i]);
 		else
-			vertexarray[i]-= 0.01f*(vertexarray[i] - f);
+			vertexarray[i]-= 0.04f*(vertexarray[i] - f);
 	}
-
-	height = vertexarray[1] - vertexarray[105];
-	position[1] = height / 2.0f;
+	//position[0] = vertexarray[48];
+	position[1] = f;
+	//position[0] = vertexarray[50];
 	GLcalls();
 }
 
 void hexBox::moveInstant(float f) 
 {
-	f /= 2.0f;
 	for (int i = 1; i < 105; i = i + 8)
 	{
 		vertexarray[i] = f;
 	}
-	height = vertexarray[1] - vertexarray[105];
-	position[1] = height / 2.0f;
+	//position[0] = vertexarray[48];
+	position[1] = f;
+	//position[0] = vertexarray[50];
 	GLcalls();
 }
 
@@ -178,6 +176,6 @@ void hexBox::render()
 
 void hexBox::display(ostream& os) const
 {
-	os << "Shape: Box" << endl;
-	os << "Radius: " << radius << ", Height: " << height << endl;
+	os << "Shape: hexBox" << endl;
+	os << position[1] << endl;
 }

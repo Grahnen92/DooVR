@@ -16,10 +16,9 @@ public:
 		ntris = 0;
 	};
 
-	hexBox(glm::vec3 _pos, float r, float h);
+	hexBox(float x, float y, float z);
 	~hexBox(void);
 
-	float getHeight() { return height; }
 	void setFunction(int f) { function = f; }
 	int getFunction() { return function; }
 
@@ -38,8 +37,6 @@ private:
 	GLuint indexbuffer;  // Buffer ID to bind to GL_ELEMENT_ARRAY_BUFFER
 	GLfloat *vertexarray; // Vertex array on interleaved format: x y z nx ny nz s t
 	GLuint *indexarray;   // Element index array
-	float radius;
-	float height;
 	int function;
 	void display(ostream& os) const;
 };
