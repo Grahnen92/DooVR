@@ -45,6 +45,9 @@ int main() {
 	
 	cin >> DeviceType;
 
+	//if (DeviceType == 'C')
+		//runSuccess = Configure::runConfig();
+
 	if (DeviceType == 'O') 
 		runSuccess = Oculus::runOvr();
 	else if (DeviceType == 'D') 

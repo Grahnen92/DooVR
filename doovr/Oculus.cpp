@@ -22,7 +22,9 @@ void GLRenderCallsOculus();
 // Declare moveMesh - used for moving around the mesh in the scene.
 // TODO: refactor this function to TOOLS namespace?
 void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR);
-void moveEntity(Device* wand, vector<Entity*> *objectList, vector<Entity*> *selectedList, bool buttonPressed, float wandRadius);
+void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius);
+void selectFunction(Device* wand, vector<Entity*> *objectList, int &chooseFunction);
+void updatePanel(vector<Entity*> *objectList, int currentFunction, float MAX_HEX_HEIGHT, float MIN_HEX_HEIGHT);
 void print_GLM_matrix(glm::mat4 M);
 void print_FLOAT_matrix(float* M);
 
@@ -52,16 +54,15 @@ const float EYEHEIGHT{ OVR_DEFAULT_EYE_HEIGHT };
 const int nFunctions = 7;
 const int nLightsources = 2;
 
-const float MAX_HEX_HEIGHT = -EYEHEIGHT + 1.2f;
-const float MIN_HEX_HEIGHT = -EYEHEIGHT + 0.9f;
-
 // Function ID's
+const int DILATEnERODE = 0;
 const int DRAGnPULL = 1;
-const int DILATE = 0;
-const int MOVE = 2;
+const int moveMESH = 2;
 const int moveENTITY = 3;
 const int coREGISTER = 4;
-int chooseFunction = coREGISTER;
+const int meshRESET = 5;
+const int hexRESET = 6;
+
 
 
 
@@ -101,9 +102,9 @@ int Oculus::runOvr() {
 	float transform[16] = { 0.0f };
 	float invPos[16] = { 0.0f };
 	float eyeHeight = OVR_DEFAULT_EYE_HEIGHT;
+	float MAX_HEX_HEIGHT = -eyeHeight + 1.1f;
+	float MIN_HEX_HEIGHT = -eyeHeight + 0.9f;
 	float eye, floor;
-	float newPos[3];
-
 
 	// FPS
 	double fps = 0;
@@ -123,6 +124,9 @@ int Oculus::runOvr() {
 	bool buttonHeld = false;
 	bool buttonReleased = false;
 	bool lines = false;
+
+	int currentFunction = coREGISTER;
+	int &chooseFunction = currentFunction;
 
 	// Location used for UNIFORMS in shader
 	GLint locationLP;
@@ -370,23 +374,22 @@ int Oculus::runOvr() {
 	hexBox refBox(0.0f, -eyeHeight+1.5f, -2.0f);
 
 	// ObjectLists
-	vector<Entity*> selectedList;
 	vector<Entity*> objectList;
 	vector<Entity*> *oPointer;
-	vector<Entity*> *selectPointer;
 	vector<Entity*>::iterator it;
 	float offset = 0;
+	hexBox* tempHex;
 
 	// Function-boxes
 	float X = 0.142f;
 	float Z = -0.0813333f;
-	objectList.push_back(new hexBox(X + 0.0f, -eyeHeight + MIN_HEX_HEIGHT, Z + 0.0f));	// y = -eyeHeight + MIN_HEX_HEIGHT
-	objectList.push_back(new hexBox(X + 0.0f, -eyeHeight + MIN_HEX_HEIGHT, Z - 0.0815f));
-	objectList.push_back(new hexBox(X + 0.0f, -eyeHeight + MIN_HEX_HEIGHT, Z + 0.0815f));
-	objectList.push_back(new hexBox(X + 0.07058f, -eyeHeight + MIN_HEX_HEIGHT, Z + 0.04075f));
-	objectList.push_back(new hexBox(X + 0.07058f, -eyeHeight + MIN_HEX_HEIGHT, Z - 0.04075f));
-	objectList.push_back(new hexBox(X - 0.07058f, -eyeHeight + MIN_HEX_HEIGHT, Z + 0.04075f));
-	objectList.push_back(new hexBox(X - 0.07058f, -eyeHeight + MIN_HEX_HEIGHT, Z - 0.04075f));
+	objectList.push_back(new hexBox(X + 0.0f, MIN_HEX_HEIGHT, Z + 0.0f));	// y = -eyeHeight + MIN_HEX_HEIGHT
+	objectList.push_back(new hexBox(X + 0.0f, MIN_HEX_HEIGHT, Z - 0.0815f));
+	objectList.push_back(new hexBox(X + 0.0f, MIN_HEX_HEIGHT, Z + 0.0815f));
+	objectList.push_back(new hexBox(X + 0.07058f, MIN_HEX_HEIGHT, Z + 0.04075f));
+	objectList.push_back(new hexBox(X + 0.07058f, MIN_HEX_HEIGHT, Z - 0.04075f));
+	objectList.push_back(new hexBox(X - 0.07058f, MIN_HEX_HEIGHT, Z + 0.04075f));
+	objectList.push_back(new hexBox(X - 0.07058f, MIN_HEX_HEIGHT, Z - 0.04075f));
 	// Movable hexBoxes
 	for (int i = 0; i < 48; i++)
 	{
@@ -396,7 +399,7 @@ int Oculus::runOvr() {
 			offset = -0.04075f;
 		for (int j = 0; j < 24; j++)
 			objectList.push_back(new hexBox( -1.5f + i * 0.07058,						// X-axis
-											  -2.0f,									// Y-axis (-eyeHeight - 0.01, height = 0.1)
+											  -eyeHeight - 0.01f,						// Y-axis (-eyeHeight - 0.01, height = 0.1)
 											  -1.0f + 0.0815f * j + offset));			// Z-axis
 	}
 	// Lightsources
@@ -404,15 +407,14 @@ int Oculus::runOvr() {
 
 	// Pointers to the lists
 	oPointer = &objectList;
-	selectPointer = &selectedList;
 
 	// Wand = Box + sphere
 	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.20f, 0.03f, 0.03f));
 	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
 	// Initilise VRPN connection with the Intersense wand
-	//Device* wand = new Device(true, true, false, "Mouse");
-	Device* wand = new Device(true, true, true, "Wand");
+	Device* wand = new Device(true, true, false, "Mouse");
+	//Device* wand = new Device(true, true, true, "Wand");
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -478,91 +480,104 @@ int Oculus::runOvr() {
 		// INTERACTION ////////////////////////////////////////////////////////////////////////////////////////
 		if (buttonPressed || buttonHeld) {
 			switch (wand->getButtonNumber()) {
-			case 0: // Dilate/Erosion, 2nd from the left
-				chooseFunction = DILATE;
-				currentTexID = dilate.getTextureID(); // erode later
+			// Hotkeys on wand
+			case 0: // 2nd from the left
+				currentTexID = dilate.getTextureID();
+				updatePanel(oPointer, DILATEnERODE, MAX_HEX_HEIGHT, MIN_HEX_HEIGHT);
+				//mTest->not_implemented_yet(wand->getTrackerPosition(), false, wandRadius);
 				break;
-			case 1: //Drag&Pull, first from the left		
-				chooseFunction = DRAGnPULL;
+			case 1: // 1st from the left		
 				currentTexID = dnp.getTextureID();
+				updatePanel(oPointer, DRAGnPULL, MAX_HEX_HEIGHT, MIN_HEX_HEIGHT);
+				mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
 				break;
-			case 2: // Move, 2nd from the right
-				chooseFunction = MOVE;
+			case 2: // 3rd from the left
 				currentTexID = move.getTextureID();
+				updatePanel(oPointer, moveMESH, MAX_HEX_HEIGHT, MIN_HEX_HEIGHT);
 				moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
 				break;
-			case 3: // Recenter, first from the right
-				//chooseFunction = moveENTITY;
+			case 3: // 4th from the left
 				currentTexID = move.getTextureID();
-				moveEntity(wand, oPointer, selectPointer, buttonPressed, wandRadius);
-				it = objectList.begin();
-				// Set chooseFunction after function-hexBoxes
-				while (it != objectList.begin() + nFunctions) {
-					hexBox* tempHex = static_cast<hexBox*> ((*it));
-					if (tempHex->getPosition()[1] == MAX_HEX_HEIGHT) {
-						chooseFunction = tempHex->getFunction();
-						break;
-					}
-					++it;
-				}	
+				updatePanel(oPointer, moveENTITY, MAX_HEX_HEIGHT, MIN_HEX_HEIGHT);
+				moveEntity(wand, oPointer, wandRadius);
 				break;
 			case 4: // co-register, analog button
-				chooseFunction = coREGISTER;
+				currentFunction = coREGISTER;
 				ovrHmd_RecenterPose(hmd);
 				ovrHmd_DismissHSWDisplay(hmd);
 				regCounter = 0;
 				renderRegisterSpheres = true;
 				wand->setTransformMatrix(I);
 				break;
-			case 5: // Use chosen function
-				if (chooseFunction == DILATE) {
-					//mTest->updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
-				} else if (chooseFunction == DRAGnPULL) {
-					mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
-				}
-				else if (chooseFunction == MOVE) {
-					chooseFunction = DRAGnPULL;
-					mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
-				}
-				else if (chooseFunction == coREGISTER && buttonPressed) {
 
+
+			case 5: // Trigger button (only non-hotkey)
+				if (buttonPressed)
+					selectFunction(wand, oPointer, chooseFunction);
+
+				if (currentFunction == DILATEnERODE)
+					break; //mTest->not_implemented_yet(wand->getTrackerPosition(), false, wandRadius);
+				else if (currentFunction == DRAGnPULL)
+					mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
+				else if (currentFunction == moveMESH)
+					moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
+				else if (currentFunction == moveENTITY)
+					moveEntity(wand, oPointer, wandRadius);
+				else if (currentFunction == meshRESET) {
+					delete mTest;
+					mTest = new Mesh();
+				}
+				else if (currentFunction == hexRESET) {
+					it = objectList.begin() + nFunctions;
+					while (it != objectList.end()) {
+						tempHex = static_cast<hexBox*> ((*it));
+						tempHex->moveInstant(-eyeHeight - 0.01f);
+						++it;
+					}
+				}
+					
+
+
+
+				// Config
+				else if (currentFunction == coREGISTER && buttonPressed) {
 					if (regCounter <= 3) {
 						for (int i = 0; i < 3; i++) { // Save wand position & rotation 
 							pos[i * 4 + regCounter] = wand->getTrackerPosition()[i];
 						}
-						pos[12 + regCounter] = 1.0f; // column --> sista raden med ettor
+						pos[12 + regCounter] = 1.0f;
 					} 
 					if (regCounter == 3) {
-						// transform = regSpherePos * invPos    ------   transform * pos = regSpherePos
 						// (M1, M2, Mout) -> Mout = M2 * M1
 						linAlg::invertMatrix(pos, invPos);
 						linAlg::matrixMult(invPos, regSpherePos, transform);
 						wand->setTransformMatrix(transform);
 						renderRegisterSpheres = false;
 					} else if (regCounter == 4)
-						eye = wand->getTrackerPosition()[1];		// ta ögon höjd		regCounter = 4
+						eye = wand->getTrackerPosition()[1];
 					else if (regCounter == 5)
-						floor = wand->getTrackerPosition()[1];	// ta golv höjd		regCounter = 5
+						floor = wand->getTrackerPosition()[1];
 
 					regCounter++;
-					if (regCounter == 6) {						// Configure done.
+					if (regCounter == 6) {
 						eyeHeight = eye - floor;
+						MAX_HEX_HEIGHT = eyeHeight + 1.1f;
+						MIN_HEX_HEIGHT = eyeHeight + 0.9f;
 						regCounter = 0;
-						chooseFunction = DRAGnPULL;
+						currentFunction = DRAGnPULL;
 					}
 				}
 				break;
 			default:
-				chooseFunction = -1;
+				currentFunction = -1;
 			}
 		}
 		// Done when button is released
 		if (buttonReleased) {
-			selectedList.clear();
 			it = objectList.begin();
 			while (it != objectList.begin() + nFunctions) {
-				hexBox* tempHex = static_cast<hexBox*> ((*it));
-				if (chooseFunction == tempHex->getFunction())
+				tempHex = static_cast<hexBox*> ((*it));
+				if (currentFunction == tempHex->getFunction())
 					tempHex->moveInstant(MAX_HEX_HEIGHT);
 				else
 					tempHex->moveInstant(MIN_HEX_HEIGHT);
@@ -687,7 +702,7 @@ int Oculus::runOvr() {
 					it = objectList.begin();
 					int n = 0;
 					while (it != objectList.begin() + nFunctions) {
-						hexBox *tempHex = static_cast<hexBox*> ((*it));
+						tempHex = static_cast<hexBox*> ((*it));
 						tempHex->setFunction(n);
 						glBindTexture(GL_TEXTURE_2D, texList.at(n)->getTextureID()); // panel textures
 						(*it)->render();
@@ -846,6 +861,36 @@ void GLRenderCallsOculus(){
 	}
 }
 
+void updatePanel(vector<Entity*> *objectList, int currentFunction, float MAX_HEX_HEIGHT, float MIN_HEX_HEIGHT) {
+	hexBox* tempHex;
+	vector<Entity*>::iterator it = objectList->begin();
+	while (it != objectList->begin() + nFunctions) {
+		tempHex = static_cast<hexBox*> ((*it));
+		if (currentFunction == tempHex->getFunction())
+			tempHex->moveInstant(MAX_HEX_HEIGHT);
+		else
+			tempHex->moveInstant(MIN_HEX_HEIGHT);
+		++it;
+	}
+}
+
+void selectFunction(Device* wand, vector<Entity*> *objectList, int& chooseFunction) {
+	vector<Entity*>::iterator it = objectList->begin();
+	hexBox *tempHex;
+	float vLength[3];
+	float radius = 0.04075f;
+
+	while (it != objectList->begin() + nFunctions) {
+		tempHex = static_cast<hexBox*> ((*it));
+		vLength[0] = wand->getTrackerPosition()[0] - (*it)->getPosition()[0];
+		vLength[1] = wand->getTrackerPosition()[1] - (*it)->getPosition()[1];
+		vLength[2] = wand->getTrackerPosition()[2] - (*it)->getPosition()[2];
+		if (linAlg::vecLength(vLength) < radius)
+			chooseFunction = tempHex->getFunction();
+	}
+}
+
+
 void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR) {
 	// Save first wand rotation transform in wandR
 	float* wandR = wand->getTrackerRotation();
@@ -877,81 +922,53 @@ void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, f
 	mTest->setOrientation(resultR);
 }
 
-void moveEntity(Device* wand, vector<Entity*> *objectList, vector<Entity*> *selectedList, bool buttonPressed, float wandRadius) {
+void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius) {
 	hexBox *tempHex;
-	Sphere *tempSphere;
+	vector<Entity*> selectedList;
 	vector<Entity*>::iterator it;
+	bool find = false;
+	float vLength[3];
 
-	// Choose entity to move
-	if (buttonPressed) {
-		bool find = false;
-		float pos[3];
-		float vLength[3];
-		
-		
-		it = objectList->begin();
-		// Panel search
-		while (it != objectList->begin() + nFunctions) {
+	// Look for lightsources
+	it = objectList->end() - nLightsources;
+	while (it != objectList->end() && (*it)->getOtype() == 'S') {
+		vLength[0] = wand->getTrackerPosition()[0] - (*it)->getPosition()[0];
+		vLength[1] = wand->getTrackerPosition()[1] - (*it)->getPosition()[1];
+		vLength[2] = wand->getTrackerPosition()[2] - (*it)->getPosition()[2];
+		if (linAlg::vecLength(vLength) < wandRadius) {
+			find = true;
+			selectedList.push_back((*it));
+		}
+		++it;
+	}
+	// Look for hexboxes
+	if (!find) {
+		it = objectList->begin() + nFunctions;
+		while (it != objectList->end() - nLightsources) {
+			// Create vectors between wand and object, depending on object type
 			vLength[0] = wand->getTrackerPosition()[0] - ((*it))->getPosition()[0];
 			vLength[1] = 0.0f;
 			vLength[2] = wand->getTrackerPosition()[2] - ((*it))->getPosition()[2];
+			// Select object if the distance is smaller than wandRadius
 			if (linAlg::vecLength(vLength) < wandRadius) {
-				find = true;
-				selectedList->push_back((*it));
-				break;
+				selectedList.push_back((*it));
 			}
 			++it;
 		}
-		/*it = objectList->end() - nLightsources;
-		if (!find) {
-			while (it != objectList->end()) {
-			
-				vLength[0] = wand->getTrackerPosition()[0] - (*it)->getPosition()[0];
-				vLength[1] = wand->getTrackerPosition()[1] - (*it)->getPosition()[1];
-				vLength[2] = wand->getTrackerPosition()[2] - (*it)->getPosition()[2];
-				if (linAlg::vecLength(vLength) < wandRadius) {
-					find = true;
-					selectedList->push_back((*it));
-				}
-				++it;
-			}
-		}*/
-		if (!find) {
-			it = objectList->begin() + nFunctions;
-			while (it != objectList->end() - nLightsources) {
-				// Create vectors between wand and object, depending on object type
-				vLength[0] = wand->getTrackerPosition()[0] - ((*it))->getPosition()[0];
-				vLength[1] = 0.0f;
-				vLength[2] = wand->getTrackerPosition()[2] - ((*it))->getPosition()[2];
-				// Select object if the distance is smaller than wandRadius
-				if (linAlg::vecLength(vLength) < wandRadius) {
-					selectedList->push_back((*it));
-				}
-				++it;
-			}
-		}
 	}
 	// Move selected objects
-	for (int i = 0; i < selectedList->size(); i++) {
-		if (selectedList->at(i)->getOtype() == 'H') {
-			tempHex = static_cast<hexBox*> (selectedList->at(i));
-			if (tempHex->getFunction() != -1) {
-				it = objectList->begin();
-				while (it != objectList->begin() + nFunctions) {
-					tempHex = static_cast<hexBox*> ((*it));
-					tempHex->moveInstant(MIN_HEX_HEIGHT);
-					++it;
-				}
-				tempHex = static_cast<hexBox*> (selectedList->at(i));
-				tempHex->moveInstant(MAX_HEX_HEIGHT);
-			} else
-				tempHex->move(wand->getTrackerPosition()[1]);
+	it = selectedList.begin();
+	if ((*it)->getOtype() == 'S')
+		while (it != selectedList.end()) {
+			(*it)->setPosition(wand->getTrackerPosition());
+			++it;
 		}
-		else { // Lightsources
-			selectedList->at(1)->setPosition(wand->getTrackerPosition());
-		}
-	}
-		
+	else
+		while (it != selectedList.end()) {
+			tempHex = static_cast<hexBox*> ((*it));
+			tempHex->move(wand->getTrackerPosition()[1]);
+			++it;
+		}	
 }
 
 void print_GLM_matrix(glm::mat4 M) {
