@@ -802,6 +802,7 @@ void Mesh::updateArea(int* changeList, int listSize) {
 				// check if edge is to long/short
 				if (edgeLenght < MIN_LENGTH) {
 					rmVertex(vPoint1, tempVec1, tempEdge);
+					tempEdge = tempEdge->sibling->nextEdge->nextEdge;
 					//edge already incremented, something needs to be done.
 				} else if (edgeLenght > MAX_LENGTH) {
 					addVertex(vPoint1, tempVec1, tempEdge);
@@ -1017,7 +1018,7 @@ void Mesh::addVertex(float* pA, float* vecA2B, halfEdge* &edge) {
 	temp[0] = vertexArray[tempE->sibling->vertex].x;
 	temp[1] = vertexArray[tempE->sibling->vertex].y;
 	temp[2] = vertexArray[tempE->sibling->vertex].z;
-	// loop through the rest of the edges
+	// loop through the edges
 	do {
 		vert1 = tempE->vertex;
 		vert2 = tempE->nextEdge->nextEdge->vertex;
@@ -1056,25 +1057,29 @@ void Mesh::addVertex(float* pA, float* vecA2B, halfEdge* &edge) {
 	vertexArray[vertexEPtr.size() - 1].nz = tempNorm2[2];
 
 }
-//STILL NEED TO USE COUNTER DONT FORGET
+
 void Mesh::rmVertex(float* vPoint, float* vec, halfEdge* &edge) {
 	
 	halfEdge* tempE;
-	static int currVert = edge->sibling->vertex;
-	static int nVert = edge->vertex;
+	static int currVert; 
+	static int nVert;
+	currVert = edge->sibling->vertex;
+	nVert = edge->vertex;
+
+	// move currVert
 	vertexArray[currVert].x = vPoint[0] + (vec[0] / 2.0f);
 	vertexArray[currVert].y = vPoint[1] + (vec[1] / 2.0f);
 	vertexArray[currVert].z = vPoint[2] + (vec[2] / 2.0f);
 
+	// rebind edges that point to nVert
 	tempE = edge->nextEdge->nextEdge->sibling;
-	while (tempE != edge)
+	while (tempE != edge->sibling->nextEdge)
 	{
 		tempE->vertex = currVert;
 
-		for (int i = 0; i < 3; i++)
-		{
-			if (indexArray[tempE->triangle].index[i] == nVert)
-			{
+		// rebind the triangle containing nVert as index
+		for (int i = 0; i < 3; i++) {
+			if (indexArray[tempE->triangle].index[i] == nVert) {
 				indexArray[tempE->triangle].index[i] = currVert;
 				break;
 			}
@@ -1084,14 +1089,17 @@ void Mesh::rmVertex(float* vPoint, float* vec, halfEdge* &edge) {
 	}
 	tempE = edge->nextEdge->sibling;
 
+	// rebind edges
 	edge->nextEdge->sibling->sibling = edge->nextEdge->nextEdge->sibling;
 	edge->nextEdge->nextEdge->sibling->sibling = edge->nextEdge->sibling;
 
 	edge->sibling->nextEdge->sibling->sibling = edge->sibling->nextEdge->nextEdge->sibling;
 	edge->sibling->nextEdge->nextEdge->sibling->sibling = edge->sibling->nextEdge->sibling;
 
+	// rebind vertex pointer
 	vertexEPtr[currVert] = edge->nextEdge->sibling;
 
+	//reset the removed triangles
 	indexArray[edge->triangle].index[0] = 0;
 	indexArray[edge->triangle].index[1] = 0;
 	indexArray[edge->triangle].index[2] = 0;
@@ -1099,6 +1107,7 @@ void Mesh::rmVertex(float* vPoint, float* vec, halfEdge* &edge) {
 	indexArray[edge->sibling->triangle].index[1] = 0;
 	indexArray[edge->sibling->triangle].index[2] = 0;
 	
+	// reset the removed vertex
 	vertexArray[nVert].x = -1000;
 	vertexArray[nVert].y = -1000;
 	vertexArray[nVert].z = -1000;
@@ -1107,6 +1116,7 @@ void Mesh::rmVertex(float* vPoint, float* vec, halfEdge* &edge) {
 	vertexArray[nVert].nz = 0;
 	vertexEPtr[nVert] = nullptr;
 	
+	// delete the removed edges
 	delete edge->sibling->nextEdge->nextEdge;
 	delete edge->sibling->nextEdge;
 	delete edge->sibling;
