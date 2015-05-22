@@ -551,14 +551,17 @@ int Oculus::runOvr() {
 		glBindFramebuffer(GL_FRAMEBUFFER, l_FBOId);
 
 		GLRenderCallsOculus();
-		//if (lines) {
-		if (lines) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		} else if (!lines) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
+
 		
 		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++) {
+
+			lines = true; // ================== REMOVE LATER
+			if (lines) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
+			else if (!lines) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
 
 			ovrEyeType l_Eye = hmd->EyeRenderOrder[l_EyeIndex];
 
