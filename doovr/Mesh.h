@@ -55,25 +55,17 @@ class Mesh {
   private:
 	//! Calculates the vector lenght between two vertex
 	float vectorLength(vertex vertex1, vertex vertex2);
-	//! Calculates the lenght of a vector
-	float vecLength(float vec[3]);
-	//! Sorts vertecies by the x coordinate into ascending order
-	bool sortByXCord(const vertex &a, const vertex &b);
-	//! Calculates the vector between to points a and b and returns a pointer to the vec
-	void calculateVec(float* newVec, float a[3], float b[3]);
-
 	//! updates the changed vertecies normal and checks if retriangulation is needed.
 	void updateArea(int* changeList, int listSize);
 	//! adds a vertex in the middle between the vertexpoints pA and pB.
-	/*! pA is the position of currVert, pB is the position of nVert,
-		edge is the edge that is to long*/
-	void addVertex(float* pA, float* vecA2B, halfEdge* &edge);
-	//! removes the vertexpoint nVert and moves currVert halfway to nVert.
-	/*! pA is the position of currVert, pB is the position of nVert, 
-		currVert and nVert are the indecies of the vertecies in the vertexArray,
-		counter is what element in the changedCounter we are in */
-	void rmVertex(float* vPoint, float* vec, halfEdge* &edge);
+	/*! pA is the position of currVert, edge is the edge that is to long*/
+	void edgeSplit(float* vPoint, float* vec, halfEdge* &edge);
+	//! removes the vertexpoint nVert and moves currVert halfway towards nVert.
+	/*! vPoint is the position of currVert, vec is the vector between the vertecies that are to close to each other,
+	and edge is a pointer to the edge that is to short*/
+	void edgeCollapse(float* vPoint, float* vec, halfEdge* &edge);
 
+	//! subdivides the surface into a sphere
 	void edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge);
 
 	const int ROWS = 100;

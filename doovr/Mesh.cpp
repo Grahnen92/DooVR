@@ -7,18 +7,7 @@
 using namespace std;
 #define M_PI 3.14159265358979323846
 
-void normVec(float* vec) {
-	float length = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-	vec[0] = vec[0] / length;
-	vec[1] = vec[1] / length;
-	vec[2] = vec[2] / length;
-}
 
-void crossProd(float normal[3], float* vec1, float* vec2) {
-	normal[0] = (vec1[1] * vec2[2] - vec1[2] * vec2[1]);
-	normal[1] = -(vec1[0] * vec2[2] - vec1[2] * vec2[0]);
-	normal[2] = (vec1[0] * vec2[1] - vec1[1] * vec2[0]);
-}
 
 Mesh::Mesh(float rad) {
 	triangle tempT;
@@ -246,7 +235,7 @@ Mesh::Mesh(float rad) {
 			tempP2[1] = vertexArray[tempE1->vertex].y;
 			tempP2[2] = vertexArray[tempE1->vertex].z;
 
-			calculateVec(tempVec, tempP2, tempP1);
+			linAlg::calculateVec(tempVec, tempP2, tempP1);
 			if (vecLength(tempVec) > MAX_LENGTH) {
 				edgeSubdivide(tempP1, tempVec, tempE1);
 			}
@@ -261,7 +250,7 @@ Mesh::Mesh(float rad) {
 				tempP2[1] = vertexArray[tempE1->vertex].y;
 				tempP2[2] = vertexArray[tempE1->vertex].z;
 
-				calculateVec(tempVec, tempP2, tempP1);
+				linAlg::calculateVec(tempVec, tempP2, tempP1);
 
 				if (vecLength(tempVec) > MAX_LENGTH) {
 					edgeSubdivide(tempP1, tempVec, tempE1);
@@ -289,13 +278,13 @@ Mesh::Mesh(float rad) {
 			tempP2[1] = vertexArray[tempE1->vertex].y;
 			tempP2[2] = vertexArray[tempE1->vertex].z;
 
-			calculateVec(tempVec, tempP2, tempP1);
+			linAlg::calculateVec(tempVec, tempP2, tempP1);
 
 			if (!(i % 2))
 			{
 				if (!tempE1->needsUpdate)
 				{
-					if (vecLength(tempVec) > MAX_LENGTH)
+					if (linAlg::vecLength(tempVec) > MAX_LENGTH)
 						edgeSubdivide(tempP1, tempVec, tempE1);
 					
 					tempE1->needsUpdate = true;
@@ -309,7 +298,7 @@ Mesh::Mesh(float rad) {
 			{
 				if (tempE1->needsUpdate)
 				{
-					if (vecLength(tempVec) > MAX_LENGTH)
+					if (linAlg::vecLength(tempVec) > MAX_LENGTH)
 						edgeSubdivide(tempP1, tempVec, tempE1);
 
 					tempE1->needsUpdate = false;
@@ -329,13 +318,13 @@ Mesh::Mesh(float rad) {
 				tempP2[1] = vertexArray[tempE1->vertex].y;
 				tempP2[2] = vertexArray[tempE1->vertex].z;
 
-				calculateVec(tempVec, tempP2, tempP1);
+				linAlg::calculateVec(tempVec, tempP2, tempP1);
 
 				if (!(i % 2))
 				{
 					if (!tempE1->needsUpdate)
 					{
-						if (vecLength(tempVec) > MAX_LENGTH)
+						if (linAlg::vecLength(tempVec) > MAX_LENGTH)
 							edgeSubdivide(tempP1, tempVec, tempE1);
 						tempE1->needsUpdate = true;
 						tempE1->sibling->needsUpdate = true;
@@ -347,7 +336,7 @@ Mesh::Mesh(float rad) {
 				{
 					if (tempE1->needsUpdate)
 					{
-						if (vecLength(tempVec) > MAX_LENGTH)
+						if (linAlg::vecLength(tempVec) > MAX_LENGTH)
 							edgeSubdivide(tempP1, tempVec, tempE1);
 						tempE1->needsUpdate = false;
 						tempE1->sibling->needsUpdate = false;
@@ -474,7 +463,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	pMove[0] = (p[0] - lp[0]);
 	pMove[1] = (p[1] - lp[1]);
 	pMove[2] = (p[2] - lp[2]);
-	mLength = vecLength(pMove);
+	mLength = linAlg::vecLength(pMove);
 
 	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(pMove[0], pMove[1], pMove[2], 1.0f);
 	pMove[0] = tempvec.x;
@@ -500,7 +489,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 		tempVec1[1] = vPoint[1] - wPoint[1];
 		tempVec1[2] = vPoint[2] - wPoint[2];
 		
-		if ( vecLength(tempVec1) < rad) {
+		if (linAlg::vecLength(tempVec1) < rad) {
 
 			//normVec(tempVec1);
 
@@ -741,34 +730,16 @@ void Mesh::render() {
 	glBindVertexArray(0);
 }
 
-float Mesh::vectorLength(vertex vertex1, vertex vertex2) {
-	vertex vector;
-
-	vector.x = vertex1.x - vertex2.x;
-	vector.y = vertex1.y - vertex2.y;
-	vector.z = vertex1.z - vertex2.z;
-
-	return sqrt(vector.x*vector.x + vector.y*vector.y + vector.z*vector.z);
-}
-
-float Mesh::vecLength(float vec[3]) {
-	return sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-}
-
-bool Mesh::sortByXCord(const vertex &a, const vertex &b) {
-	return a.x < b.x;
-}
 
 void Mesh::updateArea(int* changeList, int listSize) {
 
-	float vPoint1[3], vPoint2[3], vPoint3[3], vPoint4[3];
-	float tempVec1[3], tempVec2[3], tempVec3[3];
-	float tempNorm1[3] = { 0.0f, 0.0f, 0.0f };
-	float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
+	static float vPoint1[3], vPoint2[3], vPoint3[3], vPoint4[3];
+	static float tempVec1[3], tempVec2[3], tempVec3[3];
+	static float tempNorm1[3] = { 0.0f, 0.0f, 0.0f };
+	static float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
 	halfEdge* tempEdge;
 	int vert1, vert2; 
-	float edgeLenght;
-
+	static float edgeLength;
 
 	for (int i = 0; i < listSize; i++) {
 
@@ -796,16 +767,16 @@ void Mesh::updateArea(int* changeList, int listSize) {
 				vPoint2[1] = vertexArray[vert1].y;
 				vPoint2[2] = vertexArray[vert1].z;
 				 
-				calculateVec(tempVec1, vPoint2, vPoint1);
-				edgeLenght = vecLength(tempVec1);
+				linAlg::calculateVec(tempVec1, vPoint2, vPoint1);
+				edgeLength = linAlg::vecLength(tempVec1);
 
 				// check if edge is to long/short
-				if (edgeLenght < MIN_LENGTH) {
-					rmVertex(vPoint1, tempVec1, tempEdge);
+				if (edgeLength < MIN_LENGTH) {
+					edgeSplit(vPoint1, tempVec1, tempEdge);
 					tempEdge = tempEdge->sibling->nextEdge->nextEdge;
 					//edge already incremented, something needs to be done.
-				} else if (edgeLenght > MAX_LENGTH) {
-					addVertex(vPoint1, tempVec1, tempEdge);
+				} else if (edgeLength > MAX_LENGTH) {
+					edgeSplit(vPoint1, tempVec1, tempEdge);
 				}
 
 			 }
@@ -829,12 +800,12 @@ void Mesh::updateArea(int* changeList, int listSize) {
 			 vPoint3[1] = vertexArray[vert2].y;
 			 vPoint3[2] = vertexArray[vert2].z;
 
-			 calculateVec(tempVec1, vPoint2, vPoint1);
-			 calculateVec(tempVec2, vPoint3, vPoint1);
+			 linAlg::calculateVec(tempVec1, vPoint2, vPoint1);
+			 linAlg::calculateVec(tempVec2, vPoint3, vPoint1);
 
-			 crossProd(tempNorm1, tempVec2, tempVec1);
+			 linAlg::crossProd(tempNorm1, tempVec2, tempVec1);
 
-			 normVec(tempNorm1);
+			 linAlg::normVec(tempNorm1);
 
 			 tempNorm2[0] += tempNorm1[0];
 			 tempNorm2[1] += tempNorm1[1];
@@ -844,11 +815,13 @@ void Mesh::updateArea(int* changeList, int listSize) {
 			 tempEdge = tempEdge->nextEdge->sibling;
 		 } while (tempEdge != vertexEPtr[changeList[i]]);
 
-		 tempNorm2[0] = tempNorm2[0] / vecLength(tempNorm2);
-		 tempNorm2[1] = tempNorm2[1] / vecLength(tempNorm2);
-		 tempNorm2[2] = tempNorm2[2] / vecLength(tempNorm2);
+		 edgeLength = linAlg::vecLength(tempNorm2);
 
-		  normVec(tempNorm2);
+		 tempNorm2[0] = tempNorm2[0] / edgeLength;
+		 tempNorm2[1] = tempNorm2[1] / edgeLength;
+		 tempNorm2[2] = tempNorm2[2] / edgeLength;
+
+		 linAlg::normVec(tempNorm2);
 
 		 vertexArray[changeList[i]].nx = tempNorm2[0];
 		 vertexArray[changeList[i]].ny = tempNorm2[1];
@@ -856,7 +829,7 @@ void Mesh::updateArea(int* changeList, int listSize) {
 	}
 }
 
-void Mesh::addVertex(float* pA, float* vecA2B, halfEdge* &edge) {
+void Mesh::edgeSplit(float* vPoint, float* vec, halfEdge* &edge) {
 
 	vertex tempV;
 	triangle tempT;
@@ -881,7 +854,7 @@ void Mesh::addVertex(float* pA, float* vecA2B, halfEdge* &edge) {
 	temp2[0] = vertexArray[vert2].x;
 	temp2[1] = vertexArray[vert2].y;
 	temp2[2] = vertexArray[vert2].z;
-	calculateVec(temp3, temp, temp2);
+	linAlg::calculateVec(temp3, temp, temp2);
 	
 	/*if (vecLength(temp3) < MAX_LENGTH) {
 		for (int i = 0; i < 3; i++) {
@@ -922,9 +895,9 @@ void Mesh::addVertex(float* pA, float* vecA2B, halfEdge* &edge) {
 	{*/
 	
 		// create new vertex point
-		tempV.x = pA[0] + (vecA2B[0] / 2.0f);
-		tempV.y = pA[1] + (vecA2B[1] / 2.0f);
-		tempV.z = pA[2] + (vecA2B[2] / 2.0f);
+		tempV.x = vPoint[0] + (vec[0] / 2.0f);
+		tempV.y = vPoint[1] + (vec[1] / 2.0f);
+		tempV.z = vPoint[2] + (vec[2] / 2.0f);
 		
 		tempV.nx = vertexArray[edge->vertex].nx; tempV.ny = vertexArray[edge->vertex].ny; tempV.nz = vertexArray[edge->vertex].nz;
 		vertexArray.push_back(tempV);
@@ -1031,12 +1004,12 @@ void Mesh::addVertex(float* pA, float* vecA2B, halfEdge* &edge) {
 		temp3[1] = vertexArray[vert2].y;
 		temp3[2] = vertexArray[vert2].z;
 
-		calculateVec(tempVec1, temp2, temp);
-		calculateVec(tempVec2, temp3, temp);
+		linAlg::calculateVec(tempVec1, temp2, temp);
+		linAlg::calculateVec(tempVec2, temp3, temp);
 
-		crossProd(tempNorm1, tempVec2, tempVec1);
+		linAlg::crossProd(tempNorm1, tempVec2, tempVec1);
 
-		normVec(tempNorm1);
+		linAlg::normVec(tempNorm1);
 
 		tempNorm2[0] += tempNorm1[0];
 		tempNorm2[1] += tempNorm1[1];
@@ -1046,19 +1019,19 @@ void Mesh::addVertex(float* pA, float* vecA2B, halfEdge* &edge) {
 		tempE = tempE->nextEdge->sibling;
 	} while (tempE != vertexEPtr[vertexEPtr.size() - 1]);
 
-	static float vecLenght = vecLength(tempNorm2);
+	static float vecLenght = linAlg::vecLength(tempNorm2);
 	tempNorm2[0] = tempNorm2[0] / vecLenght;
 	tempNorm2[1] = tempNorm2[1] / vecLenght;
 	tempNorm2[2] = tempNorm2[2] / vecLenght;
 
-	normVec(tempNorm2);
+	linAlg::normVec(tempNorm2);
 	vertexArray[vertexEPtr.size() - 1].nx = tempNorm2[0];
 	vertexArray[vertexEPtr.size() - 1].ny = tempNorm2[1];
 	vertexArray[vertexEPtr.size() - 1].nz = tempNorm2[2];
 
 }
 
-void Mesh::rmVertex(float* vPoint, float* vec, halfEdge* &edge) {
+void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 	
 	halfEdge* tempE;
 	static int currVert; 
@@ -1114,8 +1087,12 @@ void Mesh::rmVertex(float* vPoint, float* vec, halfEdge* &edge) {
 	vertexArray[nVert].nx = 0;
 	vertexArray[nVert].ny = 0;
 	vertexArray[nVert].nz = 0;
+
+	// reset edge pointers
 	vertexEPtr[nVert] = nullptr;
-	
+	triEPtr[edge->triangle] = nullptr;
+	triEPtr[edge->sibling->triangle] = nullptr;
+
 	// delete the removed edges
 	delete edge->sibling->nextEdge->nextEdge;
 	delete edge->sibling->nextEdge;
@@ -1123,8 +1100,11 @@ void Mesh::rmVertex(float* vPoint, float* vec, halfEdge* &edge) {
 	delete edge->nextEdge->nextEdge;
 	delete edge->nextEdge;
 	delete edge;
+
+	// move edge to so that it points to an existing edge
 	edge = tempE;
 }
+
 
 void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge) {
 
@@ -1149,9 +1129,10 @@ void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge) {
 	temp2[0] = vertexArray[vert2].x;
 	temp2[1] = vertexArray[vert2].y;
 	temp2[2] = vertexArray[vert2].z;
-	calculateVec(temp3, temp, temp2);
+	linAlg::calculateVec(temp3, temp, temp2);
 	
-	if (vecLength(temp3) < MAX_LENGTH) {
+	if (linAlg::vecLength(temp3) < MAX_LENGTH) {
+		// flip edges
 		for (int i = 0; i < 3; i++) {
 			if (indexArray[edge->triangle].index[i] == edge->vertex)
 				indexArray[edge->triangle].index[i] = vert2;
@@ -1184,16 +1165,14 @@ void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge) {
 
 		//pass on
 		edge = edge->nextEdge;
-
 	}
-	else
-	{
+	else {
 
 		temp[0] = pA[0] + (vecA2B[0] / 2.0f);
 		temp[1] = pA[1] + (vecA2B[1] / 2.0f);
 		temp[2] = pA[2] + (vecA2B[2] / 2.0f);
 
-		normVec(temp);
+		linAlg::normVec(temp);
 		tempV.nx = temp[0];
 		tempV.ny = temp[1];
 		tempV.nz = temp[2];
@@ -1285,11 +1264,10 @@ void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge) {
 
 		triEPtr[vert1]->nextEdge->nextEdge->vertex = edge->sibling->nextEdge->nextEdge->vertex;
 		triEPtr[vert1]->nextEdge->nextEdge->triangle = vert1;
-		triEPtr[vert1]->nextEdge->nextEdge->sibling = edge->sibling->nextEdge; // =======
+		triEPtr[vert1]->nextEdge->nextEdge->sibling = edge->sibling->nextEdge;
 		//rebind sibling of old triangle
 		edge->sibling->nextEdge->sibling = triEPtr[vert1]->nextEdge->nextEdge;
 		triEPtr[vert1]->nextEdge->nextEdge->nextEdge = triEPtr[vert1];
-
 
 		// rebind old edge vertex
 		vertexEPtr[edge->vertex] = triEPtr[vert1];
@@ -1300,9 +1278,3 @@ void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge) {
 	
 }
 
-//! calcualte vector from b to a
-void Mesh::calculateVec(float* newVec, float* a, float* b) {
-	newVec[0] = a[0] - b[0];
-	newVec[1] = a[1] - b[1];
-	newVec[2] = a[2] - b[2];
-}
