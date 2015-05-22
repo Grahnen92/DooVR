@@ -24,6 +24,8 @@ public:
 	int getFunction() { return function; }
 
 	void move(float h);
+	void moveInstant(float h);
+	void GLcalls();
 	
 
 	void render();

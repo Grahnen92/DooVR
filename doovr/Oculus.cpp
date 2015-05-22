@@ -52,7 +52,7 @@ const float EYEHEIGHT{ OVR_DEFAULT_EYE_HEIGHT };
 const int nFunctions = 7;
 const int nLightsources = 2;
 
-const float MAX_HEX_HEIGHT = 1.1f;
+const float MAX_HEX_HEIGHT = 1.2f;
 const float MIN_HEX_HEIGHT = 0.9f;
 
 // Function ID's
@@ -429,7 +429,7 @@ int Oculus::runOvr() {
 	texList.push_back(&dilate);
 	texList.push_back(&dnp);
 	texList.push_back(&move);
-	texList.push_back(&move);
+	texList.push_back(&refBoxTex);
 	texList.push_back(&coregister);
 	texList.push_back(&refBoxTex);
 	texList.push_back(&refBoxTex);
@@ -478,7 +478,7 @@ int Oculus::runOvr() {
 		if (buttonPressed || buttonHeld) {
 			switch (wand->getButtonNumber()) {
 			case 0: // Dilate/Erosion, 2nd from the left
-				//chooseFunction = DILATE;
+				chooseFunction = DILATE;
 				currentTexID = dilate.getTextureID(); // erode later
 				break;
 			case 1: //Drag&Pull, first from the left		
@@ -486,7 +486,7 @@ int Oculus::runOvr() {
 				currentTexID = dnp.getTextureID();
 				break;
 			case 2: // Move, 2nd from the right
-				//chooseFunction = MOVE;
+				chooseFunction = MOVE;
 				currentTexID = move.getTextureID();
 				moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
 				break;
@@ -518,7 +518,12 @@ int Oculus::runOvr() {
 					//mTest->updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
 				} else if (chooseFunction == DRAGnPULL) {
 					mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
-				} else if (chooseFunction == coREGISTER && buttonPressed) {
+				}
+				else if (chooseFunction == MOVE) {
+					chooseFunction = DRAGnPULL;
+					mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
+				}
+				else if (chooseFunction == coREGISTER && buttonPressed) {
 
 					if (regCounter <= 3) {
 						for (int i = 0; i < 3; i++) { // Save wand position & rotation 
@@ -551,15 +556,15 @@ int Oculus::runOvr() {
 			}
 		}
 		// Done when button is released
-		if (buttonReleased && wand->getButtonNumber() == moveENTITY) {
+		if (buttonReleased) {
 			selectedList.clear();
 			it = objectList.begin();
 			while (it != objectList.begin() + nFunctions) {
 				hexBox* tempHex = static_cast<hexBox*> ((*it));
 				if (chooseFunction == tempHex->getFunction())
-					tempHex->move(MAX_HEX_HEIGHT);	// should move instantly
+					tempHex->moveInstant(MAX_HEX_HEIGHT);
 				else
-					tempHex->move(MIN_HEX_HEIGHT);
+					tempHex->moveInstant(MIN_HEX_HEIGHT);
 				++it;
 			}
 		}
@@ -698,18 +703,19 @@ int Oculus::runOvr() {
 				// Render objectList
 				if (!renderRegisterSpheres)
 				{
+					// Panel
 					MVstack.push();
-						translateVector[0] = 0.5f;
-						translateVector[1] = -eyeHeight + 0.45f;	// function boxes height
-						translateVector[2] = -0.1f;
+						translateVector[0] = 0.142f;
+						translateVector[1] = -eyeHeight + 0.45f;	// panel height
+						translateVector[2] = -0.0813333f;
 						MVstack.translate(translateVector);
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						it = objectList.begin();
 						int n = 0;
-						while (it != objectList.begin()+7) {
+						while (it != objectList.begin() + nFunctions) {
 							hexBox *tempHex = static_cast<hexBox*> ((*it));
 							tempHex->setFunction(n);
-							glBindTexture(GL_TEXTURE_2D, texList.at(n)->getTextureID()); // function texture
+							glBindTexture(GL_TEXTURE_2D, texList.at(n)->getTextureID()); // panel textures
 							(*it)->render();
 							n++;
 							++it;
