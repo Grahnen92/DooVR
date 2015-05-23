@@ -66,7 +66,7 @@ class Mesh {
 	void edgeCollapse(float* vPoint, float* vec, halfEdge* &edge);
 
 	//! subdivides the surface into a sphere
-	void edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge);
+	void edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge, bool update);
 
 	const int ROWS = 100;
 	const int COLS = 100;
