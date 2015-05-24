@@ -217,9 +217,15 @@ void linAlg::calculateVec(float* newVec, float* a, float* b) {
 
 void linAlg::normVec(float* vec) {
 	float length = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-	vec[0] = vec[0] / length;
-	vec[1] = vec[1] / length;
-	vec[2] = vec[2] / length;
+
+	if (length == 0) {
+		std::cout << "== 0";
+	}
+	if (length != 0) {
+		vec[0] = vec[0] / length;
+		vec[1] = vec[1] / length;
+		vec[2] = vec[2] / length;
+	}
 }
 
 void linAlg::crossProd(float normal[3], float* vec1, float* vec2) {

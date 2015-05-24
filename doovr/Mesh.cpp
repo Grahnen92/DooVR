@@ -261,7 +261,7 @@ Mesh::Mesh(float rad) {
 		}
 	}
 	*/
-	
+	// create sphere by subdivision
 	//////
 	for (int i = 0; i < 10; i++)
 	{
@@ -291,8 +291,8 @@ Mesh::Mesh(float rad) {
 						edgeSubdivide(tempP1, tempVec, tempE1, true);
 					}
 					else if (linAlg::vecLength(tempVec) < MIN_LENGTH) {
-					//	edgeCollapse(tempP1, tempVec, tempE1);
-					//	tempE1 = tempE1->sibling->nextEdge->nextEdge;
+						//edgeCollapse(tempP1, tempVec, tempE1);
+						//tempE1 = tempE1->sibling->nextEdge->nextEdge;
 					}
 				}
 			}
@@ -303,8 +303,8 @@ Mesh::Mesh(float rad) {
 					if (linAlg::vecLength(tempVec) > MAX_LENGTH)
 						edgeSubdivide(tempP1, tempVec, tempE1, false);
 					else if (linAlg::vecLength(tempVec) < MIN_LENGTH) {
-					//	edgeCollapse(tempP1, tempVec, tempE1);
-					//	tempE1 = tempE1->sibling->nextEdge->nextEdge;
+						//edgeCollapse(tempP1, tempVec, tempE1);
+						//tempE1 = tempE1->sibling->nextEdge->nextEdge;
 					}
 				}
 			}
@@ -331,8 +331,8 @@ Mesh::Mesh(float rad) {
 							edgeSubdivide(tempP1, tempVec, tempE1, true);
 						}
 						else if (linAlg::vecLength(tempVec) < MIN_LENGTH) {
-						//	edgeCollapse(tempP1, tempVec, tempE1);
-						//	tempE1 = tempE1->sibling->nextEdge->nextEdge;
+							//edgeCollapse(tempP1, tempVec, tempE1);
+							//tempE1 = tempE1->sibling->nextEdge->nextEdge;
 						}			
 					}
 				}
@@ -344,8 +344,8 @@ Mesh::Mesh(float rad) {
 							edgeSubdivide(tempP1, tempVec, tempE1, false);
 						}
 						else if (linAlg::vecLength(tempVec) < MIN_LENGTH) {
-						//	edgeCollapse(tempP1, tempVec, tempE1);
-						//	tempE1 = tempE1->sibling->nextEdge->nextEdge;
+							//edgeCollapse(tempP1, tempVec, tempE1);
+							//tempE1 = tempE1->sibling->nextEdge->nextEdge;
 						}
 					}
 				}
@@ -1025,6 +1025,12 @@ void Mesh::edgeSplit(float* vPoint, float* vec, halfEdge* &edge) {
 	} while (tempE != vertexEPtr[vertexEPtr.size() - 1]);
 
 	static float vecLenght = linAlg::vecLength(tempNorm2);
+
+	if (vecLenght == 0)
+	{
+		cout << "0";
+	}
+
 	tempNorm2[0] = tempNorm2[0] / vecLenght;
 	tempNorm2[1] = tempNorm2[1] / vecLenght;
 	tempNorm2[2] = tempNorm2[2] / vecLenght;
@@ -1125,8 +1131,8 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 	delete edge->nextEdge->nextEdge;
 	delete edge->nextEdge;
 	delete edge;
-	/*
-	if (tempE->sibling->triangle == tempE->nextEdge->nextEdge->sibling->triangle) {
+	 //  =================================================================================================================================
+	/*if (tempE->sibling->triangle == tempE->nextEdge->nextEdge->sibling->triangle) {
 		cout << "aaaa" << endl;
 	}
 	if (tempE->sibling->triangle == tempE->nextEdge->sibling->triangle) {
@@ -1144,8 +1150,8 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 	}
 	if (tempE2->nextEdge->sibling->triangle == tempE2->nextEdge->nextEdge->sibling->triangle) {
 		cout << "ccc2" << endl;
-	}
-	*/
+	}*/
+	//  =================================================================================================================================
 	
 	if (tempE2->nextEdge->nextEdge->sibling->nextEdge->nextEdge->sibling == tempE2) {
 		cout << "removed special case 1" << endl;
@@ -1210,8 +1216,6 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 	}
 	else
 		edge = tempE;
-
-	cout << "remove" << endl;
 }
 
 
@@ -1396,7 +1400,5 @@ void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge, bool update)
 
 	edge->needsUpdate = update;
 	edge->sibling->needsUpdate = update;
-
-
 }
 
