@@ -874,7 +874,7 @@ void selectFunction(Device* wand, vector<Entity*> *objectList, int& chooseFuncti
 	int i = 0;
 
 	// TODO:
-	// Lost the internet connection --> problem here where we stuck in infitity loop.
+	// Lost the internet connection --> problem here where we stuck in infinite loop.
     while (it != objectList->begin() + nFunctions) {
 		cout << "inne i loop: " << ++i << endl;
         tempHex = static_cast<hexBox*> ((*it));
