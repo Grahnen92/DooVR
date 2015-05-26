@@ -1,21 +1,15 @@
+#include "Device.h"
+
 using namespace std;
 
 static int gotReport;
 
 //! Callback function to get data of analog tracker from vrpn server
-void VRPN_CALLBACK
-
-handle_analog(void *userData, const vrpn_ANALOGCB a);
-
+void VRPN_CALLBACK handle_analog(void *userData, const vrpn_ANALOGCB a);
 //! Callback function to get data of button tracker from vrpn server
-void VRPN_CALLBACK
-
-handle_button(void *userData, const vrpn_BUTTONCB b);
-
+void VRPN_CALLBACK handle_button(void *userData, const vrpn_BUTTONCB b);
 //! Callback function to get data of position tracker from vrpn server
-void VRPN_CALLBACK
-
-handle_tracker(void *userData, const vrpn_TRACKERCB t);
+void VRPN_CALLBACK handle_tracker(void *userData, const vrpn_TRACKERCB t);
 
 
 Device::Device(bool analog, bool button, bool tracker, string name) {
@@ -57,17 +51,13 @@ Device::~Device() {
 }
 
 // VRPN Callbacks
-void VRPN_CALLBACK
-
-handle_analog(void *userData, const vrpn_ANALOGCB a) {
+void VRPN_CALLBACK handle_analog(void *userData, const vrpn_ANALOGCB a) {
     Device *analogTracker = static_cast<Device *> (userData);
     float analog[3] = {a.channel[0], a.channel[1], 0.0f};
     analogTracker->setAnalogPosition(analog);
 }
 
-void VRPN_CALLBACK
-
-handle_button(void *userData, const vrpn_BUTTONCB b) {
+void VRPN_CALLBACK handle_button(void *userData, const vrpn_BUTTONCB b) {
 
     //cout << "Button '" << b.button << "': " << b.state << endl;
     Device *buttonTracker = static_cast<Device *> (userData);
@@ -79,9 +69,7 @@ handle_button(void *userData, const vrpn_BUTTONCB b) {
     buttonTracker->setButton(b.button, b.state);
 }
 
-void VRPN_CALLBACK
-
-handle_tracker(void *userData, const vrpn_TRACKERCB t) {
+void VRPN_CALLBACK handle_tracker(void *userData, const vrpn_TRACKERCB t) {
     Device *posTracker = static_cast<Device *> (userData);
 
     // Set the new position
