@@ -22,7 +22,7 @@ void GLRenderCallsOculus();
 // Declare moveMesh - used for moving around the mesh in the scene.
 // TODO: refactor this function to TOOLS namespace?
 void moveMesh(Device *wand, Mesh *mTest, bool buttonPressed, float *changePos, float *differenceR);
-void moveEntity(Device * wand, vector < Entity * > *objectList, floatwandRadius);
+void moveEntity(Device * wand, vector < Entity * > *objectList, float wandRadius);
 void selectFunction(Device * wand, vector < Entity * > *objectList, int & chooseFunction);
 void updatePanel(vector < Entity * > *objectList, int currentFunction, float MAX_HEX_HEIGHT, float MIN_HEX_HEIGHT);
 
@@ -419,8 +419,8 @@ int Oculus::runOvr() {
     Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
     // Initilise VRPN connection with the Intersense wand
-    Device *wand = new Device(true, true, false, "Mouse");
-    //Device* wand = new Device(true, true, true, "Wand");
+    //Device *wand = new Device(true, true, false, "Mouse");
+    Device* wand = new Device(true, true, true, "Wand");
 
     // TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
     glEnable(GL_TEXTURE_2D);
@@ -518,8 +518,10 @@ int Oculus::runOvr() {
 
 
                 case 5: // Trigger button (only non-hotkey)
-                    if (buttonPressed)
-                        selectFunction(wand, oPointer, chooseFunction);
+					if (currentFunction != coREGISTER && buttonPressed) {
+						selectFunction(wand, oPointer, chooseFunction);
+					}
+                    
 
                     if (currentFunction == DILATEnERODE)
                         break; //mTest->not_implemented_yet(wand->getTrackerPosition(), false, wandRadius);
@@ -587,8 +589,6 @@ int Oculus::runOvr() {
             }
         }
 
-
-
         // ANALOG BUTTON - change tool size
         if (wand->getAnalogPosition()[0] != 0 || wand->getAnalogPosition()[1] != 0) {
             const float MAX_RADIUS_WAND_TOOL = 0.2f;
@@ -602,7 +602,6 @@ int Oculus::runOvr() {
                 wandRadius += 0.001f * wand->getAnalogPosition()[1];
             }
         }
-
 
         // KEYBORD EVENTS
         if (glfwGetKey(l_Window, GLFW_KEY_O)) {
@@ -723,28 +722,26 @@ int Oculus::runOvr() {
             // Ground
             if (!renderRegisterSpheres) {
                 MVstack.push();
-                translateVector[0] = 0.0f;
-                translateVector[1] = -eyeHeight;
-                translateVector[2] = 0.0f;
-                MVstack.translate(translateVector);
-                glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-                glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
-                ground.render();
+					translateVector[0] = 0.0f;
+					translateVector[1] = -eyeHeight;
+					translateVector[2] = 0.0f;
+					MVstack.translate(translateVector);
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
+					ground.render();
                 MVstack.pop();
             }
-
-
 
             // Co-register spheres
             if (renderRegisterSpheres) {
                 MVstack.push();
-                translateVector[0] = regSpherePos[0 + regCounter];
-                translateVector[1] = regSpherePos[4 + regCounter];
-                translateVector[2] = regSpherePos[8 + regCounter];
-                MVstack.translate(translateVector);
-                glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-                glBindTexture(GL_TEXTURE_2D, coregister.getTextureID());
-                regSphere.render();
+					translateVector[0] = regSpherePos[0 + regCounter];
+					translateVector[1] = regSpherePos[4 + regCounter];
+					translateVector[2] = regSpherePos[8 + regCounter];
+					MVstack.translate(translateVector);
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					glBindTexture(GL_TEXTURE_2D, coregister.getTextureID());
+					regSphere.render();
                 MVstack.pop();
             }
 
@@ -756,10 +753,10 @@ int Oculus::runOvr() {
             // MESH
             if (renderRegisterSpheres) {
                 MVstack.push();
-                MVstack.translate(mTest->getPosition());
-                MVstack.multiply(mTest->getOrientation());
-                glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-                mTest->render();
+					MVstack.translate(mTest->getPosition());
+					MVstack.multiply(mTest->getOrientation());
+					glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					mTest->render();
                 MVstack.pop();
             }
 
@@ -771,27 +768,26 @@ int Oculus::runOvr() {
             // WAND
             if (!renderRegisterSpheres) {
                 MVstack.push();
-                MVstack.translate(wand->getTrackerPosition());
-                MVstack.multiply(wand->getTrackerRotation());
-                glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-                MVstack.push();
-                MVstack.scale(wandRadius);
-                glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-                sphereWand.render();
-                if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                MVstack.pop();
+					MVstack.translate(wand->getTrackerPosition());
+					MVstack.multiply(wand->getTrackerRotation());
+					glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					MVstack.push();
+						MVstack.scale(wandRadius);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						sphereWand.render();
+						if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					MVstack.pop();
 
-                glUseProgram(phongShader.programID);
-                MVstack.push();
-                translateVector[0] = -0.1f;
-                translateVector[1] = 0.0f;
-                translateVector[2] = 0.0f;
-                MVstack.translate(translateVector);
-                glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-                glBindTexture(GL_TEXTURE_2D, currentTexID);
-                boxWand.render();
-                MVstack.pop();
-
+					glUseProgram(phongShader.programID);
+					MVstack.push();
+						translateVector[0] = -0.1f;
+						translateVector[1] = 0.0f;
+						translateVector[2] = 0.0f;
+						MVstack.translate(translateVector);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glBindTexture(GL_TEXTURE_2D, currentTexID);
+						boxWand.render();
+					MVstack.pop();
 
                 MVstack.pop();
             }
@@ -875,8 +871,12 @@ void selectFunction(Device* wand, vector<Entity*> *objectList, int& chooseFuncti
     hexBox *tempHex;
     float vLength[3];
     float radius = 0.04075f;
+	int i = 0;
 
+	// TODO:
+	// Lost the internet connection --> problem here where we stuck in infitity loop.
     while (it != objectList->begin() + nFunctions) {
+		cout << "inne i loop: " << ++i << endl;
         tempHex = static_cast<hexBox*> ((*it));
         vLength[0] = wand->getTrackerPosition()[0] - (*it)->getPosition()[0];
         vLength[1] = wand->getTrackerPosition()[1] - (*it)->getPosition()[1];
