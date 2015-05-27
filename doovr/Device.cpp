@@ -6,8 +6,10 @@ static int gotReport;
 
 //! Callback function to get data of analog tracker from vrpn server
 void VRPN_CALLBACK handle_analog(void *userData, const vrpn_ANALOGCB a);
+
 //! Callback function to get data of button tracker from vrpn server
 void VRPN_CALLBACK handle_button(void *userData, const vrpn_BUTTONCB b);
+
 //! Callback function to get data of position tracker from vrpn server
 void VRPN_CALLBACK handle_tracker(void *userData, const vrpn_TRACKERCB t);
 
