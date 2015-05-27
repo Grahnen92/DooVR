@@ -23,7 +23,7 @@ void GLRenderCallsOculus();
 // TODO: refactor this function to TOOLS namespace?
 void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR);
 void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius);
-void selectFunction(Device* wand, vector<Entity*> *objectList, int &chooseFunction);
+bool selectFunction(Device* wand, vector<Entity*> *objectList, int &chooseFunction);
 void updatePanel(vector<Entity*> *objectList, int currentFunction, float MAX_HEX_HEIGHT, float MIN_HEX_HEIGHT);
 void print_GLM_matrix(glm::mat4 M);
 void print_FLOAT_matrix(float* M);
@@ -91,6 +91,7 @@ int Oculus::runOvr() {
 
 	// Configuration variables
 	int regCounter = 0;
+	int resetCounter = 0;
 	bool renderRegisterSpheres = false;
 
 	float regSpherePos[16] = { 0.0f, 0.0f, 0.4f, 0.4f,	// Sp1 0.2
@@ -512,8 +513,11 @@ int Oculus::runOvr() {
 
 
 			case 5: // Trigger button (only non-hotkey)
-				if (buttonPressed)
-					selectFunction(wand, oPointer, chooseFunction);
+				if (buttonPressed && currentFunction != coREGISTER)
+					if (selectFunction(wand, oPointer, chooseFunction)) {
+						resetCounter = 0;
+						regCounter = 0;
+					}
 
 				if (currentFunction == DILATEnERODE)
 					break; //mTest->not_implemented_yet(wand->getTrackerPosition(), false, wandRadius);
@@ -523,16 +527,24 @@ int Oculus::runOvr() {
 					moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
 				else if (currentFunction == moveENTITY)
 					moveEntity(wand, oPointer, wandRadius);
-				else if (currentFunction == meshRESET) {
-					delete mTest;
-					mTest = new Mesh();
+				else if (currentFunction == meshRESET && buttonPressed) {
+					resetCounter++;
+					if (resetCounter > 1) {
+						delete mTest;
+						mTest = new Mesh();
+						resetCounter = 0;
+					}
 				}
-				else if (currentFunction == hexRESET) {
-					it = objectList.begin() + nFunctions;
-					while (it != objectList.end()) {
-						tempHex = static_cast<hexBox*> ((*it));
-						tempHex->moveInstant(-eyeHeight - 0.01f);
-						++it;
+				else if (currentFunction == hexRESET && buttonPressed) {
+					resetCounter++;
+					if (resetCounter > 1) {
+						it = objectList.begin() + nFunctions;
+						while (it != objectList.end()) {
+							tempHex = static_cast<hexBox*> ((*it));
+							tempHex->moveInstant(-eyeHeight - 0.01f);
+							++it;
+						}
+						resetCounter = 0;
 					}
 				}
 					
@@ -542,6 +554,7 @@ int Oculus::runOvr() {
 				// Config
 				else if (currentFunction == coREGISTER && buttonPressed) {
 					if (regCounter <= 3) {
+						renderRegisterSpheres = true;
 						for (int i = 0; i < 3; i++) { // Save wand position & rotation 
 							pos[i * 4 + regCounter] = wand->getTrackerPosition()[i];
 						}
@@ -874,7 +887,7 @@ void updatePanel(vector<Entity*> *objectList, int currentFunction, float MAX_HEX
 	}
 }
 
-void selectFunction(Device* wand, vector<Entity*> *objectList, int& chooseFunction) {
+bool selectFunction(Device* wand, vector<Entity*> *objectList, int& chooseFunction) {
 	vector<Entity*>::iterator it = objectList->begin();
 	hexBox *tempHex;
 	float vLength[3];
@@ -885,9 +898,13 @@ void selectFunction(Device* wand, vector<Entity*> *objectList, int& chooseFuncti
 		vLength[0] = wand->getTrackerPosition()[0] - (*it)->getPosition()[0];
 		vLength[1] = wand->getTrackerPosition()[1] - (*it)->getPosition()[1];
 		vLength[2] = wand->getTrackerPosition()[2] - (*it)->getPosition()[2];
-		if (linAlg::vecLength(vLength) < radius)
+		if (linAlg::vecLength(vLength) < radius) {
 			chooseFunction = tempHex->getFunction();
+			return true;
+		}
+		++it;
 	}
+	return false;
 }
 
 
