@@ -500,7 +500,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 		if (mLength < rad) {
 
 			//normVec(tempVec1);
-			mLength = 0.005f*(0.1f / (mLength + 0.1f));
+			mLength = 0.005f*(0.05f / (mLength + 0.05f));
 
 			vertexArray[i].x -= vertexArray[i].nx * mLength;
 			vertexArray[i].y -= vertexArray[i].ny * mLength;
@@ -749,6 +749,9 @@ void Mesh::updateArea(int* changeList, int listSize) {
 	halfEdge* tempEdge;
 	int vert1, vert2; 
 	static float edgeLength;
+	static bool currRemoved;
+
+	currRemoved = false;
 
 	for (int i = 0; i < listSize; i++) {
 
@@ -781,7 +784,9 @@ void Mesh::updateArea(int* changeList, int listSize) {
 
 				// check if edge is to long/short
 				if (edgeLength < MIN_LENGTH) {
-					edgeCollapse(vPoint1, tempVec1, tempEdge);
+					currRemoved = edgeCollapse(vPoint1, tempVec1, tempEdge);
+					if (currRemoved == true)
+						break;
 					tempEdge = tempEdge->sibling->nextEdge->nextEdge;
 					//edge already incremented, something needs to be done.
 				} else if (edgeLength > MAX_LENGTH) {
@@ -793,8 +798,14 @@ void Mesh::updateArea(int* changeList, int listSize) {
 
 		 } while (tempEdge->needsUpdate == true);
 
+		if (currRemoved == true){
+			 currRemoved = false;
+			 continue;
+		}
+			 
 		 // Update normal /////////////////////////////////////////////////////////////////////////////
-		 tempEdge = vertexEPtr[changeList[i]];
+		 if (vertexEPtr[changeList[i]] != nullptr)
+			 tempEdge = vertexEPtr[changeList[i]];
 		 // loop through the rest of the edges
 		 do {
 			 vert1 = tempEdge->vertex;
@@ -899,146 +910,144 @@ void Mesh::edgeSplit(float* vPoint, float* vec, halfEdge* &edge) {
 	else
 	{*/
 	
-		// create new vertex point
-		tempV.x = vPoint[0] + (vec[0] / 2.0f);
-		tempV.y = vPoint[1] + (vec[1] / 2.0f);
-		tempV.z = vPoint[2] + (vec[2] / 2.0f);
+	// create new vertex point
+	tempV.x = vPoint[0] + (vec[0] / 2.0f);
+	tempV.y = vPoint[1] + (vec[1] / 2.0f);
+	tempV.z = vPoint[2] + (vec[2] / 2.0f);
 		
-		tempV.nx = vertexArray[edge->vertex].nx; tempV.ny = vertexArray[edge->vertex].ny; tempV.nz = vertexArray[edge->vertex].nz;
-		vertexArray.push_back(tempV);
+	tempV.nx = vertexArray[edge->vertex].nx; tempV.ny = vertexArray[edge->vertex].ny; tempV.nz = vertexArray[edge->vertex].nz;
+	vertexArray.push_back(tempV);
 
-		//copy triangles
-		tempT.index[0] = indexArray[edge->triangle].index[0];
-		tempT.index[1] = indexArray[edge->triangle].index[1];
-		tempT.index[2] = indexArray[edge->triangle].index[2];
-		indexArray.push_back(tempT);
+	//copy triangles
+	tempT.index[0] = indexArray[edge->triangle].index[0];
+	tempT.index[1] = indexArray[edge->triangle].index[1];
+	tempT.index[2] = indexArray[edge->triangle].index[2];
+	indexArray.push_back(tempT);
 
-		tempT.index[0] = indexArray[edge->sibling->triangle].index[0];
-		tempT.index[1] = indexArray[edge->sibling->triangle].index[1];
-		tempT.index[2] = indexArray[edge->sibling->triangle].index[2];
-		indexArray.push_back(tempT);
+	tempT.index[0] = indexArray[edge->sibling->triangle].index[0];
+	tempT.index[1] = indexArray[edge->sibling->triangle].index[1];
+	tempT.index[2] = indexArray[edge->sibling->triangle].index[2];
+	indexArray.push_back(tempT);
 
-		// rebind old triangles
-		for (int i = 0; i < 3; i++) {
-			if (indexArray[edge->triangle].index[i] == edge->vertex)
-				indexArray[edge->triangle].index[i] = vertexArray.size() - 1;
+	// rebind old triangles
+	for (int i = 0; i < 3; i++) {
+		if (indexArray[edge->triangle].index[i] == edge->vertex)
+			indexArray[edge->triangle].index[i] = vertexArray.size() - 1;
 
-			if (indexArray[edge->sibling->triangle].index[i] == edge->vertex)
-				indexArray[edge->sibling->triangle].index[i] = vertexArray.size() - 1;
-		}
+		if (indexArray[edge->sibling->triangle].index[i] == edge->vertex)
+			indexArray[edge->sibling->triangle].index[i] = vertexArray.size() - 1;
+	}
 
-		// rebind new triangles
-		for (int i = 0; i < 3; i++) {
-			if (indexArray[indexArray.size() - 2].index[i] == edge->sibling->vertex)
-				indexArray[indexArray.size() - 2].index[i] = vertexArray.size() - 1;
+	// rebind new triangles
+	for (int i = 0; i < 3; i++) {
+		if (indexArray[indexArray.size() - 2].index[i] == edge->sibling->vertex)
+			indexArray[indexArray.size() - 2].index[i] = vertexArray.size() - 1;
 
-			if (indexArray[indexArray.size() - 1].index[i] == edge->sibling->vertex)
-				indexArray[indexArray.size() - 1].index[i] = vertexArray.size() - 1;
-		}
+		if (indexArray[indexArray.size() - 1].index[i] == edge->sibling->vertex)
+			indexArray[indexArray.size() - 1].index[i] = vertexArray.size() - 1;
+	}
 
-		triEPtr.push_back(new halfEdge);
-		vert1 = triEPtr.size() - 1;
-		vertexEPtr.push_back(triEPtr[vert1]);
+	triEPtr.push_back(new halfEdge);
+	vert1 = triEPtr.size() - 1;
+	vertexEPtr.push_back(triEPtr[vert1]);
 
-		triEPtr[vert1]->vertex = edge->vertex;
-		triEPtr[vert1]->triangle = vert1;
-		triEPtr[vert1]->nextEdge = new halfEdge;
+	triEPtr[vert1]->vertex = edge->vertex;
+	triEPtr[vert1]->triangle = vert1;
+	triEPtr[vert1]->nextEdge = new halfEdge;
 
-triEPtr[vert1]->nextEdge->vertex = vertexArray.size() - 1;
-triEPtr[vert1]->nextEdge->triangle = vert1;
-triEPtr[vert1]->nextEdge->sibling = edge->nextEdge->nextEdge;
-triEPtr[vert1]->nextEdge->nextEdge = new halfEdge;
+	triEPtr[vert1]->nextEdge->vertex = vertexArray.size() - 1;
+	triEPtr[vert1]->nextEdge->triangle = vert1;
+	triEPtr[vert1]->nextEdge->sibling = edge->nextEdge->nextEdge;
+	triEPtr[vert1]->nextEdge->nextEdge = new halfEdge;
 
-triEPtr[vert1]->nextEdge->nextEdge->vertex = edge->nextEdge->nextEdge->vertex;
-triEPtr[vert1]->nextEdge->nextEdge->triangle = vert1;
-triEPtr[vert1]->nextEdge->nextEdge->nextEdge = triEPtr[vert1];
-triEPtr[vert1]->nextEdge->nextEdge->sibling = edge->nextEdge->nextEdge->sibling;
-//rebind sibling of existing triangle
-edge->nextEdge->nextEdge->sibling->sibling = triEPtr[vert1]->nextEdge->nextEdge;
-//rebind sibling of old triangle
-edge->nextEdge->nextEdge->sibling = triEPtr[vert1]->nextEdge;
+	triEPtr[vert1]->nextEdge->nextEdge->vertex = edge->nextEdge->nextEdge->vertex;
+	triEPtr[vert1]->nextEdge->nextEdge->triangle = vert1;
+	triEPtr[vert1]->nextEdge->nextEdge->nextEdge = triEPtr[vert1];
+	triEPtr[vert1]->nextEdge->nextEdge->sibling = edge->nextEdge->nextEdge->sibling;
+	//rebind sibling of existing triangle
+	edge->nextEdge->nextEdge->sibling->sibling = triEPtr[vert1]->nextEdge->nextEdge;
+	//rebind sibling of old triangle
+	edge->nextEdge->nextEdge->sibling = triEPtr[vert1]->nextEdge;
 
-triEPtr.push_back(new halfEdge);
-vert1 = triEPtr.size() - 1;
+	triEPtr.push_back(new halfEdge);
+	vert1 = triEPtr.size() - 1;
 
-triEPtr[vert1]->sibling = triEPtr[vert1 - 1];
-//bind sibling of first newEdge
-triEPtr[vert1 - 1]->sibling = triEPtr[vert1];
-//continue
-triEPtr[vert1]->vertex = vertexArray.size() - 1;
-triEPtr[vert1]->triangle = vert1;
-triEPtr[vert1]->nextEdge = new halfEdge;
+	triEPtr[vert1]->sibling = triEPtr[vert1 - 1];
+	//bind sibling of first newEdge
+	triEPtr[vert1 - 1]->sibling = triEPtr[vert1];
+	//continue
+	triEPtr[vert1]->vertex = vertexArray.size() - 1;
+	triEPtr[vert1]->triangle = vert1;
+	triEPtr[vert1]->nextEdge = new halfEdge;
 
-triEPtr[vert1]->nextEdge->vertex = edge->vertex;
-triEPtr[vert1]->nextEdge->triangle = vert1;
-triEPtr[vert1]->nextEdge->sibling = edge->sibling->nextEdge->sibling;
-//rebind sibling of existing triangle
-edge->sibling->nextEdge->sibling->sibling = triEPtr[vert1]->nextEdge;
-triEPtr[vert1]->nextEdge->nextEdge = new halfEdge;
+	triEPtr[vert1]->nextEdge->vertex = edge->vertex;
+	triEPtr[vert1]->nextEdge->triangle = vert1;
+	triEPtr[vert1]->nextEdge->sibling = edge->sibling->nextEdge->sibling;
+	//rebind sibling of existing triangle
+	edge->sibling->nextEdge->sibling->sibling = triEPtr[vert1]->nextEdge;
+	triEPtr[vert1]->nextEdge->nextEdge = new halfEdge;
 
-triEPtr[vert1]->nextEdge->nextEdge->vertex = edge->sibling->nextEdge->nextEdge->vertex;
-triEPtr[vert1]->nextEdge->nextEdge->triangle = vert1;
-triEPtr[vert1]->nextEdge->nextEdge->sibling = edge->sibling->nextEdge; // =======
-//rebind sibling of old triangle
-edge->sibling->nextEdge->sibling = triEPtr[vert1]->nextEdge->nextEdge;
-triEPtr[vert1]->nextEdge->nextEdge->nextEdge = triEPtr[vert1];
-
-
-// rebind old edge vertex
-vertexEPtr[edge->vertex] = triEPtr[vert1];
-
-edge->vertex = vertexArray.size() - 1;
-edge->sibling->nextEdge->vertex = vertexArray.size() - 1;
-//}
-
-// Update normal /////////////////////////////////////////////////////////////////////////////
-tempE = vertexEPtr[vertexEPtr.size() - 1];
-temp[0] = vertexArray[tempE->sibling->vertex].x;
-temp[1] = vertexArray[tempE->sibling->vertex].y;
-temp[2] = vertexArray[tempE->sibling->vertex].z;
-// loop through the edges
-do {
-	vert1 = tempE->vertex;
-	vert2 = tempE->nextEdge->nextEdge->vertex;
-
-	temp2[0] = vertexArray[vert1].x;
-	temp2[1] = vertexArray[vert1].y;
-	temp2[2] = vertexArray[vert1].z;
-
-	temp3[0] = vertexArray[vert2].x;
-	temp3[1] = vertexArray[vert2].y;
-	temp3[2] = vertexArray[vert2].z;
-
-	linAlg::calculateVec(tempVec1, temp2, temp);
-	linAlg::calculateVec(tempVec2, temp3, temp);
-
-	linAlg::crossProd(tempNorm1, tempVec2, tempVec1);
-
-	linAlg::normVec(tempNorm1);
-
-	tempNorm2[0] += tempNorm1[0];
-	tempNorm2[1] += tempNorm1[1];
-	tempNorm2[2] += tempNorm1[2];
+	triEPtr[vert1]->nextEdge->nextEdge->vertex = edge->sibling->nextEdge->nextEdge->vertex;
+	triEPtr[vert1]->nextEdge->nextEdge->triangle = vert1;
+	triEPtr[vert1]->nextEdge->nextEdge->sibling = edge->sibling->nextEdge; // =======
+	//rebind sibling of old triangle
+	edge->sibling->nextEdge->sibling = triEPtr[vert1]->nextEdge->nextEdge;
+	triEPtr[vert1]->nextEdge->nextEdge->nextEdge = triEPtr[vert1];
 
 
-	tempE = tempE->nextEdge->sibling;
-} while (tempE != vertexEPtr[vertexEPtr.size() - 1]);
+	// rebind old edge vertex
+	vertexEPtr[edge->vertex] = triEPtr[vert1];
 
-static float vecLenght = linAlg::vecLength(tempNorm2);
+	edge->vertex = vertexArray.size() - 1;
+	edge->sibling->nextEdge->vertex = vertexArray.size() - 1;
+	//}
 
-tempNorm2[0] = tempNorm2[0] / vecLenght;
-tempNorm2[1] = tempNorm2[1] / vecLenght;
-tempNorm2[2] = tempNorm2[2] / vecLenght;
+	// Update normal /////////////////////////////////////////////////////////////////////////////
+	tempE = vertexEPtr[vertexEPtr.size() - 1];
+	temp[0] = vertexArray[tempE->sibling->vertex].x;
+	temp[1] = vertexArray[tempE->sibling->vertex].y;
+	temp[2] = vertexArray[tempE->sibling->vertex].z;
+	// loop through the edges
+	do {
+		vert1 = tempE->vertex;
+		vert2 = tempE->nextEdge->nextEdge->vertex;
 
-linAlg::normVec(tempNorm2);
-vertexArray[vertexEPtr.size() - 1].nx = tempNorm2[0];
-vertexArray[vertexEPtr.size() - 1].ny = tempNorm2[1];
-vertexArray[vertexEPtr.size() - 1].nz = tempNorm2[2];
+		temp2[0] = vertexArray[vert1].x;
+		temp2[1] = vertexArray[vert1].y;
+		temp2[2] = vertexArray[vert1].z;
+
+		temp3[0] = vertexArray[vert2].x;
+		temp3[1] = vertexArray[vert2].y;
+		temp3[2] = vertexArray[vert2].z;
+
+		linAlg::calculateVec(tempVec1, temp2, temp);
+		linAlg::calculateVec(tempVec2, temp3, temp);
+
+		linAlg::crossProd(tempNorm1, tempVec2, tempVec1);
+
+		linAlg::normVec(tempNorm1);
+
+		tempNorm2[0] += tempNorm1[0];
+		tempNorm2[1] += tempNorm1[1];
+		tempNorm2[2] += tempNorm1[2];
+
+
+		tempE = tempE->nextEdge->sibling;
+	} while (tempE != vertexEPtr[vertexEPtr.size() - 1]);
+
+	static float vecLenght = linAlg::vecLength(tempNorm2);
+
+	tempNorm2[0] = tempNorm2[0] / vecLenght;
+	tempNorm2[1] = tempNorm2[1] / vecLenght;
+	tempNorm2[2] = tempNorm2[2] / vecLenght;
+
+	linAlg::normVec(tempNorm2);
+	vertexArray[vertexEPtr.size() - 1].nx = tempNorm2[0];
+	vertexArray[vertexEPtr.size() - 1].ny = tempNorm2[1];
+	vertexArray[vertexEPtr.size() - 1].nz = tempNorm2[2];
 }
 
-void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
-
-
+bool Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 
 	halfEdge* tempE;
 	halfEdge* tempE2;
@@ -1046,6 +1055,7 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 	static int nVert;
 	currVert = edge->sibling->vertex;
 	nVert = edge->vertex;
+	bool edgeRemoved = false;
 
 	// check for special cases
 	if (edge->sibling->triangle == edge->nextEdge->sibling->triangle) {
@@ -1078,7 +1088,11 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 		delete tempE->nextEdge->nextEdge;
 		delete tempE->nextEdge;
 		delete tempE;
-		edge = vertexEPtr[currVert];
+		
+		edge = nullptr;
+		edgeRemoved = true;
+		cout << "special case 2" << endl;
+		return true;
 	}
 	else if (edge->sibling->triangle == edge->nextEdge->nextEdge->sibling->triangle) {
 		tempE = edge;
@@ -1110,6 +1124,8 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 		delete tempE->nextEdge;
 		delete tempE;
 		edge = vertexEPtr[currVert];
+		return false;
+		cout << "special case 3" << endl;
 	}
 	else if (edge->nextEdge->sibling->triangle == edge->nextEdge->nextEdge->sibling->triangle) {
 		tempE = edge->nextEdge->nextEdge;
@@ -1141,9 +1157,11 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 		delete tempE->nextEdge;
 		delete tempE;
 		edge = vertexEPtr[currVert];
+		cout << "special case 4" << endl;
+		return false;
 	}
 	else if (edge->sibling->nextEdge->sibling->triangle == edge->sibling->nextEdge->nextEdge->sibling->triangle) {
-		tempE = edge->sibling->nextEdge->nextEdge->sibling;
+		tempE = edge->sibling->nextEdge->nextEdge;
 
 		// rebind vertex edge pointers
 		vertexEPtr[tempE->sibling->vertex] = tempE->nextEdge->sibling;
@@ -1174,7 +1192,9 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 		delete tempE->nextEdge->nextEdge;
 		delete tempE->nextEdge;
 		delete tempE;
-		edge = vertexEPtr[currVert];
+		//edge = vertexEPtr[currVert];
+
+		cout << "special case 5" << endl;
 	}
 
 	// move currVert
@@ -1198,7 +1218,7 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 		tempE = tempE->nextEdge->nextEdge->sibling;
 	}
 	tempE = edge->nextEdge->sibling;
-	tempE2 = edge->sibling->nextEdge->sibling;
+	//tempE2 = edge->sibling->nextEdge->sibling;
 
 	// rebind edges
 	edge->nextEdge->sibling->sibling = edge->nextEdge->nextEdge->sibling;
@@ -1220,7 +1240,7 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 	indexArray[edge->sibling->triangle].index[0] = 0;
 	indexArray[edge->sibling->triangle].index[1] = 0;
 	indexArray[edge->sibling->triangle].index[2] = 0;
-	
+
 	// reset the removed vertex
 	vertexArray[nVert].x = -1000;
 	vertexArray[nVert].y = -1000;
@@ -1241,91 +1261,11 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 	delete edge->nextEdge->nextEdge;
 	delete edge->nextEdge;
 	delete edge;
-	 //  =================================================================================================================================
-	/*if (tempE->sibling->triangle == tempE->nextEdge->nextEdge->sibling->triangle) {
-		cout << "aaaa" << endl;
-	}
-	if (tempE->sibling->triangle == tempE->nextEdge->sibling->triangle) {
-		cout << "bbb" << endl;
-	}
-	if (tempE->nextEdge->sibling->triangle == tempE->nextEdge->nextEdge->sibling->triangle) {
-		cout << "ccc" << endl;
-	}
 
-	if (tempE2->sibling->triangle == tempE2->nextEdge->nextEdge->sibling->triangle) {
-		cout << "aaaa2" << endl;
-	}
-	if (tempE2->sibling->triangle == tempE2->nextEdge->sibling->triangle) {
-		cout << "bbb2" << endl;
-	}
-	if (tempE2->nextEdge->sibling->triangle == tempE2->nextEdge->nextEdge->sibling->triangle) {
-		cout << "ccc2" << endl;
-	}*/
-	//  =================================================================================================================================
+	edge = tempE;
+
+	return false;
 	
-	if (tempE2->nextEdge->nextEdge->sibling->nextEdge->nextEdge->sibling == tempE2) {
-		cout << "removed special case 1" << endl;
-		vertexEPtr[tempE2->sibling->vertex] = tempE2->nextEdge->sibling;
-		vertexEPtr[tempE2->nextEdge->nextEdge->vertex] = tempE2->nextEdge->sibling->nextEdge->nextEdge;
-
-		tempE2->nextEdge->sibling->sibling = tempE2->sibling->nextEdge->nextEdge->sibling;
-		tempE2->sibling->nextEdge->nextEdge->sibling->sibling = tempE2->nextEdge->sibling;
-
-		vertexArray[tempE2->vertex].x = -1000;
-		vertexArray[tempE2->vertex].y = -1000;
-		vertexArray[tempE2->vertex].z = -1000;
-		vertexEPtr[tempE2->vertex] = nullptr;
-
-		indexArray[tempE2->triangle].index[0] = 0;
-		indexArray[tempE2->triangle].index[1] = 0;
-		indexArray[tempE2->triangle].index[2] = 0;
-		triEPtr[tempE2->triangle] = nullptr;
-		indexArray[tempE2->sibling->triangle].index[0] = 0;
-		indexArray[tempE2->sibling->triangle].index[1] = 0;
-		indexArray[tempE2->sibling->triangle].index[2] = 0;
-		triEPtr[tempE2->sibling->triangle] = nullptr;
-
-		delete tempE2->sibling->nextEdge->nextEdge;
-		delete tempE2->sibling->nextEdge;
-		delete tempE2->sibling;
-		delete tempE2->nextEdge->nextEdge;
-		delete tempE2->nextEdge;
-		delete tempE2;
-	}
-	
-	if (tempE->nextEdge->nextEdge->sibling->nextEdge->nextEdge->sibling == tempE) {
-		cout << "removed special case 2" << endl;
-
-		vertexEPtr[tempE->sibling->vertex] = tempE->nextEdge->sibling;
-		vertexEPtr[tempE->nextEdge->nextEdge->vertex] = tempE->nextEdge->sibling->nextEdge->nextEdge;
-
-		tempE->nextEdge->sibling->sibling = tempE->sibling->nextEdge->nextEdge->sibling;
-		tempE->sibling->nextEdge->nextEdge->sibling->sibling = tempE->nextEdge->sibling;
-
-		vertexArray[tempE->vertex].x = -1000;
-		vertexArray[tempE->vertex].y = -1000;
-		vertexArray[tempE->vertex].z = -1000;
-		vertexEPtr[tempE->vertex] = nullptr;
-
-		indexArray[tempE->triangle].index[0] = 0;
-		indexArray[tempE->triangle].index[1] = 0;
-		indexArray[tempE->triangle].index[2] = 0;
-		triEPtr[tempE->triangle] = nullptr;
-		indexArray[tempE->sibling->triangle].index[0] = 0;
-		indexArray[tempE->sibling->triangle].index[1] = 0;
-		indexArray[tempE->sibling->triangle].index[2] = 0;
-		triEPtr[tempE->sibling->triangle] = nullptr;
-
-		delete tempE->sibling->nextEdge->nextEdge;
-		delete tempE->sibling->nextEdge;
-		delete tempE->sibling;
-		delete tempE->nextEdge->nextEdge;
-		delete tempE->nextEdge;
-		delete tempE;
-		edge = vertexEPtr[currVert];
-	}
-	else
-		edge = tempE;
 }
 
 

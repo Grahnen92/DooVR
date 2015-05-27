@@ -63,7 +63,7 @@ class Mesh {
 	//! removes the vertexpoint nVert and moves currVert halfway towards nVert.
 	/*! vPoint is the position of currVert, vec is the vector between the vertecies that are to close to each other,
 	and edge is a pointer to the edge that is to short*/
-	void edgeCollapse(float* vPoint, float* vec, halfEdge* &edge);
+	bool edgeCollapse(float* vPoint, float* vec, halfEdge* &edge);
 
 	//! subdivides the surface into a sphere
 	void edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge, bool update);

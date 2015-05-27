@@ -218,9 +218,6 @@ void linAlg::calculateVec(float* newVec, float* a, float* b) {
 void linAlg::normVec(float* vec) {
 	float length = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
 
-	if (length == 0) {
-		std::cout << "== 0";
-	}
 	if (length != 0) {
 		vec[0] = vec[0] / length;
 		vec[1] = vec[1] / length;
