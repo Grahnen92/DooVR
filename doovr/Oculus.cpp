@@ -369,7 +369,7 @@ int Oculus::runOvr() {
 
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));			//Ground plane
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
-	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.15f, 1.58f, 0.15f));
+	Box boxPoint(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.005f, 0.005f, 0.005f));
 	hexBox refBox(0.0f, -eyeHeight + 1.5f, -2.0f, 0, 0);
 
 	// ObjectLists
@@ -402,9 +402,9 @@ int Oculus::runOvr() {
 											  -1.0f + 0.0815f * j + offset, 0, 1));			// Z-axis
 	}
 	// Lightsources
-	objectList.push_back(new Sphere(glm::vec3(0.3f, 0.5f, 0.0f), 0.02f));
-	objectList.push_back(new Sphere(glm::vec3(-0.3f, 0.5f, 0.0f), 0.02f));
-	objectList.push_back(new Sphere(glm::vec3(0.0f, 0.5f, -0.5f), 0.02f));
+	objectList.push_back(new Sphere(glm::vec3(0.3f, 0.2f, 0.0f), 0.02f));
+	objectList.push_back(new Sphere(glm::vec3(-0.3f, 0.2f, 0.0f), 0.02f));
+	objectList.push_back(new Sphere(glm::vec3(0.0f, 0.2f, -0.5f), 0.02f));
 
 	// Pointers to the lists
 	oPointer = &objectList;
@@ -414,8 +414,8 @@ int Oculus::runOvr() {
 	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
 	// Initilise VRPN connection with the Intersense wand
-	Device* wand = new Device(true, true, false, "Mouse");
-	//Device* wand = new Device(true, true, true, "Wand");
+	//Device* wand = new Device(true, true, false, "Mouse");
+	Device* wand = new Device(true, true, true, "Wand");
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -533,14 +533,12 @@ int Oculus::runOvr() {
 						currentFunction = moveMESH;
 					}
 				}
-
-
 				else if (currentFunction == hexRESET && buttonPressed) {
 					resetCounter++;
 					if (resetCounter > 1) {
 						buttonPressed = false;
 						it = objectList.begin() + nFunctions;
-						while (it != objectList.end()) {
+						while (it != objectList.end() - nLightsources) {
 							tempHex = static_cast<hexBox*> ((*it));
 							tempHex->moveInstant(-eyeHeight - 0.01f);
 							++it;
@@ -727,20 +725,19 @@ int Oculus::runOvr() {
 						++it;
 					}
 					// Movable hexBoxes
-					while (it != objectList.end())
+					while (it != objectList.end() - nLightsources)
 					{
 						(*it)->render();
 						++it;
 					}
 					// Lightsources - remember to send as uniform
 					n = 1;
-					it = objectList.end() - nLightsources;
 					glBindTexture(GL_TEXTURE_2D, lightTex.getTextureID());
 					while (it != objectList.end()) {
 						MVstack.push();
+							MVstack.translate((*it)->getPosition());
 							glUniform4fv(locationLP[n], 1, (*it)->getPosition());
 							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-							MVstack.translate((*it)->getPosition());
 							(*it)->render();
 						MVstack.pop();
 						n++;
@@ -793,10 +790,7 @@ int Oculus::runOvr() {
 					MVstack.pop();
 				}
 
-				glUseProgram(sphereShader.programID);
-				glUniformMatrix4fv(locationWandP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
-				glUniform4fv(locationWandLP, 1, lightPosTemp);
-				glUniformMatrix4fv(locationWandMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+
 
 				// WAND
 				if (!renderRegisterSpheres)
@@ -804,10 +798,16 @@ int Oculus::runOvr() {
 					MVstack.push();
 						MVstack.translate(wand->getTrackerPosition());
 						MVstack.multiply(wand->getTrackerRotation());					
+
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						boxPoint.render();
+
 						MVstack.push();
 							MVstack.scale(wandRadius);
-							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glUseProgram(sphereShader.programID);
+							glUniformMatrix4fv(locationWandP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
+							glUniform4fv(locationWandLP, 1, lightPosTemp);
+							glUniformMatrix4fv(locationWandMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 							sphereWand.render();
 							if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						MVstack.pop();
@@ -822,7 +822,6 @@ int Oculus::runOvr() {
 							glBindTexture(GL_TEXTURE_2D, currentTexID);
 							boxWand.render();
 						MVstack.pop();
-
 
 					MVstack.pop();
 				}
@@ -966,6 +965,7 @@ void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius) {
         if (linAlg::vecLength(vLength) < wandRadius) {
             find = true;
             selectedList.push_back((*it));
+			break;
         }
         ++it;
     }
@@ -986,17 +986,20 @@ void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius) {
     }
     // Move selected objects
     it = selectedList.begin();
-    if ((*it)->getOtype() == 'S')
-        while (it != selectedList.end()) {
-            (*it)->setPosition(wand->getTrackerPosition());
-            ++it;
-        }
-    else
-        while (it != selectedList.end()) {
-            tempHex = static_cast<hexBox*> ((*it));
-            tempHex->move(wand->getTrackerPosition()[1]);
-            ++it;
-    }
+	if (selectedList.size() != 0) {
+		if ((*it)->getOtype() == 'S')
+			while (it != selectedList.end()) {
+				(*it)->setPosition(wand->getTrackerPosition());
+				++it;
+			}
+		else
+			while (it != selectedList.end()) {
+				tempHex = static_cast<hexBox*> ((*it));
+				tempHex->move(wand->getTrackerPosition()[1]);
+				++it;
+			}
+	}
+    
 }
 void print_GLM_matrix(glm::mat4 M) {
     double dArray[16] = { 0.0 };
