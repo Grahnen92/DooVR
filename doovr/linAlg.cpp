@@ -234,3 +234,7 @@ void linAlg::crossProd(float normal[3], float* vec1, float* vec2) {
 float linAlg::vecLength(float vec[3]) {
 	return sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
 }
+
+float linAlg::dotProd(float vec1[3], float vec2[3]){
+	return vec1[0] * vec2[0] + vec1[1] * vec2[1] + vec1[2] * vec2[2];
+}

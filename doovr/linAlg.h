@@ -18,4 +18,6 @@ namespace linAlg {
 	//! Calculates the vector lenght
 	float vecLength(float vec[3]);
 
+	float dotProd(float vec1[3], float vec2[3]);
+
 }

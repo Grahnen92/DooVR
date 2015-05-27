@@ -35,7 +35,8 @@ class Mesh {
 	Mesh(float rad);
 	~Mesh();
 
-	void dilate(float* p, float lp[3], float rad, bool but);
+	//dilate/erode based modelling
+	void sculpt(float* p, float lp[3], float rad, bool but);
 	void test(float bRad, int vNR, bool plus);
 
 	void render();
@@ -63,7 +64,7 @@ class Mesh {
 	//! removes the vertexpoint nVert and moves currVert halfway towards nVert.
 	/*! vPoint is the position of currVert, vec is the vector between the vertecies that are to close to each other,
 	and edge is a pointer to the edge that is to short*/
-	bool edgeCollapse(float* vPoint, float* vec, halfEdge* &edge);
+	void edgeCollapse(float* vPoint, float* vec, halfEdge* &edge);
 
 	//! subdivides the surface into a sphere
 	void edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge, bool update);

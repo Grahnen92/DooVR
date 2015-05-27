@@ -438,7 +438,7 @@ Mesh::~Mesh(void) {
 
 }
 
-void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
+void Mesh::sculpt(float* p, float lp[3], float rad, bool but) {
 	glm::vec4 tempvec;
 	vertex tempV;
 	float tempVec1[3]; float tempVec2[3];
@@ -448,20 +448,11 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	changedVertices.reserve(100);
 	int changeCount = 0;
 
-	int oldArraySize = vertexArray.size();
-	int oldIndArraySize = indexArray.size();
-
 	triangle* indexP;
 	vertex* vertexP;
 	halfEdge* tempEdge;
 
 	bool success = false;
-
-	int startRow = -1;
-	int endRow = -1;
-	int prevRow = -1;
-	vector<int> startCol;	// first edited column on row
-	vector<int> endCol;		// last edited column on row
 
 	//MOVEMENT BETWEEN LAST FRAME AND THIS FRAME
 	float mLength = 0.0f;
@@ -502,9 +493,22 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 			//normVec(tempVec1);
 			mLength = 0.005f*(0.05f / (mLength + 0.05f));
 
-			vertexArray[i].x -= vertexArray[i].nx * mLength;
-			vertexArray[i].y -= vertexArray[i].ny * mLength;
-			vertexArray[i].z -= vertexArray[i].nz * mLength;
+			tempVec2[0] = vertexArray[i].nx;
+			tempVec2[1] = vertexArray[i].ny;
+			tempVec2[2] = vertexArray[i].nz;
+
+			if (linAlg::dotProd(tempVec1, tempVec2) > 0){
+				vertexArray[i].x += vertexArray[i].nx * mLength;
+				vertexArray[i].y += vertexArray[i].ny * mLength;
+				vertexArray[i].z += vertexArray[i].nz * mLength;
+			}
+			else{
+				vertexArray[i].x -= vertexArray[i].nx * mLength;
+				vertexArray[i].y -= vertexArray[i].ny * mLength;
+				vertexArray[i].z -= vertexArray[i].nz * mLength;
+			}
+
+			
 			changedVertices.push_back(i);
 
 			// mark the vertex edges as needUpdate
@@ -564,8 +568,6 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 		// Activate the index buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 
-		const int testst = indexArray.size();
-
 		//vector<triangle> tempList;
 		//tempList.reserve(indexArray.size());
 		//indexP = &tempList[0];
@@ -595,6 +597,7 @@ void Mesh::dilate(float* p, float lp[3], float rad, bool but) {
 	}
 }
 
+
 void Mesh::test(float bRad, int vNR, bool plus) {
 	glm::vec4 tempvec;
 	vertex tempV;
@@ -603,8 +606,6 @@ void Mesh::test(float bRad, int vNR, bool plus) {
 	changedVertices.reserve(100);
 	int changeCount = 0;
 
-	int oldArraySize = vertexArray.size();
-	int oldIndArraySize = indexArray.size();
 	//MOVEMENT BETWEEN LAST FRAME AND THIS FRAME
 
 	float test1[3] = { 0.0f, 0.0f, 0.0f };
@@ -690,8 +691,6 @@ void Mesh::test(float bRad, int vNR, bool plus) {
 		// Activate the index buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexbuffer);
 
-		const int testst = indexArray.size();
-
 		//vector<triangle> tempList;
 		//tempList.reserve(indexArray.size());
 		//indexP = &tempList[0];
@@ -749,9 +748,6 @@ void Mesh::updateArea(int* changeList, int listSize) {
 	halfEdge* tempEdge;
 	int vert1, vert2; 
 	static float edgeLength;
-	static bool currRemoved;
-
-	currRemoved = false;
 
 	for (int i = 0; i < listSize; i++) {
 
@@ -784,9 +780,7 @@ void Mesh::updateArea(int* changeList, int listSize) {
 
 				// check if edge is to long/short
 				if (edgeLength < MIN_LENGTH) {
-					currRemoved = edgeCollapse(vPoint1, tempVec1, tempEdge);
-					if (currRemoved == true)
-						break;
+					edgeCollapse(vPoint1, tempVec1, tempEdge);
 					tempEdge = tempEdge->sibling->nextEdge->nextEdge;
 					//edge already incremented, something needs to be done.
 				} else if (edgeLength > MAX_LENGTH) {
@@ -797,11 +791,6 @@ void Mesh::updateArea(int* changeList, int listSize) {
 			tempEdge = tempEdge->nextEdge->sibling;
 
 		 } while (tempEdge->needsUpdate == true);
-
-		if (currRemoved == true){
-			 currRemoved = false;
-			 continue;
-		}
 			 
 		 // Update normal /////////////////////////////////////////////////////////////////////////////
 		 if (vertexEPtr[changeList[i]] != nullptr)
@@ -1047,7 +1036,7 @@ void Mesh::edgeSplit(float* vPoint, float* vec, halfEdge* &edge) {
 	vertexArray[vertexEPtr.size() - 1].nz = tempNorm2[2];
 }
 
-bool Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
+void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 
 	halfEdge* tempE;
 	halfEdge* tempE2;
@@ -1056,146 +1045,6 @@ bool Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 	currVert = edge->sibling->vertex;
 	nVert = edge->vertex;
 	bool edgeRemoved = false;
-
-	// check for special cases
-	if (edge->sibling->triangle == edge->nextEdge->sibling->triangle) {
-		
-		tempE = edge->nextEdge;
-
-		vertexEPtr[tempE->sibling->vertex] = tempE->nextEdge->sibling;
-		vertexEPtr[tempE->nextEdge->nextEdge->vertex] = tempE->nextEdge->sibling->nextEdge->nextEdge;
-
-		tempE->nextEdge->sibling->sibling = tempE->sibling->nextEdge->nextEdge->sibling;
-		tempE->sibling->nextEdge->nextEdge->sibling->sibling = tempE->nextEdge->sibling;
-
-		vertexArray[tempE->vertex].x = -1000;
-		vertexArray[tempE->vertex].y = -1000;
-		vertexArray[tempE->vertex].z = -1000;
-		vertexEPtr[tempE->vertex] = nullptr;
-
-		indexArray[tempE->triangle].index[0] = 0;
-		indexArray[tempE->triangle].index[1] = 0;
-		indexArray[tempE->triangle].index[2] = 0;
-		triEPtr[tempE->triangle] = nullptr;
-		indexArray[tempE->sibling->triangle].index[0] = 0;
-		indexArray[tempE->sibling->triangle].index[1] = 0;
-		indexArray[tempE->sibling->triangle].index[2] = 0;
-		triEPtr[tempE->sibling->triangle] = nullptr;
-
-		delete tempE->sibling->nextEdge->nextEdge;
-		delete tempE->sibling->nextEdge;
-		delete tempE->sibling;
-		delete tempE->nextEdge->nextEdge;
-		delete tempE->nextEdge;
-		delete tempE;
-		
-		edge = nullptr;
-		edgeRemoved = true;
-		cout << "special case 2" << endl;
-		return true;
-	}
-	else if (edge->sibling->triangle == edge->nextEdge->nextEdge->sibling->triangle) {
-		tempE = edge;
-
-		vertexEPtr[tempE->sibling->vertex] = tempE->nextEdge->sibling;
-		vertexEPtr[tempE->nextEdge->nextEdge->vertex] = tempE->nextEdge->sibling->nextEdge->nextEdge;
-
-		tempE->nextEdge->sibling->sibling = tempE->sibling->nextEdge->nextEdge->sibling;
-		tempE->sibling->nextEdge->nextEdge->sibling->sibling = tempE->nextEdge->sibling;
-
-		vertexArray[tempE->vertex].x = -1000;
-		vertexArray[tempE->vertex].y = -1000;
-		vertexArray[tempE->vertex].z = -1000;
-		vertexEPtr[tempE->vertex] = nullptr;
-
-		indexArray[tempE->triangle].index[0] = 0;
-		indexArray[tempE->triangle].index[1] = 0;
-		indexArray[tempE->triangle].index[2] = 0;
-		triEPtr[tempE->triangle] = nullptr;
-		indexArray[tempE->sibling->triangle].index[0] = 0;
-		indexArray[tempE->sibling->triangle].index[1] = 0;
-		indexArray[tempE->sibling->triangle].index[2] = 0;
-		triEPtr[tempE->sibling->triangle] = nullptr;
-
-		delete tempE->sibling->nextEdge->nextEdge;
-		delete tempE->sibling->nextEdge;
-		delete tempE->sibling;
-		delete tempE->nextEdge->nextEdge;
-		delete tempE->nextEdge;
-		delete tempE;
-		edge = vertexEPtr[currVert];
-		return false;
-		cout << "special case 3" << endl;
-	}
-	else if (edge->nextEdge->sibling->triangle == edge->nextEdge->nextEdge->sibling->triangle) {
-		tempE = edge->nextEdge->nextEdge;
-
-		vertexEPtr[tempE->sibling->vertex] = tempE->nextEdge->sibling;
-		vertexEPtr[tempE->nextEdge->nextEdge->vertex] = tempE->nextEdge->sibling->nextEdge->nextEdge;
-
-		tempE->nextEdge->sibling->sibling = tempE->sibling->nextEdge->nextEdge->sibling;
-		tempE->sibling->nextEdge->nextEdge->sibling->sibling = tempE->nextEdge->sibling;
-
-		vertexArray[tempE->vertex].x = -1000;
-		vertexArray[tempE->vertex].y = -1000;
-		vertexArray[tempE->vertex].z = -1000;
-		vertexEPtr[tempE->vertex] = nullptr;
-
-		indexArray[tempE->triangle].index[0] = 0;
-		indexArray[tempE->triangle].index[1] = 0;
-		indexArray[tempE->triangle].index[2] = 0;
-		triEPtr[tempE->triangle] = nullptr;
-		indexArray[tempE->sibling->triangle].index[0] = 0;
-		indexArray[tempE->sibling->triangle].index[1] = 0;
-		indexArray[tempE->sibling->triangle].index[2] = 0;
-		triEPtr[tempE->sibling->triangle] = nullptr;
-
-		delete tempE->sibling->nextEdge->nextEdge;
-		delete tempE->sibling->nextEdge;
-		delete tempE->sibling;
-		delete tempE->nextEdge->nextEdge;
-		delete tempE->nextEdge;
-		delete tempE;
-		edge = vertexEPtr[currVert];
-		cout << "special case 4" << endl;
-		return false;
-	}
-	if (edge->sibling->nextEdge->sibling->triangle == edge->sibling->nextEdge->nextEdge->sibling->triangle) {
-		tempE = edge->sibling->nextEdge->nextEdge;
-
-		// rebind vertex edge pointers
-		vertexEPtr[tempE->sibling->vertex] = tempE->nextEdge->sibling;
-		vertexEPtr[tempE->nextEdge->nextEdge->vertex] = tempE->nextEdge->sibling->nextEdge->nextEdge;
-
-		tempE->nextEdge->sibling->sibling = tempE->sibling->nextEdge->nextEdge->sibling;
-		tempE->sibling->nextEdge->nextEdge->sibling->sibling = tempE->nextEdge->sibling;
-
-		// remove vertex
-		vertexArray[tempE->vertex].x = -1000;
-		vertexArray[tempE->vertex].y = -1000;
-		vertexArray[tempE->vertex].z = -1000;
-		vertexEPtr[tempE->vertex] = nullptr;
-
-		// remove triangles
-		indexArray[tempE->triangle].index[0] = 0;
-		indexArray[tempE->triangle].index[1] = 0;
-		indexArray[tempE->triangle].index[2] = 0;
-		triEPtr[tempE->triangle] = nullptr;
-		indexArray[tempE->sibling->triangle].index[0] = 0;
-		indexArray[tempE->sibling->triangle].index[1] = 0;
-		indexArray[tempE->sibling->triangle].index[2] = 0;
-		triEPtr[tempE->sibling->triangle] = nullptr;
-
-		delete tempE->sibling->nextEdge->nextEdge;
-		delete tempE->sibling->nextEdge;
-		delete tempE->sibling;
-		delete tempE->nextEdge->nextEdge;
-		delete tempE->nextEdge;
-		delete tempE;
-		//edge = vertexEPtr[currVert];
-
-		cout << "special case 5" << endl;
-	}
 
 	// move currVert
 	vertexArray[currVert].x = vPoint[0] + (vec[0] / 2.0f);
@@ -1264,7 +1113,7 @@ bool Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 
 	edge = tempE;
 
-	if (tempE2->nextEdge->nextEdge->sibling->nextEdge->nextEdge->sibling == tempE2) {
+	if (tempE2->sibling->triangle == tempE2->nextEdge->nextEdge->sibling->triangle) {
 		cout << "removed special case 1" << endl;
 		vertexEPtr[tempE2->sibling->vertex] = tempE2->nextEdge->sibling;
 		vertexEPtr[tempE2->nextEdge->nextEdge->vertex] = tempE2->nextEdge->sibling->nextEdge->nextEdge;
@@ -1294,7 +1143,7 @@ bool Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 		delete tempE2;
 	}
 
-	if (tempE->nextEdge->nextEdge->sibling->nextEdge->nextEdge->sibling == tempE) {
+	if (tempE->sibling->triangle == tempE->nextEdge->nextEdge->sibling->triangle) {
 		cout << "removed special case 2" << endl;
 
 		vertexEPtr[tempE->sibling->vertex] = tempE->nextEdge->sibling;
@@ -1327,8 +1176,6 @@ bool Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 	}
 	else
 		edge = tempE;
-
-	return false;
 	
 }
 

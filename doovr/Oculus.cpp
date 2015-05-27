@@ -459,7 +459,7 @@ int Oculus::runOvr() {
 				if (chooseFunction == UPDATE_VERTEX_ARRAY) {
 					//mTest->updateVertexArray(wand->getTrackerPosition(), false, wandRadius);
 				} else if (chooseFunction == newDILATE) {
-					mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
+					mTest->sculpt(wand->getTrackerPosition(), lastPos, wandRadius, true);
 				} else if (chooseFunction == coREGISTER && buttonPressed) {
 
 					if (regCounter <= 3) {
