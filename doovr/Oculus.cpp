@@ -329,7 +329,7 @@ int Oculus::runOvr() {
 		exit(EXIT_FAILURE);
 	}
 
-	// Start the sensor which provides the Rift’s pose and motion...
+	// Start the sensor which provides the Riftï¿½s pose and motion...
 	uint32_t l_SupportedSensorCaps = ovrTrackingCap_Orientation | ovrTrackingCap_MagYawCorrection | ovrTrackingCap_Position;
 	uint32_t l_RequiredTrackingCaps = 0;
 	ovrBool l_TrackingResult = ovrHmd_ConfigureTracking(hmd, l_SupportedSensorCaps, l_RequiredTrackingCaps);
@@ -477,9 +477,9 @@ int Oculus::runOvr() {
 						wand->setTransformMatrix(transform);
 						renderRegisterSpheres = false;
 					} else if (regCounter == 4)
-						eye = wand->getTrackerPosition()[1];		// ta ögon höjd		regCounter = 4
+						eye = wand->getTrackerPosition()[1];		// ta ï¿½gon hï¿½jd		regCounter = 4
 					else if (regCounter == 5)
-						floor = wand->getTrackerPosition()[1];	// ta golv höjd		regCounter = 5
+						floor = wand->getTrackerPosition()[1];	// ta golv hï¿½jd		regCounter = 5
 
 					regCounter++;
 					if (regCounter == 6) {						// Configure done.
