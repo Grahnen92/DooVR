@@ -859,7 +859,7 @@ void Mesh::edgeSplit(float* vPoint, float* vec, halfEdge* &edge) {
 	static float tempVec1[3], tempVec2[3];
 
 	halfEdge* tempE2;
-	
+	/*
 	vert1 = edge->nextEdge->nextEdge->vertex;
 	vert2 = edge->sibling->nextEdge->nextEdge->vertex;
 
@@ -872,7 +872,7 @@ void Mesh::edgeSplit(float* vPoint, float* vec, halfEdge* &edge) {
 	temp2[2] = vertexArray[vert2].z;
 	linAlg::calculateVec(temp3, temp, temp2);
 	
-	/*if (vecLength(temp3) < MAX_LENGTH) {
+	if (vecLength(temp3) < MAX_LENGTH) {
 		for (int i = 0; i < 3; i++) {
 			if (indexArray[edge->triangle].index[i] == edge->vertex)
 				indexArray[edge->triangle].index[i] = vert2;
@@ -915,7 +915,7 @@ void Mesh::edgeSplit(float* vPoint, float* vec, halfEdge* &edge) {
 	tempV.y = vPoint[1] + (vec[1] / 2.0f);
 	tempV.z = vPoint[2] + (vec[2] / 2.0f);
 		
-	tempV.nx = vertexArray[edge->vertex].nx; tempV.ny = vertexArray[edge->vertex].ny; tempV.nz = vertexArray[edge->vertex].nz;
+//	tempV.nx = vertexArray[edge->vertex].nx; tempV.ny = vertexArray[edge->vertex].ny; tempV.nz = vertexArray[edge->vertex].nz;
 	vertexArray.push_back(tempV);
 
 	//copy triangles
@@ -1160,7 +1160,7 @@ bool Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 		cout << "special case 4" << endl;
 		return false;
 	}
-	else if (edge->sibling->nextEdge->sibling->triangle == edge->sibling->nextEdge->nextEdge->sibling->triangle) {
+	if (edge->sibling->nextEdge->sibling->triangle == edge->sibling->nextEdge->nextEdge->sibling->triangle) {
 		tempE = edge->sibling->nextEdge->nextEdge;
 
 		// rebind vertex edge pointers
@@ -1218,7 +1218,7 @@ bool Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 		tempE = tempE->nextEdge->nextEdge->sibling;
 	}
 	tempE = edge->nextEdge->sibling;
-	//tempE2 = edge->sibling->nextEdge->sibling;
+	tempE2 = edge->sibling->nextEdge->sibling;
 
 	// rebind edges
 	edge->nextEdge->sibling->sibling = edge->nextEdge->nextEdge->sibling;
@@ -1263,6 +1263,70 @@ bool Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 	delete edge;
 
 	edge = tempE;
+
+	if (tempE2->nextEdge->nextEdge->sibling->nextEdge->nextEdge->sibling == tempE2) {
+		cout << "removed special case 1" << endl;
+		vertexEPtr[tempE2->sibling->vertex] = tempE2->nextEdge->sibling;
+		vertexEPtr[tempE2->nextEdge->nextEdge->vertex] = tempE2->nextEdge->sibling->nextEdge->nextEdge;
+
+		tempE2->nextEdge->sibling->sibling = tempE2->sibling->nextEdge->nextEdge->sibling;
+		tempE2->sibling->nextEdge->nextEdge->sibling->sibling = tempE2->nextEdge->sibling;
+
+		vertexArray[tempE2->vertex].x = -1000;
+		vertexArray[tempE2->vertex].y = -1000;
+		vertexArray[tempE2->vertex].z = -1000;
+		vertexEPtr[tempE2->vertex] = nullptr;
+
+		indexArray[tempE2->triangle].index[0] = 0;
+		indexArray[tempE2->triangle].index[1] = 0;
+		indexArray[tempE2->triangle].index[2] = 0;
+		triEPtr[tempE2->triangle] = nullptr;
+		indexArray[tempE2->sibling->triangle].index[0] = 0;
+		indexArray[tempE2->sibling->triangle].index[1] = 0;
+		indexArray[tempE2->sibling->triangle].index[2] = 0;
+		triEPtr[tempE2->sibling->triangle] = nullptr;
+
+		delete tempE2->sibling->nextEdge->nextEdge;
+		delete tempE2->sibling->nextEdge;
+		delete tempE2->sibling;
+		delete tempE2->nextEdge->nextEdge;
+		delete tempE2->nextEdge;
+		delete tempE2;
+	}
+
+	if (tempE->nextEdge->nextEdge->sibling->nextEdge->nextEdge->sibling == tempE) {
+		cout << "removed special case 2" << endl;
+
+		vertexEPtr[tempE->sibling->vertex] = tempE->nextEdge->sibling;
+		vertexEPtr[tempE->nextEdge->nextEdge->vertex] = tempE->nextEdge->sibling->nextEdge->nextEdge;
+
+		tempE->nextEdge->sibling->sibling = tempE->sibling->nextEdge->nextEdge->sibling;
+		tempE->sibling->nextEdge->nextEdge->sibling->sibling = tempE->nextEdge->sibling;
+
+		vertexArray[tempE->vertex].x = -1000;
+		vertexArray[tempE->vertex].y = -1000;
+		vertexArray[tempE->vertex].z = -1000;
+		vertexEPtr[tempE->vertex] = nullptr;
+
+		indexArray[tempE->triangle].index[0] = 0;
+		indexArray[tempE->triangle].index[1] = 0;
+		indexArray[tempE->triangle].index[2] = 0;
+		triEPtr[tempE->triangle] = nullptr;
+		indexArray[tempE->sibling->triangle].index[0] = 0;
+		indexArray[tempE->sibling->triangle].index[1] = 0;
+		indexArray[tempE->sibling->triangle].index[2] = 0;
+		triEPtr[tempE->sibling->triangle] = nullptr;
+
+		delete tempE->sibling->nextEdge->nextEdge;
+		delete tempE->sibling->nextEdge;
+		delete tempE->sibling;
+		delete tempE->nextEdge->nextEdge;
+		delete tempE->nextEdge;
+		delete tempE;
+		edge = vertexEPtr[currVert];
+	}
+	else
+		edge = tempE;
 
 	return false;
 	
