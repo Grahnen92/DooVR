@@ -1,5 +1,7 @@
-#include "Oculus.h"
+//#define GLFW_EXPOSE_NATIVE_WIN32
+//#define GLFW_EXPOSE_NATIVE_WGL
 
+#include "Oculus.h"
 #include "Shader.h"
 #include "MatrixStack.h"
 #include "Sphere.h"
@@ -9,14 +11,12 @@
 #include "Cylinder.h"
 #include "Texture.h"
 
-//#define GLFW_EXPOSE_NATIVE_WIN32
-//#define GLFW_EXPOSE_NATIVE_WGL
-
 using namespace std;
 
 // ------- Function declerations --------
 //! Sets up a glfw window depending on the resolution of the Oculus Rift device
-static void WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height);
+static void WindowSizeCallback(GLFWwindow *p_Window, int p_Width, int p_Height);
+
 void GLRenderCallsOculus();
 
 // Declare moveMesh - used for moving around the mesh in the scene.
@@ -26,14 +26,14 @@ void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius);
 bool selectFunction(Device* wand, vector<Entity*> *objectList, int &chooseFunction);
 void updatePanel(vector<Entity*> *objectList, int currentFunction, float MAX_HEX_HEIGHT, float MIN_HEX_HEIGHT);
 void print_GLM_matrix(glm::mat4 M);
-void print_FLOAT_matrix(float* M);
+void print_FLOAT_matrix(float *M);
 
 // --- Variable Declerations ------------
 const bool L_MULTISAMPLING = false;
 const int G_DISTORTIONCAPS = 0
-| ovrDistortionCap_Vignette
-| ovrDistortionCap_Chromatic
-| ovrDistortionCap_Overdrive
+                             | ovrDistortionCap_Vignette
+                             | ovrDistortionCap_Chromatic
+                             | ovrDistortionCap_Overdrive
 //| ovrDistortionCap_TimeWarp // Turning this on gives ghosting???
 ;
 
@@ -47,7 +47,7 @@ OVR::Matrix4f g_ProjectionMatrix[2];
 OVR::Sizei g_RenderTargetSize;
 ovrVector3f g_CameraPosition;
 
-const float EYEHEIGHT{ OVR_DEFAULT_EYE_HEIGHT };
+const float EYEHEIGHT{OVR_DEFAULT_EYE_HEIGHT};
 // --------------------------------------
 
 // Global Constant variables
@@ -62,8 +62,6 @@ const int moveENTITY = 3;
 const int coREGISTER = 4;
 const int meshRESET = 5;
 const int hexRESET = 6;
-
-
 
 
 int Oculus::runOvr() {
@@ -103,7 +101,7 @@ int Oculus::runOvr() {
 	float transform[16] = { 0.0f };
 	float invPos[16] = { 0.0f };
 	float eyeHeight = OVR_DEFAULT_EYE_HEIGHT;
-	float MAX_HEX_HEIGHT = -eyeHeight + 1.1f;
+	float MAX_HEX_HEIGHT = -eyeHeight + 1.0f;
 	float MIN_HEX_HEIGHT = -eyeHeight + 0.9f;
 	float eye, floor;
 
@@ -574,7 +572,7 @@ int Oculus::runOvr() {
 					regCounter++;
 					if (regCounter == 6) {
 						eyeHeight = eye - floor;
-						MAX_HEX_HEIGHT = eyeHeight + 1.1f;
+						MAX_HEX_HEIGHT = eyeHeight + 1.0f;
 						MIN_HEX_HEIGHT = eyeHeight + 0.9f;
 						regCounter = 0;
 						currentFunction = DRAGnPULL;
@@ -842,49 +840,47 @@ int Oculus::runOvr() {
 }
 
 static void WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height) {
-	if (p_Width>0 && p_Height>0) {
-		g_Cfg.OGL.Header.BackBufferSize.w = p_Width;
-		g_Cfg.OGL.Header.BackBufferSize.h = p_Height;
+    if (p_Width>0 && p_Height>0) {
+        g_Cfg.OGL.Header.BackBufferSize.w = p_Width;
+        g_Cfg.OGL.Header.BackBufferSize.h = p_Height;
 
-		ovrBool l_ConfigureResult = ovrHmd_ConfigureRendering(hmd, &g_Cfg.Config, G_DISTORTIONCAPS, hmd->MaxEyeFov, g_EyeRenderDesc);
-		if (!l_ConfigureResult) {
-			printf("Configure failed.\n");
-			exit(EXIT_FAILURE);
-		}
-	}
+        ovrBool l_ConfigureResult = ovrHmd_ConfigureRendering(hmd, &g_Cfg.Config, G_DISTORTIONCAPS, hmd->MaxEyeFov, g_EyeRenderDesc);
+        if (!l_ConfigureResult) {
+            printf("Configure failed.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
 }
-
 void GLRenderCallsOculus(){
-	// Clear...
-	//GL calls
-	glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	//glDisable(GL_TEXTURE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glFrontFace(GL_CCW);
-	if (L_MULTISAMPLING) {
-		glEnable(GL_MULTISAMPLE);
-	}
-	else {
-		glDisable(GL_MULTISAMPLE);
-	}
+    // Clear...
+    //GL calls
+    glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    //glDisable(GL_TEXTURE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glFrontFace(GL_CCW);
+    if (L_MULTISAMPLING) {
+        glEnable(GL_MULTISAMPLE);
+    }
+    else {
+        glDisable(GL_MULTISAMPLE);
+    }
 }
-
 void updatePanel(vector<Entity*> *objectList, int currentFunction, float MAX_HEX_HEIGHT, float MIN_HEX_HEIGHT) {
-	hexBox* tempHex;
-	vector<Entity*>::iterator it = objectList->begin();
-	while (it != objectList->begin() + nFunctions) {
-		tempHex = static_cast<hexBox*> ((*it));
-		if (currentFunction == tempHex->getFunction())
-			tempHex->moveInstant(MAX_HEX_HEIGHT);
-		else
-			tempHex->moveInstant(MIN_HEX_HEIGHT);
-		++it;
-	}
+    hexBox* tempHex;
+    vector<Entity*>::iterator it = objectList->begin();
+    while (it != objectList->begin() + nFunctions) {
+        tempHex = static_cast<hexBox*> ((*it));
+        if (currentFunction == tempHex->getFunction())
+            tempHex->moveInstant(MAX_HEX_HEIGHT);
+        else
+            tempHex->moveInstant(MIN_HEX_HEIGHT);
+        ++it;
+    }
 }
 
 bool selectFunction(Device* wand, vector<Entity*> *objectList, int& chooseFunction) {
@@ -906,105 +902,101 @@ bool selectFunction(Device* wand, vector<Entity*> *objectList, int& chooseFuncti
 	}
 	return false;
 }
-
-
 void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR) {
-	// Save first wand rotation transform in wandR
-	float* wandR = wand->getTrackerRotation();
-	float resultR[16];
-	float resultPos[3];
+    // Save first wand rotation transform in wandR
+    float* wandR = wand->getTrackerRotation();
+    float resultR[16];
+    float resultPos[3];
 
-	if (buttonPressed) {
-		// Offset translation back to the original position of the mesh
-		changePos[0] = mTest->getPosition()[0] - wand->getTrackerPosition()[0];
-		changePos[1] = mTest->getPosition()[1] - wand->getTrackerPosition()[1];
-		changePos[2] = mTest->getPosition()[2] - wand->getTrackerPosition()[2];
+    if (buttonPressed) {
+        // Offset translation back to the original position of the mesh
+        changePos[0] = mTest->getPosition()[0] - wand->getTrackerPosition()[0];
+        changePos[1] = mTest->getPosition()[1] - wand->getTrackerPosition()[1];
+        changePos[2] = mTest->getPosition()[2] - wand->getTrackerPosition()[2];
 
-		// Get the difference betweeen the original mesh rotation transform and wandR  --   wandR * differenceR = meshR
-		float* meshR = mTest->getOrientation();
-		float invWandR[16] = { 0.0f };
-		linAlg::invertMatrix(wandR, invWandR);
-		linAlg::matrixMult(invWandR, meshR, differenceR);
-	}
+        // Get the difference betweeen the original mesh rotation transform and wandR  --   wandR * differenceR = meshR
+        float* meshR = mTest->getOrientation();
+        float invWandR[16] = { 0.0f };
+        linAlg::invertMatrix(wandR, invWandR);
+        linAlg::matrixMult(invWandR, meshR, differenceR);
+    }
 
-	// Resulting translation to be made on the mesh calculated from origin.
-	resultPos[0] = wand->getTrackerPosition()[0] + changePos[0];
-	resultPos[1] = wand->getTrackerPosition()[1] + changePos[1];
-	resultPos[2] = wand->getTrackerPosition()[2] + changePos[2];
+    // Resulting translation to be made on the mesh calculated from origin.
+    resultPos[0] = wand->getTrackerPosition()[0] + changePos[0];
+    resultPos[1] = wand->getTrackerPosition()[1] + changePos[1];
+    resultPos[2] = wand->getTrackerPosition()[2] + changePos[2];
 
-	// Resulting rotation to be made on the mesh
-	linAlg::matrixMult(wandR, differenceR, resultR);
+    // Resulting rotation to be made on the mesh
+    linAlg::matrixMult(wandR, differenceR, resultR);
 
-	mTest->setPosition(resultPos);
-	mTest->setOrientation(resultR);
+    mTest->setPosition(resultPos);
+    mTest->setOrientation(resultR);
 }
-
 void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius) {
-	hexBox *tempHex;
-	vector<Entity*> selectedList;
-	vector<Entity*>::iterator it;
-	bool find = false;
-	float vLength[3];
+    hexBox *tempHex;
+    vector<Entity*> selectedList;
+    vector<Entity*>::iterator it;
+    bool find = false;
+    float vLength[3];
 
-	// Look for lightsources
-	it = objectList->end() - nLightsources;
-	while (it != objectList->end() && (*it)->getOtype() == 'S') {
-		vLength[0] = wand->getTrackerPosition()[0] - (*it)->getPosition()[0];
-		vLength[1] = wand->getTrackerPosition()[1] - (*it)->getPosition()[1];
-		vLength[2] = wand->getTrackerPosition()[2] - (*it)->getPosition()[2];
-		if (linAlg::vecLength(vLength) < wandRadius) {
-			find = true;
-			selectedList.push_back((*it));
-		}
-		++it;
-	}
-	// Look for hexboxes
-	if (!find) {
-		it = objectList->begin() + nFunctions;
-		while (it != objectList->end() - nLightsources) {
-			// Create vectors between wand and object, depending on object type
-			vLength[0] = wand->getTrackerPosition()[0] - ((*it))->getPosition()[0];
-			vLength[1] = 0.0f;
-			vLength[2] = wand->getTrackerPosition()[2] - ((*it))->getPosition()[2];
-			// Select object if the distance is smaller than wandRadius
-			if (linAlg::vecLength(vLength) < wandRadius) {
-				selectedList.push_back((*it));
-			}
-			++it;
-		}
-	}
-	// Move selected objects
-	it = selectedList.begin();
-	if ((*it)->getOtype() == 'S')
-		while (it != selectedList.end()) {
-			(*it)->setPosition(wand->getTrackerPosition());
-			++it;
-		}
-	else
-		while (it != selectedList.end()) {
-			tempHex = static_cast<hexBox*> ((*it));
-			tempHex->move(wand->getTrackerPosition()[1]);
-			++it;
-		}	
+    // Look for lightsources
+    it = objectList->end() - nLightsources;
+    while (it != objectList->end() && (*it)->getOtype() == 'S') {
+        vLength[0] = wand->getTrackerPosition()[0] - (*it)->getPosition()[0];
+        vLength[1] = wand->getTrackerPosition()[1] - (*it)->getPosition()[1];
+        vLength[2] = wand->getTrackerPosition()[2] - (*it)->getPosition()[2];
+        if (linAlg::vecLength(vLength) < wandRadius) {
+            find = true;
+            selectedList.push_back((*it));
+        }
+        ++it;
+    }
+    // Look for hexboxes
+    if (!find) {
+        it = objectList->begin() + nFunctions;
+        while (it != objectList->end() - nLightsources) {
+            // Create vectors between wand and object, depending on object type
+            vLength[0] = wand->getTrackerPosition()[0] - ((*it))->getPosition()[0];
+            vLength[1] = 0.0f;
+            vLength[2] = wand->getTrackerPosition()[2] - ((*it))->getPosition()[2];
+            // Select object if the distance is smaller than wandRadius
+            if (linAlg::vecLength(vLength) < wandRadius) {
+                selectedList.push_back((*it));
+            }
+            ++it;
+        }
+    }
+    // Move selected objects
+    it = selectedList.begin();
+    if ((*it)->getOtype() == 'S')
+        while (it != selectedList.end()) {
+            (*it)->setPosition(wand->getTrackerPosition());
+            ++it;
+        }
+    else
+        while (it != selectedList.end()) {
+            tempHex = static_cast<hexBox*> ((*it));
+            tempHex->move(wand->getTrackerPosition()[1]);
+            ++it;
+    }
 }
-
 void print_GLM_matrix(glm::mat4 M) {
-	double dArray[16] = { 0.0 };
-	const float *pSource = (const float*)glm::value_ptr(M);
-	for (int i = 0; i < 16; ++i) {
-		dArray[i] = pSource[i];
-		cout << std::fixed << std::setprecision(2);
-		cout << dArray[i] << "  ";
-		if (i == 3 || i == 7 || i == 11)	cout << endl;
-	}
-	cout << endl << "---------------------" << endl;
+    double dArray[16] = { 0.0 };
+    const float *pSource = (const float*)glm::value_ptr(M);
+    for (int i = 0; i < 16; ++i) {
+        dArray[i] = pSource[i];
+        cout << std::fixed << std::setprecision(2);
+        cout << dArray[i] << "  ";
+        if (i == 3 || i == 7 || i == 11)	cout << endl;
+    }
+    cout << endl << "---------------------" << endl;
 }
 
 void print_FLOAT_matrix(float* M) {
-	for (int i = 0; i < 16; i++) {
-		cout << std::fixed << std::setprecision(2);
-		cout << M[i] << "  ";
-		if (i == 3 || i == 7 || i == 11)	cout << endl;
-	}
-	cout << endl << "---------------------" << endl;
+    for (int i = 0; i < 16; i++) {
+        cout << std::fixed << std::setprecision(2);
+        cout << M[i] << "  ";
+        if (i == 3 || i == 7 || i == 11)	cout << endl;
+    }
+    cout << endl << "---------------------" << endl;
 }
