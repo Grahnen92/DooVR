@@ -412,8 +412,8 @@ int Oculus::runOvr() {
 	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
 	// Initilise VRPN connection with the Intersense wand
-	Device* wand = new Device(true, true, false, "Mouse");
-	//Device* wand = new Device(true, true, true, "Wand");
+	//Device* wand = new Device(true, true, false, "Mouse");
+	Device* wand = new Device(true, true, true, "Wand");
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -476,6 +476,8 @@ int Oculus::runOvr() {
 			buttonPressed = false;
 		}
 		
+		cout << "Button pressed: " << buttonPressed << endl;
+
 		// INTERACTION ////////////////////////////////////////////////////////////////////////////////////////
 		if (buttonPressed || buttonHeld) {
 			switch (wand->getButtonNumber()) {
@@ -528,14 +530,19 @@ int Oculus::runOvr() {
 				else if (currentFunction == meshRESET && buttonPressed) {
 					resetCounter++;
 					if (resetCounter > 1) {
+						buttonPressed = false;
 						delete mTest;
 						mTest = new Mesh();
 						resetCounter = 0;
+						currentFunction = moveMESH;
 					}
 				}
+
+
 				else if (currentFunction == hexRESET && buttonPressed) {
 					resetCounter++;
 					if (resetCounter > 1) {
+						buttonPressed = false;
 						it = objectList.begin() + nFunctions;
 						while (it != objectList.end()) {
 							tempHex = static_cast<hexBox*> ((*it));
@@ -543,7 +550,9 @@ int Oculus::runOvr() {
 							++it;
 						}
 						resetCounter = 0;
+						currentFunction = moveMESH;
 					}
+
 				}
 					
 
@@ -572,8 +581,8 @@ int Oculus::runOvr() {
 					regCounter++;
 					if (regCounter == 6) {
 						eyeHeight = eye - floor;
-						MAX_HEX_HEIGHT = eyeHeight + 1.0f;
-						MIN_HEX_HEIGHT = eyeHeight + 0.9f;
+						MAX_HEX_HEIGHT = -eyeHeight + 1.0f;
+						MIN_HEX_HEIGHT = -eyeHeight + 0.9f;
 						regCounter = 0;
 						currentFunction = DRAGnPULL;
 					}
@@ -765,7 +774,7 @@ int Oculus::runOvr() {
 				glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				// MESH
-				if (renderRegisterSpheres)
+				if (!renderRegisterSpheres)
 				{
 					MVstack.push();
 						MVstack.translate(mTest->getPosition());
