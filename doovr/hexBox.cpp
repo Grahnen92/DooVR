@@ -1,6 +1,6 @@
 #include "hexBox.h"
 
-hexBox::hexBox(float x, float y, float z, int tX, int tY)
+hexBox::hexBox(float x, float y, float z, float tX, float tY)
 {
 	oType = 'H';
 	function = -1;
@@ -13,13 +13,13 @@ hexBox::hexBox(float x, float y, float z, int tX, int tY)
 	GLfloat vertex_array_data[] = {
 		//						Vertex									Normals										Texture  
 		//top
-		-radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 49.0f/1024.0f, (86.0f/1024.0f)*tY + 82.0f/1024.0f,
+		-radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 45.0f/1024.0f, (86.0f/1024.0f)*tY + 82.0f/1024.0f,
 		radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 96.0f/1024.0f, (86.0f/1024.0f)*tY + 82.0f/1024.0f,
-		radius + x,				y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 121.0f/1024.0f,(86.0f/1024.0f)*tY +  125.0f/1024.0f,
-		radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 96.0f/1024.0f, (86.0f/1024.0f)*tY + 167.0f/1024.0f,
-		-radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 49.0f/1024.0f, (86.0f/1024.0f)*tY + 167.0f/1024.0f,
-		-radius + x,			y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 24.0f/1024.0f, (86.0f/1024.0f)*tY + 125.0f/1024.0f,
-		0.0f + x,				y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 73.0f/1024.0f, (86.0f/1024.0f)*tY + 125.0f/1024.0f,
+		radius + x,				y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 121.0f/1024.0f,(86.0f/1024.0f)*tY + 127.0f/1024.0f,
+		radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 96.0f/1024.0f, (86.0f/1024.0f)*tY + 172.0f/1024.0f,
+		-radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 45.0f/1024.0f, (86.0f/1024.0f)*tY + 172.0f/1024.0f,
+		-radius + x,			y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 21.0f/1024.0f, (86.0f/1024.0f)*tY + 127.0f/1024.0f,
+		0.0f + x,				y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 70.0f/1024.0f, (86.0f/1024.0f)*tY + 127.0f/1024.0f,
 
 		//sides+
 		-radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 0.0f, 1.0f,								49.0f/1024.0f, 0.51f,

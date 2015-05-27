@@ -380,8 +380,8 @@ int Oculus::runOvr() {
 	hexBox* tempHex;
 
 	// Function-boxes
-	float X = 0.142f;
-	float Z = -0.0813333f;
+	float X = 0.142f + 0.215f;
+	float Z = -0.0813333f - 0.125f;
 	objectList.push_back(new hexBox(X + 0.0f, MIN_HEX_HEIGHT, Z + 0.0f, 3, 0));	// y = -eyeHeight + MIN_HEX_HEIGHT
 	objectList.push_back(new hexBox(X + 0.0f, MIN_HEX_HEIGHT, Z - 0.0815f, 2, 0));
 	objectList.push_back(new hexBox(X + 0.0f, MIN_HEX_HEIGHT, Z + 0.0815f, 5, 0));
@@ -397,9 +397,9 @@ int Oculus::runOvr() {
 		else
 			offset = -0.04075f;
 		for (int j = 0; j < 24; j++)
-			objectList.push_back(new hexBox( -1.5f + i * 0.07058,						// X-axis
+			objectList.push_back(new hexBox(-1.58f + i * 0.071777f,						// X-axis
 											  -eyeHeight - 0.4f,						// Y-axis (-eyeHeight - 0.01, height = 0.1)
-											  -1.0f + 0.0815f * j + offset, 0, 1));			// Z-axis
+											  -1.131f + 0.083984f * j + offset, 0, 1));			// Z-axis
 	}
 	// Lightsources
 	objectList.push_back(new Sphere(glm::vec3(0.3f, 0.2f, 0.0f), 0.02f));
@@ -696,10 +696,6 @@ int Oculus::runOvr() {
 				lightPosTemp[1] = LP.y;
 				lightPosTemp[2] = LP.z;
 				glUniform4fv(locationLP[0], 1, lightPosTemp);
-
-
-				
-
 
 				//!-- Translation due to positional tracking (DK2) and IPD...
 				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
