@@ -16,7 +16,7 @@ public:
 		ntris = 0;
 	};
 
-	hexBox(float x, float y, float z);
+	hexBox(float x, float y, float z, int tX, int tY);
 	~hexBox(void);
 
 	void setFunction(int f) { function = f; }

@@ -52,7 +52,7 @@ const float EYEHEIGHT{OVR_DEFAULT_EYE_HEIGHT};
 
 // Global Constant variables
 const int nFunctions = 7;
-const int nLightsources = 2;
+const int nLightsources = 3;
 
 // Function ID's
 const int DILATEnERODE = 0;
@@ -128,7 +128,7 @@ int Oculus::runOvr() {
 	int &chooseFunction = currentFunction;
 
 	// Location used for UNIFORMS in shader
-	GLint locationLP;
+	GLint locationLP[nLightsources+1];
 	GLint locationP;
 	GLint locationMV;
 	GLint locationTex;
@@ -370,7 +370,7 @@ int Oculus::runOvr() {
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));			//Ground plane
 	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
 	Box boxCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.15f, 1.58f, 0.15f));
-	hexBox refBox(0.0f, -eyeHeight+1.5f, -2.0f);
+	hexBox refBox(0.0f, -eyeHeight + 1.5f, -2.0f, 0, 0);
 
 	// ObjectLists
 	vector<Entity*> objectList;
@@ -382,13 +382,13 @@ int Oculus::runOvr() {
 	// Function-boxes
 	float X = 0.142f;
 	float Z = -0.0813333f;
-	objectList.push_back(new hexBox(X + 0.0f, MIN_HEX_HEIGHT, Z + 0.0f));	// y = -eyeHeight + MIN_HEX_HEIGHT
-	objectList.push_back(new hexBox(X + 0.0f, MIN_HEX_HEIGHT, Z - 0.0815f));
-	objectList.push_back(new hexBox(X + 0.0f, MIN_HEX_HEIGHT, Z + 0.0815f));
-	objectList.push_back(new hexBox(X + 0.07058f, MIN_HEX_HEIGHT, Z + 0.04075f));
-	objectList.push_back(new hexBox(X + 0.07058f, MIN_HEX_HEIGHT, Z - 0.04075f));
-	objectList.push_back(new hexBox(X - 0.07058f, MIN_HEX_HEIGHT, Z + 0.04075f));
-	objectList.push_back(new hexBox(X - 0.07058f, MIN_HEX_HEIGHT, Z - 0.04075f));
+	objectList.push_back(new hexBox(X + 0.0f, MIN_HEX_HEIGHT, Z + 0.0f, 3, 0));	// y = -eyeHeight + MIN_HEX_HEIGHT
+	objectList.push_back(new hexBox(X + 0.0f, MIN_HEX_HEIGHT, Z - 0.0815f, 2, 0));
+	objectList.push_back(new hexBox(X + 0.0f, MIN_HEX_HEIGHT, Z + 0.0815f, 5, 0));
+	objectList.push_back(new hexBox(X + 0.07058f, MIN_HEX_HEIGHT, Z + 0.04075f, 6, 0));
+	objectList.push_back(new hexBox(X + 0.07058f, MIN_HEX_HEIGHT, Z - 0.04075f, 4, 0));
+	objectList.push_back(new hexBox(X - 0.07058f, MIN_HEX_HEIGHT, Z + 0.04075f, 0, 0));
+	objectList.push_back(new hexBox(X - 0.07058f, MIN_HEX_HEIGHT, Z - 0.04075f, 1, 0));
 	// Movable hexBoxes
 	for (int i = 0; i < 48; i++)
 	{
@@ -398,11 +398,13 @@ int Oculus::runOvr() {
 			offset = -0.04075f;
 		for (int j = 0; j < 24; j++)
 			objectList.push_back(new hexBox( -1.5f + i * 0.07058,						// X-axis
-											  -eyeHeight - 0.01f,						// Y-axis (-eyeHeight - 0.01, height = 0.1)
-											  -1.0f + 0.0815f * j + offset));			// Z-axis
+											  -eyeHeight - 0.4f,						// Y-axis (-eyeHeight - 0.01, height = 0.1)
+											  -1.0f + 0.0815f * j + offset, 0, 1));			// Z-axis
 	}
 	// Lightsources
-
+	objectList.push_back(new Sphere(glm::vec3(0.3f, 0.5f, 0.0f), 0.02f));
+	objectList.push_back(new Sphere(glm::vec3(-0.3f, 0.5f, 0.0f), 0.02f));
+	objectList.push_back(new Sphere(glm::vec3(0.0f, 0.5f, -0.5f), 0.02f));
 
 	// Pointers to the lists
 	oPointer = &objectList;
@@ -412,8 +414,8 @@ int Oculus::runOvr() {
 	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
 	// Initilise VRPN connection with the Intersense wand
-	//Device* wand = new Device(true, true, false, "Mouse");
-	Device* wand = new Device(true, true, true, "Wand");
+	Device* wand = new Device(true, true, false, "Mouse");
+	//Device* wand = new Device(true, true, true, "Wand");
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -425,23 +427,19 @@ int Oculus::runOvr() {
 	
 	Texture groundTex("../Textures/floor3.DDS");
 	Texture coregister("../Textures/coregister3.DDS");
-	Texture refBoxTex("../Textures/smallPillarRotated3.DDS"); // temporary
-
-	vector <Texture*> texList;
-	texList.push_back(&dilate);
-	texList.push_back(&dnp);
-	texList.push_back(&move);
-	texList.push_back(&refBoxTex);
-	texList.push_back(&coregister);
-	texList.push_back(&refBoxTex);
-	texList.push_back(&refBoxTex);
+	Texture hexTex("../Textures/panel3.DDS"); // temporary
+	Texture lightTex("../Textures/light.DDS");
 
 	GLuint currentTexID = move.getTextureID();
 
 	//UNIFORM VARIABLES WITH SHADER ///////////////////////////////////////////////////////////////////////////
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");						// ModelView Matrix
 	locationP = glGetUniformLocation(phongShader.programID, "P");						// Perspective Matrix
-	locationLP = glGetUniformLocation(phongShader.programID, "lightPos");				// Light position
+	for (int i = 0; i < nLightsources + 1; i++) {
+		string uniform = "lightPos[" + to_string(i) + "]";
+		locationLP[i] = glGetUniformLocation(phongShader.programID, uniform.c_str());			// Light position
+	}
+		
 	locationTex = glGetUniformLocation(phongShader.programID, "tex");					// Texture Matrix
 
 	locationMeshMV = glGetUniformLocation(meshShader.programID, "MV");					// ModelView Matrix
@@ -475,8 +473,6 @@ int Oculus::runOvr() {
 			buttonHeld = true;
 			buttonPressed = false;
 		}
-		
-		cout << "Button pressed: " << buttonPressed << endl;
 
 		// INTERACTION ////////////////////////////////////////////////////////////////////////////////////////
 		if (buttonPressed || buttonHeld) {
@@ -701,8 +697,10 @@ int Oculus::runOvr() {
 				lightPosTemp[0] = LP.x;
 				lightPosTemp[1] = LP.y;
 				lightPosTemp[2] = LP.z;
-				lightPosTemp[3] = 1.0f;
-				glUniform4fv(locationLP, 1, lightPosTemp);
+				glUniform4fv(locationLP[0], 1, lightPosTemp);
+
+
+				
 
 
 				//!-- Translation due to positional tracking (DK2) and IPD...
@@ -712,7 +710,7 @@ int Oculus::runOvr() {
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 		
 				// Reference camera box
-				glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
+				glBindTexture(GL_TEXTURE_2D, hexTex.getTextureID());
 				refBox.render();
 
 				// Render objectList
@@ -724,19 +722,30 @@ int Oculus::runOvr() {
 					while (it != objectList.begin() + nFunctions) {
 						tempHex = static_cast<hexBox*> ((*it));
 						tempHex->setFunction(n);
-						glBindTexture(GL_TEXTURE_2D, texList.at(n)->getTextureID()); // panel textures
 						(*it)->render();
 						n++;
 						++it;
 					}
 					// Movable hexBoxes
-					glBindTexture(GL_TEXTURE_2D, refBoxTex.getTextureID());
 					while (it != objectList.end())
 					{
 						(*it)->render();
 						++it;
 					}
 					// Lightsources - remember to send as uniform
+					n = 1;
+					it = objectList.end() - nLightsources;
+					glBindTexture(GL_TEXTURE_2D, lightTex.getTextureID());
+					while (it != objectList.end()) {
+						MVstack.push();
+							glUniform4fv(locationLP[n], 1, (*it)->getPosition());
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							MVstack.translate((*it)->getPosition());
+							(*it)->render();
+						MVstack.pop();
+						n++;
+						++it;
+					}
 				}
 
 				// Ground
@@ -774,7 +783,7 @@ int Oculus::runOvr() {
 				glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				// MESH
-				if (!renderRegisterSpheres)
+				if (renderRegisterSpheres)
 				{
 					MVstack.push();
 						MVstack.translate(mTest->getPosition());

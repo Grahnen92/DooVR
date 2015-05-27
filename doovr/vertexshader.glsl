@@ -14,13 +14,7 @@ uniform mat4 P;
 //uniform mat4 OMV;
 
 void main () 
-{
-	//mat3 NormalMatrix = inverse(transpose(mat3(MV)));
-	//Normal =  normalize(NormalMatrix * VertexNormal); //Ratt men blur
-	//Normal = vec3( OMV * vec4(VertexNormal, 0.0));
-	//Position = mat3(MV) * VertexPosition;			    //careful here
-	
-	
+{	
 	Position =  vec3( MV * vec4(VertexPosition, 1.0));
 	Normal = normalize(mat3(MV) * VertexNormal);
 	UV = vertexUV;

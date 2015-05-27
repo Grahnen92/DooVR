@@ -1,6 +1,6 @@
 #include "hexBox.h"
 
-hexBox::hexBox(float x, float y, float z)
+hexBox::hexBox(float x, float y, float z, int tX, int tY)
 {
 	oType = 'H';
 	function = -1;
@@ -11,30 +11,30 @@ hexBox::hexBox(float x, float y, float z)
 
 
 	GLfloat vertex_array_data[] = {
-		//						Vertex																Normals										Texture  
+		//						Vertex									Normals										Texture  
 		//top
-		-radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 0.3f, 0.65f,
-		radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 0.7f, 0.65f,
-		radius + x,				y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 0.9f, 0.81f,
-		radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 0.7f, 0.97f,
-		-radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 0.3f, 0.97f,
-		-radius + x,			y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 0.09f, 0.81f,
-		0.0f + x,				y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 0.5f, 0.81f,
+		-radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 49.0f/1024.0f, (86.0f/1024.0f)*tY + 82.0f/1024.0f,
+		radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 96.0f/1024.0f, (86.0f/1024.0f)*tY + 82.0f/1024.0f,
+		radius + x,				y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 121.0f/1024.0f,(86.0f/1024.0f)*tY +  125.0f/1024.0f,
+		radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 96.0f/1024.0f, (86.0f/1024.0f)*tY + 167.0f/1024.0f,
+		-radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 49.0f/1024.0f, (86.0f/1024.0f)*tY + 167.0f/1024.0f,
+		-radius + x,			y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 24.0f/1024.0f, (86.0f/1024.0f)*tY + 125.0f/1024.0f,
+		0.0f + x,				y,	0.0f + z,					 0.0f, 1.0f, 0.0f,								 (147.0f/1024.0f)*tX + 73.0f/1024.0f, (86.0f/1024.0f)*tY + 125.0f/1024.0f,
 
 		//sides+
-		-radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 0.0f, 1.0f,								 0.0f, 0.6f,		// bak ruta
-		radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 0.0f, 1.0f,								 1.0f, 0.6f,
-		radius + x,				y,	0.0f + z,					 1.0f, 0.0f, 0.0f,								 0.0f, 0.4f,
-		radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 0.0f, -1.0f,								 0.0f, 0.6f,		//framruta
-		-radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 0.0f, -1.0f,								 1.0f, 0.6f,
-		-radius + x,			y,	0.0f + z,					 -1.0f, 0.0f, 0.0f,								 0.0f, 0.4f,
+		-radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 0.0f, 1.0f,								49.0f/1024.0f, 0.51f,
+		radius/2.0f + x,		y,	radius*0.86f + z,			 0.0f, 0.0f, 1.0f,								96.0f/1024.0f, 0.52f,
+		radius + x,				y,	0.0f + z,					 1.0f, 0.0f, 0.0f,								 96.0f/1024.0f, 0.51f,
+		radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 0.0f, -1.0f,								 49.0f/1024.0f, 0.52f,
+		-radius/2.0f + x,		y,	-radius*0.86f + z,			 0.0f, 0.0f, -1.0f,								 96.0f/1024.0f, 0.51f,
+		-radius + x,			y,	0.0f + z,					 -1.0f, 0.0f, 0.0f,								 49.0f/1024.0f, 0.52f,
 		//sides-
-		-radius/2.0f + x,		-3.0f,	radius*0.86f + z,			 0.0f, 0.0f, 1.0f,								 0.4f, 0.6f,		// bak ruta
-		radius/2.0f + x,		-3.0f,	radius*0.86f + z,			 0.0f, 0.0f, 1.0f,								 1.0f, 0.4f,
-		radius + x,				-3.0f,	0.0f + z,					 1.0f, 0.0f, 0.0f,								 1.0f, 0.6f,
-		radius/2.0f + x,		-3.0f,	-radius*0.86f + z,			 0.0f, 0.0f, -1.0f,								 0.0f, 0.6f,		// fram ruta
-		-radius/2.0f + x,		-3.0f,	-radius*0.86f + z,			 0.0f, 0.0f, -1.0f,								 1.0f, 0.4f,
-		-radius + x,			-3.0f,	0.0f + z,					 -1.0f, 0.0f, 0.0f,								 1.0f, 0.6f,
+		-radius/2.0f + x,		-3.0f,	radius*0.86f + z,		 0.0f, 0.0f, 1.0f,								49.0f/1024.0f, 0.51f,
+		radius/2.0f + x,		-3.0f,	radius*0.86f + z,		 0.0f, 0.0f, 1.0f,								96.0f/1024.0f, 0.52f,
+		radius + x,				-3.0f,	0.0f + z,				 1.0f, 0.0f, 0.0f,								 96.0f/1024.0f, 0.51f,
+		radius/2.0f + x,		-3.0f,	-radius*0.86f + z,		 0.0f, 0.0f, -1.0f,								 49.0f/1024.0f, 0.52f,
+		-radius/2.0f + x,		-3.0f,	-radius*0.86f + z,		 0.0f, 0.0f, -1.0f,								 96.0f/1024.0f, 0.51f,
+		-radius + x,			-3.0f,	0.0f + z,				 -1.0f, 0.0f, 0.0f,								 49.0f/1024.0f, 0.52f,
 
 
 	};
