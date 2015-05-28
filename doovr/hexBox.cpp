@@ -178,4 +178,5 @@ void hexBox::display(ostream& os) const
 {
 	os << "Shape: hexBox" << endl;
 	os << position[1] << endl;
+
 }

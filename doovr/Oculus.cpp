@@ -453,7 +453,7 @@ int Oculus::runOvr() {
 	//ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
-	Mesh* mTest = new Mesh();
+	Mesh* mTest = new Mesh(0.5f);
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
@@ -486,7 +486,7 @@ int Oculus::runOvr() {
 			case 1: // 1st from the left		
 				currentTexID = dnp.getTextureID();
 				updatePanel(oPointer, DRAGnPULL, MAX_HEX_HEIGHT, MIN_HEX_HEIGHT);
-				mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
+				mTest->sculpt(wand->getTrackerPosition(), lastPos, wandRadius, true);
 				break;
 			case 2: // 3rd from the left
 				currentTexID = move.getTextureID();
@@ -506,8 +506,6 @@ int Oculus::runOvr() {
 				renderRegisterSpheres = true;
 				wand->setTransformMatrix(I);
 				break;
-
-
 			case 5: // Trigger button (only non-hotkey)
 				if (buttonPressed && currentFunction != coREGISTER)
 					if (selectFunction(wand, oPointer, chooseFunction)) {
@@ -518,7 +516,7 @@ int Oculus::runOvr() {
 				if (currentFunction == DILATEnERODE)
 					break; //mTest->not_implemented_yet(wand->getTrackerPosition(), false, wandRadius);
 				else if (currentFunction == DRAGnPULL)
-					mTest->dilate(wand->getTrackerPosition(), lastPos, wandRadius, true);
+					mTest->sculpt(wand->getTrackerPosition(), lastPos, wandRadius, true);
 				else if (currentFunction == moveMESH)
 					moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
 				else if (currentFunction == moveENTITY)
@@ -528,7 +526,7 @@ int Oculus::runOvr() {
 					if (resetCounter > 1) {
 						buttonPressed = false;
 						delete mTest;
-						mTest = new Mesh();
+						mTest = new Mesh(0.5f);
 						resetCounter = 0;
 						currentFunction = moveMESH;
 					}
@@ -548,9 +546,6 @@ int Oculus::runOvr() {
 					}
 
 				}
-					
-
-
 
 				// Config
 				else if (currentFunction == coREGISTER && buttonPressed) {
@@ -567,10 +562,11 @@ int Oculus::runOvr() {
 						linAlg::matrixMult(invPos, regSpherePos, transform);
 						wand->setTransformMatrix(transform);
 						renderRegisterSpheres = false;
-					} else if (regCounter == 4)
+					} else if (regCounter == 4) {
 						eye = wand->getTrackerPosition()[1];
-					else if (regCounter == 5)
+					} else if (regCounter == 5) {
 						floor = wand->getTrackerPosition()[1];
+					}
 
 					regCounter++;
 					if (regCounter == 6) {
@@ -599,8 +595,6 @@ int Oculus::runOvr() {
 			}
 		}
 			
-
-
 		// ANALOG BUTTON - change tool size
 		if (wand->getAnalogPosition()[0] != 0 || wand->getAnalogPosition()[1] != 0) {
 			const float MAX_RADIUS_WAND_TOOL = 0.2f;
@@ -614,7 +608,6 @@ int Oculus::runOvr() {
 				wandRadius += 0.001f*wand->getAnalogPosition()[1];
 			}
 		}
-
 
 		// KEYBORD EVENTS
 		if (glfwGetKey(l_Window, GLFW_KEY_O)) {
@@ -632,7 +625,7 @@ int Oculus::runOvr() {
 		}
 		if (glfwGetKey(l_Window, GLFW_KEY_R)) {
 			delete mTest; // Reset mesh
-			mTest = new Mesh();
+			mTest = new Mesh(0.5f);
 		}
 		// Activate wireframe (hold L)
 		if (glfwGetKey(l_Window, GLFW_KEY_L) == GLFW_PRESS && !lines) {
@@ -657,13 +650,16 @@ int Oculus::runOvr() {
 		glBindFramebuffer(GL_FRAMEBUFFER, l_FBOId);
 
 		GLRenderCallsOculus();
-		if (lines) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		} else if (!lines) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
+
 		
 		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++) {
+
+			if (lines) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
+			else if (!lines) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
 
 			ovrEyeType l_Eye = hmd->EyeRenderOrder[l_EyeIndex];
 
@@ -755,8 +751,6 @@ int Oculus::runOvr() {
 					MVstack.pop();
 				}
 
-				
-
 				// Co-register spheres
 				if (renderRegisterSpheres) {
 					MVstack.push();
@@ -775,22 +769,18 @@ int Oculus::runOvr() {
 				glUniform4fv(locationMeshLP, 1, lightPosTemp);
 				glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
-				// MESH
-				if (renderRegisterSpheres)
+				
+				if (!renderRegisterSpheres)
 				{
+					// MESH
 					MVstack.push();
 						MVstack.translate(mTest->getPosition());
 						MVstack.multiply(mTest->getOrientation());
 						glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						mTest->render();
 					MVstack.pop();
-				}
 
-
-
-				// WAND
-				if (!renderRegisterSpheres)
-				{
+					// WAND
 					MVstack.push();
 						MVstack.translate(wand->getTrackerPosition());
 						MVstack.multiply(wand->getTrackerRotation());					
@@ -818,7 +808,6 @@ int Oculus::runOvr() {
 							glBindTexture(GL_TEXTURE_2D, currentTexID);
 							boxWand.render();
 						MVstack.pop();
-
 					MVstack.pop();
 				}
 			MVstack.pop();

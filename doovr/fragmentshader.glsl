@@ -44,9 +44,9 @@ vec3 calculateLight(vec3 lightP, float lightIntensity) {
 
 
 void main () {
-	float LightIntensity = 0.7f;
+	float LightIntensity = 0.6f;
 	vec3 resultLight = calculateLight(lightPos[0], LightIntensity);
-	LightIntensity = 0.1f;
+	LightIntensity = 0.2f;
 	//for (int i = 1; i < nLightsources; i++)
 		//resultLight += calculateLight(lightPos[i], LightIntensity);
 	FragColor = vec4(resultLight, 1.0f);

@@ -1,18 +1,5 @@
 #include "linAlg.h"
 
-void linAlg::normVec(float* vec) {
-	float length = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-	vec[0] = vec[0] / length;
-	vec[1] = vec[1] / length;
-	vec[2] = vec[2] / length;
-}
-
-void linAlg::crossProd(float* normal, float* vec1, float* vec2) {
-	normal[0] = (vec1[1] * vec2[2] - vec1[2] * vec2[1]);
-	normal[1] = -(vec1[0] * vec2[2] - vec1[2] * vec2[0]);
-	normal[2] = (vec1[0] * vec2[1] - vec1[1] * vec2[0]);
-}
-
 void linAlg::matrixMult(float* M1, float* M2, float* Mout) {
 	// Compute result in a local variable to avoid conflicts
 	// with overwriting if Mout is the same variable as either
@@ -31,10 +18,6 @@ void linAlg::matrixMult(float* M1, float* M2, float* Mout) {
 	for (i = 0; i<16; i++) {
 		Mout[i] = Mtemp[i];
 	}
-}
-
-float linAlg::vecLength(float* vec) {
-	return sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
 }
 
 void linAlg::matrixMultTHREE(float* M1, float* M2, float* Mout) {
@@ -58,7 +41,7 @@ void linAlg::matrixMultTHREE(float* M1, float* M2, float* Mout) {
 	}
 }
 
-void linAlg::vectorMatrixMult(float* M1, float* V, float* Mout) {
+void linAlg::vectorMatrixMult(float* M1, float* V, float* Vout) {
 	float Mtemp[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	int i, j;
 	// Perform the multiplication M3 = M1*M2
@@ -70,7 +53,7 @@ void linAlg::vectorMatrixMult(float* M1, float* V, float* Mout) {
 	}
 	// Copy the result to the output variable
 	for (i = 0; i<4; i++) {
-		Mout[i] = Mtemp[i];
+		Vout[i] = Mtemp[i];
 	}
 }
 
@@ -224,4 +207,34 @@ void linAlg::invertMatrix(float* m, float* invOut)
 		for (i = 0; i < 16; i++)
 			invOut[i] = inv[i] * det;
 	}
+}
+
+void linAlg::calculateVec(float* newVec, float* a, float* b) {
+	newVec[0] = a[0] - b[0];
+	newVec[1] = a[1] - b[1];
+	newVec[2] = a[2] - b[2];
+}
+
+void linAlg::normVec(float* vec) {
+	float length = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+
+	if (length != 0) {
+		vec[0] = vec[0] / length;
+		vec[1] = vec[1] / length;
+		vec[2] = vec[2] / length;
+	}
+}
+
+void linAlg::crossProd(float normal[3], float* vec1, float* vec2) {
+	normal[0] = (vec1[1] * vec2[2] - vec1[2] * vec2[1]);
+	normal[1] = -(vec1[0] * vec2[2] - vec1[2] * vec2[0]);
+	normal[2] = (vec1[0] * vec2[1] - vec1[1] * vec2[0]);
+}
+
+float linAlg::vecLength(float vec[3]) {
+	return sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+}
+
+float linAlg::dotProd(float vec1[3], float vec2[3]){
+	return vec1[0] * vec2[0] + vec1[1] * vec2[1] + vec1[2] * vec2[2];
 }

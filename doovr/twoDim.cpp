@@ -62,7 +62,7 @@ int twoDim::run2D() {
 	MatrixStack MVstack;
 	MVstack.init();
 
-	Mesh mTest;
+	Mesh mTest(0.5f);
 	//Sphere sphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
 	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));
 
