@@ -746,7 +746,7 @@ void Mesh::updateArea(int* changeList, int listSize) {
 	static float tempNorm1[3] = { 0.0f, 0.0f, 0.0f };
 	static float tempNorm2[3] = { 0.0f, 0.0f, 0.0f };
 	halfEdge* tempEdge;
-	int vert1, vert2; 
+	static int vert1, vert2; 
 	static float edgeLength;
 
 	for (int i = 0; i < listSize; i++) {
