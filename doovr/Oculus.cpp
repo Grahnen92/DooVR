@@ -76,9 +76,9 @@ int Oculus::runOvr() {
 					  0.0f, 0.0f, -0.2f, 0.0f };
 
 	// Lightposition 
-	float lPos[3] = { 2.0f, 3.0f, -3.0f};
-	float lPos2[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	float lPosTemp[4];
+	GLfloat lPos[4] = { 2.0f, 3.0f, -3.0f, 1.0f};
+	GLfloat lPos2[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	GLfloat lPosTemp[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float lightPosTemp[3];
 
 	// Save old positions and transforms
@@ -651,7 +651,7 @@ int Oculus::runOvr() {
 
 		
 		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++) {
-
+			
 			//OCULUS/CAMERA TRANSFORMS ------------------------------------------------------------------------------
 			MVstack.push();
 				ovrEyeType l_Eye = hmd->EyeRenderOrder[l_EyeIndex];
@@ -661,34 +661,39 @@ int Oculus::runOvr() {
 					g_EyeTextures[l_Eye].Header.RenderViewport.Size.w,
 					g_EyeTextures[l_Eye].Header.RenderViewport.Size.h);
 
+				glUseProgram(phongShader.programID);
 				// Pass projection matrix on to OpenGL...
 				glUniformMatrix4fv(locationP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
-				//glUniform1i(locationTex, 0);
+				glUniform1i(locationTex, 0);
 
 				// Multiply with orientation retrieved from sensor...
 				OVR::Quatf l_Orientation = OVR::Quatf(g_EyePoses[l_Eye].Orientation);
 				OVR::Matrix4f l_ModelViewMatrix = OVR::Matrix4f(l_Orientation.Inverted());
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
+
+				glm::mat4 pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
+				glm::vec4 LP = pmat4 * glm::vec4(lPos[0], lPos[1], lPos[2], 1.0f);
+				lPosTemp[0] = LP.x;
+				lPosTemp[1] = LP.y;
+				lPosTemp[2] = LP.z;
+				
+				/*
+				linAlg::vectorMatrixMult(MVstack.getCurrentMatrix(), lPos, lPosTemp);
+				lPosTemp[0] = 1.0f;
+				lPosTemp[1] = 1.0f;
+				lPosTemp[2] = 1.0f;
+				*/
 				//!-- Translation due to positional tracking (DK2) and IPD...
 				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
 				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z };
 				MVstack.translate(eyePoses);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-
-				MVstack.push();
-					MVstack.translate(lPos);
-					linAlg::vectorMatrixMult(MVstack.getCurrentMatrix(), lPos2, lPosTemp);
-					//lightPosTemp[0] = lPosTemp[0];
-					//lightPosTemp[1] = lPosTemp[1];
-					//lightPosTemp[2] = lPosTemp[2];
-				MVstack.pop();
 				
-
 				if (!renderRegisterSpheres)
 				{
 					//SCENEOBJECT TRANSFORMS----------------------------------------------------------------
 					MVstack.push();
-						glUseProgram(phongShader.programID);
+						
 
 						glBindTexture(GL_TEXTURE_2D, hexTex.getTextureID());
 						//glUniform3fv(locationLP, GL_FALSE, lightPosTemp);
@@ -719,17 +724,21 @@ int Oculus::runOvr() {
 							glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
 							ground.render();
 						MVstack.pop();
-						
+						glBindTexture(GL_TEXTURE_2D, 0);
 						//RENDER MESH -----------------------------------------------------------------------
 						glUseProgram(meshShader.programID);
 						glUniformMatrix4fv(locationMeshP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
-						
+						cout << lPosTemp[0] << " " << lPosTemp[1] << " " << lPosTemp[2] << " " << lPosTemp[3] << endl;
+						glUniform4fv(locationMeshLP1, 1, lPosTemp);
+
+						glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 						MVstack.push();
 							MVstack.translate(mTest->getPosition());
 							MVstack.multiply(mTest->getOrientation());
 							glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-							glUniform4fv(locationMeshLP1, 1, lPosTemp);
+							
+
 							if (lines) {
 								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 								mTest->render();
