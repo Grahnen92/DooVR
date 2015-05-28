@@ -76,7 +76,10 @@ int Oculus::runOvr() {
 					  0.0f, 0.0f, -0.2f, 0.0f };
 
 	// Lightposition 
-	GLfloat lightPos[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
+	GLfloat lightPos[3] = { 0.0f, 0.2f, 0.2f};
+	GLfloat lightPos2[3];
+	GLfloat lightPos3[3];
+	GLfloat lightPos4[3];
 	GLfloat lightPosTemp[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	//glm::vec4 lightPos = { 0.0f, 0.5f, 2.0f, 1.0f };
 	glm::vec4 LP = glm::vec4(0);
@@ -135,6 +138,10 @@ int Oculus::runOvr() {
 
 	GLint locationMeshMV;
 	GLint locationMeshLP;
+	GLint locationMeshLP2;
+	GLint locationMeshLP3;
+	GLint locationMeshLP4;
+
 	GLint locationMeshP;
 
 	GLint locationWandMV;
@@ -445,6 +452,9 @@ int Oculus::runOvr() {
 	locationMeshMV = glGetUniformLocation(meshShader.programID, "MV");					// ModelView Matrix
 	locationMeshP = glGetUniformLocation(meshShader.programID, "P");					// Perspective Matrix
 	locationMeshLP = glGetUniformLocation(meshShader.programID, "lightPos");			// Light position
+	locationMeshLP2 = glGetUniformLocation(meshShader.programID, "lightPos2");			// Light position
+	locationMeshLP3 = glGetUniformLocation(meshShader.programID, "lightPos3");			// Light position
+	locationMeshLP4 = glGetUniformLocation(meshShader.programID, "lightPos4");			// Light position
 
 	locationWandMV = glGetUniformLocation(sphereShader.programID, "MV");					// ModelView Matrix
 	locationWandP = glGetUniformLocation(sphereShader.programID, "P");					// Perspective Matrix
@@ -716,7 +726,7 @@ int Oculus::runOvr() {
 						++it;
 					}
 					// Lightsources - remember to send as uniform
-					/*n = 1;
+					n = 1;
 					glBindTexture(GL_TEXTURE_2D, lightTex.getTextureID());
 					while (it != objectList.end()) {
 						MVstack.push();
@@ -727,7 +737,7 @@ int Oculus::runOvr() {
 						MVstack.pop();
 						n++;
 						++it;
-					}*/
+					}
 				}
 
 				// Ground
@@ -760,6 +770,30 @@ int Oculus::runOvr() {
 				glUseProgram(meshShader.programID);
 				glUniformMatrix4fv(locationMeshP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
 				glUniform4fv(locationMeshLP, 1, lightPosTemp);
+
+				// 1st
+				it = objectList.end() - nLightsources;
+				LP = pmat4 * glm::vec4((*it)->getPosition()[0], (*it)->getPosition()[1], (*it)->getPosition()[2], 1.0f);
+				lightPosTemp[0] = LP.x;
+				lightPosTemp[1] = LP.y;
+				lightPosTemp[2] = LP.z;
+				glUniform4fv(locationMeshLP2, 1, lightPosTemp);
+				++it;
+				// 2nd
+				LP = pmat4 * glm::vec4((*it)->getPosition()[0], (*it)->getPosition()[1], (*it)->getPosition()[2], 1.0f);
+				lightPosTemp[0] = LP.x;
+				lightPosTemp[1] = LP.y;
+				lightPosTemp[2] = LP.z;
+				glUniform4fv(locationMeshLP3, 1, lightPosTemp);
+				++it;
+				// 3rd
+				LP = pmat4 * glm::vec4((*it)->getPosition()[0], (*it)->getPosition()[1], (*it)->getPosition()[2], 1.0f);
+				lightPosTemp[0] = LP.x;
+				lightPosTemp[1] = LP.y;
+				lightPosTemp[2] = LP.z;
+				glUniform4fv(locationMeshLP4, 1, lightPosTemp);
+				++it;
+
 				glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				

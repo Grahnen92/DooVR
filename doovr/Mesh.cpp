@@ -1124,9 +1124,9 @@ void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge, bool update)
 		tempV.ny = temp[1];
 		tempV.nz = temp[2];
 
-		temp[0] = 0.5f*temp[0];
-		temp[1] = 0.5f*temp[1];
-		temp[2] = 0.5f*temp[2];
+		temp[0] = 0.2f*temp[0];
+		temp[1] = 0.2f*temp[1];
+		temp[2] = 0.2f*temp[2];
 
 		tempV.x = temp[0];
 		tempV.y = temp[1];
