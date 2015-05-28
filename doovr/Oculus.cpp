@@ -76,7 +76,7 @@ int Oculus::runOvr() {
 					  0.0f, 0.0f, -0.2f, 0.0f };
 
 	// Lightposition 
-	float lPos[3] = { 2.0f, 1.0f, -3.0f};
+	float lPos[3] = { 2.0f, 3.0f, -3.0f};
 	float lPos2[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float lPosTemp[4];
 	float lightPosTemp[3];
