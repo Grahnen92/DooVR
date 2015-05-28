@@ -439,7 +439,7 @@ int Oculus::runOvr() {
 	locationMeshMV = glGetUniformLocation(meshShader.programID, "MV");					// ModelView Matrix
 	locationMeshP = glGetUniformLocation(meshShader.programID, "P");					// Perspective Matrix
 	locationMeshLP1 = glGetUniformLocation(meshShader.programID, "LP1");
-	locationMeshLP2 = glGetUniformLocation(meshShader.programID, "LP2");
+	//locationMeshLP2 = glGetUniformLocation(meshShader.programID, "LP2");
 	//for (int i = 0; i < nLightsources + 1; i++) {
 	//	string uniform = "lightPos[" + to_string(i) + "]";
 	//	locationMeshLP[i] = glGetUniformLocation(meshShader.programID, uniform.c_str());			// Light position
@@ -678,9 +678,9 @@ int Oculus::runOvr() {
 				MVstack.push();
 					MVstack.translate(lPos);
 					linAlg::vectorMatrixMult(MVstack.getCurrentMatrix(), lPos2, lPosTemp);
-					lightPosTemp[0] = lPosTemp[0];
-					lightPosTemp[1] = lPosTemp[1];
-					lightPosTemp[2] = lPosTemp[2];
+					//lightPosTemp[0] = lPosTemp[0];
+					//lightPosTemp[1] = lPosTemp[1];
+					//lightPosTemp[2] = lPosTemp[2];
 				MVstack.pop();
 				
 
@@ -729,7 +729,7 @@ int Oculus::runOvr() {
 							MVstack.translate(mTest->getPosition());
 							MVstack.multiply(mTest->getOrientation());
 							glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-							glUniform3fv(locationMeshLP1, GL_FALSE, lightPosTemp);
+							glUniform4fv(locationMeshLP1, 1, lPosTemp);
 							if (lines) {
 								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 								mTest->render();
