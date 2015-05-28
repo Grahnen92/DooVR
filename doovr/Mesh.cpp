@@ -487,7 +487,7 @@ void Mesh::sculpt(float* p, float lp[3], float rad, bool but) {
 		if (mLength < rad) {
 
 			//normVec(tempVec1);
-			mLength = 0.005f*(0.05f / (mLength + 0.05f));
+			mLength = 0.01f*(0.05f / (mLength + 0.05f));
 
 			tempVec2[0] = vertexArray[i].nx;
 			tempVec2[1] = vertexArray[i].ny;

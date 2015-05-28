@@ -76,7 +76,7 @@ int Oculus::runOvr() {
 					  0.0f, 0.0f, -0.2f, 0.0f };
 
 	// Lightposition 
-	GLfloat lPos[4] = { 2.0f, 3.0f, -3.0f, 1.0f};
+	GLfloat lPos[4] = { 2.0f, 3.0f, 3.0f, 1.0f};
 	GLfloat lPos2[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	GLfloat lPosTemp[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float lightPosTemp[3];
@@ -133,8 +133,10 @@ int Oculus::runOvr() {
 	GLint locationMeshMV;
 	//GLint locationMeshLP[nLightsources + 1];
 	GLint locationMeshP;
-	GLint locationMeshLP1;
+	GLint locationMeshLP;
 	GLint locationMeshLP2;
+	GLint locationMeshLP3;
+	GLint locationMeshLP4;
 
 	GLint locationWandMV;
 	GLint locationWandP;
@@ -438,7 +440,10 @@ int Oculus::runOvr() {
 
 	locationMeshMV = glGetUniformLocation(meshShader.programID, "MV");					// ModelView Matrix
 	locationMeshP = glGetUniformLocation(meshShader.programID, "P");					// Perspective Matrix
-	locationMeshLP1 = glGetUniformLocation(meshShader.programID, "LP1");
+	locationMeshLP = glGetUniformLocation(meshShader.programID, "lightPos");
+	locationMeshLP2 = glGetUniformLocation(meshShader.programID, "lightPos2");
+	locationMeshLP3 = glGetUniformLocation(meshShader.programID, "lightPos3");
+	locationMeshLP4 = glGetUniformLocation(meshShader.programID, "lightPos4");
 	//locationMeshLP2 = glGetUniformLocation(meshShader.programID, "LP2");
 	//for (int i = 0; i < nLightsources + 1; i++) {
 	//	string uniform = "lightPos[" + to_string(i) + "]";
@@ -671,22 +676,23 @@ int Oculus::runOvr() {
 				OVR::Matrix4f l_ModelViewMatrix = OVR::Matrix4f(l_Orientation.Inverted());
 				MVstack.multiply(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
+
+				//!-- Translation due to positional tracking (DK2) and IPD...
+				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
+				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z };
+				MVstack.translate(eyePoses);
+				
 				glm::mat4 pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
 				glm::vec4 LP = pmat4 * glm::vec4(lPos[0], lPos[1], lPos[2], 1.0f);
 				lPosTemp[0] = LP.x;
 				lPosTemp[1] = LP.y;
 				lPosTemp[2] = LP.z;
 				
-				/*
-				linAlg::vectorMatrixMult(MVstack.getCurrentMatrix(), lPos, lPosTemp);
-				lPosTemp[0] = 1.0f;
-				lPosTemp[1] = 1.0f;
-				lPosTemp[2] = 1.0f;
-				*/
-				//!-- Translation due to positional tracking (DK2) and IPD...
-				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
-				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z };
-				MVstack.translate(eyePoses);
+				//linAlg::vectorMatrixMult(MVstack.getCurrentMatrix(), lPos, lPosTemp);
+				//lPosTemp[0] = 1.0f;
+				//lPosTemp[1] = 1.0f;
+				//lPosTemp[2] = 1.0f;
+				
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 				
 				if (!renderRegisterSpheres)
@@ -700,7 +706,7 @@ int Oculus::runOvr() {
 
 						//RENDER DIFFERENT HEXBOXES---------------------------------------------------------------------
 						refBox.render();
-
+						glUniform4fv(locationLP, 1, lPosTemp);
 						it = objectList.begin();
 						n = 0;
 						while (it != objectList.begin() + nFunctions) {
@@ -715,12 +721,23 @@ int Oculus::runOvr() {
 							++it;
 						}
 
+						// Lightsources - remember to send as unifor
+						while (it != objectList.end()) {
+							MVstack.push();
+								MVstack.translate((*it)->getPosition());
+								glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+								(*it)->render();
+							MVstack.pop();
+							++it;
+						}
+
 						MVstack.push();
 							translateVector[0] = 0.0f;
 							translateVector[1] = -eyeHeight;
 							translateVector[2] = 0.0f;
 							MVstack.translate(translateVector);
 							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glUniform4fv(locationLP, 1, lPosTemp);
 							glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
 							ground.render();
 						MVstack.pop();
@@ -728,16 +745,32 @@ int Oculus::runOvr() {
 						//RENDER MESH -----------------------------------------------------------------------
 						glUseProgram(meshShader.programID);
 						glUniformMatrix4fv(locationMeshP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
-						cout << lPosTemp[0] << " " << lPosTemp[1] << " " << lPosTemp[2] << " " << lPosTemp[3] << endl;
-						glUniform4fv(locationMeshLP1, 1, lPosTemp);
-
-						glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 						MVstack.push();
 							MVstack.translate(mTest->getPosition());
 							MVstack.multiply(mTest->getOrientation());
 							glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							//cout << lPosTemp[0] << " " << lPosTemp[1] << " " << lPosTemp[2] << " " << lPosTemp[3] << endl;
+							glUniform4fv(locationMeshLP, 1, lPosTemp);
+
 							
+							LP = pmat4 * glm::vec4(objectList[1159]->getPosition()[0], objectList[1161]->getPosition()[1], objectList[1161]->getPosition()[2], 1.0f);
+							lPosTemp[0] = LP.x;
+							lPosTemp[1] = LP.y;
+							lPosTemp[2] = LP.z;
+							glUniform4fv(locationMeshLP2, 1, lPosTemp);
+							
+							LP = pmat4 * glm::vec4(objectList[1160]->getPosition()[0], objectList[1161]->getPosition()[1], objectList[1161]->getPosition()[2], 1.0f);
+							lPosTemp[0] = LP.x;
+							lPosTemp[1] = LP.y;
+							lPosTemp[2] = LP.z;
+							glUniform4fv(locationMeshLP3, 1, lPosTemp);
+
+							LP = pmat4 * glm::vec4(objectList[1161]->getPosition()[0], objectList[1161]->getPosition()[1], objectList[1161]->getPosition()[2], 1.0f);
+							lPosTemp[0] = LP.x;
+							lPosTemp[1] = LP.y;
+							lPosTemp[2] = LP.z;
+							glUniform4fv(locationMeshLP4, 1, lPosTemp);
 
 							if (lines) {
 								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -764,7 +797,7 @@ int Oculus::runOvr() {
 								translateVector[2] = 0.0f;
 								MVstack.translate(translateVector);
 								glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-								glBindTexture(GL_TEXTURE_2D, currentTexID);
+								glBindTexture(GL_TEXTURE_2D, hexTex.getTextureID());
 								boxWand.render();
 							MVstack.pop();
 
