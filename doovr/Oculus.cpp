@@ -101,7 +101,7 @@ int Oculus::runOvr() {
 	float transform[16] = { 0.0f };
 	float invPos[16] = { 0.0f };
 	float eyeHeight = OVR_DEFAULT_EYE_HEIGHT;
-	float MAX_HEX_HEIGHT = -eyeHeight + 1.0f;
+	float MAX_HEX_HEIGHT = -eyeHeight + 0.95f;
 	float MIN_HEX_HEIGHT = -eyeHeight + 0.9f;
 	float eye, floor;
 
@@ -124,7 +124,7 @@ int Oculus::runOvr() {
 	bool buttonReleased = false;
 	bool lines = false;
 
-	int currentFunction = coREGISTER;
+	int currentFunction = moveENTITY;
 	int &chooseFunction = currentFunction;
 
 	// Location used for UNIFORMS in shader
@@ -453,7 +453,7 @@ int Oculus::runOvr() {
 	//ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
-	Mesh* mTest = new Mesh(0.5f);
+	Mesh* mTest = new Mesh(0.2f);
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
@@ -526,7 +526,7 @@ int Oculus::runOvr() {
 					if (resetCounter > 1) {
 						buttonPressed = false;
 						delete mTest;
-						mTest = new Mesh(0.5f);
+						mTest = new Mesh(0.2f);
 						resetCounter = 0;
 						currentFunction = moveMESH;
 					}
@@ -571,7 +571,7 @@ int Oculus::runOvr() {
 					regCounter++;
 					if (regCounter == 6) {
 						eyeHeight = eye - floor;
-						MAX_HEX_HEIGHT = -eyeHeight + 1.0f;
+						MAX_HEX_HEIGHT = -eyeHeight + 0.95f;
 						MIN_HEX_HEIGHT = -eyeHeight + 0.9f;
 						regCounter = 0;
 						currentFunction = DRAGnPULL;
@@ -625,7 +625,7 @@ int Oculus::runOvr() {
 		}
 		if (glfwGetKey(l_Window, GLFW_KEY_R)) {
 			delete mTest; // Reset mesh
-			mTest = new Mesh(0.5f);
+			mTest = new Mesh(0.2f);
 		}
 		// Activate wireframe (hold L)
 		if (glfwGetKey(l_Window, GLFW_KEY_L) == GLFW_PRESS && !lines) {
@@ -653,13 +653,6 @@ int Oculus::runOvr() {
 
 		
 		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++) {
-
-			if (lines) {
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			}
-			else if (!lines) {
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			}
 
 			ovrEyeType l_Eye = hmd->EyeRenderOrder[l_EyeIndex];
 
@@ -723,7 +716,7 @@ int Oculus::runOvr() {
 						++it;
 					}
 					// Lightsources - remember to send as uniform
-					n = 1;
+					/*n = 1;
 					glBindTexture(GL_TEXTURE_2D, lightTex.getTextureID());
 					while (it != objectList.end()) {
 						MVstack.push();
@@ -734,7 +727,7 @@ int Oculus::runOvr() {
 						MVstack.pop();
 						n++;
 						++it;
-					}
+					}*/
 				}
 
 				// Ground
@@ -777,7 +770,15 @@ int Oculus::runOvr() {
 						MVstack.translate(mTest->getPosition());
 						MVstack.multiply(mTest->getOrientation());
 						glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						mTest->render();
+						if (lines) {
+							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+							mTest->render();
+							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						}
+						else {
+							mTest->render();
+						}
+						
 					MVstack.pop();
 
 					// WAND
@@ -795,7 +796,6 @@ int Oculus::runOvr() {
 							glUniform4fv(locationWandLP, 1, lightPosTemp);
 							glUniformMatrix4fv(locationWandMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 							sphereWand.render();
-							if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						MVstack.pop();
 
 						glUseProgram(phongShader.programID);
@@ -862,6 +862,7 @@ void GLRenderCallsOculus(){
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     //glDisable(GL_TEXTURE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glFrontFace(GL_CCW);
