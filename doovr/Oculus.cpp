@@ -76,9 +76,10 @@ int Oculus::runOvr() {
 					  0.0f, 0.0f, -0.2f, 0.0f };
 
 	// Lightposition 
-	GLfloat lPos[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
-	GLfloat lightPosTemp[3] = { 0.0f, 0.0f, 0.0f};
-	glm::vec4 LP = glm::vec4(0);
+	float lPos[3] = { 2.0f, 1.0f, -3.0f};
+	float lPos2[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float lPosTemp[4];
+	float lightPosTemp[3];
 
 	// Save old positions and transforms
 	float changePos[3] = { 0.0f };
@@ -113,10 +114,6 @@ int Oculus::runOvr() {
 
 	// Size of the wand tool
 	float wandRadius = 0.05f;
-	
-	//
-	glm::vec4 nullVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	glm::vec4 tempVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// States
 	bool buttonPressed = false;
@@ -134,11 +131,12 @@ int Oculus::runOvr() {
 	GLint locationTex;
 
 	GLint locationMeshMV;
-	GLint locationMeshLP[nLightsources + 1];
+	//GLint locationMeshLP[nLightsources + 1];
 	GLint locationMeshP;
+	GLint locationMeshLP1;
+	GLint locationMeshLP2;
 
 	GLint locationWandMV;
-	GLint locationWandLP;
 	GLint locationWandP;
 
 	//INITIALIZE OVR /////////////////////////////////////////////////////
@@ -425,10 +423,10 @@ int Oculus::runOvr() {
 	Texture erode("../Textures/down.DDS");
 	Texture dnp("../Textures/push.DDS");
 	
+	// Scene textures
 	Texture groundTex("../Textures/floor3.DDS");
 	Texture coregister("../Textures/coregister3.DDS");
-	Texture hexTex("../Textures/panel3.DDS"); // temporary
-	Texture lightTex("../Textures/light.DDS");
+	Texture hexTex("../Textures/panel3.DDS");
 
 	GLuint currentTexID = move.getTextureID();
 
@@ -436,16 +434,17 @@ int Oculus::runOvr() {
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");						// ModelView Matrix
 	locationP = glGetUniformLocation(phongShader.programID, "P");						// Perspective Matrix
 	locationLP = glGetUniformLocation(phongShader.programID, "lightPos");			// Light position
-		
 	locationTex = glGetUniformLocation(phongShader.programID, "tex");					// Texture Matrix
 
 	locationMeshMV = glGetUniformLocation(meshShader.programID, "MV");					// ModelView Matrix
 	locationMeshP = glGetUniformLocation(meshShader.programID, "P");					// Perspective Matrix
-	for (int i = 0; i < nLightsources + 1; i++) {
-		string uniform = "lightPos[" + to_string(i) + "]";
-		locationMeshLP[i] = glGetUniformLocation(meshShader.programID, uniform.c_str());			// Light position
-	}
-	//locationMeshLP = glGetUniformLocation(meshShader.programID, "lightPos");
+	locationMeshLP1 = glGetUniformLocation(meshShader.programID, "LP1");
+	locationMeshLP2 = glGetUniformLocation(meshShader.programID, "LP2");
+	//for (int i = 0; i < nLightsources + 1; i++) {
+	//	string uniform = "lightPos[" + to_string(i) + "]";
+	//	locationMeshLP[i] = glGetUniformLocation(meshShader.programID, uniform.c_str());			// Light position
+	//}
+
 	locationWandMV = glGetUniformLocation(sphereShader.programID, "MV");					// ModelView Matrix
 	locationWandP = glGetUniformLocation(sphereShader.programID, "P");					// Perspective Matrix
 
@@ -676,6 +675,15 @@ int Oculus::runOvr() {
 				MVstack.translate(eyePoses);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
+				MVstack.push();
+					MVstack.translate(lPos);
+					linAlg::vectorMatrixMult(MVstack.getCurrentMatrix(), lPos2, lPosTemp);
+					lightPosTemp[0] = lPosTemp[0];
+					lightPosTemp[1] = lPosTemp[1];
+					lightPosTemp[2] = lPosTemp[2];
+				MVstack.pop();
+				
+
 				if (!renderRegisterSpheres)
 				{
 					//SCENEOBJECT TRANSFORMS----------------------------------------------------------------
@@ -683,6 +691,7 @@ int Oculus::runOvr() {
 						glUseProgram(phongShader.programID);
 
 						glBindTexture(GL_TEXTURE_2D, hexTex.getTextureID());
+						//glUniform3fv(locationLP, GL_FALSE, lightPosTemp);
 
 						//RENDER DIFFERENT HEXBOXES---------------------------------------------------------------------
 						refBox.render();
@@ -714,11 +723,13 @@ int Oculus::runOvr() {
 						//RENDER MESH -----------------------------------------------------------------------
 						glUseProgram(meshShader.programID);
 						glUniformMatrix4fv(locationMeshP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
+						
 
 						MVstack.push();
 							MVstack.translate(mTest->getPosition());
 							MVstack.multiply(mTest->getOrientation());
 							glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glUniform3fv(locationMeshLP1, GL_FALSE, lightPosTemp);
 							if (lines) {
 								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 								mTest->render();

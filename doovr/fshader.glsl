@@ -3,13 +3,13 @@ layout( location = 0 ) out vec4 FragColor;
 
 in vec3 Position;
 in vec3 Normal;
-
+in vec3 LP;
 const int nLightsources = 4;
 const float ATT_CONST = 0.2f;
 const float ATT_LINEAR = 0.4f;
 const float ATT_QUAD = 0.8f;
 
-uniform vec3 lightPos[nLightsources];
+
 
 vec3 calculateLight(vec3 lightP, float lightIntensity) {
 
@@ -29,20 +29,20 @@ vec3 calculateLight(vec3 lightP, float lightIntensity) {
 
 	float spec = 0.0;
 	// Ambient
-	vec3 ambient = vec3(1.0f, 1.0f, 1.0f) * lightIntensity;
+	vec3 ambient = vec3(0.0f, 0.0f, 0.0f) * lightIntensity;
 	vec3 halfwayDir = normalize(lightDir + viewDir);  
 	spec = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
-	vec3 specular = vec3(1.0f, 1.0f, 1.0f) * spec * lightIntensity;			// assuming bright white light color
+	vec3 specular = vec3(0.0f, 0.0f, 0.0f) * spec * lightIntensity;			// assuming bright white light color
 	return color*(ambient + diffuse + specular);
 }
 
 
 void main () {
-	float LightIntensity = 0.0f;
-	vec3 resultLight = calculateLight(lightPos[0], LightIntensity);
-	LightIntensity = 0.15f;
-	for (int i = 1; i < nLightsources; i++)
-		resultLight += calculateLight(lightPos[i], LightIntensity);
+	float LightIntensity = 0.2f;
+	vec3 resultLight = calculateLight(LP, LightIntensity);
+	LightIntensity = 0.0f;
+	//for (int i = 1; i < nLightsources; i++)
+		//resultLight += calculateLight(lightPos[i], LightIntensity);
 	FragColor = vec4(resultLight, 1.0f);
 	
 }
