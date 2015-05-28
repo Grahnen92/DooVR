@@ -14,10 +14,6 @@ uniform vec3 lightPos[nLightsources];
 vec3 calculateLight(vec3 lightP, float lightIntensity) {
 
 
-	// Attenuation
-    float distance = length(lightP - Position);
-    float attenuation = 1.0f / (ATT_CONST + ATT_LINEAR * distance + ATT_QUAD * (distance * distance));
-
 	vec3 color = vec3(0.6098f,0.5745f,0.6274f);
 	
 	//Diffuse part
@@ -37,14 +33,14 @@ vec3 calculateLight(vec3 lightP, float lightIntensity) {
 	vec3 halfwayDir = normalize(lightDir + viewDir);  
 	spec = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
 	vec3 specular = vec3(1.0f, 1.0f, 1.0f) * spec * lightIntensity;			// assuming bright white light color
-	return color*(ambient + diffuse + specular)*attenuation;
+	return color*(ambient + diffuse + specular);
 }
 
 
 void main () {
 	float LightIntensity = 0.0f;
 	vec3 resultLight = calculateLight(lightPos[0], LightIntensity);
-	LightIntensity = 0.1f;
+	LightIntensity = 0.15f;
 	for (int i = 1; i < nLightsources; i++)
 		resultLight += calculateLight(lightPos[i], LightIntensity);
 	FragColor = vec4(resultLight, 1.0f);

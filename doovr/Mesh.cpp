@@ -287,7 +287,7 @@ Mesh::Mesh(float rad) {
 				if (!tempE1->needsUpdate)
 				{
 					if (linAlg::vecLength(tempVec) > MAX_LENGTH){
-						edgeSubdivide(tempP1, tempVec, tempE1, true);
+						edgeSubdivide(tempP1, tempVec, tempE1, true, rad);
 					}
 					else if (linAlg::vecLength(tempVec) < MIN_LENGTH) {
 						//edgeCollapse(tempP1, tempVec, tempE1);
@@ -300,7 +300,7 @@ Mesh::Mesh(float rad) {
 				if (tempE1->needsUpdate)
 				{
 					if (linAlg::vecLength(tempVec) > MAX_LENGTH)
-						edgeSubdivide(tempP1, tempVec, tempE1, false);
+						edgeSubdivide(tempP1, tempVec, tempE1, false, rad);
 					else if (linAlg::vecLength(tempVec) < MIN_LENGTH) {
 						//edgeCollapse(tempP1, tempVec, tempE1);
 						//tempE1 = tempE1->sibling->nextEdge->nextEdge;
@@ -327,7 +327,7 @@ Mesh::Mesh(float rad) {
 					if (!tempE1->needsUpdate)
 					{
 						if (linAlg::vecLength(tempVec) > MAX_LENGTH) {
-							edgeSubdivide(tempP1, tempVec, tempE1, true);
+							edgeSubdivide(tempP1, tempVec, tempE1, true,rad);
 						}
 						else if (linAlg::vecLength(tempVec) < MIN_LENGTH) {
 							//edgeCollapse(tempP1, tempVec, tempE1);
@@ -340,7 +340,7 @@ Mesh::Mesh(float rad) {
 					if (tempE1->needsUpdate)
 					{
 						if (linAlg::vecLength(tempVec) > MAX_LENGTH) {
-							edgeSubdivide(tempP1, tempVec, tempE1, false);
+							edgeSubdivide(tempP1, tempVec, tempE1, false,rad);
 						}
 						else if (linAlg::vecLength(tempVec) < MIN_LENGTH) {
 							//edgeCollapse(tempP1, tempVec, tempE1);
@@ -1053,7 +1053,7 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 }
 
 
-void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge, bool update) {
+void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge, bool update, float rad) {
 
 	vertex tempV;
 	triangle tempT;
@@ -1124,9 +1124,9 @@ void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge, bool update)
 		tempV.ny = temp[1];
 		tempV.nz = temp[2];
 
-		temp[0] = 0.5f*temp[0];
-		temp[1] = 0.5f*temp[1];
-		temp[2] = 0.5f*temp[2];
+		temp[0] = rad*temp[0];
+		temp[1] = rad*temp[1];
+		temp[2] = rad*temp[2];
 
 		tempV.x = temp[0];
 		tempV.y = temp[1];

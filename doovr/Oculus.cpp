@@ -124,7 +124,7 @@ int Oculus::runOvr() {
 	bool buttonReleased = false;
 	bool lines = false;
 
-	int currentFunction = coREGISTER;
+	int currentFunction = moveENTITY;
 	int &chooseFunction = currentFunction;
 
 	// Location used for UNIFORMS in shader
@@ -414,8 +414,8 @@ int Oculus::runOvr() {
 	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
 
 	// Initilise VRPN connection with the Intersense wand
-	Device* wand = new Device(true, true, false, "Mouse");
-	//Device* wand = new Device(true, true, true, "Wand");
+	//Device* wand = new Device(true, true, false, "Mouse");
+	Device* wand = new Device(true, true, true, "Wand");
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -452,7 +452,7 @@ int Oculus::runOvr() {
 	//ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
-	Mesh* mTest = new Mesh(0.5f);
+	Mesh* mTest = new Mesh(0.3f);
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
@@ -525,7 +525,7 @@ int Oculus::runOvr() {
 					if (resetCounter > 1) {
 						buttonPressed = false;
 						delete mTest;
-						mTest = new Mesh(0.5f);
+						mTest = new Mesh(0.3f);
 						resetCounter = 0;
 						currentFunction = moveMESH;
 					}
@@ -624,7 +624,7 @@ int Oculus::runOvr() {
 		}
 		if (glfwGetKey(l_Window, GLFW_KEY_R)) {
 			delete mTest; // Reset mesh
-			mTest = new Mesh(0.5f);
+			mTest = new Mesh(0.3f);
 		}
 		// Activate wireframe (hold L)
 		if (glfwGetKey(l_Window, GLFW_KEY_L) == GLFW_PRESS && !lines) {
@@ -700,6 +700,16 @@ int Oculus::runOvr() {
 							(*it)->render();
 							++it;
 						}
+
+						MVstack.push();
+							translateVector[0] = 0.0f;
+							translateVector[1] = -eyeHeight;
+							translateVector[2] = 0.0f;
+							MVstack.translate(translateVector);
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
+							ground.render();
+						MVstack.pop();
 						
 						//RENDER MESH -----------------------------------------------------------------------
 						glUseProgram(meshShader.programID);
@@ -709,7 +719,13 @@ int Oculus::runOvr() {
 							MVstack.translate(mTest->getPosition());
 							MVstack.multiply(mTest->getOrientation());
 							glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-							mTest->render();
+							if (lines) {
+								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+								mTest->render();
+								glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+							}
+							else
+								mTest->render();
 						MVstack.pop();
 						
 						glUseProgram(phongShader.programID);
@@ -738,7 +754,6 @@ int Oculus::runOvr() {
 								glUniformMatrix4fv(locationWandP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
 								glUniformMatrix4fv(locationWandMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 								sphereWand.render();
-								if (lines) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 							MVstack.pop();	
 						MVstack.pop();
 						
@@ -810,6 +825,7 @@ void GLRenderCallsOculus(){
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     //glDisable(GL_TEXTURE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glFrontFace(GL_CCW);
