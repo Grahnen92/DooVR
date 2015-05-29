@@ -441,8 +441,7 @@ void Mesh::sculpt(float* p, float lp[3], float rad, bool but) {
 	glm::vec4 tempvec;
 	vertex tempV;
 	float tempVec1[3]; float tempVec2[3];
-	float wPoint[3]; float vPoint[3]; float vPoint2[3];
-	int index; int index2; int tempCount = 0;
+	float wPoint[3]; float vPoint[3];
 
 	vector<int> changedVertices;
 	changedVertices.reserve(100);
@@ -486,7 +485,7 @@ void Mesh::sculpt(float* p, float lp[3], float rad, bool but) {
 
 		mLength = linAlg::vecLength(tempVec1);
 		if (mLength < rad) {
-			changedVertices.push_back(i);
+
 			//normVec(tempVec1);
 			mLength = 0.002f*(0.05f / (mLength + 0.05f));
 
@@ -494,52 +493,34 @@ void Mesh::sculpt(float* p, float lp[3], float rad, bool but) {
 			tempVec2[1] = vertexArray[i].ny;
 			tempVec2[2] = vertexArray[i].nz;
 
-			
-			for (int j = 0; j < changedVertices.size(); j++) {
-				index2 = changedVertices[j];
-
-				tempEdge = vertexEPtr[index2];
-
-				do {
-					if (!tempEdge->needsUpdate){
-						index = tempEdge->vertex;
-						vPoint2[0] = vertexArray[index].x;
-						vPoint2[1] = vertexArray[index].y;
-						vPoint2[2] = vertexArray[index].z;
-						tempVec1[0] = vPoint2[0] - wPoint[0];
-						tempVec1[1] = vPoint2[1] - wPoint[1];
-						tempVec1[2] = vPoint2[2] - wPoint[2];
-
-						mLength = linAlg::vecLength(tempVec1);
-
-						if (mLength < rad)
-						{
-							mLength = 0.002f*(0.05f / (mLength + 0.05f));
-							if (linAlg::dotProd(tempVec1, tempVec2) > 0){
-								vertexArray[index].x += vertexArray[index].nx * mLength;
-								vertexArray[index].y += vertexArray[index].ny * mLength;
-								vertexArray[index].z += vertexArray[index].nz * mLength;
-							}
-							else{
-								vertexArray[index].x -= vertexArray[index].nx * mLength;
-								vertexArray[index].y -= vertexArray[index].ny * mLength;
-								vertexArray[index].z -= vertexArray[index].nz * mLength;
-							}
-
-							tempEdge->sibling->needsUpdate = true;
-							changedVertices.push_back(index);
-							changeCount++;
-						}
-					}
-
-					tempEdge = tempEdge->nextEdge->sibling;
-
-				} while (tempEdge != vertexEPtr[index2]);
+			if (linAlg::dotProd(tempVec1, tempVec2) > 0){
+				vertexArray[i].x += vertexArray[i].nx * mLength;
+				vertexArray[i].y += vertexArray[i].ny * mLength;
+				vertexArray[i].z += vertexArray[i].nz * mLength;
+				//vertexArray[i].x = vertexArray[i].x + vertexArray[i].nx * (rad - mLength);
+				//vertexArray[i].y = vertexArray[i].y + vertexArray[i].ny * (rad - mLength);
+				//vertexArray[i].z = vertexArray[i].z + vertexArray[i].nz * (rad - mLength);
 			}
+			else{
+				vertexArray[i].x -= vertexArray[i].nx * mLength;
+				vertexArray[i].y -= vertexArray[i].ny * mLength;
+				vertexArray[i].z -= vertexArray[i].nz * mLength;
+			}
+
 			
+			changedVertices.push_back(i);
+
+			// mark the vertex edges as needUpdate
+			vertexEPtr[i]->needsUpdate = true;
+			tempEdge = vertexEPtr[i]->nextEdge->sibling;
+			while (tempEdge != vertexEPtr[i]) {
+				tempEdge->needsUpdate = true;
+				tempEdge = tempEdge->nextEdge->sibling;
+			}
+
+			changeCount++;
 
 			success = true;
-			break;
 		}
 	}
 
@@ -644,6 +625,7 @@ void Mesh::updateArea(int* changeList, int listSize) {
 	static float edgeLength;
 
 	for (int i = 0; i < listSize; i++) {
+
 		
 		vPoint1[0] = vertexArray[changeList[i]].x;
 		vPoint1[1] = vertexArray[changeList[i]].y;
@@ -1015,7 +997,6 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 
 	edge = tempE;
 
-
 	if (tempE2->sibling->triangle == tempE2->nextEdge->nextEdge->sibling->triangle) {
 		vertexEPtr[tempE2->sibling->vertex] = tempE2->nextEdge->sibling;
 		vertexEPtr[tempE2->nextEdge->nextEdge->vertex] = tempE2->nextEdge->sibling->nextEdge->nextEdge;
@@ -1045,7 +1026,7 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 		delete tempE2;
 	}
 
-if (tempE->sibling->triangle == tempE->nextEdge->nextEdge->sibling->triangle) {
+	if (tempE->sibling->triangle == tempE->nextEdge->nextEdge->sibling->triangle) {
 
 		vertexEPtr[tempE->sibling->vertex] = tempE->nextEdge->sibling;
 		vertexEPtr[tempE->nextEdge->nextEdge->vertex] = tempE->nextEdge->sibling->nextEdge->nextEdge;
