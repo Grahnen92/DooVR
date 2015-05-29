@@ -34,7 +34,7 @@ vec3 calculateLight(vec3 lightP, float lightIntensity) {
 	spec = pow(max(dot(normal, halfwayDir), 0.0), 16.0);
 	vec3 specular = vec3(1.0f, 1.0f, 1.0f) * spec * lightIntensity;			// assuming bright white light color
 	
-	return ambient + diffuse;// + specular;
+	return ambient + diffuse + specular;
 }
 
 

@@ -76,8 +76,8 @@ int Oculus::runOvr() {
 					  0.0f, 0.0f, -0.2f, 0.0f };
 
 	// Lightposition 
-	GLfloat lPos[4] = { 2.0f, 3.0f, 3.0f, 1.0f};
-	GLfloat lPos2[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	GLfloat lPos[4] = { 2.0f, 2.0f, 2.0f, 1.0f};
+	GLfloat lPos2[4] = { -2.0f, 2.0f, 2.0f, 1.0f };
 	GLfloat lPosTemp[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float lightPosTemp[3];
 
@@ -687,7 +687,8 @@ int Oculus::runOvr() {
 				lPosTemp[0] = LP.x;
 				lPosTemp[1] = LP.y;
 				lPosTemp[2] = LP.z;
-				
+				LP = pmat4 * glm::vec4(lPos2[0], lPos2[1], lPos2[2], 1.0f);
+
 				//linAlg::vectorMatrixMult(MVstack.getCurrentMatrix(), lPos, lPosTemp);
 				//lPosTemp[0] = 1.0f;
 				//lPosTemp[1] = 1.0f;
@@ -720,7 +721,7 @@ int Oculus::runOvr() {
 							(*it)->render();
 							++it;
 						}
-
+						/*
 						// Lightsources - remember to send as unifor
 						while (it != objectList.end()) {
 							MVstack.push();
@@ -730,7 +731,7 @@ int Oculus::runOvr() {
 							MVstack.pop();
 							++it;
 						}
-
+						*/
 						MVstack.push();
 							translateVector[0] = 0.0f;
 							translateVector[1] = -eyeHeight;
@@ -752,8 +753,11 @@ int Oculus::runOvr() {
 							glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 							//cout << lPosTemp[0] << " " << lPosTemp[1] << " " << lPosTemp[2] << " " << lPosTemp[3] << endl;
 							glUniform4fv(locationMeshLP, 1, lPosTemp);
-
-							
+							lPosTemp[0] = LP.x;
+							lPosTemp[1] = LP.y;
+							lPosTemp[2] = LP.z;
+							glUniform4fv(locationMeshLP2, 1, lPosTemp);
+							/*
 							LP = pmat4 * glm::vec4(objectList[1159]->getPosition()[0], objectList[1161]->getPosition()[1], objectList[1161]->getPosition()[2], 1.0f);
 							lPosTemp[0] = LP.x;
 							lPosTemp[1] = LP.y;
@@ -771,6 +775,7 @@ int Oculus::runOvr() {
 							lPosTemp[1] = LP.y;
 							lPosTemp[2] = LP.z;
 							glUniform4fv(locationMeshLP4, 1, lPosTemp);
+							*/
 
 							if (lines) {
 								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

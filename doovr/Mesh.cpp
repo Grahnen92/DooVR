@@ -441,7 +441,8 @@ void Mesh::sculpt(float* p, float lp[3], float rad, bool but) {
 	glm::vec4 tempvec;
 	vertex tempV;
 	float tempVec1[3]; float tempVec2[3];
-	float wPoint[3]; float vPoint[3];
+	float wPoint[3]; float vPoint[3]; float vPoint2[3];
+	int index; int index2; int tempCount = 0;
 
 	vector<int> changedVertices;
 	changedVertices.reserve(100);
@@ -485,39 +486,60 @@ void Mesh::sculpt(float* p, float lp[3], float rad, bool but) {
 
 		mLength = linAlg::vecLength(tempVec1);
 		if (mLength < rad) {
-
+			changedVertices.push_back(i);
 			//normVec(tempVec1);
-			mLength = 0.01f*(0.05f / (mLength + 0.05f));
+			mLength = 0.002f*(0.05f / (mLength + 0.05f));
 
 			tempVec2[0] = vertexArray[i].nx;
 			tempVec2[1] = vertexArray[i].ny;
 			tempVec2[2] = vertexArray[i].nz;
 
-			if (linAlg::dotProd(tempVec1, tempVec2) > 0){
-				vertexArray[i].x += vertexArray[i].nx * mLength;
-				vertexArray[i].y += vertexArray[i].ny * mLength;
-				vertexArray[i].z += vertexArray[i].nz * mLength;
-			}
-			else{
-				vertexArray[i].x -= vertexArray[i].nx * mLength;
-				vertexArray[i].y -= vertexArray[i].ny * mLength;
-				vertexArray[i].z -= vertexArray[i].nz * mLength;
-			}
-
 			
-			changedVertices.push_back(i);
+			for (int j = 0; j < changedVertices.size(); j++) {
+				index2 = changedVertices[j];
 
-			// mark the vertex edges as needUpdate
-			vertexEPtr[i]->needsUpdate = true;
-			tempEdge = vertexEPtr[i]->nextEdge->sibling;
-			while (tempEdge != vertexEPtr[i]) {
-				tempEdge->needsUpdate = true;
-				tempEdge = tempEdge->nextEdge->sibling;
+				tempEdge = vertexEPtr[index2];
+
+				do {
+					if (!tempEdge->needsUpdate){
+						index = tempEdge->vertex;
+						vPoint2[0] = vertexArray[index].x;
+						vPoint2[1] = vertexArray[index].y;
+						vPoint2[2] = vertexArray[index].z;
+						tempVec1[0] = vPoint2[0] - wPoint[0];
+						tempVec1[1] = vPoint2[1] - wPoint[1];
+						tempVec1[2] = vPoint2[2] - wPoint[2];
+
+						mLength = linAlg::vecLength(tempVec1);
+
+						if (mLength < rad)
+						{
+							mLength = 0.002f*(0.05f / (mLength + 0.05f));
+							if (linAlg::dotProd(tempVec1, tempVec2) > 0){
+								vertexArray[index].x += vertexArray[index].nx * mLength;
+								vertexArray[index].y += vertexArray[index].ny * mLength;
+								vertexArray[index].z += vertexArray[index].nz * mLength;
+							}
+							else{
+								vertexArray[index].x -= vertexArray[index].nx * mLength;
+								vertexArray[index].y -= vertexArray[index].ny * mLength;
+								vertexArray[index].z -= vertexArray[index].nz * mLength;
+							}
+
+							tempEdge->sibling->needsUpdate = true;
+							changedVertices.push_back(index);
+							changeCount++;
+						}
+					}
+
+					tempEdge = tempEdge->nextEdge->sibling;
+
+				} while (tempEdge != vertexEPtr[index2]);
 			}
-
-			changeCount++;
+			
 
 			success = true;
+			break;
 		}
 	}
 
@@ -622,7 +644,6 @@ void Mesh::updateArea(int* changeList, int listSize) {
 	static float edgeLength;
 
 	for (int i = 0; i < listSize; i++) {
-
 		
 		vPoint1[0] = vertexArray[changeList[i]].x;
 		vPoint1[1] = vertexArray[changeList[i]].y;
@@ -714,7 +735,7 @@ void Mesh::edgeSplit(float* vPoint, float* vec, halfEdge* &edge) {
 	vertex tempV;
 	triangle tempT;
 	halfEdge* tempE;
-	static int vert1, vert2;
+	static int vert1, vert2, vert3, vert4;
 	static float temp[3], temp2[3], temp3[3];
 	static float tempNorm1[3], tempNorm2[3];
 	static float tempVec1[3], tempVec2[3];
@@ -773,9 +794,17 @@ void Mesh::edgeSplit(float* vPoint, float* vec, halfEdge* &edge) {
 	{*/
 	
 	// create new vertex point
-	tempV.x = vPoint[0] + (vec[0] / 2.0f);
-	tempV.y = vPoint[1] + (vec[1] / 2.0f);
-	tempV.z = vPoint[2] + (vec[2] / 2.0f);
+	vert1 = edge->vertex;
+	vert2 = edge->sibling->vertex;
+	vert3 = edge->nextEdge->nextEdge->vertex;
+	vert4 = edge->sibling->nextEdge->nextEdge->vertex;
+
+	tempV.x = (vertexArray[vert1].x + vertexArray[vert2].x + vertexArray[vert3].x + vertexArray[vert4].x) / 4.0f;
+	tempV.y = (vertexArray[vert1].y + vertexArray[vert2].y + vertexArray[vert3].y + vertexArray[vert4].y) / 4.0f;
+	tempV.z = (vertexArray[vert1].z + vertexArray[vert2].z + vertexArray[vert3].z + vertexArray[vert4].z) / 4.0f;
+	//tempV.x = vPoint[0] + (vec[0] / 2.0f);
+	//tempV.y = vPoint[1] + (vec[1] / 2.0f);
+	//tempV.z = vPoint[2] + (vec[2] / 2.0f);
 		
 //	tempV.nx = vertexArray[edge->vertex].nx; tempV.ny = vertexArray[edge->vertex].ny; tempV.nz = vertexArray[edge->vertex].nz;
 	vertexArray.push_back(tempV);
@@ -986,8 +1015,8 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 
 	edge = tempE;
 
+
 	if (tempE2->sibling->triangle == tempE2->nextEdge->nextEdge->sibling->triangle) {
-		cout << "removed special case 1" << endl;
 		vertexEPtr[tempE2->sibling->vertex] = tempE2->nextEdge->sibling;
 		vertexEPtr[tempE2->nextEdge->nextEdge->vertex] = tempE2->nextEdge->sibling->nextEdge->nextEdge;
 
@@ -1016,8 +1045,7 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 		delete tempE2;
 	}
 
-	if (tempE->sibling->triangle == tempE->nextEdge->nextEdge->sibling->triangle) {
-		cout << "removed special case 2" << endl;
+if (tempE->sibling->triangle == tempE->nextEdge->nextEdge->sibling->triangle) {
 
 		vertexEPtr[tempE->sibling->vertex] = tempE->nextEdge->sibling;
 		vertexEPtr[tempE->nextEdge->nextEdge->vertex] = tempE->nextEdge->sibling->nextEdge->nextEdge;
