@@ -87,6 +87,9 @@ class Mesh {
 	std::vector<halfEdge*> vertexEPtr;
 	std::vector<halfEdge*> triEPtr;
 
+	std::vector<int> emptyVIndex;
+	std::vector<int> emptyTIndex;
+
 	float position[3];
 	float orientation[16];
 
