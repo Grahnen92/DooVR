@@ -80,8 +80,8 @@ int Oculus::runOvr() {
 	GLfloat lightPos3[3];
 	GLfloat lightPos4[3];
 	GLfloat lightPosTemp[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	//glm::vec4 lightPos = { 0.0f, 0.5f, 2.0f, 1.0f };
-	glm::vec4 LP = glm::vec4(0);
+	float tempVec[4];
+	float LP[4] = { 0.0f };
 
 	// Save old positions and transforms
 	float changePos[3] = { 0.0f };
@@ -703,12 +703,14 @@ int Oculus::runOvr() {
 
 				// LIGHT //////////////////////////////////////////////////////////////////////////////////////////
 				//glm::mat4 pmat4 = glm::transpose(glm::make_mat4(MVstack.getCurrentMatrix()));
-				glm::mat4 pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
-				LP = pmat4 * glm::vec4(lightPos[0], lightPos[1], lightPos[2], 1.0f);
+				float* pmat4 = MVstack.getCurrentMatrix();
+				tempVec[0] = lightPos[0]; tempVec[1] = lightPos[1]; tempVec[2] = lightPos[2]; tempVec[3] = 1.0f;
 
-				lightPosTemp[0] = LP.x;
-				lightPosTemp[1] = LP.y;
-				lightPosTemp[2] = LP.z;
+				linAlg::vectorMatrixMult(pmat4, lightPos, LP);
+
+				lightPosTemp[0] = LP[0];
+				lightPosTemp[1] = LP[1];
+				lightPosTemp[2] = LP[2];
 				glUniform4fv(locationLP[0], 1, lightPosTemp);
 
 				//!-- Translation due to positional tracking (DK2) and IPD...
@@ -788,32 +790,37 @@ int Oculus::runOvr() {
 
 				// 1st
 				it = objectList.end() - nLightsources;
-				LP = pmat4 * glm::vec4((*it)->getPosition()[0], (*it)->getPosition()[1], (*it)->getPosition()[2], 1.0f);
-				lightPosTemp[0] = LP.x;
-				lightPosTemp[1] = LP.y;
-				lightPosTemp[2] = LP.z;
+				tempVec[0] = (*it)->getPosition()[0]; tempVec[1] = (*it)->getPosition()[1]; tempVec[2] = (*it)->getPosition()[2];
+				linAlg::vectorMatrixMult(pmat4, tempVec, LP);
+
+				lightPosTemp[0] = LP[0];
+				lightPosTemp[1] = LP[1];
+				lightPosTemp[2] = LP[2];
 				glUniform4fv(locationMeshLP2, 1, lightPosTemp);
 				++it;
 				// 2nd
-				LP = pmat4 * glm::vec4((*it)->getPosition()[0], (*it)->getPosition()[1], (*it)->getPosition()[2], 1.0f);
-				lightPosTemp[0] = LP.x;
-				lightPosTemp[1] = LP.y;
-				lightPosTemp[2] = LP.z;
+				tempVec[0] = (*it)->getPosition()[0]; tempVec[1] = (*it)->getPosition()[1]; tempVec[2] = (*it)->getPosition()[2];
+				linAlg::vectorMatrixMult(pmat4, tempVec, LP);
+
+				lightPosTemp[0] = LP[0];
+				lightPosTemp[1] = LP[1];
+				lightPosTemp[2] = LP[2];
 				glUniform4fv(locationMeshLP3, 1, lightPosTemp);
 				++it;
 				// 3rd
-				LP = pmat4 * glm::vec4((*it)->getPosition()[0], (*it)->getPosition()[1], (*it)->getPosition()[2], 1.0f);
-				lightPosTemp[0] = LP.x;
-				lightPosTemp[1] = LP.y;
-				lightPosTemp[2] = LP.z;
+				tempVec[0] = (*it)->getPosition()[0]; tempVec[1] = (*it)->getPosition()[1]; tempVec[2] = (*it)->getPosition()[2];
+				linAlg::vectorMatrixMult(pmat4, tempVec, LP);
+
+				lightPosTemp[0] = LP[0];
+				lightPosTemp[1] = LP[1];
+				lightPosTemp[2] = LP[2];
 				glUniform4fv(locationMeshLP4, 1, lightPosTemp);
 				++it;
 
 				glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 
 				
-				if (!renderRegisterSpheres)
-				{
+				if (!renderRegisterSpheres) {
 					// MESH
 					MVstack.push();
 						MVstack.translate(mTest->getPosition());
@@ -902,7 +909,7 @@ static void WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height) 
         }
     }
 }
-void GLRenderCallsOculus(){
+void GLRenderCallsOculus() {
     // Clear...
     //GL calls
     glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
@@ -1023,19 +1030,20 @@ void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius) {
     // Move selected objects
     it = selectedList.begin();
 	if (selectedList.size() != 0) {
-		if ((*it)->getOtype() == 'S')
+		if ((*it)->getOtype() == 'S') {
 			while (it != selectedList.end()) {
 				(*it)->setPosition(wand->getTrackerPosition());
 				++it;
 			}
-		else
+		}
+		else {
 			while (it != selectedList.end()) {
 				tempHex = static_cast<hexBox*> ((*it));
 				tempHex->move(wand->getTrackerPosition()[1]);
 				++it;
 			}
+		}
 	}
-    
 }
 
 // Not used remove?
