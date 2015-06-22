@@ -1,12 +1,9 @@
 #pragma once
 #include "Entity.h"
 
-class Box :
-	public Entity
-{
-public:
-	Box()
-	{
+class Box : public Entity {
+  public:
+	Box() {
 		vao = 0;
 		vertexbuffer = 0;
 		indexbuffer = 0;
@@ -16,15 +13,15 @@ public:
 		ntris = 0;
 	};
 
-	Box(glm::vec3 _pos, glm::vec3 _dim);
+	Box(float _pos[3], float _dim[3]);
 	~Box(void);
 
 	void createBox(float xSize, float ySize, float zSize);
 
 	void render();
-	glm::vec3 getDim(){ return dim; }
+	float* getDim() { return dim; }
 
-private:
+  private:
 	GLuint vao;          // Vertex array object, the main handle for geometry
 	int nverts; // Number of vertices in the vertex array
 	int ntris;  // Number of triangles in the index array (may be zero)
@@ -32,8 +29,7 @@ private:
 	GLuint indexbuffer;  // Buffer ID to bind to GL_ELEMENT_ARRAY_BUFFER
 	GLfloat *vertexarray; // Vertex array on interleaved format: x y z nx ny nz s t
 	GLuint *indexarray;   // Element index array
-	glm::vec3 vertices[8];
-	glm::vec3 dim;
+	float dim[3];
 
 	void display(ostream& os) const;
 };

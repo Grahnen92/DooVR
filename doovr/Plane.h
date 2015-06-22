@@ -17,13 +17,9 @@ struct planeVertexData {
 	//int arrayIndex;
 };
 
-class Plane :
-	public Entity
-{
-
-public:
-	Plane()
-	{
+class Plane : public Entity {
+  public:
+	Plane() {
 		vao = 0;
 		vertexbuffer = 0;
 		indexbuffer = 0;
@@ -31,13 +27,13 @@ public:
 		ntris = 0;
 	};
 
-	Plane(glm::vec3 _pos, glm::vec2 _dim);
+	Plane(float _pos[3], int _dim[2]);
 	~Plane(void);
 
 	void render();
-	glm::vec2 getDim(){ return dim; }
+	float* getDim(){ return dim; }
 
-private:
+  private:
 	GLuint vao;          // Vertex array object, the main handle for geometry
 	int nverts;			 // Number of vertices in the vertex array
 	int ntris;			 // Number of triangles in the index array (may be zero)
@@ -47,7 +43,7 @@ private:
 	vector<planeVertexData> vertexArray;	   // Vertex array on interleaved format: x y z nx ny nz u v
 	vector<triangle> indexArray;   // Element index array
 
-	glm::vec2 dim;
+	float dim[2];
 
 	void display(ostream& os) const;
 };

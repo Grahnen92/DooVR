@@ -25,7 +25,6 @@ void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, f
 void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius);
 bool selectFunction(Device* wand, vector<Entity*> *objectList, int &chooseFunction);
 void updatePanel(vector<Entity*> *objectList, int currentFunction, float MAX_HEX_HEIGHT, float MIN_HEX_HEIGHT);
-void print_GLM_matrix(glm::mat4 M);
 void print_FLOAT_matrix(float *M);
 
 // --- Variable Declerations ------------
@@ -116,10 +115,6 @@ int Oculus::runOvr() {
 
 	// Size of the wand tool
 	float wandRadius = 0.05f;
-	
-	//
-	glm::vec4 nullVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	glm::vec4 tempVec = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// States
 	bool buttonPressed = false;
@@ -371,12 +366,15 @@ int Oculus::runOvr() {
 	MVstack.init();
 	
 	//DECLARE SCENE OBJECTS ///////////////////////////////////////////////////////////////////////////////////
-	Sphere light(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);								// Sphere used for show light source in scene.
-	Sphere regSphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);							// Sphere used for co-registration.
+	float posVec[3] = { 0.0f };
+	float dimVec[3] = { 0.005f, 0.005f, 0.005f };
+	Sphere light(posVec, 0.05f);								// Sphere used for show light source in scene.
+	Sphere regSphere(posVec, 0.05f);							// Sphere used for co-registration.
 
-	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));			//Ground plane
-	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
-	Box boxPoint(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.005f, 0.005f, 0.005f));
+	int twoDimVec[2] = { 100, 100 };
+	Plane ground(posVec, twoDimVec);			//Ground plane
+	//Box box(posVec, glm::vec3(0.46f, 0.46f, 0.53f));
+	Box boxPoint(posVec, dimVec);
 	hexBox refBox(0.0f, -eyeHeight + 1.5f, -2.0f, 0, 0);
 
 	// ObjectLists
@@ -409,16 +407,33 @@ int Oculus::runOvr() {
 											  -1.131f + 0.083984f * j + offset, 0, 1));			// Z-axis
 	}
 	// Lightsources
-	objectList.push_back(new Sphere(glm::vec3(0.3f, 0.2f, 0.0f), 0.02f));
-	objectList.push_back(new Sphere(glm::vec3(-0.3f, 0.2f, 0.0f), 0.02f));
-	objectList.push_back(new Sphere(glm::vec3(0.0f, 0.2f, -0.5f), 0.02f));
+	posVec[0] = 0.3f;
+	posVec[1] = 0.2f;
+	posVec[2] = 0.0f;
+	objectList.push_back(new Sphere(posVec, 0.02f));
+
+	posVec[0] = -0.3f;
+	objectList.push_back(new Sphere(posVec, 0.02f));
+
+
+	posVec[0] = 0.0f;
+	posVec[1] = -0.5;
+	objectList.push_back(new Sphere(posVec, 0.02f));
 
 	// Pointers to the lists
 	oPointer = &objectList;
 
 	// Wand = Box + sphere
-	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.20f, 0.03f, 0.03f));
-	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
+	posVec[0] = 0.0f;
+	posVec[1] = 0.0f;
+	posVec[2] = 0.0f;
+
+	dimVec[0] = 0.20f;
+	dimVec[1] = 0.03f;
+	dimVec[2] = 0.03f;
+
+	Box boxWand(posVec, dimVec);
+	Sphere sphereWand(posVec, 1.0f);
 
 	// Initilise VRPN connection with the Intersense wand
 	//Device* wand = new Device(true, true, false, "Mouse");
@@ -969,6 +984,7 @@ void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, f
     mTest->setPosition(resultPos);
     mTest->setOrientation(resultR);
 }
+
 void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius) {
     hexBox *tempHex;
     vector<Entity*> selectedList;
@@ -977,7 +993,7 @@ void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius) {
     float vLength[3];
 
     // Look for lightsources
-    it = objectList->end() - nLightsources;
+	it = objectList->end() - nLightsources;
     while (it != objectList->end() && (*it)->getOtype() == 'S') {
         vLength[0] = wand->getTrackerPosition()[0] - (*it)->getPosition()[0];
         vLength[1] = wand->getTrackerPosition()[1] - (*it)->getPosition()[1];
@@ -1021,18 +1037,8 @@ void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius) {
 	}
     
 }
-void print_GLM_matrix(glm::mat4 M) {
-    double dArray[16] = { 0.0 };
-    const float *pSource = (const float*)glm::value_ptr(M);
-    for (int i = 0; i < 16; ++i) {
-        dArray[i] = pSource[i];
-        cout << std::fixed << std::setprecision(2);
-        cout << dArray[i] << "  ";
-        if (i == 3 || i == 7 || i == 11)	cout << endl;
-    }
-    cout << endl << "---------------------" << endl;
-}
 
+// Not used remove?
 void print_FLOAT_matrix(float* M) {
     for (int i = 0; i < 16; i++) {
         cout << std::fixed << std::setprecision(2);

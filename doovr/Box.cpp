@@ -1,14 +1,16 @@
 #include "Box.h"
 
-Box::Box(glm::vec3 _pos, glm::vec3 _dim)
+Box::Box(float _pos[3], float _dim[3])
 {
 	oType = 'B';
-	position[0] = _pos.x;
-	position[1] = _pos.y;
-	position[2] = _pos.z;
-	dim = _dim;
+	position[0] = _pos[0];
+	position[1] = _pos[1];
+	position[2] = _pos[2];
+	dim[0] = _dim[0];
+	dim[1] = _dim[1];
+	dim[2] = _dim[2];
 
-	createBox(_dim.x, _dim.y, _dim.z);
+	createBox(_dim[0], _dim[1], _dim[2]);
 }
 
 
@@ -139,5 +141,5 @@ void Box::render()
 void Box::display(ostream& os) const
 {
 	os << "Shape: Box" << endl;
-	os << "Dimensions: " << dim.x << ", " << dim.y << " ," << dim.z << endl;
+	os << "Dimensions: " << dim[0] << ", " << dim[1] << " ," << dim[2] << endl;
 }

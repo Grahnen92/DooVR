@@ -13,13 +13,12 @@ uniform mat4 P;
 //uniform mat3 NormalMatrix;
 //uniform mat4 OMV;
 
-void main () 
-{	
+void main () {	
 	Position =  vec3( MV * vec4(VertexPosition, 1.0));
 	Normal = normalize(mat3(MV) * VertexNormal);
 	UV = vertexUV;
 
-	//! Convert position to clip coordinates and pass along to fragment shader
+	// Convert position to clip coordinates and pass along to fragment shader
 	gl_Position =  (P * MV) * vec4(VertexPosition, 1.0);
 
 }

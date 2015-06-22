@@ -1,10 +1,9 @@
 #pragma once
 #include "Entity.h"
 class Sphere : public Entity {
-public:
-	
+  public:
 	// Creates a sphere  
-	Sphere(glm::vec3 _pos, float _rad);
+	Sphere(float _pos[3], float _rad);
 	~Sphere(void);
 
 	Sphere() {
@@ -21,9 +20,9 @@ public:
 	void clean();
 	void render();
 
-	float getRadius(){return radius;}
+	float getRadius() { return radius; }
 
-private:
+  private:
 	GLuint vao;          // Vertex array object, the main handle for geometry
 	int nverts; // Number of vertices in the vertex array
 	int ntris;  // Number of triangles in the index array (may be zero)

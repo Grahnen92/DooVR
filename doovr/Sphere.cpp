@@ -1,12 +1,11 @@
 #include "Sphere.h"
 
-Sphere::Sphere(glm::vec3 _pos, float _rad)
-{
+Sphere::Sphere(float _pos[3], float _rad) {
 	oType = 'S';
-	position[0] = _pos.x;
-	position[1] = _pos.y;
-	position[2] = _pos.z;
-
+	position[0] = _pos[0];
+	position[1] = _pos[1];
+	position[2] = _pos[2];
+	
 	orientation[0] = 1.0f;
 	orientation[1] = 0.0f;
 	orientation[2] = 0.0f;
@@ -31,9 +30,9 @@ Sphere::Sphere(glm::vec3 _pos, float _rad)
 	radius = _rad;
 	createSphere(_rad, 32);
 
-	color.x = 0.7f;
-	color.y = 0.7f;
-	color.z = 0.7f;
+	color[0] = 0.7f;
+	color[1] = 0.7f;
+	color[2] = 0.7f;
 }
 
 void Sphere::clean() {

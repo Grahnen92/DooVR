@@ -13,7 +13,7 @@ void main ()
 	Position =  vec3( MV * vec4(VertexPosition, 1.0));
 	Normal = normalize(mat3(MV) * VertexNormal);
 
-	//! Convert position to clip coordinates and pass along to fragment shader
+	// Convert position to clip coordinates and pass along to fragment shader
 	gl_Position =  (P * MV) * vec4(VertexPosition, 1.0);
 
 }
