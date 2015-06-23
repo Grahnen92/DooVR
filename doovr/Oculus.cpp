@@ -78,7 +78,6 @@ int Oculus::runOvr() {
 	float lPos[4] = { 2.0f, 2.0f, 2.0f, 1.0f};
 	float lPos2[4] = { -2.0f, 2.0f, 2.0f, 1.0f };
 	float lPosTemp[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	float lightPosTemp[3];
 	float LP[4];
 	float* pmat4;
 	float mat4[16];
@@ -685,7 +684,7 @@ int Oculus::runOvr() {
 				MVstack.translate(eyePoses);
 				
 				//POSSABLY DOABLE IN SHADER
-				float* pmat4 = MVstack.getCurrentMatrix();
+				pmat4 = MVstack.getCurrentMatrix();
 				for (int i = 0; i < 16; i++)
 					mat4[i] = pmat4[i];
 
@@ -701,7 +700,6 @@ int Oculus::runOvr() {
 						
 
 						glBindTexture(GL_TEXTURE_2D, hexTex.getTextureID());
-						//glUniform3fv(locationLP, GL_FALSE, lightPosTemp);
 
 						//RENDER DIFFERENT HEXBOXES---------------------------------------------------------------------
 						refBox.render();
