@@ -9,6 +9,9 @@
 #include "Box.h"
 #include "hexBox.h"
 #include "Texture.h"
+#include "Wand.h"
+#include "Passive3D.h"
+#include "VRPN.h"
 
 using namespace std;
 
@@ -20,9 +23,9 @@ void GLRenderCallsOculus();
 
 // Declare moveMesh - used for moving around the mesh in the scene.
 // TODO: refactor this function to TOOLS namespace?
-void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR);
-void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius);
-bool selectFunction(Device* wand, vector<Entity*> *objectList, int &chooseFunction);
+void moveMesh(Passive3D* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR);
+void moveEntity(Passive3D* wand, vector<Entity*> *objectList, float wandRadius);
+bool selectFunction(Passive3D* wand, vector<Entity*> *objectList, int &chooseFunction);
 void updatePanel(vector<Entity*> *objectList, int currentFunction, float MAX_HEX_HEIGHT, float MIN_HEX_HEIGHT);
 void print_FLOAT_matrix(float *M);
 
@@ -116,7 +119,7 @@ int Oculus::runOvr() {
 	float translateVector[3] = { 0.0f, 0.0f, 0.0f };
 
 	// Size of the wand tool
-	float wandRadius = 0.05f;
+	float wandRadius = 0.01f;
 
 	// States
 	bool buttonPressed = false;
@@ -371,8 +374,10 @@ int Oculus::runOvr() {
 	Sphere regSphere(0.0f, 0.0f, 0.0f, 0.05f);							// Sphere used for co-registration.
 
 	Plane ground(0.0f, 0.0f, 0.0f, 100.0f, 100.0f);			//Ground plane
-	Box boxPoint(0.0f, 0.0f, 0.0f, 0.005f, 0.005f, 0.005f);	//box in the middle of the wand
-	hexBox refBox(0.0f, -eyeHeight + 1.5f, -2.0f, 0, 0);	//hexBox representing the Oculus camera
+
+	Box box(0.0f, -0.935f, 0.0f, 0.5f, 0.2f, 0.5f);			//box in the middle of the wand
+	Box boxPoint(0.0f, 0.0f, 0.0f, 0.005f, 0.005f, 0.005f); //hexBox representing the Oculus camera
+	hexBox refBox(0.0f, -eyeHeight + 1.5f, -2.0f, 0, 0);
 
 	// ObjectLists
 	vector<Entity*> objectList;
@@ -417,7 +422,8 @@ int Oculus::runOvr() {
 
 	// Initilise VRPN connection with the Intersense wand
 	//Device* wand = new Device(true, true, false, "Mouse");
-	Device* wand = new Device(true, true, true, "Wand");
+	//Device* wand = new Device(true, true, true, "Wand");
+	Passive3D* wand = new Passive3D();
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -458,7 +464,7 @@ int Oculus::runOvr() {
 	//ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd); // dismiss health safety warning
 
-	Mesh* mTest = new Mesh(0.3f);
+	Mesh* mTest = new Mesh(0.05f);
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
@@ -467,6 +473,7 @@ int Oculus::runOvr() {
 		// Show fps at the top of the window
 		fps = Utilities::displayFPS(l_Window);
 
+		/*
 		// STATES //////////////////////////////////////////////////////////////////////////////////////////////
 		// All states are originally false
 		if (wand->getButtonState() && !buttonPressed && !buttonHeld) { // Button pressed
@@ -613,11 +620,14 @@ int Oculus::runOvr() {
 				wandRadius += 0.001f*wand->getAnalogPosition()[1];
 			}
 		}
-
+		*/
 		// KEYBORD EVENTS
 		if (glfwGetKey(l_Window, GLFW_KEY_O)) {
 			ovrHmd_RecenterPose(hmd);
 			ovrHmd_DismissHSWDisplay(hmd);
+		}
+		if (glfwGetKey(l_Window, GLFW_KEY_SPACE)) {
+			mTest->sculpt(wand->getWandPosition(), lastPos, wandRadius, true);
 		}
 		if (glfwGetKey(l_Window, GLFW_KEY_ESCAPE)) {
 			glfwSetWindowShouldClose(l_Window, GL_TRUE);
@@ -640,9 +650,12 @@ int Oculus::runOvr() {
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Save position of tracker from last frame to get deltaPos
-		lastPos[0] = wand->getTrackerPosition()[0];
-		lastPos[1] = wand->getTrackerPosition()[1];
-		lastPos[2] = wand->getTrackerPosition()[2];
+		//lastPos[0] = wand->getTrackerPosition()[0];
+		//lastPos[1] = wand->getTrackerPosition()[1];
+		//lastPos[2] = wand->getTrackerPosition()[2];
+		lastPos[0] = wand->getWandPosition()[0];
+		lastPos[1] = wand->getWandPosition()[1];
+		lastPos[2] = wand->getWandPosition()[2];
 
 		// Begin the frame...
 		ovrHmd_BeginFrame(hmd, l_FrameIndex);
@@ -737,6 +750,17 @@ int Oculus::runOvr() {
 							glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
 							ground.render();
 						MVstack.pop();
+						//TRACKINGRANGE
+						MVstack.push();
+							MVstack.translate(box.getPosition());
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
+							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+							glLineWidth(5.0f);
+							box.render();
+							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						MVstack.pop();
+
 						glBindTexture(GL_TEXTURE_2D, 0);
 						//RENDER MESH -----------------------------------------------------------------------
 						glUseProgram(meshShader.programID);
@@ -766,11 +790,11 @@ int Oculus::runOvr() {
 						glUniformMatrix4fv(locationP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
 						//RENDER WAND---------------------------------------------------------------------------
 						MVstack.push();
-							MVstack.translate(wand->getTrackerPosition());
-							MVstack.multiply(wand->getTrackerRotation());
+							MVstack.translate(wand->getWandPosition());
+							MVstack.multiply(wand->getWandOrientation());
 
 							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-							boxPoint.render();
+						//	boxPoint.render();
 
 							MVstack.push();
 								translateVector[0] = -0.1f;
@@ -779,7 +803,7 @@ int Oculus::runOvr() {
 								MVstack.translate(translateVector);
 								glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 								glBindTexture(GL_TEXTURE_2D, hexTex.getTextureID());
-								boxWand.render();
+							//	boxWand.render();
 							MVstack.pop();
 
 							MVstack.push();
@@ -814,7 +838,7 @@ int Oculus::runOvr() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		//Wand callback from VRPN
-		wand->sendtoMainloop();
+		//wand->sendtoMainloop();
 
 		// Do everything, distortion, front/back buffer swap...
 		ovrHmd_EndFrame(hmd, g_EyePoses, g_EyeTextures);
@@ -883,7 +907,7 @@ void updatePanel(vector<Entity*> *objectList, int currentFunction, float MAX_HEX
     }
 }
 
-bool selectFunction(Device* wand, vector<Entity*> *objectList, int& chooseFunction) {
+bool selectFunction(Passive3D* wand, vector<Entity*> *objectList, int& chooseFunction) {
 	vector<Entity*>::iterator it = objectList->begin();
 	hexBox *tempHex;
 	float vLength[3];
@@ -891,9 +915,9 @@ bool selectFunction(Device* wand, vector<Entity*> *objectList, int& chooseFuncti
 
 	while (it != objectList->begin() + nFunctions) {
 		tempHex = static_cast<hexBox*> ((*it));
-		vLength[0] = wand->getTrackerPosition()[0] - (*it)->getPosition()[0];
-		vLength[1] = wand->getTrackerPosition()[1] - (*it)->getPosition()[1];
-		vLength[2] = wand->getTrackerPosition()[2] - (*it)->getPosition()[2];
+		vLength[0] = wand->getWandPosition()[0] - (*it)->getPosition()[0];
+		vLength[1] = wand->getWandPosition()[1] - (*it)->getPosition()[1];
+		vLength[2] = wand->getWandPosition()[2] - (*it)->getPosition()[2];
 		if (linAlg::vecLength(vLength) < radius) {
 			chooseFunction = tempHex->getFunction();
 			return true;
@@ -902,17 +926,17 @@ bool selectFunction(Device* wand, vector<Entity*> *objectList, int& chooseFuncti
 	}
 	return false;
 }
-void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR) {
+void moveMesh(Passive3D* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR) {
     // Save first wand rotation transform in wandR
-    float* wandR = wand->getTrackerRotation();
+    float* wandR = wand->getWandOrientation();
     float resultR[16];
     float resultPos[3];
 
     if (buttonPressed) {
         // Offset translation back to the original position of the mesh
-        changePos[0] = mTest->getPosition()[0] - wand->getTrackerPosition()[0];
-        changePos[1] = mTest->getPosition()[1] - wand->getTrackerPosition()[1];
-        changePos[2] = mTest->getPosition()[2] - wand->getTrackerPosition()[2];
+        changePos[0] = mTest->getPosition()[0] - wand->getWandPosition()[0];
+		changePos[1] = mTest->getPosition()[1] - wand->getWandPosition()[1];
+		changePos[2] = mTest->getPosition()[2] - wand->getWandPosition()[2];
 
         // Get the difference betweeen the original mesh rotation transform and wandR  --   wandR * differenceR = meshR
         float* meshR = mTest->getOrientation();
@@ -922,9 +946,9 @@ void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, f
     }
 
     // Resulting translation to be made on the mesh calculated from origin.
-    resultPos[0] = wand->getTrackerPosition()[0] + changePos[0];
-    resultPos[1] = wand->getTrackerPosition()[1] + changePos[1];
-    resultPos[2] = wand->getTrackerPosition()[2] + changePos[2];
+	resultPos[0] = wand->getWandPosition()[0] + changePos[0];
+	resultPos[1] = wand->getWandPosition()[1] + changePos[1];
+	resultPos[2] = wand->getWandPosition()[2] + changePos[2];
 
     // Resulting rotation to be made on the mesh
     linAlg::matrixMult(wandR, differenceR, resultR);
@@ -932,7 +956,7 @@ void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, f
     mTest->setPosition(resultPos);
     mTest->setOrientation(resultR);
 }
-void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius) {
+void moveEntity(Passive3D* wand, vector<Entity*> *objectList, float wandRadius) {
     hexBox *tempHex;
     vector<Entity*> selectedList;
     vector<Entity*>::iterator it;
@@ -942,9 +966,9 @@ void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius) {
     // Look for lightsources
     it = objectList->end() - nLightsources;
     while (it != objectList->end() && (*it)->getOtype() == 'S') {
-        vLength[0] = wand->getTrackerPosition()[0] - (*it)->getPosition()[0];
-        vLength[1] = wand->getTrackerPosition()[1] - (*it)->getPosition()[1];
-        vLength[2] = wand->getTrackerPosition()[2] - (*it)->getPosition()[2];
+        vLength[0] = wand->getWandPosition()[0] - (*it)->getPosition()[0];
+        vLength[1] = wand->getWandPosition()[1] - (*it)->getPosition()[1];
+        vLength[2] = wand->getWandPosition()[2] - (*it)->getPosition()[2];
         if (linAlg::vecLength(vLength) < wandRadius) {
             find = true;
             selectedList.push_back((*it));
@@ -957,9 +981,9 @@ void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius) {
         it = objectList->begin() + nFunctions;
         while (it != objectList->end() - nLightsources) {
             // Create vectors between wand and object, depending on object type
-            vLength[0] = wand->getTrackerPosition()[0] - ((*it))->getPosition()[0];
+            vLength[0] = wand->getWandPosition()[0] - ((*it))->getPosition()[0];
             vLength[1] = 0.0f;
-            vLength[2] = wand->getTrackerPosition()[2] - ((*it))->getPosition()[2];
+            vLength[2] = wand->getWandPosition()[2] - ((*it))->getPosition()[2];
             // Select object if the distance is smaller than wandRadius
             if (linAlg::vecLength(vLength) < wandRadius) {
                 selectedList.push_back((*it));
@@ -972,13 +996,13 @@ void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius) {
 	if (selectedList.size() != 0) {
 		if ((*it)->getOtype() == 'S')
 			while (it != selectedList.end()) {
-				(*it)->setPosition(wand->getTrackerPosition());
+				(*it)->setPosition(wand->getWandPosition());
 				++it;
 			}
 		else
 			while (it != selectedList.end()) {
 				tempHex = static_cast<hexBox*> ((*it));
-				tempHex->move(wand->getTrackerPosition()[1]);
+				tempHex->move(wand->getWandPosition()[1]);
 				++it;
 			}
 	}

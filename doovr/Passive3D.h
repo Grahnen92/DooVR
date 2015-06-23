@@ -1,4 +1,7 @@
 #pragma once
+
+#include <iostream>
+
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -14,11 +17,25 @@
 #include "wand3d/wand3d_observer.h"
 #include "wand3d/wand3d_utils.h"
 
-class Passive3D : public wand3d::wand3dObserver
-	public Wand
+
+//#include "Utilities.h"
+
+class Passive3D : public wand3d::Wand3dObserver, public Wand
 {
 public:
 	Passive3D();
 	~Passive3D();
+
+	//! Set the position matrix for the device to a variable
+	virtual void setWandPosition(double* t);
+	//! Set the rotation matrix for the device to a variable
+	virtual void setWandOrientation(double* o);
+
+
+	void wand3dCallback(wand3d::WandData data);
+
+private:
+	wand3d::Wand3d* wand;
+
 };
 
