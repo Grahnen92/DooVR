@@ -12,8 +12,6 @@ Mesh::Mesh(float rad) {
 	triangle tempT;
 	vertex tempV;
 	halfEdge* tempE1;
-	halfEdge* tempE2;
-	halfEdge* tempE3;
 
 	float tempP1[3]; float tempP2[3]; float tempVec[3];
 	int tempSize = 0;
@@ -52,7 +50,6 @@ Mesh::Mesh(float rad) {
 	triangle* indexP;
 	vertex * vertexP;
 
-	int vertexIndex;
 	float scaleF = 1.0f / (ROWS * 2);
 	
 	// place vertecies
@@ -219,47 +216,7 @@ Mesh::Mesh(float rad) {
 
 	triEPtr[3]->nextEdge->sibling = triEPtr[7]->nextEdge;
 	triEPtr[7]->nextEdge->sibling = triEPtr[3]->nextEdge;
-	/*
-	// create sphere by subdivision
-	for (int i = 0; i < 1; i++) {
-		//tempSize = vertexArray.size();
-		for (int j = 0; j < vertexArray.size(); j++) {
-			tempE1 = vertexEPtr[j];
 
-			tempP1[0] = vertexArray[j].x;
-			tempP1[1] = vertexArray[j].y;
-			tempP1[2] = vertexArray[j].z;
-
-			tempP2[0] = vertexArray[tempE1->vertex].x;
-			tempP2[1] = vertexArray[tempE1->vertex].y;
-			tempP2[2] = vertexArray[tempE1->vertex].z;
-
-			linAlg::calculateVec(tempVec, tempP2, tempP1);
-			if (vecLength(tempVec) > MAX_LENGTH) {
-				edgeSubdivide(tempP1, tempVec, tempE1);
-			}
-
-			tempE1 = tempE1->nextEdge->sibling;
-			while (tempE1 != vertexEPtr[j]) {
-				tempP1[0] = vertexArray[tempE1->sibling->vertex].x;
-				tempP1[1] = vertexArray[tempE1->sibling->vertex].y;
-				tempP1[2] = vertexArray[tempE1->sibling->vertex].z;
-
-				tempP2[0] = vertexArray[tempE1->vertex].x;
-				tempP2[1] = vertexArray[tempE1->vertex].y;
-				tempP2[2] = vertexArray[tempE1->vertex].z;
-
-				linAlg::calculateVec(tempVec, tempP2, tempP1);
-
-				if (vecLength(tempVec) > MAX_LENGTH) {
-					edgeSubdivide(tempP1, tempVec, tempE1);
-				}
-
-				tempE1 = tempE1->nextEdge->sibling;
-			}
-		}
-	}
-	*/
 	// create sphere by subdivision
 	//////
 	for (int i = 0; i < 10; i++)
@@ -454,8 +411,6 @@ void Mesh::sculpt(float* p, float lp[3], float rad, bool but) {
 
 	//MOVEMENT BETWEEN LAST FRAME AND THIS FRAME
 	float mLength = 0.0f;
-	float pMove[3];
-	//float normal[4];
 
 	wPoint[0] = p[0] - position[0];
 	wPoint[1] = p[1] - position[1];
@@ -715,9 +670,11 @@ void Mesh::edgeSplit(float* vPoint, float* vec, halfEdge* &edge) {
 	static float tempNorm1[3], tempNorm2[3];
 	static float tempVec1[3], tempVec2[3];
 
-	halfEdge* tempE2;
-	//FLIP EDGE, NOT HANDLED PROPERLY BUT SHOULD BE
+	//TODO: FLIP EDGE, NOT HANDLED PROPERLY BUT SHOULD BE
 	/*
+	halfEdge* tempE2;
+	
+	
 	vert1 = edge->nextEdge->nextEdge->vertex;
 	vert2 = edge->sibling->nextEdge->nextEdge->vertex;
 
@@ -777,11 +734,7 @@ void Mesh::edgeSplit(float* vPoint, float* vec, halfEdge* &edge) {
 	tempV.x = (vertexArray[vert1].x + vertexArray[vert2].x + vertexArray[vert3].x + vertexArray[vert4].x) / 4.0f;
 	tempV.y = (vertexArray[vert1].y + vertexArray[vert2].y + vertexArray[vert3].y + vertexArray[vert4].y) / 4.0f;
 	tempV.z = (vertexArray[vert1].z + vertexArray[vert2].z + vertexArray[vert3].z + vertexArray[vert4].z) / 4.0f;
-	//tempV.x = vPoint[0] + (vec[0] / 2.0f);
-	//tempV.y = vPoint[1] + (vec[1] / 2.0f);
-	//tempV.z = vPoint[2] + (vec[2] / 2.0f);
-		
-//	tempV.nx = vertexArray[edge->vertex].nx; tempV.ny = vertexArray[edge->vertex].ny; tempV.nz = vertexArray[edge->vertex].nz;
+
 	vertexArray.push_back(tempV);
 
 	//copy triangles
@@ -1059,14 +1012,15 @@ void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge, bool update,
 
 	vertex tempV;
 	triangle tempT;
-	halfEdge* tempE;
+
 	int vert1;
 	int vert2;
 	float temp[3];
 	float temp2[3];
 	float temp3[3];
 
-	halfEdge* tempE2;
+	//halfEdge* tempE; // used in flip edge
+	//halfEdge* tempE2;
 
 	vert1 = edge->nextEdge->nextEdge->vertex;
 	vert2 = edge->sibling->nextEdge->nextEdge->vertex;
@@ -1079,7 +1033,8 @@ void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge, bool update,
 	temp2[1] = vertexArray[vert2].y;
 	temp2[2] = vertexArray[vert2].z;
 	linAlg::calculateVec(temp3, temp, temp2);
-	/*
+	
+	/* TODO: implement flip edges
 	if (linAlg::vecLength(temp3) < MAX_LENGTH) {
 		// flip edges
 		for (int i = 0; i < 3; i++) {
@@ -1133,13 +1088,7 @@ void Mesh::edgeSubdivide(float* pA, float* vecA2B, halfEdge* &edge, bool update,
 		tempV.x = temp[0];
 		tempV.y = temp[1];
 		tempV.z = temp[2];
-		/*
-		// create new vertex point
-		tempV.x = pA[0] + (vecA2B[0] / 2.0f);
-		tempV.y = pA[1] + (vecA2B[1] / 2.0f);
-		tempV.z = pA[2] + (vecA2B[2] / 2.0f);
-		*/
-		//tempV.nx = vertexArray[edge->vertex].nx; tempV.ny = vertexArray[edge->vertex].ny; tempV.nz = vertexArray[edge->vertex].nz;
+		
 		vertexArray.push_back(tempV);
 
 		//copy triangles
