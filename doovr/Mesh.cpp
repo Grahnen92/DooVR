@@ -24,8 +24,8 @@ Mesh::Mesh(float rad) {
 	vertexEPtr.resize(6);
 	triEPtr.resize(8);
 	position[0] = 0.0f;
-	position[1] = -0.75f;
-	position[2] = -0.75f;
+	position[1] = -0.935f;
+	position[2] = 0.0f;
 
 	orientation[0] = 1.0f;
 	orientation[1] = 0.0f;
@@ -435,7 +435,7 @@ void Mesh::sculpt(float* p, float lp[3], float rad, bool but) {
 		if (mLength < rad) {
 
 			//normVec(tempVec1);
-			mLength = 0.005f*(0.05f / (mLength + 0.05f));
+			mLength = 0.002f*(0.05f / (mLength + 0.05f));
 
 			tempVec2[0] = vertexArray[i].nx;
 			tempVec2[1] = vertexArray[i].ny;

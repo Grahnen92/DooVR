@@ -51,7 +51,7 @@ int main() {
 	if (DeviceType == 'O') 
 		runSuccess = Oculus::runOvr();
 	else if (DeviceType == 'D') 
-		runSuccess = twoDim::run2D();
+		//runSuccess = twoDim::run2D();
 	
 	return runSuccess;
 }

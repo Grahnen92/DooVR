@@ -13,7 +13,7 @@ public:
 
 	virtual void setWandPosition(double* t) = 0;
 	virtual void setWandOrientation(double* o) = 0;
-	virtual void setTransformMatrix(float* T) = 0;
+//	virtual void setTransformMatrix(float* T) = 0;
 
 protected:
 
