@@ -8,8 +8,6 @@
 #include <stdlib.h> // For malloc() and free()
 #include <math.h>   // For sin() and cos() in soupCreateSphere()
 
-#include "glm/glm.hpp"
-
 #include "Utilities.h"
 
 
@@ -20,13 +18,6 @@ class Entity
 	public:
 		//getters
 		char getOtype(){ return oType; }
-
-
-
-		glm::vec3 getColor(){ return color; }
-		float getColorR(){ return color.x; }
-		float getColorG(){ return color.y; }
-		float getColorB(){ return color.z; }
 
 		float* getPosition(){ return position; }
 		void setPosition(float* p) { position[0] = p[0]; position[1] = p[1]; position[2] = p[2]; }
@@ -44,7 +35,5 @@ class Entity
 		char oType; 
 		float position[3];	
 		float orientation[16];
-		glm::vec3 color;
 
-		virtual void display(ostream& os) const = 0;
 };

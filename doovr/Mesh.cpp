@@ -438,10 +438,9 @@ Mesh::~Mesh(void) {
 }
 
 void Mesh::sculpt(float* p, float lp[3], float rad, bool but) {
-	glm::vec4 tempvec;
-	vertex tempV;
+	float newWPoint[4];
 	float tempVec1[3]; float tempVec2[3];
-	float wPoint[3]; float vPoint[3];
+	float wPoint[4]; float vPoint[3];
 
 	vector<int> changedVertices;
 	changedVertices.reserve(100);
@@ -458,36 +457,30 @@ void Mesh::sculpt(float* p, float lp[3], float rad, bool but) {
 	float pMove[3];
 	//float normal[4];
 
-	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(pMove[0], pMove[1], pMove[2], 1.0f);
-	pMove[0] = tempvec.x;
-	pMove[1] = tempvec.y;
-	pMove[2] = tempvec.z;
-
-	tempV.z = 0;
-	
 	wPoint[0] = p[0] - position[0];
 	wPoint[1] = p[1] - position[1];
 	wPoint[2] = p[2] - position[2];
+	wPoint[3] = 1.0f;
 
-	tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(wPoint[0], wPoint[1], wPoint[2], 1.0f);
-	wPoint[0] = tempvec.x;
-	wPoint[1] = tempvec.y;
-	wPoint[2] = tempvec.z;
+	linAlg::vectorMatrixMult(orientation, wPoint, newWPoint);
+	//tempvec = glm::transpose(glm::make_mat4(orientation)) * glm::vec4(wPoint[0], wPoint[1], wPoint[2], 1.0f);
+	//wPoint[0] = tempvec.x;
+	//wPoint[1] = tempvec.y;
+	//wPoint[2] = tempvec.z;
 
 	for (int i = 0; i < vertexArray.size(); i++) {
 		vPoint[0] = vertexArray[i].x;
 		vPoint[1] = vertexArray[i].y;
 		vPoint[2] = vertexArray[i].z;
-		tempVec1[0] = vPoint[0] - wPoint[0];
-		tempVec1[1] = vPoint[1] - wPoint[1];
-		tempVec1[2] = vPoint[2] - wPoint[2];
-		
+		tempVec1[0] = vPoint[0] - newWPoint[0];
+		tempVec1[1] = vPoint[1] - newWPoint[1];
+		tempVec1[2] = vPoint[2] - newWPoint[2];
 
 		mLength = linAlg::vecLength(tempVec1);
 		if (mLength < rad) {
 
 			//normVec(tempVec1);
-			mLength = 0.002f*(0.05f / (mLength + 0.05f));
+			mLength = 0.005f*(0.05f / (mLength + 0.05f));
 
 			tempVec2[0] = vertexArray[i].nx;
 			tempVec2[1] = vertexArray[i].ny;

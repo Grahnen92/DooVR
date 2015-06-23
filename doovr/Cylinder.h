@@ -6,7 +6,7 @@ class Cylinder : public Entity {
 public:
 
 	// Creates a Cylinder  
-	Cylinder(glm::vec3 _pos, float _rad);
+	Cylinder(float* _pos, float _rad);
 	~Cylinder(void);
 
 	Cylinder() {

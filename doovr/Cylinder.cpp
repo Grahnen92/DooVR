@@ -1,13 +1,13 @@
 #include "Cylinder.h"
 
-Cylinder::Cylinder(glm::vec3 _pos, float _rad)
+Cylinder::Cylinder(float* _pos, float _rad)
 {
 	// TODO remove??
 	oType = 'S';
 
-	position[0] = _pos.x;
-	position[1] = _pos.y;
-	position[2] = _pos.z;
+	position[0] = _pos[0];
+	position[1] = _pos[1];
+	position[2] = _pos[2];
 
 	orientation[0] = 1.0f;
 	orientation[1] = 0.0f;
@@ -29,20 +29,14 @@ Cylinder::Cylinder(glm::vec3 _pos, float _rad)
 	orientation[14] = 0.0f;
 	orientation[15] = 1.0f;
 
-
 	radius = _rad;
 	createCylinder(_rad, 3);
-
-	color.x = 0.7f;
-	color.y = 0.7f;
-	color.z = 0.7f;
 }
 
 
 void Cylinder::render()
 {
 	glBindVertexArray(vao);
-	glColor3f(color.x, color.y, color.z);
 	glDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);

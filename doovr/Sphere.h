@@ -4,7 +4,7 @@ class Sphere : public Entity {
 public:
 	
 	// Creates a sphere  
-	Sphere(glm::vec3 _pos, float _rad);
+	Sphere(float x, float y, float z, float _rad);
 	~Sphere(void);
 
 	Sphere() {
@@ -33,5 +33,4 @@ private:
 	GLuint *indexarray;   // Element index array
 
 	float radius;
-	void display(ostream& os) const;
 };

@@ -16,13 +16,12 @@ public:
 		ntris = 0;
 	};
 
-	Box(glm::vec3 _pos, glm::vec3 _dim);
+	Box(float x, float y, float z, float dX, float dY, float dZ );
 	~Box(void);
 
 	void createBox(float xSize, float ySize, float zSize);
 
 	void render();
-	glm::vec3 getDim(){ return dim; }
 
 private:
 	GLuint vao;          // Vertex array object, the main handle for geometry
@@ -32,8 +31,6 @@ private:
 	GLuint indexbuffer;  // Buffer ID to bind to GL_ELEMENT_ARRAY_BUFFER
 	GLfloat *vertexarray; // Vertex array on interleaved format: x y z nx ny nz s t
 	GLuint *indexarray;   // Element index array
-	glm::vec3 vertices[8];
-	glm::vec3 dim;
 
 	void display(ostream& os) const;
 };

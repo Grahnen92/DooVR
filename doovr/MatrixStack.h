@@ -35,7 +35,7 @@ public:
     // Multiply the topmost (current) matrix with a rotation around Z
     void rotZ(float angle);
 
-	void rotAxis(glm::vec3 axis, float a);
+	void rotAxis(float* axis, float a);
 
     // Multiply the topmost (current) matrix with a uniform scaling
     void scale(float s);

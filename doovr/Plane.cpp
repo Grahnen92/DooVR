@@ -2,7 +2,7 @@
 #include "time.h"
 #include "math.h"
 
-Plane::Plane(glm::vec3 _pos, glm::vec2 _dim) {
+Plane::Plane(float x, float y, float z, float dX, float dZ) {
 	oType = 'P';
 	planeVertexData tempV;
 	triangle tempT;
@@ -16,18 +16,14 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim) {
 	tempV.nz = 0.0f;
 //	tempV.adjacentFace = nullptr;
 
-	position[0] = _pos.x;
-	position[1] = _pos.y;
-	position[2] = _pos.z;
+	position[0] = x;
+	position[1] = y;
+	position[2] = z;
 
-	dim = _dim;
 
-	color.x = 0.1f;
-	color.y = 0.7f;
-	color.z = 0.1f;
 
-	for (float i = -_dim.x/2.0f; i < _dim.x/2.0f; i++) {
-		for (float j = -_dim.y/2.0f ; j < _dim.y / 2.0f; j++) {
+	for (float i = -dX/2.0f; i < dX/2.0f; i++) {
+		for (float j = -dZ/2.0f ; j < dZ / 2.0f; j++) {
 			tempV.x = i;
 			tempV.z = j;
 			vertexArray.push_back(tempV);
@@ -52,18 +48,18 @@ Plane::Plane(glm::vec3 _pos, glm::vec2 _dim) {
 		}
 	}
 	
-	for (int i = 0; i < _dim.x - 1 ; i++) {
-		for (int j = 0; j < _dim.y - 1; j++) { 
+	for (int i = 0; i < dX - 1 ; i++) {
+		for (int j = 0; j < dZ - 1; j++) { 
 
-			tempT.index[0] = i*_dim.x + j; 
-			tempT.index[1] = i*_dim.x + j + 1;
-			tempT.index[2] = (i + 1)*_dim.x + j;
+			tempT.index[0] = i*dX + j; 
+			tempT.index[1] = i*dX + j + 1;
+			tempT.index[2] = (i + 1)*dX + j;
 
 			indexArray.push_back(tempT);
 
-			tempT.index[0] = (i + 1)*_dim.x + j;
-			tempT.index[1] = i*_dim.x + j + 1;
-			tempT.index[2] = (i + 1)*_dim.x + j + 1;
+			tempT.index[0] = (i + 1)*dX + j;
+			tempT.index[1] = i*dX + j + 1;
+			tempT.index[2] = (i + 1)*dX + j + 1;
 
 			indexArray.push_back(tempT);
 		}
@@ -133,10 +129,4 @@ void Plane::render() {
 	
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);
-}
-
-void Plane::display(ostream& os) const {
-	os << "Shape: Plane" << endl;
-	os << "Dimensions: " << dim.x << ", " << dim.y << " ," << endl;
-	os << endl;
 }

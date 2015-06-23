@@ -73,14 +73,14 @@ void MatrixStack::rotZ(float angle) {
     matrixMult(currentMatrix->m, rz, currentMatrix->m);
 };
 
-void MatrixStack::rotAxis(glm::vec3 axis, float a) {
+void MatrixStack::rotAxis(float* axis, float a) {
 
-	axis = glm::normalize(axis);
+	//axis = glm::normalize(axis);
 
 	float ra[16];
 
-	glm::mat4 bg = glm::rotate(glm::mat4(1), a, axis);
-
+	//float ra[0] = axis[0]*axis[0] + 
+	/*
 	ra[0] = bg[0][0];
 	ra[1] = bg[1][0];
 	ra[2] = bg[2][0];
@@ -97,7 +97,7 @@ void MatrixStack::rotAxis(glm::vec3 axis, float a) {
 	ra[13] = bg[1][3];
 	ra[14] = bg[2][3];
 	ra[15] = bg[3][3];
-
+	*/
 	matrixMult(currentMatrix->m, ra, currentMatrix->m);
 }
 

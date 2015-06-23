@@ -31,11 +31,10 @@ public:
 		ntris = 0;
 	};
 
-	Plane(glm::vec3 _pos, glm::vec2 _dim);
+	Plane(float x, float y, float z, float dX, float dZ);
 	~Plane(void);
 
 	void render();
-	glm::vec2 getDim(){ return dim; }
 
 private:
 	GLuint vao;          // Vertex array object, the main handle for geometry
@@ -47,7 +46,4 @@ private:
 	vector<planeVertexData> vertexArray;	   // Vertex array on interleaved format: x y z nx ny nz u v
 	vector<triangle> indexArray;   // Element index array
 
-	glm::vec2 dim;
-
-	void display(ostream& os) const;
 };

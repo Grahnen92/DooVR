@@ -1,14 +1,12 @@
 #include "Box.h"
 
-Box::Box(glm::vec3 _pos, glm::vec3 _dim)
+Box::Box(float x, float y, float z, float dX, float dY, float dZ)
 {
 	oType = 'B';
-	position[0] = _pos.x;
-	position[1] = _pos.y;
-	position[2] = _pos.z;
-	dim = _dim;
-
-	createBox(_dim.x, _dim.y, _dim.z);
+	position[0] = x;
+	position[1] = y;
+	position[2] = z;
+	createBox(dX, dY, dZ);
 }
 
 
@@ -134,10 +132,4 @@ void Box::render()
 	glDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);
-}
-
-void Box::display(ostream& os) const
-{
-	os << "Shape: Box" << endl;
-	os << "Dimensions: " << dim.x << ", " << dim.y << " ," << dim.z << endl;
 }

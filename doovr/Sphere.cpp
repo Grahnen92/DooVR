@@ -1,11 +1,11 @@
 #include "Sphere.h"
 
-Sphere::Sphere(glm::vec3 _pos, float _rad)
+Sphere::Sphere(float x, float y, float z, float _rad)
 {
 	oType = 'S';
-	position[0] = _pos.x;
-	position[1] = _pos.y;
-	position[2] = _pos.z;
+	position[0] = x;
+	position[1] = y;
+	position[2] = z;
 
 	orientation[0] = 1.0f;
 	orientation[1] = 0.0f;
@@ -30,10 +30,6 @@ Sphere::Sphere(glm::vec3 _pos, float _rad)
 
 	radius = _rad;
 	createSphere(_rad, 32);
-
-	color.x = 0.7f;
-	color.y = 0.7f;
-	color.z = 0.7f;
 }
 
 void Sphere::clean() {
@@ -66,14 +62,10 @@ void Sphere::clean() {
 
 void Sphere::render()
 {
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glLineWidth(3.0);
 	glBindVertexArray(vao);
-	glColor3f(color.x,color.y,color.z);
 	glDrawElements(GL_TRIANGLES, 3 * ntris, GL_UNSIGNED_INT, (void*)0);
 	// (mode, vertex count, type, element array buffer offset)
 	glBindVertexArray(0);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 Sphere::~Sphere(void)
@@ -220,8 +212,3 @@ void Sphere::createSphere(float radius, int segments) {
 };
 
 
-void Sphere::display(ostream& os) const{
-	os << "Shape: Sphere" << endl;
-	os << "Radius: " << radius << endl; 
-	os << endl;
-}

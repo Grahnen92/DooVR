@@ -63,8 +63,7 @@ int twoDim::run2D() {
 	MVstack.init();
 
 	Mesh mTest(0.5f);
-	//Sphere sphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
-	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));
+	Plane ground(0.0f, 0.0f, 0.0f, 100.0f, 100.0f);
 
 	locationMV = glGetUniformLocation(phongShader.programID, "MV");
 	locationP = glGetUniformLocation(phongShader.programID, "P");
@@ -120,7 +119,7 @@ int twoDim::run2D() {
 			translateVector[1] = -1.0f;
 			translateVector[2] = -1.0f;
 			MVstack.translate(translateVector);
-			MVstack.rotAxis(glm::vec3(1.0f, 0.0f, 0.0f), -0.8f);
+		//	MVstack.rotAxis(glm::vec3(1.0f, 0.0f, 0.0f), -0.8f);
 			/*
 			//WAND TRANSFORMS //////////////////////////////////////////////////////////////////////////
 			MVstack.push();

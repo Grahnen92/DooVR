@@ -25,7 +25,6 @@ void moveMesh(Device* wand, Mesh* mTest, bool buttonPressed, float* changePos, f
 void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius);
 bool selectFunction(Device* wand, vector<Entity*> *objectList, int &chooseFunction);
 void updatePanel(vector<Entity*> *objectList, int currentFunction, float MAX_HEX_HEIGHT, float MIN_HEX_HEIGHT);
-void print_GLM_matrix(glm::mat4 M);
 void print_FLOAT_matrix(float *M);
 
 // --- Variable Declerations ------------
@@ -76,10 +75,13 @@ int Oculus::runOvr() {
 					  0.0f, 0.0f, -0.2f, 0.0f };
 
 	// Lightposition 
-	GLfloat lPos[4] = { 2.0f, 2.0f, 2.0f, 1.0f};
-	GLfloat lPos2[4] = { -2.0f, 2.0f, 2.0f, 1.0f };
-	GLfloat lPosTemp[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float lPos[4] = { 2.0f, 2.0f, 2.0f, 1.0f};
+	float lPos2[4] = { -2.0f, 2.0f, 2.0f, 1.0f };
+	float lPosTemp[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float lightPosTemp[3];
+	float LP[4];
+	float* pmat4;
+	float mat4[16];
 
 	// Save old positions and transforms
 	float changePos[3] = { 0.0f };
@@ -364,12 +366,12 @@ int Oculus::runOvr() {
 	MVstack.init();
 	
 	//DECLARE SCENE OBJECTS ///////////////////////////////////////////////////////////////////////////////////
-	Sphere light(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);								// Sphere used for show light source in scene.
-	Sphere regSphere(glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);							// Sphere used for co-registration.
+	Sphere light( 0.0f, 0.0f, 0.0f, 0.05f);								// Sphere used for show light source in scene.
+	Sphere regSphere(0.0f, 0.0f, 0.0f, 0.05f);							// Sphere used for co-registration.
 
-	Plane ground(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(100.0f, 100.0f));			//Ground plane
-	Box box(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.46f, 0.46f, 0.53f));
-	Box boxPoint(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.005f, 0.005f, 0.005f));
+	Plane ground(0.0f, 0.0f, 0.0f, 100.0f, 100.0f);			//Ground plane
+	Box box(0.0f, 0.0f, 0.0f, 0.46f, 0.46f, 0.53f);
+	Box boxPoint(0.0f, 0.0f, 0.0f, 0.005f, 0.005f, 0.005f);
 	hexBox refBox(0.0f, -eyeHeight + 1.5f, -2.0f, 0, 0);
 
 	// ObjectLists
@@ -402,16 +404,16 @@ int Oculus::runOvr() {
 											  -1.131f + 0.083984f * j + offset, 0, 1));			// Z-axis
 	}
 	// Lightsources
-	objectList.push_back(new Sphere(glm::vec3(0.3f, 0.2f, 0.0f), 0.02f));
-	objectList.push_back(new Sphere(glm::vec3(-0.3f, 0.2f, 0.0f), 0.02f));
-	objectList.push_back(new Sphere(glm::vec3(0.0f, 0.2f, -0.5f), 0.02f));
+	objectList.push_back(new Sphere(0.3f, 0.2f, 0.0f, 0.02f));
+	objectList.push_back(new Sphere(-0.3f, 0.2f, 0.0f, 0.02f));
+	objectList.push_back(new Sphere(0.0f, 0.2f, -0.5f, 0.02f));
 
 	// Pointers to the lists
 	oPointer = &objectList;
 
 	// Wand = Box + sphere
-	Box boxWand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.20f, 0.03f, 0.03f));
-	Sphere sphereWand(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f);
+	Box boxWand(0.0f, 0.0f, 0.0f, 0.20f, 0.03f, 0.03f);
+	Sphere sphereWand(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Initilise VRPN connection with the Intersense wand
 	//Device* wand = new Device(true, true, false, "Mouse");
@@ -682,18 +684,14 @@ int Oculus::runOvr() {
 				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z };
 				MVstack.translate(eyePoses);
 				
-				glm::mat4 pmat4 = glm::make_mat4(MVstack.getCurrentMatrix());
-				glm::vec4 LP = pmat4 * glm::vec4(lPos[0], lPos[1], lPos[2], 1.0f);
-				lPosTemp[0] = LP.x;
-				lPosTemp[1] = LP.y;
-				lPosTemp[2] = LP.z;
-				LP = pmat4 * glm::vec4(lPos2[0], lPos2[1], lPos2[2], 1.0f);
+				//POSSABLY DOABLE IN SHADER
+				float* pmat4 = MVstack.getCurrentMatrix();
+				for (int i = 0; i < 16; i++)
+					mat4[i] = pmat4[i];
 
-				//linAlg::vectorMatrixMult(MVstack.getCurrentMatrix(), lPos, lPosTemp);
-				//lPosTemp[0] = 1.0f;
-				//lPosTemp[1] = 1.0f;
-				//lPosTemp[2] = 1.0f;
-				
+				linAlg::transpose(mat4);
+				linAlg::vectorMatrixMult(mat4, lPos, LP);
+				linAlg::vectorMatrixMult(mat4, lPos2, lPosTemp);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 				
 				if (!renderRegisterSpheres)
@@ -707,7 +705,7 @@ int Oculus::runOvr() {
 
 						//RENDER DIFFERENT HEXBOXES---------------------------------------------------------------------
 						refBox.render();
-						glUniform4fv(locationLP, 1, lPosTemp);
+						glUniform4fv(locationLP, 1, LP);
 						it = objectList.begin();
 						n = 0;
 						while (it != objectList.begin() + nFunctions) {
@@ -738,7 +736,7 @@ int Oculus::runOvr() {
 							translateVector[2] = 0.0f;
 							MVstack.translate(translateVector);
 							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-							glUniform4fv(locationLP, 1, lPosTemp);
+							glUniform4fv(locationLP, 1, LP);
 							glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
 							ground.render();
 						MVstack.pop();
@@ -752,30 +750,11 @@ int Oculus::runOvr() {
 							MVstack.multiply(mTest->getOrientation());
 							glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 							//cout << lPosTemp[0] << " " << lPosTemp[1] << " " << lPosTemp[2] << " " << lPosTemp[3] << endl;
-							glUniform4fv(locationMeshLP, 1, lPosTemp);
-							lPosTemp[0] = LP.x;
-							lPosTemp[1] = LP.y;
-							lPosTemp[2] = LP.z;
+							glUniform4fv(locationMeshLP, 1, LP);
+							//lPosTemp[0] = LP.x;
+							//lPosTemp[1] = LP.y;
+							//lPosTemp[2] = LP.z;
 							glUniform4fv(locationMeshLP2, 1, lPosTemp);
-							/*
-							LP = pmat4 * glm::vec4(objectList[1159]->getPosition()[0], objectList[1161]->getPosition()[1], objectList[1161]->getPosition()[2], 1.0f);
-							lPosTemp[0] = LP.x;
-							lPosTemp[1] = LP.y;
-							lPosTemp[2] = LP.z;
-							glUniform4fv(locationMeshLP2, 1, lPosTemp);
-							
-							LP = pmat4 * glm::vec4(objectList[1160]->getPosition()[0], objectList[1161]->getPosition()[1], objectList[1161]->getPosition()[2], 1.0f);
-							lPosTemp[0] = LP.x;
-							lPosTemp[1] = LP.y;
-							lPosTemp[2] = LP.z;
-							glUniform4fv(locationMeshLP3, 1, lPosTemp);
-
-							LP = pmat4 * glm::vec4(objectList[1161]->getPosition()[0], objectList[1161]->getPosition()[1], objectList[1161]->getPosition()[2], 1.0f);
-							lPosTemp[0] = LP.x;
-							lPosTemp[1] = LP.y;
-							lPosTemp[2] = LP.z;
-							glUniform4fv(locationMeshLP4, 1, lPosTemp);
-							*/
 
 							if (lines) {
 								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -1007,17 +986,6 @@ void moveEntity(Device* wand, vector<Entity*> *objectList, float wandRadius) {
 			}
 	}
     
-}
-void print_GLM_matrix(glm::mat4 M) {
-    double dArray[16] = { 0.0 };
-    const float *pSource = (const float*)glm::value_ptr(M);
-    for (int i = 0; i < 16; ++i) {
-        dArray[i] = pSource[i];
-        cout << std::fixed << std::setprecision(2);
-        cout << dArray[i] << "  ";
-        if (i == 3 || i == 7 || i == 11)	cout << endl;
-    }
-    cout << endl << "---------------------" << endl;
 }
 
 void print_FLOAT_matrix(float* M) {
