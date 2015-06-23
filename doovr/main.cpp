@@ -18,6 +18,32 @@
 	isafo268@student.liu.se, ollgr444@student.liu.se, jonbo665@student.liu.se, johno855@student.liu.se,
 */
 
+/*! \mainpage DooVR
+*
+* \section intro_sec Introduction
+*
+* This is the introduction.
+*
+* \section install_sec Compiling and running
+* DooVR is tested to work with the compiler VC12. 
+*
+* - Get all requierd libraries\ref found in \ref dependencies_sec and install them. 
+* - Create a project in Visual studio 2013 and add the files in DooVR
+* - Link the required libraries in the project properties
+* - Build and run the project
+*
+* \subsection dependencies_sec Dependencies
+*	- OpenGL
+*	- GLFW
+*	- GLEW
+*	- libOVR
+*	- VRPN
+*	- wand3D
+*	- Armadillo
+*
+*/
+
+
 #include <iostream>
 #include <time.h>
 
@@ -30,6 +56,7 @@
 
 #include "twoDim.h"
 #include "Oculus.h"
+#include "configure.h"
 
 char DeviceType;
 
@@ -45,13 +72,10 @@ int main() {
 	
 	cin >> DeviceType;
 
-	//if (DeviceType == 'C')
-		//runSuccess = Configure::runConfig();
-
-	if (DeviceType == 'O') 
+	if (DeviceType == 'C')
+		runSuccess = configure::coRegister();
+	else if (DeviceType == 'O')
 		runSuccess = Oculus::runOvr();
-	else if (DeviceType == 'D') 
-		runSuccess = twoDim::run2D();
 	
 	return runSuccess;
 }

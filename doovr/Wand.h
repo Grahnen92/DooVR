@@ -20,6 +20,5 @@ protected:
 	float wandPosition[3];
 	float wandOrientation[16];
 	float transformMatrix[16];
-
 };
 

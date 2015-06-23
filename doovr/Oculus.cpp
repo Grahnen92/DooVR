@@ -8,7 +8,6 @@
 #include "Plane.h"
 #include "Box.h"
 #include "hexBox.h"
-#include "Cylinder.h"
 #include "Texture.h"
 
 using namespace std;
@@ -39,12 +38,7 @@ const int G_DISTORTIONCAPS = 0
 ovrHmd hmd;
 ovrGLConfig g_Cfg;
 ovrEyeRenderDesc g_EyeRenderDesc[2];
-ovrVector3f g_EyeOffsets[2];
-ovrPosef g_EyePoses[2];
-ovrTexture g_EyeTextures[2];
-OVR::Matrix4f g_ProjectionMatrix[2];
-OVR::Sizei g_RenderTargetSize;
-ovrVector3f g_CameraPosition;
+
 
 const float EYEHEIGHT{OVR_DEFAULT_EYE_HEIGHT};
 // --------------------------------------
@@ -65,10 +59,18 @@ const int hexRESET = 6;
 
 int Oculus::runOvr() {
 
+	ovrVector3f g_EyeOffsets[2];
+	ovrPosef g_EyePoses[2];
+	ovrTexture g_EyeTextures[2];
+	OVR::Matrix4f g_ProjectionMatrix[2];
+	OVR::Sizei g_RenderTargetSize;
+	ovrVector3f g_CameraPosition;
+
 	GLfloat I[16] = { 1.0f, 0.0f, 0.0f, 0.0f,
 					  0.0f, 1.0f, 0.0f, 0.0f,
 					  0.0f, 0.0f, 1.0f, 0.0f,
 					  0.0f, 0.0f, 0.0f, 1.0f };
+
 	GLfloat P[16] = { 2.42f, 0.0f, 0.0f, 0.0f,
 					  0.0f, 2.42f, 0.0f, 0.0f,
 					  0.0f, 0.0f, -1.0f, -1.0f,
@@ -369,9 +371,8 @@ int Oculus::runOvr() {
 	Sphere regSphere(0.0f, 0.0f, 0.0f, 0.05f);							// Sphere used for co-registration.
 
 	Plane ground(0.0f, 0.0f, 0.0f, 100.0f, 100.0f);			//Ground plane
-	Box box(0.0f, 0.0f, 0.0f, 0.46f, 0.46f, 0.53f);
-	Box boxPoint(0.0f, 0.0f, 0.0f, 0.005f, 0.005f, 0.005f);
-	hexBox refBox(0.0f, -eyeHeight + 1.5f, -2.0f, 0, 0);
+	Box boxPoint(0.0f, 0.0f, 0.0f, 0.005f, 0.005f, 0.005f);	//box in the middle of the wand
+	hexBox refBox(0.0f, -eyeHeight + 1.5f, -2.0f, 0, 0);	//hexBox representing the Oculus camera
 
 	// ObjectLists
 	vector<Entity*> objectList;
@@ -679,7 +680,6 @@ int Oculus::runOvr() {
 
 
 				//!-- Translation due to positional tracking (DK2) and IPD...
-				//glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
 				float eyePoses[3] = { -g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z };
 				MVstack.translate(eyePoses);
 				
@@ -693,8 +693,7 @@ int Oculus::runOvr() {
 				linAlg::vectorMatrixMult(mat4, lPos2, lPosTemp);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 				
-				if (!renderRegisterSpheres)
-				{
+				if (!renderRegisterSpheres) {
 					//SCENEOBJECT TRANSFORMS----------------------------------------------------------------
 					MVstack.push();
 						
