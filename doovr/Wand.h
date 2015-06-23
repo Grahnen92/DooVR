@@ -7,9 +7,9 @@ public:
 	Wand();
 	~Wand();
 
-	virtual float* getWandPosition() { return nullptr; }
-	virtual float* getWandOrientation() { return nullptr; }
-	virtual float* getTransformMatrix() { return nullptr; }
+	float* getWandPosition() { return wandPosition; }
+	float* getWandOrientation() { return wandOrientation; }
+	float* getTransformMatrix() { return transformMatrix; }
 
 	virtual void setWandPosition(double* t) = 0;
 	virtual void setWandOrientation(double* o) = 0;
