@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+#include <iostream>
+#include <fstream>
+
 #include "configure.h"
 #include "MatrixStack.h"
 #include "Sphere.h"
@@ -22,6 +25,10 @@ static void WindowSizeCallbackConf(GLFWwindow *p_Window, int p_Width, int p_Heig
 // function containing all nessesary OpenGL render calls
 void GLRenderCallsOculusConf();
 
+void saveCalibration(float* transform, float& eyeHeight);
+
+void testReadCalibration(Vrpn* wand, float& eyeHeight);
+
 // --- Variable Declerations ------------
 const bool L_MULTISAMPLING = false;
 const int G_DISTORTIONCAPS = 0
@@ -38,10 +45,6 @@ ovrEyeRenderDesc g_EyeRenderDesc_conf[2];
 
 const float EYEHEIGHT{ OVR_DEFAULT_EYE_HEIGHT };
 // --------------------------------------
-
-// Global Constant variables
-const int nFunctions = 7;
-const int nLightsources = 3;
 
 bool configure::coRegister() {
 
@@ -364,6 +367,8 @@ bool configure::coRegister() {
 	//Device* wand = new Device(true, true, false, "Mouse");
 	Vrpn* wand = new Vrpn(true, true, true, "Wand");
 
+	testReadCalibration(wand, eyeHeight);
+
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
 	// Wand function textures
@@ -414,8 +419,6 @@ bool configure::coRegister() {
 			buttonPressed = false;
 		}
 
-		
-
 		// CALIBRATION /////////////////////////////////////////////////////////////////////////////////////
 		if (buttonPressed && wand->getButtonNumber() == 5) { // check if the trigger is pressed
 			// the first 4 clicks are to calibrate the wand
@@ -448,6 +451,7 @@ bool configure::coRegister() {
 				MAX_HEX_HEIGHT = -eyeHeight + 0.95f;
 				MIN_HEX_HEIGHT = -eyeHeight + 0.9f;
 				regCounter = 0;
+				saveCalibration(transform, eyeHeight);
 			}
 		}
 
@@ -624,4 +628,43 @@ void GLRenderCallsOculusConf(){
 	else {
 		glDisable(GL_MULTISAMPLE);
 	}
+}
+
+void saveCalibration(float* transform, float& eyeHeight){
+
+	ofstream wandCal;
+	wandCal.open("wandCalibration.ini");
+	for (int i = 0; i < 16; i++) {
+		wandCal << transform[i] << endl;
+	}
+
+	wandCal << eyeHeight;
+	wandCal.close();
+}
+
+void testReadCalibration(Vrpn* wand, float& eyeHeight){
+
+	string line;
+	float value;
+	int i = 0;
+	float transform[16] = { 0.0f };
+
+	ifstream wandCalibration("wandCalibration.ini");
+	if (wandCalibration.is_open()) {
+		while (getline(wandCalibration, line)) {
+			std::istringstream in(line);
+			in >> value;
+			if (i < 16) {
+				transform[i] = value;
+				i++;
+			}
+			else {
+				eyeHeight = value;
+				wand->setWandTransform(transform);
+			}
+		}
+		wandCalibration.close();
+	}
+
+	else cout << "No configuration file found, calibrate the wand";
 }
