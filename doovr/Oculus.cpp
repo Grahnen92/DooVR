@@ -98,7 +98,6 @@ int Oculus::runOvr() {
 	int regCounter = 0;
 	int n = 0;
 	int resetCounter = 0;
-	bool renderRegisterSpheres = false;
 
 	float pos[16] = { 0.0f };
 	float invPos[16] = { 0.0f };
@@ -136,8 +135,6 @@ int Oculus::runOvr() {
 	GLint locationMeshP;
 	GLint locationMeshLP;
 	GLint locationMeshLP2;
-	GLint locationMeshLP3;
-	GLint locationMeshLP4;
 
 	GLint locationWandMV;
 	GLint locationWandP;
@@ -365,8 +362,6 @@ int Oculus::runOvr() {
 	MVstack.init();
 	
 	//DECLARE SCENE OBJECTS ///////////////////////////////////////////////////////////////////////////////////
-	Sphere light( 0.0f, 0.0f, 0.0f, 0.05f);								// Sphere used for show light source in scene.
-	Sphere regSphere(0.0f, 0.0f, 0.0f, 0.05f);							// Sphere used for co-registration.
 
 	Plane ground(0.0f, 0.0f, 0.0f, 100.0f, 100.0f);			//Ground plane
 	Box board(0.0f, -0.935f, 0.0f, 0.35, 0.01, 0.26);
@@ -376,12 +371,14 @@ int Oculus::runOvr() {
 	hexBox refBox(0.0f, -eyeHeight + 1.5f, -2.0f, 0, 0);
 
 	// ObjectLists
+	/*
 	vector<Entity*> objectList;
 	vector<Entity*> *oPointer;
 	vector<Entity*>::iterator it;
 	float offset = 0;
 	hexBox* tempHex;
-
+	*/
+	/*
 	// Function-boxes
 	float X = 0.142f + 0.215f;
 	float Z = -0.0813333f - 0.125f;
@@ -408,22 +405,22 @@ int Oculus::runOvr() {
 	objectList.push_back(new Sphere(0.3f, 0.2f, 0.0f, 0.02f));
 	objectList.push_back(new Sphere(-0.3f, 0.2f, 0.0f, 0.02f));
 	objectList.push_back(new Sphere(0.0f, 0.2f, -0.5f, 0.02f));
-
+	*/
 	// Pointers to the lists
-	oPointer = &objectList;
+	//oPointer = &objectList;
 
 	// Wand = Box + sphere
 	Box boxWand(0.0f, 0.0f, 0.0f, 0.20f, 0.03f, 0.03f);
 	Sphere sphereWand(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Initilise VRPN connection with the Intersense wand
-	//Device* wand = new Device(true, true, false, "Mouse");
 	Vrpn* wand = new Vrpn(true, true, true, "Wand");
 	//Passive3D* wand = new Passive3D();
 
 	// read calibration from file and set the transform
 	// save configfile as Oculus profile name, if profile name doesn't exist save as: wandCalibration
 	readCalibration(wand, eyeHeight, ovrHmd_GetString(hmd, OVR_KEY_USER, "wandCalibration"));
+
 	//readCalibration(wand, eyeHeight);
 	
 
@@ -452,8 +449,6 @@ int Oculus::runOvr() {
 	locationMeshP = glGetUniformLocation(meshShader.programID, "P");					// Perspective Matrix
 	locationMeshLP = glGetUniformLocation(meshShader.programID, "lightPos");
 	locationMeshLP2 = glGetUniformLocation(meshShader.programID, "lightPos2");
-	locationMeshLP3 = glGetUniformLocation(meshShader.programID, "lightPos3");
-	locationMeshLP4 = glGetUniformLocation(meshShader.programID, "lightPos4");
 	//locationMeshLP2 = glGetUniformLocation(meshShader.programID, "LP2");
 	//for (int i = 0; i < nLightsources + 1; i++) {
 	//	string uniform = "lightPos[" + to_string(i) + "]";
@@ -685,6 +680,7 @@ int Oculus::runOvr() {
 					//RENDER DIFFERENT HEXBOXES---------------------------------------------------------------------
 					refBox.render();
 					glUniform4fv(locationLP, 1, LP);
+					/*
 					it = objectList.begin();
 					n = 0;
 					while (it != objectList.begin() + nFunctions) {
@@ -698,6 +694,7 @@ int Oculus::runOvr() {
 						(*it)->render();
 						++it;
 					}
+					*/
 					/*
 					// Lightsources - remember to send as unifor
 					while (it != objectList.end()) {
@@ -709,6 +706,7 @@ int Oculus::runOvr() {
 						++it;
 					}
 					*/
+					/*
 					MVstack.push();
 						translateVector[0] = 0.0f;
 						translateVector[1] = -eyeHeight;
@@ -719,6 +717,7 @@ int Oculus::runOvr() {
 						glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
 						ground.render();
 					MVstack.pop();
+					*/
 					//TRACKINGRANGE
 					MVstack.push();
 						MVstack.translate(board.getPosition());
@@ -741,9 +740,6 @@ int Oculus::runOvr() {
 						glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						//cout << lPosTemp[0] << " " << lPosTemp[1] << " " << lPosTemp[2] << " " << lPosTemp[3] << endl;
 						glUniform4fv(locationMeshLP, 1, LP);
-						//lPosTemp[0] = LP.x;
-						//lPosTemp[1] = LP.y;
-						//lPosTemp[2] = LP.z;
 						glUniform4fv(locationMeshLP2, 1, lPosTemp);
 
 						if (lines) {
@@ -795,7 +791,7 @@ int Oculus::runOvr() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		//Wand callback from VRPN
-		wand->sendtoMainloop();
+		//wand->sendtoMainloop();
 
 		// Do everything, distortion, front/back buffer swap...
 		ovrHmd_EndFrame(hmd, g_EyePoses, g_EyeTextures);
