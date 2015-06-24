@@ -13,8 +13,8 @@ uniform vec4 lightPos2;
 
 void main () 
 {
-	Position =  vec3( MV * vec4(VertexPosition, 1.0));
-	Normal = normalize(mat3(MV) * VertexNormal);
+	vec3 Position =  vec3( MV * vec4(VertexPosition, 1.0));
+	vec3 Normal = normalize(mat3(MV) * VertexNormal);
 
 	vec3 LightIntensity = vec3(0.58039f,0.423529f, 0.282352f);
 
@@ -38,7 +38,7 @@ void main ()
 	vec3 r2 = reflect( -s2, norm );						 // reflectDir
 	vec3 LI2 = LightIntensity * (  Ka + Kd * max( dot(s2, norm), 0.0 ))  + Ks * pow( max( dot(r2,vie), 0.0 ), Shininess ) * strength;
 	
-	vec3 resultLight = (LI + LI2 )/2.0f;
+	resultLight = (LI + LI2 )/2.0f;
 
 	//! Convert position to clip coordinates and pass along to fragment shader
 	gl_Position =  (P * MV) * vec4(VertexPosition, 1.0);
