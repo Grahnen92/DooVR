@@ -21,7 +21,7 @@ static void WindowSizeCallback(GLFWwindow *p_Window, int p_Width, int p_Height);
 
 void GLRenderCallsOculus();
 //! reads wandCalibration from file and sets wand transform
-void readCalibration(Vrpn* wand, float& eyeHeight);
+void readCalibration(Vrpn* wand, float& eyeHeight, const char* profileName);
 
 // Declare moveMesh - used for moving around the mesh in the scene.
 // TODO: refactor this function to TOOLS namespace?
@@ -422,7 +422,9 @@ int Oculus::runOvr() {
 	//Passive3D* wand = new Passive3D();
 
 	// read calibration from file and set the transform
-	readCalibration(wand, eyeHeight);
+	// save configfile as Oculus profile name, if profile name doesn't exist save as: wandCalibration
+	readCalibration(wand, eyeHeight, ovrHmd_GetString(hmd, OVR_KEY_USER, "wandCalibration"));
+	//readCalibration(wand, eyeHeight);
 	
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -973,14 +975,16 @@ void print_FLOAT_matrix(float* M) {
     cout << endl << "---------------------" << endl;
 }
 
-void readCalibration(Vrpn* wand, float& eyeHeight){
+void readCalibration(Vrpn* wand, float& eyeHeight, const char* profileName){
 
 	string line;
 	float value;
 	int i = 0;
 	float transform[16] = { 0.0f };
 
-	ifstream wandCalibration("wandCalibration.ini");
+	string fileName(profileName);
+
+	ifstream wandCalibration(fileName + ".ini");
 	if (wandCalibration.is_open()) {
 		while (getline(wandCalibration, line)) {
 			std::istringstream in(line);

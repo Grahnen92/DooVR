@@ -25,7 +25,7 @@ static void WindowSizeCallbackConf(GLFWwindow *p_Window, int p_Width, int p_Heig
 // function containing all nessesary OpenGL render calls
 void GLRenderCallsOculusConf();
 //! Saves the calibration to a ini file
-void saveCalibration(float* transform, float& eyeHeight);
+void saveCalibration(float* transform, float& eyeHeight, const char* fileName);
 
 // --- Variable Declerations ------------
 const bool L_MULTISAMPLING = false;
@@ -445,10 +445,17 @@ bool configure::coRegister() {
 			regCounter++;
 			// set the eye height
 			if (regCounter == 6) {
+				const char* userName;
+
+				//eyeHeight = ovrHmd_GetFloat(hmd_conf, OVR_KEY_PLAYER_HEIGHT, 1.7) + eye;
+
 				eyeHeight = eye - floor;
 				MAX_HEX_HEIGHT = -eyeHeight + 0.95f;
 				MIN_HEX_HEIGHT = -eyeHeight + 0.9f;
-				saveCalibration(transform, eyeHeight);
+
+				// save configfile as Oculus profile name, if profile name doesn't exist save as: wandCalibration
+				userName = ovrHmd_GetString(hmd_conf, OVR_KEY_USER, "wandCalibration");
+				saveCalibration(transform, eyeHeight, userName);
 				regCounter = 0;
 			}
 		}
@@ -632,10 +639,12 @@ void GLRenderCallsOculusConf(){
 	}
 }
 
-void saveCalibration(float* transform, float& eyeHeight){
+void saveCalibration(float* transform, float& eyeHeight, const char* profileName){
+
+	string fileName(profileName);
 
 	ofstream wandCal;
-	wandCal.open("wandCalibration.ini");
+	wandCal.open(fileName + ".ini");
 	for (int i = 0; i < 16; i++) {
 		wandCal << transform[i] << endl;
 	}
