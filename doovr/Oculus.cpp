@@ -20,6 +20,8 @@ using namespace std;
 static void WindowSizeCallback(GLFWwindow *p_Window, int p_Width, int p_Height);
 
 void GLRenderCallsOculus();
+//! reads wandCalibration from file and sets wand transform
+void readCalibration(Vrpn* wand, float& eyeHeight);
 
 // Declare moveMesh - used for moving around the mesh in the scene.
 // TODO: refactor this function to TOOLS namespace?
@@ -41,7 +43,6 @@ const int G_DISTORTIONCAPS = 0
 ovrHmd hmd;
 ovrGLConfig g_Cfg;
 ovrEyeRenderDesc g_EyeRenderDesc[2];
-
 
 const float EYEHEIGHT{OVR_DEFAULT_EYE_HEIGHT};
 // --------------------------------------
@@ -99,13 +100,7 @@ int Oculus::runOvr() {
 	int resetCounter = 0;
 	bool renderRegisterSpheres = false;
 
-	float regSpherePos[16] = { 0.0f, 0.0f, 0.4f, 0.4f,	// Sp1 0.2
-								0.0f, -0.4f, 0.0f, -0.4f,	// Sp2 0.5
-								-0.2f, -0.4f, -0.4f, -0.2f,	// Sp3 0.45
-								1.0f, 1.0f, 1.0f, 1.0f };	// Sp4
-
 	float pos[16] = { 0.0f };
-	float transform[16] = { 0.0f };
 	float invPos[16] = { 0.0f };
 	float eyeHeight = OVR_DEFAULT_EYE_HEIGHT;
 	float MAX_HEX_HEIGHT = -eyeHeight + 0.95f;
@@ -423,8 +418,13 @@ int Oculus::runOvr() {
 
 	// Initilise VRPN connection with the Intersense wand
 	//Device* wand = new Device(true, true, false, "Mouse");
-	//Device* wand = new Device(true, true, true, "Wand");
-	Passive3D* wand = new Passive3D();
+	Vrpn* wand = new Vrpn(true, true, true, "Wand");
+	//Passive3D* wand = new Passive3D();
+
+	// read calibration from file and set the transform
+	//wand->setWandTransform(I);
+	readCalibration(wand, eyeHeight);
+	
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -472,15 +472,10 @@ int Oculus::runOvr() {
 	// RENDER LOOP ////////////////////////////////////////////////////////////////////////////////////////
 	while (!glfwWindowShouldClose(l_Window)) {
 		// Show fps at the top of the window
-		//fps = Utilities::displayFPS(l_Window);
-		cout << GLFW_KEY_0;
-		cout << GLFW_KEY_1;
-		cout << GLFW_KEY_W;
-		cout << GLFW_KEY_E;
-		cout << GLFW_KEY_X << endl;
-		cout << glfwGetKey(l_Window, GLFW_KEY_E);
+		fps = Utilities::displayFPS(l_Window);
 
 		/*
+
 		// STATES //////////////////////////////////////////////////////////////////////////////////////////////
 		// All states are originally false
 		if (wand->getButtonState() && !buttonPressed && !buttonHeld) { // Button pressed
@@ -491,6 +486,10 @@ int Oculus::runOvr() {
 		} else if (buttonPressed || buttonHeld) { // Button held down
 			buttonHeld = true;
 			buttonPressed = false;
+		}
+
+		if (buttonPressed && wand->getButtonNumber() == 1) {
+			readCalibration(wand, eyeHeight);
 		}
 
 		// INTERACTION ////////////////////////////////////////////////////////////////////////////////////////
@@ -505,9 +504,9 @@ int Oculus::runOvr() {
 			case 1: // 1st from the left		
 				currentTexID = dnp.getTextureID();
 				updatePanel(oPointer, DRAGnPULL, MAX_HEX_HEIGHT, MIN_HEX_HEIGHT);
-				mTest->sculpt(wand->getTrackerPosition(), lastPos, wandRadius, true);
+				mTest->sculpt(wand->getWandPosition(), lastPos, wandRadius, true);
 				break;
-			case 2: // 3rd from the left
+			/*case 2: // 3rd from the left
 				currentTexID = move.getTextureID();
 				updatePanel(oPointer, moveMESH, MAX_HEX_HEIGHT, MIN_HEX_HEIGHT);
 				moveMesh(wand, mTest, buttonPressed, changePos, differenceR);
@@ -523,7 +522,7 @@ int Oculus::runOvr() {
 				ovrHmd_DismissHSWDisplay(hmd);
 				regCounter = 0;
 				renderRegisterSpheres = true;
-				wand->setTransformMatrix(I);
+				wand->setWandTransform(I);
 				break;
 			case 5: // Trigger button (only non-hotkey)
 				if (buttonPressed && currentFunction != coREGISTER)
@@ -595,8 +594,8 @@ int Oculus::runOvr() {
 			} else if (wandRadius >= MAX_RADIUS_WAND_TOOL && wand->getAnalogPosition()[1] < 0) {
 				wandRadius += 0.001f*wand->getAnalogPosition()[1];
 			}
-		}
-		*/
+		}*/
+		//////////////////////////////////////////////////////////////////////////////////////////////
 		// KEYBORD EVENTS
 		if (glfwGetKey(l_Window, GLFW_KEY_O)) {
 			ovrHmd_RecenterPose(hmd);
@@ -677,12 +676,9 @@ int Oculus::runOvr() {
 				linAlg::vectorMatrixMult(mat4, lPos, LP);
 				linAlg::vectorMatrixMult(mat4, lPos2, lPosTemp);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-				
-				
+			
 				//SCENEOBJECT TRANSFORMS----------------------------------------------------------------
 				MVstack.push();
-						
-
 					glBindTexture(GL_TEXTURE_2D, hexTex.getTextureID());
 
 					//RENDER DIFFERENT HEXBOXES---------------------------------------------------------------------
@@ -798,7 +794,7 @@ int Oculus::runOvr() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		//Wand callback from VRPN
-		//wand->sendtoMainloop();
+		wand->sendtoMainloop();
 
 		// Do everything, distortion, front/back buffer swap...
 		ovrHmd_EndFrame(hmd, g_EyePoses, g_EyeTextures);
@@ -976,4 +972,31 @@ void print_FLOAT_matrix(float* M) {
         if (i == 3 || i == 7 || i == 11)	cout << endl;
     }
     cout << endl << "---------------------" << endl;
+}
+
+void readCalibration(Vrpn* wand, float& eyeHeight){
+
+	string line;
+	float value;
+	int i = 0;
+	float transform[16] = {0.0f};
+
+	ifstream wandCalibration("wandCalibration.ini");
+	if (wandCalibration.is_open()) {
+		while (getline(wandCalibration, line)) {
+			std::istringstream in(line);
+			in >> value;
+			if (i < 16) {
+				transform[i] = value;
+				i++;
+			}
+			else {
+				eyeHeight = value;
+				wand->setWandTransform(transform);
+			}
+		}
+		wandCalibration.close();
+	}
+
+	else cout << "No configuration file found, calibrate the wand";
 }

@@ -2,5 +2,4 @@
 namespace configure {
 
 	bool coRegister();
-
 }
