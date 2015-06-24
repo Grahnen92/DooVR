@@ -10,9 +10,6 @@ out vec2 UV;
 uniform mat4 MV;
 uniform mat4 P;
 
-//uniform mat3 NormalMatrix;
-//uniform mat4 OMV;
-
 void main () 
 {	
 	Position =  vec3( MV * vec4(VertexPosition, 1.0));
