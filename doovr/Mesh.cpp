@@ -24,7 +24,7 @@ Mesh::Mesh(float rad) {
 	vertexEPtr.resize(6);
 	triEPtr.resize(8);
 	position[0] = 0.0f;
-	position[1] = -0.935f;
+	position[1] = -0.90f;
 	position[2] = 0.0f;
 
 	orientation[0] = 1.0f;

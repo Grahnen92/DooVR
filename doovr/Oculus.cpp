@@ -23,9 +23,9 @@ void GLRenderCallsOculus();
 
 // Declare moveMesh - used for moving around the mesh in the scene.
 // TODO: refactor this function to TOOLS namespace?
-void moveMesh(Passive3D* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR);
-void moveEntity(Passive3D* wand, vector<Entity*> *objectList, float wandRadius);
-bool selectFunction(Passive3D* wand, vector<Entity*> *objectList, int &chooseFunction);
+void moveMesh(Wand* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR);
+void moveEntity(Wand* wand, vector<Entity*> *objectList, float wandRadius);
+bool selectFunction(Wand* wand, vector<Entity*> *objectList, int &chooseFunction);
 void updatePanel(vector<Entity*> *objectList, int currentFunction, float MAX_HEX_HEIGHT, float MIN_HEX_HEIGHT);
 void print_FLOAT_matrix(float *M);
 
@@ -374,6 +374,7 @@ int Oculus::runOvr() {
 	Sphere regSphere(0.0f, 0.0f, 0.0f, 0.05f);							// Sphere used for co-registration.
 
 	Plane ground(0.0f, 0.0f, 0.0f, 100.0f, 100.0f);			//Ground plane
+	Box board(0.0f, -0.935f, 0.0f, 0.35, 0.01, 0.26);
 
 	Box box(0.0f, -0.935f, 0.0f, 0.5f, 0.2f, 0.5f);			//box in the middle of the wand
 	Box boxPoint(0.0f, 0.0f, 0.0f, 0.005f, 0.005f, 0.005f); //hexBox representing the Oculus camera
@@ -471,7 +472,13 @@ int Oculus::runOvr() {
 	// RENDER LOOP ////////////////////////////////////////////////////////////////////////////////////////
 	while (!glfwWindowShouldClose(l_Window)) {
 		// Show fps at the top of the window
-		fps = Utilities::displayFPS(l_Window);
+		//fps = Utilities::displayFPS(l_Window);
+		cout << GLFW_KEY_0;
+		cout << GLFW_KEY_1;
+		cout << GLFW_KEY_W;
+		cout << GLFW_KEY_E;
+		cout << GLFW_KEY_X << endl;
+		cout << glfwGetKey(l_Window, GLFW_KEY_E);
 
 		/*
 		// STATES //////////////////////////////////////////////////////////////////////////////////////////////
@@ -559,37 +566,6 @@ int Oculus::runOvr() {
 
 				}
 
-				// Config
-				else if (currentFunction == coREGISTER && buttonPressed) {
-					if (regCounter <= 3) {
-						renderRegisterSpheres = true;
-						for (int i = 0; i < 3; i++) { // Save wand position & rotation 
-							pos[i * 4 + regCounter] = wand->getTrackerPosition()[i];
-						}
-						pos[12 + regCounter] = 1.0f;
-					} 
-					if (regCounter == 3) {
-						// (M1, M2, Mout) -> Mout = M2 * M1
-						linAlg::invertMatrix(pos, invPos);
-						linAlg::matrixMult(invPos, regSpherePos, transform);
-						wand->setTransformMatrix(transform);
-						renderRegisterSpheres = false;
-					} else if (regCounter == 4) {
-						eye = wand->getTrackerPosition()[1];
-					} else if (regCounter == 5) {
-						floor = wand->getTrackerPosition()[1];
-					}
-
-					regCounter++;
-					if (regCounter == 6) {
-						eyeHeight = eye - floor;
-						MAX_HEX_HEIGHT = -eyeHeight + 0.95f;
-						MIN_HEX_HEIGHT = -eyeHeight + 0.9f;
-						regCounter = 0;
-						currentFunction = DRAGnPULL;
-					}
-				}
-				break;
 			default:
 				currentFunction = -1;
 			}
@@ -649,10 +625,6 @@ int Oculus::runOvr() {
 			lines = false;
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Save position of tracker from last frame to get deltaPos
-		//lastPos[0] = wand->getTrackerPosition()[0];
-		//lastPos[1] = wand->getTrackerPosition()[1];
-		//lastPos[2] = wand->getTrackerPosition()[2];
 		lastPos[0] = wand->getWandPosition()[0];
 		lastPos[1] = wand->getWandPosition()[1];
 		lastPos[2] = wand->getWandPosition()[2];
@@ -706,130 +678,118 @@ int Oculus::runOvr() {
 				linAlg::vectorMatrixMult(mat4, lPos2, lPosTemp);
 				glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 				
-				if (!renderRegisterSpheres) {
-					//SCENEOBJECT TRANSFORMS----------------------------------------------------------------
-					MVstack.push();
+				
+				//SCENEOBJECT TRANSFORMS----------------------------------------------------------------
+				MVstack.push();
 						
 
-						glBindTexture(GL_TEXTURE_2D, hexTex.getTextureID());
+					glBindTexture(GL_TEXTURE_2D, hexTex.getTextureID());
 
-						//RENDER DIFFERENT HEXBOXES---------------------------------------------------------------------
-						refBox.render();
-						glUniform4fv(locationLP, 1, LP);
-						it = objectList.begin();
-						n = 0;
-						while (it != objectList.begin() + nFunctions) {
-							tempHex = static_cast<hexBox*> ((*it));
-							tempHex->setFunction(n);
-							(*it)->render();
-							n++;
-							++it;
-						}
-						while (it != objectList.end() - nLightsources) {
-							(*it)->render();
-							++it;
-						}
-						/*
-						// Lightsources - remember to send as unifor
-						while (it != objectList.end()) {
-							MVstack.push();
-								MVstack.translate((*it)->getPosition());
-								glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-								(*it)->render();
-							MVstack.pop();
-							++it;
-						}
-						*/
+					//RENDER DIFFERENT HEXBOXES---------------------------------------------------------------------
+					refBox.render();
+					glUniform4fv(locationLP, 1, LP);
+					it = objectList.begin();
+					n = 0;
+					while (it != objectList.begin() + nFunctions) {
+						tempHex = static_cast<hexBox*> ((*it));
+						tempHex->setFunction(n);
+						(*it)->render();
+						n++;
+						++it;
+					}
+					while (it != objectList.end() - nLightsources) {
+						(*it)->render();
+						++it;
+					}
+					/*
+					// Lightsources - remember to send as unifor
+					while (it != objectList.end()) {
 						MVstack.push();
-							translateVector[0] = 0.0f;
-							translateVector[1] = -eyeHeight;
+							MVstack.translate((*it)->getPosition());
+							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							(*it)->render();
+						MVstack.pop();
+						++it;
+					}
+					*/
+					MVstack.push();
+						translateVector[0] = 0.0f;
+						translateVector[1] = -eyeHeight;
+						translateVector[2] = 0.0f;
+						MVstack.translate(translateVector);
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glUniform4fv(locationLP, 1, LP);
+						glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
+						ground.render();
+					MVstack.pop();
+					//TRACKINGRANGE
+					MVstack.push();
+						MVstack.translate(board.getPosition());
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
+						//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						//glLineWidth(5.0f);
+						board.render();
+						//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					MVstack.pop();
+
+					glBindTexture(GL_TEXTURE_2D, 0);
+					//RENDER MESH -----------------------------------------------------------------------
+					glUseProgram(meshShader.programID);
+					glUniformMatrix4fv(locationMeshP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
+
+					MVstack.push();
+						MVstack.translate(mTest->getPosition());
+						MVstack.multiply(mTest->getOrientation());
+						glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+						//cout << lPosTemp[0] << " " << lPosTemp[1] << " " << lPosTemp[2] << " " << lPosTemp[3] << endl;
+						glUniform4fv(locationMeshLP, 1, LP);
+						//lPosTemp[0] = LP.x;
+						//lPosTemp[1] = LP.y;
+						//lPosTemp[2] = LP.z;
+						glUniform4fv(locationMeshLP2, 1, lPosTemp);
+
+						if (lines) {
+							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+							mTest->render();
+							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						}
+						else
+							mTest->render();
+					MVstack.pop();
+						
+					glUseProgram(phongShader.programID);
+					glUniformMatrix4fv(locationP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
+					//RENDER WAND---------------------------------------------------------------------------
+					MVstack.push();
+						MVstack.translate(wand->getWandPosition());
+						MVstack.rotZ(3.141592f / 2.f);
+						MVstack.multiply(wand->getWandOrientation());
+
+						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+					//	boxPoint.render();
+
+						MVstack.push();
+							translateVector[0] = -0.1f;
+							translateVector[1] = 0.0f;
 							translateVector[2] = 0.0f;
 							MVstack.translate(translateVector);
 							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-							glUniform4fv(locationLP, 1, LP);
-							glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
-							ground.render();
+							glBindTexture(GL_TEXTURE_2D, hexTex.getTextureID());
+							boxWand.render();
 						MVstack.pop();
-						//TRACKINGRANGE
-						MVstack.push();
-							MVstack.translate(box.getPosition());
-							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-							glBindTexture(GL_TEXTURE_2D, groundTex.getTextureID());
-							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-							glLineWidth(5.0f);
-							box.render();
-							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						MVstack.pop();
-
-						glBindTexture(GL_TEXTURE_2D, 0);
-						//RENDER MESH -----------------------------------------------------------------------
-						glUseProgram(meshShader.programID);
-						glUniformMatrix4fv(locationMeshP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
 
 						MVstack.push();
-							MVstack.translate(mTest->getPosition());
-							MVstack.multiply(mTest->getOrientation());
-							glUniformMatrix4fv(locationMeshMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-							//cout << lPosTemp[0] << " " << lPosTemp[1] << " " << lPosTemp[2] << " " << lPosTemp[3] << endl;
-							glUniform4fv(locationMeshLP, 1, LP);
-							//lPosTemp[0] = LP.x;
-							//lPosTemp[1] = LP.y;
-							//lPosTemp[2] = LP.z;
-							glUniform4fv(locationMeshLP2, 1, lPosTemp);
-
-							if (lines) {
-								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-								mTest->render();
-								glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-							}
-							else
-								mTest->render();
-						MVstack.pop();
-						
-						glUseProgram(phongShader.programID);
-						glUniformMatrix4fv(locationP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
-						//RENDER WAND---------------------------------------------------------------------------
-						MVstack.push();
-							MVstack.translate(wand->getWandPosition());
-							MVstack.multiply(wand->getWandOrientation());
-
-							glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						//	boxPoint.render();
-
-							MVstack.push();
-								translateVector[0] = -0.1f;
-								translateVector[1] = 0.0f;
-								translateVector[2] = 0.0f;
-								MVstack.translate(translateVector);
-								glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-								glBindTexture(GL_TEXTURE_2D, hexTex.getTextureID());
-							//	boxWand.render();
-							MVstack.pop();
-
-							MVstack.push();
-								MVstack.scale(wandRadius);
-								glUseProgram(sphereShader.programID);
-								glUniformMatrix4fv(locationWandP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
-								glUniformMatrix4fv(locationWandMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-								sphereWand.render();
-							MVstack.pop();	
-						MVstack.pop();
-						
-						glUseProgram(phongShader.programID);
+							MVstack.scale(wandRadius);
+							glUseProgram(sphereShader.programID);
+							glUniformMatrix4fv(locationWandP, 1, GL_FALSE, &(g_ProjectionMatrix[l_Eye].Transposed().M[0][0]));
+							glUniformMatrix4fv(locationWandMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
+							sphereWand.render();
+						MVstack.pop();	
 					MVstack.pop();
-				}
-				else //COREG SPHERES ---------------------------------------------------
-				{
-					MVstack.push();
-						translateVector[0] = regSpherePos[0 + regCounter];
-						translateVector[1] = regSpherePos[4 + regCounter];
-						translateVector[2] = regSpherePos[8 + regCounter];
-						MVstack.translate(translateVector);
-						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
-						glBindTexture(GL_TEXTURE_2D, coregister.getTextureID());
-						regSphere.render();
-					MVstack.pop();
-				}
+						
+					glUseProgram(phongShader.programID);
+				MVstack.pop();
 
 			MVstack.pop();			
 		}
@@ -907,7 +867,7 @@ void updatePanel(vector<Entity*> *objectList, int currentFunction, float MAX_HEX
     }
 }
 
-bool selectFunction(Passive3D* wand, vector<Entity*> *objectList, int& chooseFunction) {
+bool selectFunction(Wand* wand, vector<Entity*> *objectList, int& chooseFunction) {
 	vector<Entity*>::iterator it = objectList->begin();
 	hexBox *tempHex;
 	float vLength[3];
@@ -926,7 +886,7 @@ bool selectFunction(Passive3D* wand, vector<Entity*> *objectList, int& chooseFun
 	}
 	return false;
 }
-void moveMesh(Passive3D* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR) {
+void moveMesh(Wand* wand, Mesh* mTest, bool buttonPressed, float* changePos, float* differenceR) {
     // Save first wand rotation transform in wandR
     float* wandR = wand->getWandOrientation();
     float resultR[16];
@@ -956,7 +916,7 @@ void moveMesh(Passive3D* wand, Mesh* mTest, bool buttonPressed, float* changePos
     mTest->setPosition(resultPos);
     mTest->setOrientation(resultR);
 }
-void moveEntity(Passive3D* wand, vector<Entity*> *objectList, float wandRadius) {
+void moveEntity(Wand* wand, vector<Entity*> *objectList, float wandRadius) {
     hexBox *tempHex;
     vector<Entity*> selectedList;
     vector<Entity*>::iterator it;
