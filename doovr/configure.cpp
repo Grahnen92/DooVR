@@ -8,6 +8,8 @@
 #include "Shader.h"
 #include "hexBox.h"
 #include "Box.h"
+#include "Wand.h"
+#include "Vrpn.h"
 
 //#define GLFW_EXPOSE_NATIVE_WIN32
 //#define GLFW_EXPOSE_NATIVE_WGL
@@ -360,7 +362,7 @@ bool configure::coRegister() {
 
 	// Initilise VRPN connection with the Intersense wand
 	//Device* wand = new Device(true, true, false, "Mouse");
-	Device* wand = new Device(true, true, true, "Wand");
+	Vrpn* wand = new Vrpn(true, true, true, "Wand");
 
 	// TEXTURES ///////////////////////////////////////////////////////////////////////////////////////////////
 	glEnable(GL_TEXTURE_2D);
@@ -389,7 +391,7 @@ bool configure::coRegister() {
 	//ovrHmd_RecenterPose(hmd);
 	ovrHmd_DismissHSWDisplay(hmd_conf); // dismiss health safety warning
 
-	wand->setTransformMatrix(I); /////////////////////////////////////////////////////
+	//wand->setTransformMatrix(I) ; /////////////////////////////////////////////////////
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
@@ -419,7 +421,7 @@ bool configure::coRegister() {
 			// the first 4 clicks are to calibrate the wand
 			if (regCounter <= 3) {
 				for (int i = 0; i < 3; i++) { // Save wand position & rotation
-					pos[i * 4 + regCounter] = wand->getTrackerPosition()[i];
+					pos[i * 4 + regCounter] = wand->getWandPosition()[i];
 				}
 				pos[12 + regCounter] = 1.0f;
 			}
@@ -428,15 +430,15 @@ bool configure::coRegister() {
 				// (M1, M2, Mout) -> Mout = M2 * M1
 				linAlg::invertMatrix(pos, invPos);
 				linAlg::matrixMult(invPos, regSpherePos, transform);
-				wand->setTransformMatrix(transform);
+				wand->setWandTransform(transform);
 			}
 			// fourth sets eye height
 			else if (regCounter == 4) {
-				eye = wand->getTrackerPosition()[1];
+				eye = wand->getWandPosition()[1];
 			}
 			// fifth sets Floor position
 			else if (regCounter == 5) {
-				floor = wand->getTrackerPosition()[1];
+				floor = wand->getWandPosition()[1];
 			}
 
 			regCounter++;
@@ -451,9 +453,9 @@ bool configure::coRegister() {
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Save position of tracker from last frame to get deltaPos
-		lastPos[0] = wand->getTrackerPosition()[0];
-		lastPos[1] = wand->getTrackerPosition()[1];
-		lastPos[2] = wand->getTrackerPosition()[2];
+		lastPos[0] = wand->getWandPosition()[0];
+		lastPos[1] = wand->getWandPosition()[1];
+		lastPos[2] = wand->getWandPosition()[2];
 
 		// Begin the frame...
 		ovrHmd_BeginFrame(hmd_conf, l_FrameIndex);
@@ -520,8 +522,8 @@ bool configure::coRegister() {
 					glBindTexture(GL_TEXTURE_2D, 0);
 					//RENDER WAND---------------------------------------------------------------------------
 					MVstack.push();
-						MVstack.translate(wand->getTrackerPosition());
-						MVstack.multiply(wand->getTrackerRotation());
+						MVstack.translate(wand->getWandPosition());
+						MVstack.multiply(wand->getWandOrientation());
 
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
 						boxPoint.render();

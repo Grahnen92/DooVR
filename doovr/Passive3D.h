@@ -31,6 +31,8 @@ public:
 	//! Set the rotation matrix for the device to a variable
 	virtual void setWandOrientation(double* o);
 
+	virtual void setWandTransform(float* T);
+
 
 	void wand3dCallback(wand3d::WandData data);
 

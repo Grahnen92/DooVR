@@ -5,11 +5,9 @@ using namespace std;
 
 
 Texture::Texture(){
-	cout << "Sleeping.." << endl; // empty constructor
 }
 
 Texture::~Texture() {
-	cout << "Texture died." << endl;
 }
 
 Texture::Texture(char* filepath) {

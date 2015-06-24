@@ -41,6 +41,8 @@ public:
 	//! Set the rotation matrix for the device to a variable
 	virtual void setWandOrientation(double* o);
 
+	virtual void setWandTransform(float* T);
+
 	//! Set button state to a variable
 	void setButtonState(bool b);
 	//! Set button number to a variable

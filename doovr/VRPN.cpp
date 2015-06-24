@@ -124,6 +124,11 @@ void Vrpn::setWandOrientation(double* o) {
 	o[10] = temp;
 	std::copy(o, o + 16, wandOrientation);
 }
+
+void Vrpn::setWandTransform(float* T) {
+	std::copy(T, T + 16, transformMatrix);
+}
+
 void Vrpn::setAnalogPosition(float* p) {
 	analogPos[0] = p[0];
 	analogPos[1] = p[1];
