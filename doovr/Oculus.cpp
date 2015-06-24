@@ -422,7 +422,6 @@ int Oculus::runOvr() {
 	//Passive3D* wand = new Passive3D();
 
 	// read calibration from file and set the transform
-	//wand->setWandTransform(I);
 	readCalibration(wand, eyeHeight);
 	
 
@@ -759,7 +758,7 @@ int Oculus::runOvr() {
 					//RENDER WAND---------------------------------------------------------------------------
 					MVstack.push();
 						MVstack.translate(wand->getWandPosition());
-						MVstack.rotZ(3.141592f / 2.f);
+						//MVstack.rotZ(3.141592f / 2.f);
 						MVstack.multiply(wand->getWandOrientation());
 
 						glUniformMatrix4fv(locationMV, 1, GL_FALSE, MVstack.getCurrentMatrix());
@@ -979,7 +978,7 @@ void readCalibration(Vrpn* wand, float& eyeHeight){
 	string line;
 	float value;
 	int i = 0;
-	float transform[16] = {0.0f};
+	float transform[16] = { 0.0f };
 
 	ifstream wandCalibration("wandCalibration.ini");
 	if (wandCalibration.is_open()) {

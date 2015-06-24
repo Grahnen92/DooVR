@@ -70,12 +70,14 @@ int main() {
 
 	int runSuccess = 0;
 	
-	cin >> DeviceType;
-
-	if (DeviceType == 'C')
-		runSuccess = configure::coRegister();
-	else if (DeviceType == 'O')
-		runSuccess = Oculus::runOvr();
+	
+	while (runSuccess == 0) {
+		cin >> DeviceType;
+		if (DeviceType == 'C')
+			runSuccess = configure::coRegister();
+		else if (DeviceType == 'O')
+			runSuccess = Oculus::runOvr();
+	}
 	
 	return runSuccess;
 }

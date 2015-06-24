@@ -65,7 +65,6 @@ void Passive3D::setWandOrientation(double* o) {
 	std::copy(o, o + 16, wandOrientation);
 }
 
-void Passive3D::setWandTransform(float* T)
-{
-	std::copy(T, T + 16, transformMatrix);
+void Passive3D::setWandTransform(float* T) {
+	std::copy(T, T + 16, wandTransform);
 }
