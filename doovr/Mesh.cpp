@@ -12,12 +12,16 @@ Mesh::Mesh(float rad) {
 	triangle tempT;
 	vertex tempV;
 	halfEdge* tempE1;
+	bool success = true;
 
-	float tempP1[3]; float tempP2[3]; float tempVec[3];
+	float tempP1[3]; float tempP2[3] = {0.0f, 0.0f, 0.0f}; float tempVec[3];
 	int tempSize = 0;
+	float testLength = 0.0f;
 
 	vertexArray.reserve(1000000);
 	indexArray.reserve(1000000);
+	vector<int> changedVertices;
+	changedVertices.reserve(10000);
 
 	vertexEPtr.reserve(1000000);
 	triEPtr.reserve(1000000);
@@ -54,24 +58,24 @@ Mesh::Mesh(float rad) {
 	
 	// place vertecies
 	// Y 0
-	tempV.x = 0.0f;	tempV.y = rad;	tempV.z = 0.0f; 	tempV.nx = 0.0f;	tempV.ny = rad;	tempV.nz = 0.0f;
+	tempV.x = 0.0f;	tempV.y = MAX_LENGTH / 2.0f;	tempV.z = 0.0f; 	tempV.nx = 0.0f;	tempV.ny = MAX_LENGTH / 2.0f;	tempV.nz = 0.0f;
 	vertexArray.push_back(tempV);
 
-	tempV.x = 0.0f;	tempV.y = -rad;	tempV.z = 0.0f; 	tempV.nx = 0.0f;	tempV.ny = -rad;	tempV.nz = 0.0f;
+	tempV.x = 0.0f;	tempV.y = -MAX_LENGTH / 2.0f;	tempV.z = 0.0f; 	tempV.nx = 0.0f;	tempV.ny = -MAX_LENGTH / 2.0f;	tempV.nz = 0.0f;
 	vertexArray.push_back(tempV);
 
 	// X 2
-	tempV.x = rad;	tempV.y = 0.0f;	tempV.z = 0.0f; 	tempV.nx = rad;	tempV.ny = 0.0f;	tempV.nz = 0.0f;
+	tempV.x = MAX_LENGTH / 2.0f;	tempV.y = 0.0f;	tempV.z = 0.0f; 	tempV.nx = MAX_LENGTH / 2.0f;	tempV.ny = 0.0f;	tempV.nz = 0.0f;
 	vertexArray.push_back(tempV);
 
-	tempV.x = -rad;	tempV.y = 0.0f;	tempV.z = 0.0f; 	tempV.nx = -rad;	tempV.ny = 0.0f;	tempV.nz = 0.0f;
+	tempV.x = -MAX_LENGTH / 2.0f;	tempV.y = 0.0f;	tempV.z = 0.0f; 	tempV.nx = -MAX_LENGTH / 2.0f;	tempV.ny = 0.0f;	tempV.nz = 0.0f;
 	vertexArray.push_back(tempV);
 
 	// Z 4
-	tempV.x = 0.0f;	tempV.y = 0.0f;	tempV.z = -rad; 	tempV.nx = 0.0f;	tempV.ny = 0.0f;	tempV.nz = -rad;
+	tempV.x = 0.0f;	tempV.y = 0.0f;	tempV.z = -MAX_LENGTH / 2.0f; 	tempV.nx = 0.0f;	tempV.ny = 0.0f;	tempV.nz = -MAX_LENGTH / 2.0f;
 	vertexArray.push_back(tempV);
 
-	tempV.x = 0.0f;	tempV.y = 0.0f;	tempV.z = rad; 	tempV.nx = 0.0f;	tempV.ny = 0.0f;	tempV.nz = rad;
+	tempV.x = 0.0f;	tempV.y = 0.0f;	tempV.z = MAX_LENGTH / 2.0f; 	tempV.nx = 0.0f;	tempV.ny = 0.0f;	tempV.nz = MAX_LENGTH / 2.0f;
 	vertexArray.push_back(tempV);
 
 	// bind triangles
@@ -219,95 +223,41 @@ Mesh::Mesh(float rad) {
 
 	// create sphere by subdivision
 	//////
-	for (int i = 0; i < 10; i++)
+	while (success)
 	{
-		tempSize = vertexArray.size();
-		for (int j = 0; j < tempSize; j++)
+		success = false;
+		tempSize = vertexArray.size() / 2;
+		tempP2[0] = vertexArray[tempSize].x;
+		tempP2[1] = vertexArray[tempSize].y;
+		tempP2[2] = vertexArray[tempSize].z;
+
+		for (int j = 0; j < vertexArray.size(); j++)
 		{
-			if (vertexEPtr[j] == nullptr)
-				continue;
-
-			tempE1 = vertexEPtr[j];
-			
-			tempP1[0] = vertexArray[j].x;
-			tempP1[1] = vertexArray[j].y;
-			tempP1[2] = vertexArray[j].z;
-
-			tempP2[0] = vertexArray[tempE1->vertex].x;
-			tempP2[1] = vertexArray[tempE1->vertex].y;
-			tempP2[2] = vertexArray[tempE1->vertex].z;
-
-			linAlg::calculateVec(tempVec, tempP2, tempP1);
-
-			if (!(i % 2))
+			tempP1[0] = vertexArray[j].x; tempP1[1] = vertexArray[j].y; tempP1[2] = vertexArray[j].z;
+			testLength = linAlg::vecLength(tempP1);
+			if (vertexEPtr[j] != nullptr && testLength < rad)
 			{
-				if (!tempE1->needsUpdate)
-				{
-					if (linAlg::vecLength(tempVec) > MAX_LENGTH){
-						edgeSubdivide(tempP1, tempVec, tempE1, true, rad);
-					}
-					else if (linAlg::vecLength(tempVec) < MIN_LENGTH) {
-						//edgeCollapse(tempP1, tempVec, tempE1);
-						//tempE1 = tempE1->sibling->nextEdge->nextEdge;
-					}
+				success = true;
+				linAlg::normVec(tempP1);
+
+				vertexArray[j].x += tempP1[0] * MIN_LENGTH;
+				vertexArray[j].y += tempP1[1] * MIN_LENGTH;
+				vertexArray[j].z += tempP1[2] * MIN_LENGTH;
+
+				vertexEPtr[j]->needsUpdate = true;
+				tempE1 = vertexEPtr[j]->nextEdge->sibling;
+				while (tempE1 != vertexEPtr[j]) {
+					tempE1->needsUpdate = true;
+					tempE1 = tempE1->nextEdge->sibling;
 				}
-			}
-			else
-			{
-				if (tempE1->needsUpdate)
-				{
-					if (linAlg::vecLength(tempVec) > MAX_LENGTH)
-						edgeSubdivide(tempP1, tempVec, tempE1, false, rad);
-					else if (linAlg::vecLength(tempVec) < MIN_LENGTH) {
-						//edgeCollapse(tempP1, tempVec, tempE1);
-						//tempE1 = tempE1->sibling->nextEdge->nextEdge;
-					}
-				}
-			}
 
-			tempE1 = tempE1->nextEdge->sibling;
-			while (tempE1 != vertexEPtr[j])
-			{
-
-				tempP1[0] = vertexArray[tempE1->sibling->vertex].x;
-				tempP1[1] = vertexArray[tempE1->sibling->vertex].y;
-				tempP1[2] = vertexArray[tempE1->sibling->vertex].z;
-
-				tempP2[0] = vertexArray[tempE1->vertex].x;
-				tempP2[1] = vertexArray[tempE1->vertex].y;
-				tempP2[2] = vertexArray[tempE1->vertex].z;
-
-				linAlg::calculateVec(tempVec, tempP2, tempP1);
-
-				if (!(i % 2))
-				{
-					if (!tempE1->needsUpdate)
-					{
-						if (linAlg::vecLength(tempVec) > MAX_LENGTH) {
-							edgeSubdivide(tempP1, tempVec, tempE1, true,rad);
-						}
-						else if (linAlg::vecLength(tempVec) < MIN_LENGTH) {
-							//edgeCollapse(tempP1, tempVec, tempE1);
-							//tempE1 = tempE1->sibling->nextEdge->nextEdge;
-						}			
-					}
-				}
-				else
-				{
-					if (tempE1->needsUpdate)
-					{
-						if (linAlg::vecLength(tempVec) > MAX_LENGTH) {
-							edgeSubdivide(tempP1, tempVec, tempE1, false,rad);
-						}
-						else if (linAlg::vecLength(tempVec) < MIN_LENGTH) {
-							//edgeCollapse(tempP1, tempVec, tempE1);
-							//tempE1 = tempE1->sibling->nextEdge->nextEdge;
-						}
-					}
-				}
-				tempE1 = tempE1->nextEdge->sibling;
+				changedVertices.push_back(j);
 			}
 		}
+		
+		updateArea(&changedVertices[0], changedVertices.size());
+		
+
 	}
 	
 	vector<triangle> tempList;
@@ -436,23 +386,24 @@ void Mesh::sculpt(float* p, float lp[3], float rad, bool but) {
 
 			//normVec(tempVec1);
 			mLength = 0.002f*(0.05f / (mLength + 0.05f));
+			linAlg::normVec(tempVec1);
 
 			tempVec2[0] = vertexArray[i].nx;
 			tempVec2[1] = vertexArray[i].ny;
 			tempVec2[2] = vertexArray[i].nz;
 
 			if (linAlg::dotProd(tempVec1, tempVec2) > 0){
-				vertexArray[i].x += vertexArray[i].nx * mLength;
-				vertexArray[i].y += vertexArray[i].ny * mLength;
-				vertexArray[i].z += vertexArray[i].nz * mLength;
+				vertexArray[i].x = newWPoint[0] + tempVec1[0]*rad;
+				vertexArray[i].y = newWPoint[1] + tempVec1[1] * rad;
+				vertexArray[i].z = newWPoint[2] + tempVec1[2] * rad;
 				//vertexArray[i].x = vertexArray[i].x + vertexArray[i].nx * (rad - mLength);
 				//vertexArray[i].y = vertexArray[i].y + vertexArray[i].ny * (rad - mLength);
 				//vertexArray[i].z = vertexArray[i].z + vertexArray[i].nz * (rad - mLength);
 			}
 			else{
-				vertexArray[i].x -= vertexArray[i].nx * mLength;
-				vertexArray[i].y -= vertexArray[i].ny * mLength;
-				vertexArray[i].z -= vertexArray[i].nz * mLength;
+				vertexArray[i].x = newWPoint[0] + tempVec1[0] * rad;
+				vertexArray[i].y = newWPoint[1] + tempVec1[1] * rad;
+				vertexArray[i].z = newWPoint[2] + tempVec1[2] * rad;
 			}
 
 			
@@ -877,9 +828,9 @@ void Mesh::edgeCollapse(float* vPoint, float* vec, halfEdge* &edge) {
 	bool edgeRemoved = false;
 
 	// move currVert
-	vertexArray[currVert].x = vPoint[0] + (vec[0] / 2.0f);
-	vertexArray[currVert].y = vPoint[1] + (vec[1] / 2.0f);
-	vertexArray[currVert].z = vPoint[2] + (vec[2] / 2.0f);
+	//[currVert].x = vPoint[0] + (vec[0] / 2.0f);
+	//vertexArray[currVert].y = vPoint[1] + (vec[1] / 2.0f);
+	//vertexArray[currVert].z = vPoint[2] + (vec[2] / 2.0f);
 
 	// rebind edges that point to nVert
 	tempE = edge->nextEdge->nextEdge->sibling;
