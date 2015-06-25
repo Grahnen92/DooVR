@@ -31,8 +31,11 @@
 * - Create a project in Visual studio 2013 and add the files in DooVR
 * - Link the required libraries in the project properties
 * - Build and run the project
+* 
+* - To run the wand configuration type "C" in the console
+* - To run the application using a Oculus display type "O" in the console
 *
-* \subsection dependencies_sec Dependencies
+* \section dependencies_sec Dependencies
 *	- OpenGL
 *	- GLFW
 *	- GLEW
@@ -70,12 +73,14 @@ int main() {
 
 	int runSuccess = 0;
 	
-	cin >> DeviceType;
-
-	if (DeviceType == 'C')
-		runSuccess = configure::coRegister();
-	else if (DeviceType == 'O')
-		runSuccess = Oculus::runOvr();
+	
+	while (runSuccess == 0) {
+		cin >> DeviceType;
+		if (DeviceType == 'C')
+			runSuccess = configure::coRegister();
+		else if (DeviceType == 'O')
+			runSuccess = Oculus::runOvr();
+	}
 	
 	return runSuccess;
 }
